@@ -1,8 +1,27 @@
+#include "Bit.h"
 #include <iostream>
+class Sandbox : public BitEngine::Application
 
-
-int main()
 {
-    std::cout << "Hiiiii";
-    return 0;
+public:
+    Sandbox()
+    {
+    }
+    ~Sandbox()
+    {
+
+    }
+
+    virtual void Run() override
+    {
+        std::cout << "SandBox....";
+        while(true);
+    }
+    
+};
+
+
+BitEngine::Application* BitEngine::CreateApplication()
+{
+    return new Sandbox();
 }

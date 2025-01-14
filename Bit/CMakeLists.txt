@@ -4,6 +4,7 @@ target_sources(BitEngine
     PRIVATE
         src/Bit/Application.cpp
         src/Bit/Log.cpp
+        src/Bit/EntryPoint.cpp
 
 )
 target_include_directories(BitEngine
