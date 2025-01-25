@@ -3,6 +3,7 @@ find_package(OpenGL REQUIRED)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "Disable Wayland support")
 
 add_subdirectory(vendor/GLFW)
+add_subdirectory(vendor/glad)
 include_directories(vendor/GLFW/include)
 
 
@@ -18,5 +19,6 @@ target_sources(BitEngine
 target_include_directories(BitEngine
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    vendor/glad/include
 )
-target_link_libraries(BitEngine glfw ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
