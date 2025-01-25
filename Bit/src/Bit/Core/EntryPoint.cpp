@@ -1,4 +1,4 @@
-#include "Bit/Application.h"
+#include "Bit/Core/Application.h"
 extern BitEngine::Application* BitEngine::CreateApplication();
 
 int main(int argc, char** argv)

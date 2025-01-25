@@ -1,3 +1,3 @@
 #pragma  once 
-#include "Bit/Application.h"
-#include "Bit/Log.h"
+#include "Bit/Core/Application.h"
+#include "Bit/Core/Log.h"
