@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.30)
 add_executable(Sandbox)
 target_sources(Sandbox
     PRIVATE

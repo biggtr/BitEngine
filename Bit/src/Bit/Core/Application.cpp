@@ -20,6 +20,10 @@ namespace BitEngine
 
 
 
+    Application::~Application()
+    {
+        
+    }
 
     
 }
