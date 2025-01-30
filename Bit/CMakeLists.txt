@@ -13,6 +13,8 @@ target_sources(BitEngine
         src/Bit/Core/Application.cpp
         src/Bit/Core/Log.cpp
         src/Bit/Core/EntryPoint.cpp
+        src/Bit/Core/Window.cpp
+        src/Bit/Core/Renderer/GraphicsContext.cpp
 
 )
 

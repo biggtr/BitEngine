@@ -13,6 +13,8 @@ public:
     ~Window();
 
     bool ShouldClose();
+    void SwapBuffers();
+    GLFWwindow* GetGLFWWindow();
 };
 
 }
