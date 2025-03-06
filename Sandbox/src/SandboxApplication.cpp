@@ -15,7 +15,6 @@ public:
     virtual void Run() override
     {
         std::cout << "SandBox....";
-        while(true);
     }
     
 };

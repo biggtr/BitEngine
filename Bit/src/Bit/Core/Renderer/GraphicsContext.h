@@ -7,11 +7,8 @@ class GraphicsContext
   
 private:
      
-    
-
 public:
     GraphicsContext(GLFWwindow* window);
-    void Init();
 
 };
 }

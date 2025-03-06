@@ -11,5 +11,5 @@ namespace BitEngine
 
         virtual void Run();
    };
-    Application* CreateApplication();
+   Application* CreateApplication();
 }
