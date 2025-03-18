@@ -39,6 +39,7 @@ Window::~Window()
 {
     glfwDestroyWindow(m_Window);
     glfwTerminate();
+    delete m_Context;
 }
 
 bool Window::ShouldClose()
@@ -64,4 +65,6 @@ void Window::ProcessInput()
 
 
 }
+
+
 

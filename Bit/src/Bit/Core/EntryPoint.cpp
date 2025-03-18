@@ -1,6 +1,5 @@
 #include "Bit/Core/Application.h"
-#include "GLFW/glfw3.h"
-#include "./Window.h"
+#include "Window.h"
 extern BitEngine::Application* BitEngine::CreateApplication();
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -8,6 +7,21 @@ const unsigned int SCR_HEIGHT = 600;
 int main()
 {
 
+    const float vertices[] = 
+    {
+        -0.5,   0.5,   0.0, 1.0, 
+        -0.5,  -0.5,   0.0, 0.0, 
+        0.5,  -0.5,   1.0, 0.0, 
+        0.5,   0.5,   1.0, 1.0, 
+    };
+    const float indices[] = 
+    {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    
+    
     BitEngine::Window  window{};
     window.Create(SCR_WIDTH, SCR_HEIGHT,(char*)"Hello");
     

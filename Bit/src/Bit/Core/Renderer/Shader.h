@@ -1,8 +1,0 @@
-namespace BitEngine
-{
-
-class Shader
-{
-};
-
-}
