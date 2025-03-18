@@ -6,9 +6,11 @@ class GraphicsContext
 {
   
 private:
+    GLFWwindow* m_Window;
      
 public:
-    GraphicsContext(GLFWwindow* window);
+    GraphicsContext(){};
+    void Create(GLFWwindow* window);
 
 };
 }

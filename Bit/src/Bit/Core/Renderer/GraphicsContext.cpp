@@ -5,9 +5,10 @@
 namespace BitEngine
 {
 
-GraphicsContext::GraphicsContext(GLFWwindow* window)
+void GraphicsContext::Create(GLFWwindow* window)
 {
-    glfwMakeContextCurrent(window);
+    m_Window = window;
+    glfwMakeContextCurrent(m_Window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cerr << "Failed to initialize GLAD" << std::endl;

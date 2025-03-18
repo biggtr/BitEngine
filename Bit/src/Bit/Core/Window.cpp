@@ -5,7 +5,12 @@
 namespace BitEngine
 {
 
-Window::Window(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
+    Window::Window()
+    {
+        m_Context = new GraphicsContext();
+    }
+
+void Window::Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -18,33 +23,45 @@ Window::Window(unsigned int windowWidth, unsigned int windowHeight, char* window
 
     // glfw window creation
     // --------------------
-    m_window = glfwCreateWindow(windowWidth, windowHeight, windowName, NULL, NULL);
-    if (m_window == NULL)
+    m_Window = glfwCreateWindow(windowWidth, windowHeight, windowName, NULL, NULL);
+    if (m_Window == NULL)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
     }
+    m_Context->Create(m_Window);
+    glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height){
+                glViewport(0, 0, width, height);
+            });
 }
 
 Window::~Window()
 {
-    glfwDestroyWindow(m_window);
+    glfwDestroyWindow(m_Window);
     glfwTerminate();
 }
 
 bool Window::ShouldClose()
 {
-    return glfwWindowShouldClose(m_window);
+    return glfwWindowShouldClose(m_Window);
 }
 
 void Window::SwapBuffers()
 {
-    glfwSwapBuffers(m_window);
+    glfwSwapBuffers(m_Window);
 }
 
 GLFWwindow* Window::GetGLFWWindow()
 {
-    return m_window;
+    return m_Window;
 } 
 
+void Window::ProcessInput()
+{
+    if(glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(m_Window, true);
 }
+
+
+}
+

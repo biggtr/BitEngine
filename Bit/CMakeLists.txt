@@ -21,6 +21,7 @@ target_sources(BitEngine
 target_include_directories(BitEngine
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    vendor/glad/include
+    vendor/glad/include        
+    vendor/GLFW/include
 )
 target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
