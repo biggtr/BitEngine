@@ -10,7 +10,7 @@ namespace BitEngine
         NONE = 0, FLOAT, FLOAT2, FLOAT3, FLOAT4, MAT2, MAT3, MAT4, INT2, INT3, INT4, BOOL,
     };
 
-    static uint32_t GetShaderDataTypeSize(SHADER_DATA_TYPE type)
+    static uint32_t GetShaderDataTypeSize(SHADER_DATA_TYPE type) 
     {
         switch (type)
         {
@@ -44,6 +44,25 @@ struct BufferElement
     {
 
     }
+    uint32_t GetComponentCount() const 
+    {
+        switch (Type)
+        {
+            case SHADER_DATA_TYPE::FLOAT:   return 1;
+            case SHADER_DATA_TYPE::FLOAT2:  return 2;
+            case SHADER_DATA_TYPE::FLOAT3:  return 3;
+            case SHADER_DATA_TYPE::FLOAT4:  return 4;
+            case SHADER_DATA_TYPE::MAT2:    return 4;
+            case SHADER_DATA_TYPE::MAT3:    return 3;
+            case SHADER_DATA_TYPE::MAT4:    return 4;
+            case SHADER_DATA_TYPE::INT2:    return 2;
+            case SHADER_DATA_TYPE::INT3:    return 3;
+            case SHADER_DATA_TYPE::INT4:    return 4;
+            case SHADER_DATA_TYPE::BOOL:    return 1;
+            case SHADER_DATA_TYPE::NONE:    return 0;
+        }
+        return 0;
+    }
 };
 
 class BufferLayout
@@ -52,9 +71,9 @@ private:
     std::vector<BufferElement> m_BufferElements;
     uint32_t m_Stride;
 public:
-    std::vector<BufferElement> GetBufferElements() { return m_BufferElements;}
+    const std::vector<BufferElement>& GetBufferElements() const { return m_BufferElements;}
     void SetBufferElements(std::vector<BufferElement> bufferElements) { m_BufferElements = bufferElements;}
-    unsigned int GetStride(){ return m_Stride;}
+    unsigned int GetStride() const { return m_Stride;}
     void CalculateOffsetAndStride()
     {
         size_t offset = 0;
@@ -62,7 +81,7 @@ public:
         for (auto& element : m_BufferElements)
         {
             element.Offset = offset;
-            offset = element.Size; 
+            offset += element.Size; 
             m_Stride += element.Size;
         }
 
@@ -81,7 +100,7 @@ public:
     void Bind();
     void UnBind();
     void SetBufferLayout(BufferLayout& bufferLayout) { m_BufferLayout = bufferLayout;}
-    const BufferLayout& GetBufferLayout() { return m_BufferLayout;}
+    const BufferLayout& GetBufferLayout() const { return m_BufferLayout;}
 
 private: 
 

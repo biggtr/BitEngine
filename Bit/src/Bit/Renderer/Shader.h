@@ -13,7 +13,7 @@ private:
     unsigned int m_ID;
     
 public:
-    void Create(std::string path);
+    Shader(std::string path);
 
     void Bind();
 

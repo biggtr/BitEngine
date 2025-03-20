@@ -12,7 +12,7 @@ namespace BitEngine
     {
         NONE, VERTEX, FRAGMENT
     };
-    void Shader::Create(const std::string path)
+    Shader::Shader(const std::string path)
     {
         ShaderSources sources = ParseShader(path);
 
