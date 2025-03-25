@@ -1,6 +1,5 @@
 #include "VertexArray.h"
 #include "glad/glad.h"
-#include <gl/gl.h>
 
 namespace BitEngine 
 {
