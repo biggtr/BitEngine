@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.30)
 add_executable(Sandbox)
 target_sources(Sandbox
     PRIVATE
-    src/SandboxApplication.cpp
+    Src/SandboxApplication.cpp
 )
 target_include_directories(Sandbox
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
 target_link_libraries(Sandbox PRIVATE BitEngine)
