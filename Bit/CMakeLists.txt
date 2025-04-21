@@ -26,4 +26,8 @@ target_include_directories(BitEngine
     Vendor/glad/include        
     Vendor/GLFW/include
 )
+target_precompile_headers(BitEngine PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/Bitpch.h
+
+)
 target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)

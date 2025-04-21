@@ -5,7 +5,7 @@ target_sources(Sandbox
     Src/SandboxApplication.cpp
 )
 target_include_directories(Sandbox
-    PRIVATE
+   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src
 )
 target_link_libraries(Sandbox PRIVATE BitEngine)
