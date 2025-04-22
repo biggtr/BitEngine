@@ -19,34 +19,31 @@ Logger& Logger::GetClientLogger()
 {
     return *s_ClientLogger;
 }
-void Logger::Log(LOG_TYPE logType, const std::string msg, size_t line, size_t column)
-{
-    m_Messages.push_back({m_LoggerType, logType, msg, line, column});
-}
 
 void Logger::Error(const std::string& msg, size_t line, size_t column)
 {
-    Log(LOG_TYPE::ERROR, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::ERROR, msg, line, column);
+    PrintMessage(logMessage);
 }
 void Logger::Warning(const std::string& msg, size_t line, size_t column)
 {
-    Log(LOG_TYPE::WARNING, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::WARNING, msg, line, column);
+    PrintMessage(logMessage);
 }
 void Logger::Info(const std::string& msg, size_t line, size_t column)
 {
-    Log(LOG_TYPE::INFO, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::INFO, msg, line, column);
+    PrintMessage(logMessage);
 }
 
-bool Logger::HasErrors() const
+// bool Logger::HasErrors() const
+// {
+//     return std::any_of(m_Messages.begin(),m_Messages.end(),
+//             [](const auto& msg) { return msg.LogType == LOG_TYPE::ERROR; }
+//             );
+// }
+void Logger::PrintMessage(LogMessage msg) 
 {
-    return std::any_of(m_Messages.begin(),m_Messages.end(),
-            [](const auto& msg) { return msg.LogType == LOG_TYPE::ERROR; }
-            );
-}
-void Logger::PrintMessages() 
-{
-    for(auto& msg : m_Messages)
-    {
         if(!msg.Handled)
         {
             std::cerr << "["
@@ -57,12 +54,7 @@ void Logger::PrintMessages()
                 << ": " << msg.Message << "\n";
         }
         msg.Handled = true;
-    }
 
-}
-void Logger::Clear()
-{
-    m_Messages.clear();
 }
 Logger::~Logger()
 {
