@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 add_executable(Sandbox)
 target_sources(Sandbox
     PRIVATE
-    Src/SandboxApplication.cpp
+   Src/Sandbox.cpp
 )
 target_include_directories(Sandbox
    PRIVATE
