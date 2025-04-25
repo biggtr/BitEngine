@@ -18,7 +18,8 @@ int main()
     app->InitializeEngineSystems(GameEngine);
     app->Run();
     delete app;
-    BIT_CORE_INFO("Im Gonna disappear for now..!", __LINE__, 4)
+    BIT_CORE_INFO("Im Gonna disappear for now..!", __LINE__, 4);
+
     
     
     

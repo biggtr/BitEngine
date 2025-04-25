@@ -24,7 +24,7 @@ public:
 
     void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
     void ProcessInput();
-    void SwapBuffers();
+    void OnUpdate();
             
 };
 

@@ -4,7 +4,6 @@
 
 namespace BitEngine
 {
-
     
 Application::Application()
 {
@@ -54,9 +53,8 @@ void Application::Run()
 
         OnRender();
 
-        m_EngineComponents->Window.SwapBuffers();
+        m_EngineComponents->Window.OnUpdate();
 
-        glfwPollEvents();
     }
 }
 
