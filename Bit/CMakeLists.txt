@@ -16,6 +16,11 @@ target_sources(BitEngine
     src/Bit/Core/EntryPoint.cpp
     src/Bit/Core/Window.cpp
     src/Bit/Renderer/GraphicsContext.cpp
+    src/Bit/Renderer/Texture.cpp
+    src/Bit/Renderer/Shader.cpp
+    src/Bit/Renderer/VertexArray.cpp
+    src/Bit/Renderer/Buffers.cpp
+    
 )
 
 target_include_directories(BitEngine
@@ -27,6 +32,7 @@ target_include_directories(BitEngine
 )
 target_precompile_headers(BitEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
-
 )
 target_link_libraries(BitEngine glfw glad ImageLoader ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
