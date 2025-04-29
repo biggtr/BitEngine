@@ -1,5 +1,4 @@
 #include <glad/glad.h>
-#include "../Core/Logger.h"
 #include "GraphicsContext.h"
 #include "GLFW/glfw3.h"
 #include <iostream>

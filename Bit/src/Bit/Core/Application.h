@@ -2,7 +2,6 @@
 
 #include "Bit/Core/Window.h"
 #include "Bit/Core/TimeStamp.h"
-
 namespace BitEngine
 {
 class Shader;
@@ -10,6 +9,7 @@ class Texture;
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
+class BufferLayout;
 struct EngineComponents
 {
     BitEngine::Window Window;
@@ -19,11 +19,18 @@ class Application
 {
 public:
     Application();
-    virtual ~Application() = default;
+    virtual ~Application();
     virtual void Run();
     void InitializeEngineSystems(EngineComponents* engineComponents);
 
     //Temporary data will be deleted 
+
+    VertexArray* VAO;
+    VertexBuffer* VBO;
+    IndexBuffer* IBO;
+    BufferLayout* bufferLayout;
+    Shader* shader;
+    Texture* texture;
 
     
 

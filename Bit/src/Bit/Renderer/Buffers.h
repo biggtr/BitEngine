@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Bitpch.h"
-#include <utility>
 
 namespace BitEngine
 
@@ -70,12 +69,14 @@ class BufferLayout
 {
 public:
 
-    BufferLayout()
+    BufferLayout(std::vector<BufferElement>&& bufferElements)
     {
+        // std::move cast lvalue bufferElements to temp rValue so that m_BufferElements can Accept it 
+        m_BufferElements = std::move(bufferElements);
         CalculateOffsetAndStride();
     }
     const std::vector<BufferElement>& GetBufferElements() const { return m_BufferElements;}
-    void SetBufferElements(const std::vector<BufferElement>&& bufferElements) { m_BufferElements = std::move(bufferElements);} //moves bufferElements to m_bufferElements no copying is done here 
+    // void SetBufferElements(std::vector<BufferElement>&& bufferElements) { m_BufferElements = std::move(bufferElements);} //moves bufferElements to m_bufferElements no copying is done here 
     unsigned int GetStride() const { return m_Stride;}
 
 private:
@@ -123,7 +124,7 @@ private:
 
 public:
     
-    IndexBuffer(float* vertices, unsigned int count);
+    IndexBuffer(float* indices, unsigned int count);
     void Bind();
     void UnBind();
     unsigned int GetCount(){ return m_Count;}

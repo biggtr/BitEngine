@@ -1,4 +1,5 @@
 #include "VertexArray.h"
+#include "Bit/Renderer/Buffers.h"
 #include "glad/glad.h"
 
 namespace BitEngine 
@@ -6,6 +7,20 @@ namespace BitEngine
 VertexArray::VertexArray()
 {
    glGenVertexArrays(1, &m_ID);
+}
+
+VertexArray::~VertexArray()
+{
+    for(auto buffer : m_VertexBuffers)
+    {
+        delete buffer;
+    }
+    m_VertexBuffers.clear();
+
+    if(m_IndexBuffer)
+    {
+        delete m_IndexBuffer;
+    }
 }
 
 void VertexArray::Bind()
@@ -86,4 +101,5 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
     m_VertexBuffers.push_back(vertexBuffer);
 
 }
+
 }

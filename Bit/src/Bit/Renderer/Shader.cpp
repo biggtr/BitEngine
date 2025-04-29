@@ -7,7 +7,7 @@ namespace BitEngine
 
 enum class SHADER_TYPE
 {
-    NONE, VERTEX, FRAGMENT
+    NONE, VERTEX, FRAGMENT 
 };
 Shader::Shader(const std::string path)
 {
@@ -54,6 +54,7 @@ unsigned int Shader::CompileShader(unsigned int shaderType,const std::string& sh
 {
     unsigned int shader = glCreateShader(shaderType);
     const char* source = shaderSource.c_str();
+    
     glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
 
@@ -79,27 +80,33 @@ ShaderSources Shader::ParseShader(const std::string path)
     std::string currentLine;
     while (std::getline(shaderFile, currentLine)) 
     {
-        if(currentLine == "#Vertex") 
+        if(currentLine.find("Vertex") != std::string::npos) 
         {
             currentShader = SHADER_TYPE::VERTEX;
+            shaderSources.VertexShaderSource.append("#version 330 core\n");
             continue;
         }
-        else if(currentLine == "#Fragment")
+        else if(currentLine.find("Fragment") != std::string::npos)
         {
             currentShader = SHADER_TYPE::FRAGMENT;
+            shaderSources.FragmentShaderSource.append("#version 330 core\n");
             continue;
         }
         switch (currentShader) 
         {
             case SHADER_TYPE::VERTEX:
                 shaderSources.VertexShaderSource += currentLine + '\n';
+                break;
             case SHADER_TYPE::FRAGMENT:
                 shaderSources.FragmentShaderSource += currentLine + '\n';
+                break;
             case SHADER_TYPE::NONE:
                 //Ignoring Lines before the shader tag
                 break;
         }
     }
+    BIT_CORE_INFO(shaderSources.VertexShaderSource);
+    BIT_CORE_INFO(shaderSources.FragmentShaderSource);
     return  shaderSources;
 }
 

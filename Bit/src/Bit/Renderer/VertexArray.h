@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Bit/Renderer/Buffers.h"
 
 namespace BitEngine
 {
 
+class VertexBuffer;
+class IndexBuffer;
 
 class VertexArray
 {

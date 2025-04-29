@@ -31,11 +31,11 @@ VertexBuffer::~VertexBuffer()
 // IndexBuffer 
 ////////////////////////////////////////////////////////////
 
-IndexBuffer::IndexBuffer(float* data, unsigned int count)
+IndexBuffer::IndexBuffer(float* indices, unsigned int count)
 {
     glGenBuffers(1, &m_ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,count * sizeof(unsigned int),data,  GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indices ,  GL_STATIC_DRAW);
 }
 void IndexBuffer::Bind()
 {

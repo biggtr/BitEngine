@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-
+class GraphicsContext;
 class Window
 {
 
