@@ -27,7 +27,7 @@ public:
     void AddVertexBuffer(VertexBuffer* vertexBuffer);
     void SetIndexBuffer(IndexBuffer* indexBuffer); 
 
-    const std::vector<VertexBuffer*>& GetVertexBuffer() const { return m_VertexBuffers; }
+    const std::vector<VertexBuffer*> GetVertexBuffer() const { return m_VertexBuffers; }
     const IndexBuffer* GetIndexBuffer() const { return m_IndexBuffer; };
     
 

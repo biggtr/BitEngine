@@ -1,10 +1,9 @@
 #include "Application.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Buffers.h"
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Renderer/VertexArray.h"
-#include <GL/gl.h>
-#include <GL/glext.h>
 
 namespace BitEngine
 {
@@ -30,15 +29,18 @@ void Application::InitializeEngineSystems(EngineComponents* engineComponents)
 }
 void Application::OnInit()
 {
-    //default logic goes before OnInit
-    float vertices[] = 
-    {
-            -0.5,   0.5, 0.0, 1.0, 
-            -0.5,  -0.5, 0.0, 0.0, 
-             0.5,  -0.5, 1.0, 0.0, 
-             0.5,   0.5, 1.0, 1.0, 
-    };
-    float indices[] = 
+     glViewport(0, 0, 
+        m_EngineComponents->Window.GetWidth(),
+        m_EngineComponents->Window.GetHeight()
+    );
+//default logic goes before OnInit
+    float vertices[] = {
+        -0.5f,  0.5f, 0.0f, 1.0f,  // Position (x,y), UV (u,v)
+        -0.5f, -0.5f, 0.0f, 0.0f,
+         0.5f, -0.5f, 1.0f, 0.0f,
+         0.5f,  0.5f, 1.0f, 1.0f
+    };    
+    unsigned int indices[] = 
     {
             0, 1, 2,
             0, 2, 3
@@ -53,8 +55,6 @@ void Application::OnInit()
         { SHADER_DATA_TYPE::FLOAT2, "a_TextureCoords"},
     });
     VBO->SetBufferLayout(bufferLayout);
-    VBO->Bind();
-    IBO->Bind();
     VAO->Bind();
     VAO->AddVertexBuffer(VBO);
     VAO->SetIndexBuffer(IBO);
@@ -62,12 +62,31 @@ void Application::OnInit()
     shader->Bind();
     texture = new Texture("assets/textures/Basic.bmp");
     texture->Bind(0);
+    BIT_CORE_INFO("Hello from application init..");
+
+    if(VAO->GetVertexBuffer()[0] != nullptr)
+    {
+        BIT_CORE_ERROR("VertexBuffer is not null");
+    }
+
+    if(VAO->GetIndexBuffer() != nullptr)
+    {
+
+        BIT_CORE_ERROR("IndexBuffer is not null");
+    }
+    for(auto element : bufferLayout->GetBufferElements())
+    {
+        std::cout << element.AttributeName << " " << element.Offset << " " << element.Size << " " <<  std::endl;
+    }
 
 }
 void Application::OnRender()
 {
     VAO->Bind();
-    glDrawElements(GL_TRIANGLES, IBO->GetCount(), GL_UNSIGNED_INT, nullptr);
+    shader->Bind();
+    const IndexBuffer* indexBuffer = VAO->GetIndexBuffer();
+    indexBuffer->Bind();
+    glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
 }
 void Application::OnUpdate(float deltaTime)
 {

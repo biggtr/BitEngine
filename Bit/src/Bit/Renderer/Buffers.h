@@ -124,10 +124,10 @@ private:
 
 public:
     
-    IndexBuffer(float* indices, unsigned int count);
-    void Bind();
-    void UnBind();
-    unsigned int GetCount(){ return m_Count;}
+    IndexBuffer(unsigned int * indices, unsigned int count);
+    void Bind() const;
+    void UnBind() const;
+    const unsigned int GetCount() const { return m_Count;}
 
 private: 
 

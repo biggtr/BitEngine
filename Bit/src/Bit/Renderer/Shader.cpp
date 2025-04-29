@@ -105,8 +105,6 @@ ShaderSources Shader::ParseShader(const std::string path)
                 break;
         }
     }
-    BIT_CORE_INFO(shaderSources.VertexShaderSource);
-    BIT_CORE_INFO(shaderSources.FragmentShaderSource);
     return  shaderSources;
 }
 

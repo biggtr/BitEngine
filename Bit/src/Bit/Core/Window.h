@@ -9,10 +9,6 @@ class GraphicsContext;
 class Window
 {
 
-private:
-    GLFWwindow* m_Window;
-
-    GraphicsContext* m_Context;
 
 public:
     Window();
@@ -22,10 +18,18 @@ public:
     bool ShouldClose();
     GLFWwindow* GetGLFWWindow();
 
+
     void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
     void ProcessInput();
     void OnUpdate();
-            
+
+    unsigned int GetWidth() { return m_Width; }
+    unsigned int GetHeight() { return m_Height; }
+private:
+    unsigned int m_Width, m_Height;
+    GLFWwindow* m_Window;
+
+    GraphicsContext* m_Context;
 };
 
 }
