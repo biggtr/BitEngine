@@ -4,35 +4,20 @@
 namespace BitEngine 
 {
 
-Logger* Logger::s_CoreLogger = nullptr;
-Logger* Logger::s_ClientLogger = nullptr;
-void Logger::Init()
-{
-    s_CoreLogger = new Logger(LOGGER_TYPE::CORE, true);
-    s_ClientLogger= new Logger(LOGGER_TYPE::CLIENT, true);
-}
-Logger& Logger::GetCoreLogger()
-{
-    return *s_CoreLogger;
-}
-Logger& Logger::GetClientLogger()
-{
-    return *s_ClientLogger;
-}
 
-void Logger::Error(const std::string& msg, size_t line, size_t column)
+void Logger::Error(const std::string& msg, size_t line, const std::string& file)
 {
-    BitEngine::LogMessage logMessage(LOG_TYPE::ERROR, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::ERROR, msg, line, file);
     PrintMessage(logMessage);
 }
-void Logger::Warning(const std::string& msg, size_t line, size_t column)
+void Logger::Warning(const std::string& msg, size_t line, const std::string& file)
 {
-    BitEngine::LogMessage logMessage(LOG_TYPE::WARNING, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::WARNING, msg, line, file);
     PrintMessage(logMessage);
 }
-void Logger::Info(const std::string& msg, size_t line, size_t column)
+void Logger::Info(const std::string& msg, size_t line, const std::string& file)
 {
-    BitEngine::LogMessage logMessage(LOG_TYPE::INFO, msg, line, column);
+    BitEngine::LogMessage logMessage(LOG_TYPE::INFO, msg, line, file);
     PrintMessage(logMessage);
 }
 
@@ -42,7 +27,7 @@ void Logger::Info(const std::string& msg, size_t line, size_t column)
 //             [](const auto& msg) { return msg.LogType == LOG_TYPE::ERROR; }
 //             );
 // }
-void Logger::PrintMessage(LogMessage msg) 
+void Logger::PrintMessage(LogMessage& msg) 
 {
         if(!msg.Handled)
         {
@@ -50,7 +35,7 @@ void Logger::PrintMessage(LogMessage msg)
                 << (msg.LoggerType == LOGGER_TYPE::CLIENT ? "CLIENT:" : "CORE:")
                 << (msg.LogType == LOG_TYPE::ERROR ? "ERROR" : 
                 msg.LogType == LOG_TYPE::WARNING ? "WARN" : "INFO")
-                << "] Line " << msg.Line << ", Col " << msg.Column
+                << "] Line " << msg.Line << ", Col " << msg.File
                 << ": " << msg.Message << "\n";
         }
         msg.Handled = true;
@@ -58,8 +43,6 @@ void Logger::PrintMessage(LogMessage msg)
 }
 Logger::~Logger()
 {
-    delete s_CoreLogger;
-    delete s_ClientLogger;
 }
 
 }

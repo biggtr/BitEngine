@@ -5,6 +5,11 @@
 
 namespace BitEngine
 {
+class Shader;
+class Texture;
+class VertexArray;
+class VertexBuffer;
+class IndexBuffer;
 struct EngineComponents
 {
     BitEngine::Window Window;
@@ -19,7 +24,9 @@ public:
     void InitializeEngineSystems(EngineComponents* engineComponents);
 
     //Temporary data will be deleted 
+
     
+
 
 
 
@@ -29,7 +36,6 @@ protected:
     virtual void OnRender();
 
 
-private:
 private:
     bool m_IsRunning;
     Time m_Time;

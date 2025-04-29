@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bitpch.h"
+#include <utility>
 
 namespace BitEngine
 
@@ -67,13 +68,17 @@ struct BufferElement
 
 class BufferLayout
 {
-private:
-    std::vector<BufferElement> m_BufferElements;
-    uint32_t m_Stride;
 public:
+
+    BufferLayout()
+    {
+        CalculateOffsetAndStride();
+    }
     const std::vector<BufferElement>& GetBufferElements() const { return m_BufferElements;}
-    void SetBufferElements(std::vector<BufferElement> bufferElements) { m_BufferElements = bufferElements;}
+    void SetBufferElements(const std::vector<BufferElement>&& bufferElements) { m_BufferElements = std::move(bufferElements);} //moves bufferElements to m_bufferElements no copying is done here 
     unsigned int GetStride() const { return m_Stride;}
+
+private:
     void CalculateOffsetAndStride()
     {
         size_t offset = 0;
@@ -86,21 +91,25 @@ public:
         }
 
     }
+private:
 
+    std::vector<BufferElement> m_BufferElements;
+    uint32_t m_Stride;
 };
 
 class VertexBuffer
 {
 private:
     unsigned int m_ID;
-    BufferLayout m_BufferLayout;
+    BufferLayout* m_BufferLayout;
 
 public:
     VertexBuffer(float* vertices, unsigned int size);
+    ~VertexBuffer();
     void Bind();
     void UnBind();
-    void SetBufferLayout(BufferLayout& bufferLayout) { m_BufferLayout = bufferLayout;}
-    const BufferLayout& GetBufferLayout() const { return m_BufferLayout;}
+    void SetBufferLayout(BufferLayout* bufferLayout) { m_BufferLayout = bufferLayout;}
+    const BufferLayout& GetBufferLayout() const { return *m_BufferLayout;}
 
 private: 
 

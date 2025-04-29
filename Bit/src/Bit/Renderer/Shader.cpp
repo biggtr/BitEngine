@@ -1,90 +1,107 @@
 #include "Shader.h"
+#include "Bit/Core/Logger.h"
 #include "glad/glad.h"
 
 namespace BitEngine
 {
 
-    enum class SHADER_TYPE
-    {
-        NONE, VERTEX, FRAGMENT
-    };
-    Shader::Shader(const std::string path)
-    {
-        ShaderSources sources = ParseShader(path);
+enum class SHADER_TYPE
+{
+    NONE, VERTEX, FRAGMENT
+};
+Shader::Shader(const std::string path)
+{
+    ShaderSources sources = ParseShader(path);
 
-        unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, sources.VertexShaderSource);
-        unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, sources.FragmentShaderSource);
-        m_ID = glCreateProgram();
-        glAttachShader(m_ID, vertexShader);
-        glAttachShader(m_ID, fragmentShader);
-        glLinkProgram(m_ID);
-        glUseProgram(m_ID);
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);  
+    unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, sources.VertexShaderSource);
+    unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, sources.FragmentShaderSource);
+    m_ID = glCreateProgram();
+    glAttachShader(m_ID, vertexShader);
+    glAttachShader(m_ID, fragmentShader);
+    glLinkProgram(m_ID);
+    glUseProgram(m_ID);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);  
+}
+
+void Shader::Bind()
+{
+    glUseProgram(m_ID);
+}
+
+void Unbind()
+{
+    glUseProgram(0);
+}
+
+void Shader::SetUniform1i(const std::string& uniformName, int uniformValue)
+{
+    int uniformLocation = GetUniformLocation(uniformName);
+    glUniform1i(uniformLocation, uniformValue);
+}
+
+int Shader::GetUniformLocation(const std::string& uniformName)
+{
+    int uniformLocation = glGetUniformLocation(m_ID, uniformName.c_str());
+    if(uniformLocation == -1)
+    {
+        BIT_CORE_ERROR("No such a thing as uniform location ");
     }
+    return uniformLocation; 
+}
 
-    void Shader::Bind()
+unsigned int Shader::CompileShader(unsigned int shaderType,const std::string& shaderSource)
+{
+    unsigned int shader = glCreateShader(shaderType);
+    const char* source = shaderSource.c_str();
+    glShaderSource(shader, 1, &source, NULL);
+    glCompileShader(shader);
+
+    int success;
+    char infoLog[512];
+    glGetShaderiv(shader,GL_COMPILE_STATUS, &success);
+    if(!success)
     {
-        glUseProgram(m_ID);
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-
-    void UnBind()
+    return shader;
+}
+ShaderSources Shader::ParseShader(const std::string path)
+{
+    SHADER_TYPE currentShader = SHADER_TYPE::NONE;
+    ShaderSources shaderSources;
+    std::ifstream shaderFile(path);
+    if(!shaderFile.is_open())
     {
-        glUseProgram(0);
+        std::cerr << "Failed To Open The Shader File!.. ";
     }
-    
-    unsigned int Shader::CompileShader(unsigned int shaderType,const std::string& shaderSource)
+    std::string currentLine;
+    while (std::getline(shaderFile, currentLine)) 
     {
-        unsigned int shader = glCreateShader(shaderType);
-        const char* source = shaderSource.c_str();
-        glShaderSource(shader, 1, &source, NULL);
-        glCompileShader(shader);
-
-        int success;
-        char infoLog[512];
-        glGetShaderiv(shader,GL_COMPILE_STATUS, &success);
-        if(!success)
+        if(currentLine == "#Vertex") 
         {
-            glGetShaderInfoLog(shader, 512, NULL, infoLog);
-            std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+            currentShader = SHADER_TYPE::VERTEX;
+            continue;
         }
-        return shader;
-    }
-    ShaderSources Shader::ParseShader(const std::string path)
-    {
-        SHADER_TYPE currentShader = SHADER_TYPE::NONE;
-        ShaderSources shaderSources;
-        std::ifstream shaderFile(path);
-        if(!shaderFile.is_open())
+        else if(currentLine == "#Fragment")
         {
-            std::cerr << "Failed To Open The Shader File!.. ";
+            currentShader = SHADER_TYPE::FRAGMENT;
+            continue;
         }
-        std::string currentLine;
-        while (std::getline(shaderFile, currentLine)) 
+        switch (currentShader) 
         {
-            if(currentLine == "#Vertex") 
-            {
-                currentShader = SHADER_TYPE::VERTEX;
-                continue;
-            }
-            else if(currentLine == "#Fragment")
-            {
-                currentShader = SHADER_TYPE::FRAGMENT;
-                continue;
-            }
-            switch (currentShader) 
-            {
-                case SHADER_TYPE::VERTEX:
-                    shaderSources.VertexShaderSource += currentLine + '\n';
-                case SHADER_TYPE::FRAGMENT:
-                    shaderSources.FragmentShaderSource += currentLine + '\n';
-                case SHADER_TYPE::NONE:
-                    //Ignoring Lines before the shader tag
-                    break;
-            }
+            case SHADER_TYPE::VERTEX:
+                shaderSources.VertexShaderSource += currentLine + '\n';
+            case SHADER_TYPE::FRAGMENT:
+                shaderSources.FragmentShaderSource += currentLine + '\n';
+            case SHADER_TYPE::NONE:
+                //Ignoring Lines before the shader tag
+                break;
         }
-        return  shaderSources;
     }
+    return  shaderSources;
+}
 
 
 }

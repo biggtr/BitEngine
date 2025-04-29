@@ -10,7 +10,7 @@ public:
     Texture(const std::string& filePath);
     ~Texture();
 
-    void Bind();
+    void Bind(unsigned int slot);
     void Unbind();
     
 private:

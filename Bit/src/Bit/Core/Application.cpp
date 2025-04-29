@@ -2,6 +2,7 @@
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Renderer/VertexArray.h"
+#include <memory>
 
 
 namespace BitEngine
@@ -33,8 +34,6 @@ void Application::OnInit()
             0, 2, 3
     };
 
-    Shader shader("assets/shaders/basicTexture.glsl");
-    Texture texture("assets/textures/sample.bmp");
 
 }
 void Application::OnRender()
