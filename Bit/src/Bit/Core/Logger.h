@@ -75,7 +75,6 @@ private:
 };
 }
 
-
 // Core Log Macros
 #define BIT_CORE_ERROR(...)     BitEngine::Logger::GetCoreLogger().Error(__VA_ARGS__, __LINE__, __FILE__); 
 #define BIT_CORE_WARN(...)      BitEngine::Logger::GetCoreLogger().Warning(__VA_ARGS__, __LINE__, __FILE__); 

@@ -1,12 +1,13 @@
 #include "VertexArray.h"
 #include "Bit/Renderer/Buffers.h"
 #include "glad/glad.h"
+#include "Bit/Core/Core.h"
 
 namespace BitEngine 
 {
 VertexArray::VertexArray()
 {
-   glGenVertexArrays(1, &m_ID);
+   GLCall(glGenVertexArrays(1, &m_ID));
 }
 
 VertexArray::~VertexArray()
@@ -25,24 +26,24 @@ VertexArray::~VertexArray()
 
 void VertexArray::Bind()
 {
-    glBindVertexArray(m_ID);
+    GLCall(glBindVertexArray(m_ID));
 }
 void VertexArray::UnBind()
 {
-    glBindVertexArray(0);
+    GLCall(glBindVertexArray(0));
 }
 void VertexArray::SetIndexBuffer(IndexBuffer* indexBuffer)
 {
-    glBindVertexArray(m_ID);
+    GLCall(glBindVertexArray(m_ID));
     indexBuffer->Bind();
     m_IndexBuffer = indexBuffer;
 }
 void VertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 {
-    glBindVertexArray(m_ID);
+    GLCall(glBindVertexArray(m_ID));
     vertexBuffer->Bind();
-    const BufferLayout& layout = vertexBuffer->GetBufferLayout();
-    auto elements = layout.GetBufferElements();
+    auto layout = vertexBuffer->GetBufferLayout();
+    auto elements = layout->GetBufferElements();
     for(int location{}; location < elements.size(); location++)
     {
         auto element = elements[location];
@@ -56,38 +57,38 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
             case SHADER_DATA_TYPE::MAT3:     
             case SHADER_DATA_TYPE::MAT4:     
                 {
-                    glEnableVertexAttribArray(location);  
-                    glVertexAttribPointer(location, 
+                    GLCall(glEnableVertexAttribArray(location));  
+                    GLCall(glVertexAttribPointer(location, 
                             element.GetComponentCount(), 
                             GL_FLOAT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout.GetStride(), 
-                            (const void*) element.Offset);
+                            layout->GetStride(), 
+                            (const void*) element.Offset));
                     break;
                 }
             case SHADER_DATA_TYPE::INT2:
             case SHADER_DATA_TYPE::INT3: 
             case SHADER_DATA_TYPE::INT4:  
                 {
-                    glEnableVertexAttribArray(location);  
-                    glVertexAttribPointer(location, 
+                    GLCall(glEnableVertexAttribArray(location));  
+                    GLCall(glVertexAttribPointer(location, 
                             element.GetComponentCount(), 
-                            GL_INT, 
+                            GL_FLOAT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout.GetStride(), 
-                            (const void*) element.Offset);
+                            layout->GetStride(), 
+                            (const void*) element.Offset));
                     break;
                 }
            
             case SHADER_DATA_TYPE::BOOL:   
                 {
-                    glEnableVertexAttribArray(location);  
-                    glVertexAttribPointer(location, 
+                    GLCall(glEnableVertexAttribArray(location));  
+                    GLCall(glVertexAttribPointer(location, 
                             element.GetComponentCount(), 
-                            GL_BOOL, 
+                            GL_FLOAT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout.GetStride(), 
-                            (const void*) element.Offset);
+                            layout->GetStride(), 
+                            (const void*) element.Offset));
                     break;
                 }
             case SHADER_DATA_TYPE::NONE:    

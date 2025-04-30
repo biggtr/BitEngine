@@ -110,7 +110,7 @@ public:
     void Bind();
     void UnBind();
     void SetBufferLayout(BufferLayout* bufferLayout) { m_BufferLayout = bufferLayout;}
-    const BufferLayout& GetBufferLayout() const { return *m_BufferLayout;}
+    const BufferLayout* GetBufferLayout() const { return m_BufferLayout;}
 
 private: 
 

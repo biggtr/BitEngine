@@ -64,19 +64,9 @@ void Application::OnInit()
     texture->Bind(0);
     BIT_CORE_INFO("Hello from application init..");
 
-    if(VAO->GetVertexBuffer()[0] != nullptr)
+    for(auto element : VAO->GetVertexBuffer()[0]->GetBufferLayout()->GetBufferElements())
     {
-        BIT_CORE_ERROR("VertexBuffer is not null");
-    }
-
-    if(VAO->GetIndexBuffer() != nullptr)
-    {
-
-        BIT_CORE_ERROR("IndexBuffer is not null");
-    }
-    for(auto element : bufferLayout->GetBufferElements())
-    {
-        std::cout << element.AttributeName << " " << element.Offset << " " << element.Size << " " <<  std::endl;
+        std::cout << element.AttributeName << element.GetComponentCount() << " " << element.Offset << " " << element.Size << " " <<  std::endl;
     }
 
 }

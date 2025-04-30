@@ -1,7 +1,7 @@
 #include "Shader.h"
 #include "Bit/Core/Logger.h"
 #include "glad/glad.h"
-
+#include "Bit/Core/Core.h"
 namespace BitEngine
 {
 
@@ -16,33 +16,33 @@ Shader::Shader(const std::string path)
     unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, sources.VertexShaderSource);
     unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, sources.FragmentShaderSource);
     m_ID = glCreateProgram();
-    glAttachShader(m_ID, vertexShader);
-    glAttachShader(m_ID, fragmentShader);
-    glLinkProgram(m_ID);
-    glUseProgram(m_ID);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);  
+    GLCall(glAttachShader(m_ID, vertexShader));
+    GLCall(glAttachShader(m_ID, fragmentShader));
+    GLCall(glLinkProgram(m_ID));
+    GLCall(glUseProgram(m_ID));
+    GLCall(glDeleteShader(vertexShader));
+    GLCall(glDeleteShader(fragmentShader));
 }
 
 void Shader::Bind()
 {
-    glUseProgram(m_ID);
+    GLCall(glUseProgram(m_ID));
 }
 
 void Unbind()
 {
-    glUseProgram(0);
+    GLCall(glUseProgram(0));
 }
 
 void Shader::SetUniform1i(const std::string& uniformName, int uniformValue)
 {
     int uniformLocation = GetUniformLocation(uniformName);
-    glUniform1i(uniformLocation, uniformValue);
+    GLCall(glUniform1i(uniformLocation, uniformValue));
 }
 
 int Shader::GetUniformLocation(const std::string& uniformName)
 {
-    int uniformLocation = glGetUniformLocation(m_ID, uniformName.c_str());
+    GLCall(int uniformLocation = glGetUniformLocation(m_ID, uniformName.c_str()));
     if(uniformLocation == -1)
     {
         BIT_CORE_ERROR("No such a thing as uniform location ");
@@ -52,18 +52,18 @@ int Shader::GetUniformLocation(const std::string& uniformName)
 
 unsigned int Shader::CompileShader(unsigned int shaderType,const std::string& shaderSource)
 {
-    unsigned int shader = glCreateShader(shaderType);
+    GLCall(unsigned int shader = glCreateShader(shaderType));
     const char* source = shaderSource.c_str();
     
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
+    GLCall(glShaderSource(shader, 1, &source, NULL));
+    GLCall(glCompileShader(shader));
 
     int success;
     char infoLog[512];
-    glGetShaderiv(shader,GL_COMPILE_STATUS, &success);
+    GLCall(glGetShaderiv(shader,GL_COMPILE_STATUS, &success));
     if(!success)
     {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        GLCall(glGetShaderInfoLog(shader, 512, NULL, infoLog))
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
     return shader;
