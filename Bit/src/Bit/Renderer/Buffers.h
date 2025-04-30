@@ -70,6 +70,7 @@ class BufferLayout
 public:
 
     BufferLayout(std::vector<BufferElement>&& bufferElements)
+        : m_Stride(0)
     {
         // std::move cast lvalue bufferElements to temp rValue so that m_BufferElements can Accept it 
         m_BufferElements = std::move(bufferElements);
@@ -105,10 +106,11 @@ private:
     BufferLayout* m_BufferLayout;
 
 public:
-    VertexBuffer(float* vertices, unsigned int size);
+    VertexBuffer(float* vertices, unsigned int count);
     ~VertexBuffer();
     void Bind();
     void UnBind();
+    unsigned int GetID() { return m_ID; }
     void SetBufferLayout(BufferLayout* bufferLayout) { m_BufferLayout = bufferLayout;}
     const BufferLayout* GetBufferLayout() const { return m_BufferLayout;}
 
@@ -127,6 +129,7 @@ public:
     IndexBuffer(unsigned int * indices, unsigned int count);
     void Bind() const;
     void UnBind() const;
+    unsigned int GetID() { return m_ID; }
     const unsigned int GetCount() const { return m_Count;}
 
 private: 

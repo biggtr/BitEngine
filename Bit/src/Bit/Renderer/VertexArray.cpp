@@ -6,8 +6,10 @@
 namespace BitEngine 
 {
 VertexArray::VertexArray()
+    : m_VertexBufferIndex(0), m_IndexBuffer(nullptr)
 {
-   GLCall(glGenVertexArrays(1, &m_ID));
+    // GLCall(glCreateVertexArrays(1, &m_ID));
+    GLCall(glGenVertexArrays(1, &m_ID));
 }
 
 VertexArray::~VertexArray()
@@ -42,11 +44,10 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 {
     GLCall(glBindVertexArray(m_ID));
     vertexBuffer->Bind();
-    auto layout = vertexBuffer->GetBufferLayout();
+    const auto& layout = vertexBuffer->GetBufferLayout();
     auto elements = layout->GetBufferElements();
-    for(int location{}; location < elements.size(); location++)
+    for(const auto& element : elements)
     {
-        auto element = elements[location];
         switch (element.Type) 
         {
             case SHADER_DATA_TYPE::FLOAT:   
@@ -57,38 +58,42 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
             case SHADER_DATA_TYPE::MAT3:     
             case SHADER_DATA_TYPE::MAT4:     
                 {
-                    GLCall(glEnableVertexAttribArray(location));  
-                    GLCall(glVertexAttribPointer(location, 
+                    std::cout << m_VertexBufferIndex << "Vertex Index\n";
+                    GLCall(glEnableVertexAttribArray(m_VertexBufferIndex));  
+                    GLCall(glVertexAttribPointer(m_VertexBufferIndex, 
                             element.GetComponentCount(), 
                             GL_FLOAT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
                             layout->GetStride(), 
                             (const void*) element.Offset));
+                    m_VertexBufferIndex++;
                     break;
                 }
             case SHADER_DATA_TYPE::INT2:
             case SHADER_DATA_TYPE::INT3: 
             case SHADER_DATA_TYPE::INT4:  
                 {
-                    GLCall(glEnableVertexAttribArray(location));  
-                    GLCall(glVertexAttribPointer(location, 
+                    GLCall(glEnableVertexAttribArray(m_VertexBufferIndex));  
+                    GLCall(glVertexAttribPointer(m_VertexBufferIndex, 
                             element.GetComponentCount(), 
-                            GL_FLOAT, 
+                            GL_INT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
                             layout->GetStride(), 
                             (const void*) element.Offset));
+                    m_VertexBufferIndex++;
                     break;
                 }
            
             case SHADER_DATA_TYPE::BOOL:   
                 {
-                    GLCall(glEnableVertexAttribArray(location));  
-                    GLCall(glVertexAttribPointer(location, 
+                    GLCall(glEnableVertexAttribArray(m_VertexBufferIndex));  
+                    GLCall(glVertexAttribPointer(m_VertexBufferIndex, 
                             element.GetComponentCount(), 
-                            GL_FLOAT, 
+                            GL_BOOL, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
                             layout->GetStride(), 
                             (const void*) element.Offset));
+                    m_VertexBufferIndex++;
                     break;
                 }
             case SHADER_DATA_TYPE::NONE:    

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bitpch.h"
+#include <format>
 
 namespace BitEngine 
 {

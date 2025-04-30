@@ -19,8 +19,8 @@ public:
     Shader(std::string path);
 
     void Bind();
-
     void Unbind();
+    unsigned int GetID() { return m_ID; }
 
     void SetUniform1i(const std::string& uniformName, int uniformValue);
     void SetUniform4f();
@@ -29,7 +29,9 @@ public:
 private: 
     unsigned int CompileShader(unsigned int shaderType,const std::string& shaderSource);
     ShaderSources ParseShader(const std::string path);
+    void CreateProgram();
     int GetUniformLocation(const std::string& uniformName);
+    ShaderSources m_ShaderSources;
 
 
 };

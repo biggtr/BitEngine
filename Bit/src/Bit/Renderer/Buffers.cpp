@@ -6,11 +6,11 @@ namespace BitEngine
 /////////////////////////////////////////////////////////////
 // VertexBuffer
 ////////////////////////////////////////////////////////////
-VertexBuffer::VertexBuffer(float* vertices, unsigned int size)
+VertexBuffer::VertexBuffer(float* vertices, unsigned int count)
 {
     GLCall(glGenBuffers(1, &m_ID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
-    GLCall(glBufferData(m_ID, size, vertices, GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, count * sizeof(float), vertices, GL_STATIC_DRAW));
 }
 void VertexBuffer::Bind()
 {
@@ -36,7 +36,7 @@ IndexBuffer::IndexBuffer(unsigned int* indices, unsigned int count)
     m_Count = count;
     GLCall(glGenBuffers(1, &m_ID));
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID));
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Count * sizeof(unsigned int), indices ,  GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indices ,  GL_STATIC_DRAW));
 }
 void IndexBuffer::Bind() const
 {

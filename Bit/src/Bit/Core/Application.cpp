@@ -1,16 +1,25 @@
 #include "Application.h"
+#include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Core/Window.h"
 #include "Bit/Renderer/Buffers.h"
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Renderer/VertexArray.h"
+
 
 namespace BitEngine
 {
     
 Application::Application()
 {
-    m_EngineComponents = nullptr;
+    m_EngineComponents = nullptr;    
+    VAO = nullptr;
+    VBO = nullptr;
+    IBO = nullptr;
+    bufferLayout = nullptr;
+    shader = nullptr;
+    texture = nullptr;
 }
 Application::~Application()
 {
@@ -29,16 +38,21 @@ void Application::InitializeEngineSystems(EngineComponents* engineComponents)
 }
 void Application::OnInit()
 {
-     glViewport(0, 0, 
-        m_EngineComponents->Window.GetWidth(),
-        m_EngineComponents->Window.GetHeight()
-    );
+     GLCall(glViewport(0, 0, 
+        m_EngineComponents->Window->GetWidth(),
+        m_EngineComponents->Window->GetHeight()
+    ));
+    GLCall(glDisable(GL_CULL_FACE));
+    GLCall(glDisable(GL_DEPTH_TEST));
+    std::cout << "Viewport: " 
+    << m_EngineComponents->Window->GetWidth() << "x" 
+    << m_EngineComponents->Window->GetHeight() << std::endl;
 //default logic goes before OnInit
     float vertices[] = {
-        -0.5f,  0.5f, 0.0f, 1.0f,  // Position (x,y), UV (u,v)
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f
+        -0.5f,  0.5f,   // Position (x,y), UV (u,v)
+        -0.5f, -0.5f, 
+         0.5f, -0.5f, 
+         0.5f,  0.5f, 
     };    
     unsigned int indices[] = 
     {
@@ -47,15 +61,14 @@ void Application::OnInit()
     };
 
     VAO = new VertexArray();
-    VBO = new VertexBuffer(vertices, sizeof(vertices));
+    VAO->Bind();
+    VBO = new VertexBuffer(vertices, 8);
     IBO = new IndexBuffer(indices, 6);
 
     bufferLayout = new BufferLayout({
         { SHADER_DATA_TYPE::FLOAT2, "a_Position"}, // Buffer Element is constructed as temp rvalue and passed to bufferlayout via std::move
-        { SHADER_DATA_TYPE::FLOAT2, "a_TextureCoords"},
     });
     VBO->SetBufferLayout(bufferLayout);
-    VAO->Bind();
     VAO->AddVertexBuffer(VBO);
     VAO->SetIndexBuffer(IBO);
     shader = new Shader("assets/shaders/BasicTexture.glsl");
@@ -66,17 +79,24 @@ void Application::OnInit()
 
     for(auto element : VAO->GetVertexBuffer()[0]->GetBufferLayout()->GetBufferElements())
     {
-        std::cout << element.AttributeName << element.GetComponentCount() << " " << element.Offset << " " << element.Size << " " <<  std::endl;
+        std::cout << element.AttributeName << " " << element.GetComponentCount() << " " << element.Offset << " " << element.Size << " " <<  std::endl;
     }
-
+    std::cout << "INDEX BUFFER: " << IBO->GetCount() << "\n";
+    std::cout << "VAO ID: " << VAO->GetID() << "\n"
+              << "VBO ID: " << VBO->GetID() << "\n"
+              << "IBO ID: " << IBO->GetID() << "\n"
+              << "Shader ID: " << shader->GetID() << "\n"
+              << "IBO COUNT: " << VAO->GetIndexBuffer()->GetCount() << "\n"
+              << "Stride: " << bufferLayout->GetStride() << "\n";
 }
 void Application::OnRender()
 {
-    VAO->Bind();
+    GLCall(glClearColor(0.0f, 0.3f, 0.0f, 1.0f));
+    GLCall(glClear(GL_COLOR_BUFFER_BIT));
     shader->Bind();
-    const IndexBuffer* indexBuffer = VAO->GetIndexBuffer();
-    indexBuffer->Bind();
-    glDrawElements(GL_TRIANGLES, indexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+    VAO->Bind();
+
+    GLCall(glDrawElements(GL_TRIANGLES, VAO->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr));
 }
 void Application::OnUpdate(float deltaTime)
 {
@@ -87,18 +107,16 @@ void Application::Run()
     m_IsRunning = true;
     OnInit();
 
-    while(!m_EngineComponents->Window.ShouldClose() &&  m_IsRunning)
+    while(!m_EngineComponents->Window->ShouldClose() &&  m_IsRunning)
     {
-        m_EngineComponents->Window.ProcessInput();
+        m_EngineComponents->Window->ProcessInput();
         
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         OnUpdate(m_Time.GetDeltaTime());
 
         OnRender();
 
-        m_EngineComponents->Window.OnUpdate();
+        m_EngineComponents->Window->OnUpdate();
 
     }
 }

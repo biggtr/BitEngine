@@ -14,6 +14,7 @@ public:
     void Bind(unsigned int slot);
     void Unbind();
     
+    unsigned int GetID() { return m_ID; }
 private:
     unsigned int m_ID;
     std::string m_FilePath;

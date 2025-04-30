@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "GLFW/glfw3.h"
 namespace BitEngine
 {
 
@@ -20,6 +21,9 @@ void Window::Create(unsigned int windowWidth, unsigned int windowHeight, char* w
 
     // glfw window creation
     // --------------------
+    //
+    m_Width = windowWidth;
+    m_Height = windowHeight;
     m_Window = glfwCreateWindow(windowWidth, windowHeight, windowName, NULL, NULL);
     if (m_Window == NULL)
     {
@@ -60,8 +64,8 @@ void Window::ProcessInput()
 }
 void Window::OnUpdate()
 {
-    glfwPollEvents();
     m_Context->SwapBuffers();
+    glfwPollEvents();
 }
 
 

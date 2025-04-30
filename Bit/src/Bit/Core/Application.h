@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Bit/Core/Window.h"
 #include "Bit/Core/TimeStamp.h"
 namespace BitEngine
 {
+class Window;
 class Shader;
 class Texture;
 class VertexArray;
@@ -12,7 +12,7 @@ class IndexBuffer;
 class BufferLayout;
 struct EngineComponents
 {
-    BitEngine::Window Window;
+    BitEngine::Window* Window;
 };
         
 class Application

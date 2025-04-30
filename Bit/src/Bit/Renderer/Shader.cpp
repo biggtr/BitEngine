@@ -11,17 +11,8 @@ enum class SHADER_TYPE
 };
 Shader::Shader(const std::string path)
 {
-    ShaderSources sources = ParseShader(path);
-
-    unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, sources.VertexShaderSource);
-    unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, sources.FragmentShaderSource);
-    m_ID = glCreateProgram();
-    GLCall(glAttachShader(m_ID, vertexShader));
-    GLCall(glAttachShader(m_ID, fragmentShader));
-    GLCall(glLinkProgram(m_ID));
-    GLCall(glUseProgram(m_ID));
-    GLCall(glDeleteShader(vertexShader));
-    GLCall(glDeleteShader(fragmentShader));
+    m_ShaderSources = ParseShader(path);
+    CreateProgram();
 }
 
 void Shader::Bind()
@@ -29,7 +20,7 @@ void Shader::Bind()
     GLCall(glUseProgram(m_ID));
 }
 
-void Unbind()
+void Shader::Unbind()
 {
     GLCall(glUseProgram(0));
 }
@@ -64,7 +55,7 @@ unsigned int Shader::CompileShader(unsigned int shaderType,const std::string& sh
     if(!success)
     {
         GLCall(glGetShaderInfoLog(shader, 512, NULL, infoLog))
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cerr << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
     return shader;
 }
@@ -106,6 +97,30 @@ ShaderSources Shader::ParseShader(const std::string path)
         }
     }
     return  shaderSources;
+}
+
+void Shader::CreateProgram()
+{
+    unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, m_ShaderSources.VertexShaderSource);
+    unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, m_ShaderSources.FragmentShaderSource);
+    unsigned int shaderProgram = glCreateProgram();
+    GLCall(glAttachShader(shaderProgram , vertexShader));
+    GLCall(glAttachShader(shaderProgram, fragmentShader));
+    GLCall(glLinkProgram(shaderProgram));
+    GLint success;
+    GLCall(glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success));
+    if(success == GL_FALSE)
+    {
+        char infoLog[512];
+        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+        std::cerr << "SHADER LINKING ERROR:\n" << infoLog << std::endl;
+        GLCall(glDeleteProgram(shaderProgram));
+        return;
+    }
+    GLCall(glDeleteShader(vertexShader));
+    GLCall(glDeleteShader(fragmentShader));
+    m_ID = shaderProgram;
+
 }
 
 

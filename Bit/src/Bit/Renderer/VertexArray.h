@@ -12,6 +12,7 @@ class VertexArray
 
 private:
     unsigned int m_ID;
+    unsigned int m_VertexBufferIndex;
     std::vector<VertexBuffer*> m_VertexBuffers;
     IndexBuffer* m_IndexBuffer;
     
@@ -20,7 +21,7 @@ private:
 public:
     VertexArray();
     ~VertexArray();
-
+    unsigned int GetID() { return m_ID; }
     void Bind();
     void UnBind();
 
