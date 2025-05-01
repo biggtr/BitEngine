@@ -106,7 +106,7 @@ private:
     BufferLayout* m_BufferLayout;
 
 public:
-    VertexBuffer(float* vertices, unsigned int count);
+    VertexBuffer(float* vertices, unsigned int size);
     ~VertexBuffer();
     void Bind();
     void UnBind();

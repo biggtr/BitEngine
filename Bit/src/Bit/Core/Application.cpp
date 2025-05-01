@@ -6,6 +6,7 @@
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Renderer/VertexArray.h"
+#include <cstddef>
 
 
 namespace BitEngine
@@ -49,32 +50,34 @@ void Application::OnInit()
     << m_EngineComponents->Window->GetHeight() << std::endl;
 //default logic goes before OnInit
     float vertices[] = {
-        -0.5f,  0.5f,   // Position (x,y), UV (u,v)
-        -0.5f, -0.5f, 
-         0.5f, -0.5f, 
-         0.5f,  0.5f, 
+        -0.5f,  0.5f, 0.0f,  1.0f,    // Position (x,y), UV (u,v)
+        -0.5f, -0.5f, 0.0f,  0.0f,
+         0.5f, -0.5f, 1.0f,  0.0f,
+         0.5f,  0.5f, 1.0f,  1.0f
     };    
     unsigned int indices[] = 
     {
             0, 1, 2,
             0, 2, 3
     };
-
     VAO = new VertexArray();
     VAO->Bind();
-    VBO = new VertexBuffer(vertices, 8);
+    std::cout << "Sizeof(Vertices) : " << sizeof(vertices) << "\n";
+    VBO = new VertexBuffer(vertices, sizeof(vertices));
     IBO = new IndexBuffer(indices, 6);
 
     bufferLayout = new BufferLayout({
         { SHADER_DATA_TYPE::FLOAT2, "a_Position"}, // Buffer Element is constructed as temp rvalue and passed to bufferlayout via std::move
+        { SHADER_DATA_TYPE::FLOAT2, "a_TextureCoords"}
     });
     VBO->SetBufferLayout(bufferLayout);
     VAO->AddVertexBuffer(VBO);
     VAO->SetIndexBuffer(IBO);
     shader = new Shader("assets/shaders/BasicTexture.glsl");
     shader->Bind();
-    texture = new Texture("assets/textures/Basic.bmp");
+    texture = new Texture("assets/textures/daddy.bmp");
     texture->Bind(0);
+    shader->SetUniform1i("u_TextureImage", 0);
     BIT_CORE_INFO("Hello from application init..");
 
     for(auto element : VAO->GetVertexBuffer()[0]->GetBufferLayout()->GetBufferElements())
