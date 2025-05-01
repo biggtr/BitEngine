@@ -60,7 +60,7 @@ void Application::OnInit()
             0, 1, 2,
             0, 2, 3
     };
-    VAO = new VertexArray();
+    VAO = VertexArray::Create();
     VAO->Bind();
     std::cout << "Sizeof(Vertices) : " << sizeof(vertices) << "\n";
     VBO = VertexBuffer::Create(vertices, sizeof(vertices));
@@ -84,11 +84,6 @@ void Application::OnInit()
     {
         std::cout << element.AttributeName << " " << element.GetComponentCount() << " " << element.Offset << " " << element.Size << " " <<  std::endl;
     }
-    std::cout << "INDEX BUFFER: " << IBO->GetCount() << "\n";
-    std::cout << "VAO ID: " << VAO->GetID() << "\n"
-              << "Shader ID: " << shader->GetID() << "\n"
-              << "IBO COUNT: " << VAO->GetIndexBuffer()->GetCount() << "\n"
-              << "Stride: " << bufferLayout->GetStride() << "\n";
 }
 void Application::OnRender()
 {

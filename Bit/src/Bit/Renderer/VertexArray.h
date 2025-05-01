@@ -1,11 +1,9 @@
 #pragma once
-
+#include "Buffers.h"
 
 namespace BitEngine
 {
 
-class VertexBuffer;
-class IndexBuffer;
 
 class VertexArray
 {
@@ -19,18 +17,17 @@ private:
 
 
 public:
-    VertexArray();
-    ~VertexArray();
-    unsigned int GetID() { return m_ID; }
-    void Bind();
-    void UnBind();
+    virtual ~VertexArray() = default;
+    virtual void Bind() = 0;
+    virtual void UnBind() = 0;
 
-    void AddVertexBuffer(VertexBuffer* vertexBuffer);
-    void SetIndexBuffer(IndexBuffer* indexBuffer); 
+    virtual void AddVertexBuffer(VertexBuffer* vertexBuffer) = 0;
+    virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0; 
 
-    const std::vector<VertexBuffer*> GetVertexBuffer() const { return m_VertexBuffers; }
-    const IndexBuffer* GetIndexBuffer() const { return m_IndexBuffer; };
+    virtual const std::vector<VertexBuffer*> GetVertexBuffer() const = 0; 
+    virtual const IndexBuffer* GetIndexBuffer() const = 0; 
     
+    static VertexArray* Create();
 
 private:
 

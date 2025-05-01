@@ -1,4 +1,4 @@
 build/
 .cache/
 *.json*
-assets/textures/
+Bit/assets/textures/
