@@ -103,11 +103,8 @@ void Application::Run()
     m_IsRunning = true;
     OnInit();
 
-    while(!m_EngineComponents->Window->ShouldClose() &&  m_IsRunning)
+    while(m_IsRunning)
     {
-        m_EngineComponents->Window->ProcessInput();
-        
-
         OnUpdate(m_Time.GetDeltaTime());
 
         OnRender();

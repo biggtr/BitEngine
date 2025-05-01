@@ -1,73 +1,24 @@
 #include "Window.h"
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
+#include "Bit/Renderer/RendererAPI.h"
+#include "Platform/Windows/CrsPlatWindow.h"
 namespace BitEngine
 {
 
-Window::Window()
+Window* Window::Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
 {
-}
 
-void Window::Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-            
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    // glfw window creation
-    // --------------------
-    //
-    m_Width = windowWidth;
-    m_Height = windowHeight;
-    m_Window = glfwCreateWindow(windowWidth, windowHeight, windowName, NULL, NULL);
-    if (m_Window == NULL)
+    switch (RendererAPI::GetAPI()) 
     {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
+
+    case RENDERER_API::NONE:
+        return nullptr;
+    case RENDERER_API::OPENGL:
+            return new CrsPlatWindow(windowWidth, windowHeight, windowName);
+      break;
     }
-    m_Context = new GraphicsContext(m_Window);
-    m_Context->Init();
-    glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height){
-        glViewport(0, 0, width, height);
-
-    });
-
+    return nullptr;
 }
-
-Window::~Window()
-{
-    glfwDestroyWindow(m_Window);
-    glfwTerminate();
-    delete m_Context;
-}
-
-bool Window::ShouldClose()
-{
-    return glfwWindowShouldClose(m_Window);
-}
-
-
-GLFWwindow* Window::GetGLFWWindow()
-{
-    return m_Window;
-} 
-
-void Window::ProcessInput()
-{
-    if(glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(m_Window, true);
-}
-void Window::OnUpdate()
-{
-    m_Context->SwapBuffers();
-    glfwPollEvents();
-}
-
 
 
 }

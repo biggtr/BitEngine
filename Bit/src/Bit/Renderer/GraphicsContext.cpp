@@ -1,31 +1,21 @@
-#include <glad/glad.h>
 #include "GraphicsContext.h"
-#include "GLFW/glfw3.h"
-#include <iostream>
-
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "RendererAPI.h"
 namespace BitEngine
 {
 
-    
-    GraphicsContext::GraphicsContext(GLFWwindow* window)
+GraphicsContext* GraphicsContext::Create(void* window)
+{
+    switch (RendererAPI::GetAPI()) 
     {
-        m_Window = window;
-    }
 
-    void GraphicsContext::Init()
-    {
-        glfwMakeContextCurrent(m_Window);
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            std::cerr << "Failed to initialize GLAD" << std::endl;
-            return;
-        }  
+    case RENDERER_API::NONE:
+        return nullptr;
+    case RENDERER_API::OPENGL:
+            return new OpenGLContext((GLFWwindow*)window);
+      break;
     }
-
-    void GraphicsContext::SwapBuffers()
-    {
-        glfwSwapBuffers(m_Window);
-    }
+    return nullptr;
+}
 
 }

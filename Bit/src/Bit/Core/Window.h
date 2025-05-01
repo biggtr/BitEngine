@@ -1,35 +1,25 @@
 #pragma once
 
 #include "Bitpch.h"
-#include "Bit/Renderer/GraphicsContext.h"
 namespace BitEngine
 {
 
-class GraphicsContext;
 class Window
 {
 
 
 public:
-    Window();
-    ~Window();
-
-    void Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName);
-    bool ShouldClose();
-    GLFWwindow* GetGLFWWindow();
+    virtual ~Window() = default;
 
 
-    void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
-    void ProcessInput();
-    void OnUpdate();
+    virtual void OnUpdate() = 0;
 
-    unsigned int GetWidth() { return m_Width; }
-    unsigned int GetHeight() { return m_Height; }
-private:
-    unsigned int m_Width, m_Height;
-    GLFWwindow* m_Window;
+    virtual unsigned int GetWidth() const = 0;
+    virtual unsigned int GetHeight() const = 0; 
 
-    GraphicsContext* m_Context;
+    virtual void* GetWindow() const = 0;
+
+    static Window* Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName);
 };
 
 }

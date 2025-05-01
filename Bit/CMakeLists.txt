@@ -25,6 +25,8 @@ target_sources(BitEngine
     src/Platform/OpenGL/OpenGLBuffers.cpp
     src/Platform/OpenGL/OpenGLRendererAPI.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
+    src/Platform/OpenGL/OpenGLContext.cpp
+    src/Platform/Windows/CrsPlatWindow.cpp
     
 )
 
