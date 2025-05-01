@@ -50,10 +50,10 @@ void Application::OnInit()
     << m_EngineComponents->Window->GetHeight() << std::endl;
 //default logic goes before OnInit
     float vertices[] = {
-        -0.5f,  0.5f, 0.0f,  1.0f,    // Position (x,y), UV (u,v)
-        -0.5f, -0.5f, 0.0f,  0.0f,
-         0.5f, -0.5f, 1.0f,  0.0f,
-         0.5f,  0.5f, 1.0f,  1.0f
+         -0.5f, 0.5f, 0.0f,  0.0f, // uv top-left is (0, 0) 
+         0.5f,  0.5f, 1.0f,  0.0f,
+         0.5f, -0.5f, 1.0f,  1.0f,    // Position (x,y), UV (u,v)
+        -0.5f, -0.5f, 0.0f,  1.0f,
     };    
     unsigned int indices[] = 
     {
