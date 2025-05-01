@@ -101,38 +101,25 @@ private:
 
 class VertexBuffer
 {
-private:
-    unsigned int m_ID;
-    BufferLayout* m_BufferLayout;
-
 public:
-    VertexBuffer(float* vertices, unsigned int size);
-    ~VertexBuffer();
-    void Bind();
-    void UnBind();
-    unsigned int GetID() { return m_ID; }
-    void SetBufferLayout(BufferLayout* bufferLayout) { m_BufferLayout = bufferLayout;}
-    const BufferLayout* GetBufferLayout() const { return m_BufferLayout;}
+    virtual ~VertexBuffer() = default;
+    virtual void Bind() = 0;
+    virtual void UnBind() = 0;
+    virtual void SetBufferLayout(BufferLayout* bufferLayout) = 0; 
+    virtual const BufferLayout* GetBufferLayout() const = 0;
 
-private: 
-
+    static VertexBuffer* Create(float* vertices, unsigned int size);
 };
 
 class IndexBuffer
 {
-private:
-    unsigned int m_ID;
-    unsigned int m_Count;
-
 public:
     
-    IndexBuffer(unsigned int * indices, unsigned int count);
-    void Bind() const;
-    void UnBind() const;
-    unsigned int GetID() { return m_ID; }
-    const unsigned int GetCount() const { return m_Count;}
+    virtual ~IndexBuffer() = default;
+    virtual void Bind() const = 0;
+    virtual void UnBind() const = 0;
+    virtual const unsigned int GetCount() const = 0; 
 
-private: 
-
+    static IndexBuffer* Create(unsigned int * indices, unsigned int count);
 };
 }

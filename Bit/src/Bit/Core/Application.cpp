@@ -63,8 +63,8 @@ void Application::OnInit()
     VAO = new VertexArray();
     VAO->Bind();
     std::cout << "Sizeof(Vertices) : " << sizeof(vertices) << "\n";
-    VBO = new VertexBuffer(vertices, sizeof(vertices));
-    IBO = new IndexBuffer(indices, 6);
+    VBO = VertexBuffer::Create(vertices, sizeof(vertices));
+    IBO = IndexBuffer::Create(indices, 6);
 
     bufferLayout = new BufferLayout({
         { SHADER_DATA_TYPE::FLOAT2, "a_Position"}, // Buffer Element is constructed as temp rvalue and passed to bufferlayout via std::move
@@ -86,8 +86,6 @@ void Application::OnInit()
     }
     std::cout << "INDEX BUFFER: " << IBO->GetCount() << "\n";
     std::cout << "VAO ID: " << VAO->GetID() << "\n"
-              << "VBO ID: " << VBO->GetID() << "\n"
-              << "IBO ID: " << IBO->GetID() << "\n"
               << "Shader ID: " << shader->GetID() << "\n"
               << "IBO COUNT: " << VAO->GetIndexBuffer()->GetCount() << "\n"
               << "Stride: " << bufferLayout->GetStride() << "\n";

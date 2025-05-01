@@ -15,11 +15,15 @@ target_sources(BitEngine
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
     src/Bit/Core/Window.cpp
+    src/Bit/Renderer/RendererAPI.cpp
     src/Bit/Renderer/GraphicsContext.cpp
     src/Bit/Renderer/Texture.cpp
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
+
+    src/Platform/OpenGL/OpenGLBuffers.cpp
+    src/Platform/OpenGL/OpenGLRendererAPI.cpp
     
 )
 
