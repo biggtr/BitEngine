@@ -1,39 +1,26 @@
 #pragma once
-
-#include "Bitpch.h"
+#include <string>
 
 namespace BitEngine
 {
-struct ShaderSources
-{
-    std::string VertexShaderSource;
-    std::string FragmentShaderSource;
-};
 
 class Shader
 {
-private:
-    unsigned int m_ID;
     
 public:
-    Shader(std::string path);
+    
+    virtual ~Shader() = default;
 
-    void Bind();
-    void Unbind();
-    unsigned int GetID() { return m_ID; }
+    virtual void Bind() const = 0;
+    virtual void Unbind() const = 0;
 
-    void SetUniform1i(const std::string& uniformName, int uniformValue);
-    void SetUniform4f();
-    void SetUniform3f();
+    virtual void SetInt(const std::string& uniformName, int uniformValue) = 0;
+    virtual void SetFloat(const std::string& uniformName, float v1) = 0;
+    virtual void SetFloat2(const std::string& uniformName, float v1, float v2) = 0;
+    virtual void SetFloat3(const std::string& uniformName, float v1, float v2, float v3) = 0;
+    virtual void SetFloat4(const std::string& uniformName, float v1, float v2, float v3, float v4) = 0;
 
-private: 
-    unsigned int CompileShader(unsigned int shaderType,const std::string& shaderSource);
-    ShaderSources ParseShader(const std::string path);
-    void CreateProgram();
-    int GetUniformLocation(const std::string& uniformName);
-    ShaderSources m_ShaderSources;
-
-
+    static Shader* Create(const std::string& path);
 };
 
 }

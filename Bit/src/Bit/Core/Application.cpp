@@ -73,11 +73,11 @@ void Application::OnInit()
     VBO->SetBufferLayout(bufferLayout);
     VAO->AddVertexBuffer(VBO);
     VAO->SetIndexBuffer(IBO);
-    shader = new Shader("assets/shaders/BasicTexture.glsl");
+    shader = Shader::Create("assets/shaders/BasicTexture.glsl");
     shader->Bind();
-    texture = new Texture("assets/textures/daddy.bmp");
+    texture = Texture::Create("assets/textures/daddy.bmp");
     texture->Bind(0);
-    shader->SetUniform1i("u_TextureImage", 0);
+    shader->SetInt("u_TextureImage", 0);
     BIT_CORE_INFO("Hello from application init..");
 
     for(auto element : VAO->GetVertexBuffer()[0]->GetBufferLayout()->GetBufferElements())

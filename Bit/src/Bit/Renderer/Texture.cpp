@@ -1,41 +1,23 @@
 #include "Texture.h"
-#include <glad/glad.h>
-#include "ImageLoader.h"
-#include "Bit/Core/Core.h"
+#include "Bit/Renderer/RendererAPI.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
-
-namespace BitEngine 
+namespace BitEngine
 {
 
-Texture::Texture(const std::string& filePath)
-    : m_FilePath(filePath)
+Texture* Texture::Create(const std::string &path)
 {
 
-    m_PixelData = ImageLoader::LoadImage(m_FilePath, m_Width, m_Height, m_Channels);
-    GLCall(glGenTextures(1, &m_ID));
-    GLCall(glBindTexture(GL_TEXTURE_2D, m_ID));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_PixelData.data()));
-    GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+    switch (RendererAPI::GetAPI()) 
+    {
 
+    case RENDERER_API::NONE:
+        return nullptr;
+    case RENDERER_API::OPENGL:
+            return new OpenGLTexture(path);
+      break;
+    }
+    return nullptr;
 }
 
-void Texture::Bind(unsigned int slot)
-{
-    GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-    GLCall(glBindTexture(GL_TEXTURE_2D, m_ID));
-}
-
-void Texture::Unbind()
-{
-    GLCall(glBindTexture(0, m_ID));
-}
-
-Texture::~Texture()
-{
-
-}
 }

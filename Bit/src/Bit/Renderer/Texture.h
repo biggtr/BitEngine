@@ -8,18 +8,11 @@ class Texture
 {
 
 public:
-    Texture(const std::string& filePath);
-    ~Texture();
+    virtual ~Texture() = default;
+    virtual void Bind(unsigned int slot) const = 0;
+    virtual void Unbind() const = 0;
 
-    void Bind(unsigned int slot);
-    void Unbind();
-    
-    unsigned int GetID() { return m_ID; }
-private:
-    unsigned int m_ID;
-    std::string m_FilePath;
-    int m_Width, m_Height, m_Channels;
-    std::vector<uint8_t> m_PixelData;
+    static Texture* Create(const std::string& path);
 };
 
 }
