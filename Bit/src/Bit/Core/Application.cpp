@@ -3,6 +3,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
 #include "Bit/Renderer/Buffers.h"
+#include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Renderer/VertexArray.h"
@@ -20,6 +21,7 @@ Application::Application()
     IBO = nullptr;
     shader = nullptr;
     texture = nullptr;
+    m_RendererAPI = nullptr;
 }
 Application::~Application()
 {
@@ -28,6 +30,7 @@ Application::~Application()
     delete IBO;
     delete shader;
     delete texture;
+    delete m_RendererAPI;
 
 }
 void Application::InitializeEngineSystems(EngineComponents* engineComponents)
@@ -37,15 +40,12 @@ void Application::InitializeEngineSystems(EngineComponents* engineComponents)
 }
 void Application::OnInit()
 {
-     GLCall(glViewport(0, 0, 
-        m_EngineComponents->Window->GetWidth(),
-        m_EngineComponents->Window->GetHeight()
-    ));
-    GLCall(glDisable(GL_CULL_FACE));
-    GLCall(glDisable(GL_DEPTH_TEST));
-    std::cout << "Viewport: " 
-    << m_EngineComponents->Window->GetWidth() << "x" 
-    << m_EngineComponents->Window->GetHeight() << std::endl;
+    m_RendererAPI = RendererAPI::Create();
+    m_RendererAPI->SetViewport(0, 0, m_EngineComponents->Window->GetWidth(), m_EngineComponents->Window->GetHeight());
+
+    BIT_CORE_INFO("Window Width: {}", m_EngineComponents->Window->GetWidth());
+    BIT_CORE_INFO("Window Height: {}", m_EngineComponents->Window->GetHeight());
+
 //default logic goes before OnInit
     float vertices[] = {
          -0.5f, 0.5f, 0.0f,  0.0f, // uv top-left is (0, 0) 
@@ -80,11 +80,10 @@ void Application::OnInit()
 }
 void Application::OnRender()
 {
-    GLCall(glClearColor(0.0f, 0.3f, 0.0f, 1.0f));
-    GLCall(glClear(GL_COLOR_BUFFER_BIT));
+    m_RendererAPI->SetClearColor(BitMath::Vector4(0.0f, 6.0f, 0.0f, 0.0f));
+    m_RendererAPI->Clear();
     shader->Bind();
-    VAO->Bind();
-    GLCall(glDrawElements(GL_TRIANGLES, VAO->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr));
+    m_RendererAPI->DrawIndexed(VAO);
 }
 void Application::OnUpdate(float deltaTime)
 {

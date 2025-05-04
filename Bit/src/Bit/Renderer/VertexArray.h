@@ -18,8 +18,8 @@ private:
 
 public:
     virtual ~VertexArray() = default;
-    virtual void Bind() = 0;
-    virtual void UnBind() = 0;
+    virtual void Bind() const = 0;
+    virtual void UnBind() const = 0;
 
     virtual void AddVertexBuffer(VertexBuffer* vertexBuffer) = 0;
     virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0; 

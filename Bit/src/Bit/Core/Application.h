@@ -9,6 +9,7 @@ class Texture;
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
+class RendererAPI;
 struct EngineComponents
 {
     BitEngine::Window* Window;
@@ -45,7 +46,7 @@ private:
     bool m_IsRunning;
     Time m_Time;
     EngineComponents* m_EngineComponents;
-
+    RendererAPI* m_RendererAPI;
 
 };
 Application* CreateApplication();

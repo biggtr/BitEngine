@@ -24,11 +24,11 @@ OpenGLVertexArray::~OpenGLVertexArray()
     }
 }
 
-void OpenGLVertexArray::Bind()
+void OpenGLVertexArray::Bind() const 
 {
     GLCall(glBindVertexArray(m_ID));
 }
-void OpenGLVertexArray::UnBind()
+void OpenGLVertexArray::UnBind() const 
 {
     GLCall(glBindVertexArray(0));
 }
