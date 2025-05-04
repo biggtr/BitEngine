@@ -18,7 +18,6 @@ Application::Application()
     VAO = nullptr;
     VBO = nullptr;
     IBO = nullptr;
-    bufferLayout = nullptr;
     shader = nullptr;
     texture = nullptr;
 }
@@ -27,7 +26,6 @@ Application::~Application()
     delete VAO;
     delete VBO;
     delete IBO;
-    delete bufferLayout;
     delete shader;
     delete texture;
 
@@ -66,7 +64,7 @@ void Application::OnInit()
     VBO = VertexBuffer::Create(vertices, sizeof(vertices));
     IBO = IndexBuffer::Create(indices, 6);
 
-    bufferLayout = new BufferLayout({
+    BufferLayout bufferLayout = BufferLayout({
         { SHADER_DATA_TYPE::FLOAT2, "a_Position"}, // Buffer Element is constructed as temp rvalue and passed to bufferlayout via std::move
         { SHADER_DATA_TYPE::FLOAT2, "a_TextureCoords"}
     });
@@ -78,12 +76,7 @@ void Application::OnInit()
     texture = Texture::Create("assets/textures/daddy.bmp");
     texture->Bind(0);
     shader->SetInt("u_TextureImage", 0);
-    BIT_CORE_INFO("Hello from application init..");
-
-    for(auto element : VAO->GetVertexBuffer()[0]->GetBufferLayout()->GetBufferElements())
-    {
-        std::cout << element.AttributeName << " " << element.GetComponentCount() << " " << element.Offset << " " << element.Size << " " <<  std::endl;
-    }
+    BIT_CORE_ERROR("Hello {}", 13.4f);
 }
 void Application::OnRender()
 {
@@ -91,7 +84,6 @@ void Application::OnRender()
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
     shader->Bind();
     VAO->Bind();
-
     GLCall(glDrawElements(GL_TRIANGLES, VAO->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr));
 }
 void Application::OnUpdate(float deltaTime)

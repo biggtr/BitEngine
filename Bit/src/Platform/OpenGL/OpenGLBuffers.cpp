@@ -24,10 +24,6 @@ void OpenGLVertexBuffer::UnBind()
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-OpenGLVertexBuffer::~OpenGLVertexBuffer()
-{
-    delete m_Layout;
-}
 
 ///////////////////////////////////////////////////////////////////////
 /// IndexBuffer 

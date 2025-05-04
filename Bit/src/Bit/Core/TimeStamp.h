@@ -10,8 +10,8 @@ class Time
 {
 public:
     Time()
+        : m_StartTime(Clock::now()), m_LastTime(m_StartTime) // initialize lasttime with starttime to avoid garbage value at first
     {
-        m_StartTime = Clock::now();
     }
 
     double GetTotalTime()
@@ -29,7 +29,6 @@ public:
     }
 
 private:
-    float m_Time;
     using Clock = std::chrono::steady_clock;
     Clock::time_point m_StartTime;
     Clock::time_point m_LastTime;

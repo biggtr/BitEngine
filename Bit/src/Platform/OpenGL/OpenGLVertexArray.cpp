@@ -43,7 +43,7 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
     GLCall(glBindVertexArray(m_ID));
     vertexBuffer->Bind();
     const auto& layout = vertexBuffer->GetBufferLayout();
-    auto elements = layout->GetBufferElements();
+    auto elements = layout.GetBufferElements();
     for(const auto& element : elements)
     {
         switch (element.Type) 
@@ -62,7 +62,7 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
                             element.GetComponentCount(), 
                             GL_FLOAT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout->GetStride(), 
+                            layout.GetStride(), 
                             (const void*) element.Offset));
                     m_VertexBufferIndex++;
                     break;
@@ -76,7 +76,7 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
                             element.GetComponentCount(), 
                             GL_INT, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout->GetStride(), 
+                            layout.GetStride(), 
                             (const void*) element.Offset));
                     m_VertexBufferIndex++;
                     break;
@@ -89,7 +89,7 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
                             element.GetComponentCount(), 
                             GL_BOOL, 
                             element.Normalized ? GL_TRUE : GL_FALSE, 
-                            layout->GetStride(), 
+                            layout.GetStride(), 
                             (const void*) element.Offset));
                     m_VertexBufferIndex++;
                     break;

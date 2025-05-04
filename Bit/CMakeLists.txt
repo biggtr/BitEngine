@@ -43,5 +43,5 @@ target_precompile_headers(BitEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
 )
 target_link_libraries(BitEngine glfw glad ImageLoader ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
-
+target_compile_options(BitEngine PRIVATE -Wall -Wextra -Wpedantic) # Enables extra warning
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})

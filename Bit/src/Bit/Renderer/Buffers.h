@@ -32,10 +32,10 @@ namespace BitEngine
 
 struct BufferElement
 {
-    size_t Offset;
     std::string AttributeName;
-    uint32_t Size;
     SHADER_DATA_TYPE Type;
+    uint32_t Size;
+    size_t Offset;
     bool Normalized;
     
 
@@ -69,6 +69,7 @@ class BufferLayout
 {
 public:
 
+    BufferLayout() {}
     BufferLayout(std::vector<BufferElement>&& bufferElements)
         : m_Stride(0)
     {
@@ -84,7 +85,6 @@ private:
     void CalculateOffsetAndStride()
     {
         size_t offset = 0;
-        unsigned int stride = 0;
         for (auto& element : m_BufferElements)
         {
             element.Offset = offset;
@@ -105,8 +105,8 @@ public:
     virtual ~VertexBuffer() = default;
     virtual void Bind() = 0;
     virtual void UnBind() = 0;
-    virtual void SetBufferLayout(BufferLayout* bufferLayout) = 0; 
-    virtual const BufferLayout* GetBufferLayout() const = 0;
+    virtual void SetBufferLayout(const BufferLayout& bufferLayout) = 0; 
+    virtual const BufferLayout& GetBufferLayout() const = 0;
 
     static VertexBuffer* Create(float* vertices, unsigned int size);
 };
@@ -118,7 +118,7 @@ public:
     virtual ~IndexBuffer() = default;
     virtual void Bind() const = 0;
     virtual void UnBind() const = 0;
-    virtual const unsigned int GetCount() const = 0; 
+    virtual unsigned int GetCount() const = 0; 
 
     static IndexBuffer* Create(unsigned int * indices, unsigned int count);
 };

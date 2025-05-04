@@ -9,7 +9,6 @@ class Texture;
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
-class BufferLayout;
 struct EngineComponents
 {
     BitEngine::Window* Window;
@@ -28,7 +27,6 @@ public:
     VertexArray* VAO;
     VertexBuffer* VBO;
     IndexBuffer* IBO;
-    BufferLayout* bufferLayout;
     Shader* shader;
     Texture* texture;
 

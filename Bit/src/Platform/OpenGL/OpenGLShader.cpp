@@ -83,7 +83,7 @@ int OpenGLShader::GetUniformLocation(const std::string& uniformName)
     GLCall(int uniformLocation = glGetUniformLocation(m_ID, uniformName.c_str()));
     if(uniformLocation == -1)
     {
-        BIT_CORE_ERROR("No such a thing as uniform location ");
+        // BIT_CORE_ERROR("No such a thing as uniform location ");
     }
     return uniformLocation; 
 }

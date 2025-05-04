@@ -10,7 +10,7 @@ void Logger::Error(const std::string& msg, size_t line, const std::string& file)
     BitEngine::LogMessage logMessage(LOG_TYPE::ERROR, msg, line, file);
     PrintMessage(logMessage);
 }
-void Logger::Warning(const std::string& msg, size_t line, const std::string& file)
+void Logger::Warn(const std::string& msg, size_t line, const std::string& file)
 {
     BitEngine::LogMessage logMessage(LOG_TYPE::WARNING, msg, line, file);
     PrintMessage(logMessage);
