@@ -21,6 +21,8 @@ target_sources(BitEngine
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
+    src/Bit/Scene/Entity.cpp
+    src/Bit/Scene/Scene.cpp
 
     src/Platform/OpenGL/OpenGLBuffers.cpp
     src/Platform/OpenGL/OpenGLRendererAPI.cpp

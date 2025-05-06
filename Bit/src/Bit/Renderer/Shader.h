@@ -8,7 +8,7 @@ class Shader
 {
     
 public:
-    
+       
     virtual ~Shader() = default;
 
     virtual void Bind() const = 0;
