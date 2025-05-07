@@ -12,8 +12,6 @@ int main()
     // BIT_CORE_INFO("Logger Initialized Correctly..!");
     
     BitEngine::Window*  window = BitEngine::Window::Create(SCR_WIDTH, SCR_HEIGHT, (char*) "BitEngine");
-    std::cout << "Window width: " << SCR_WIDTH << "Window height: " << SCR_HEIGHT << "from entry \n";
-    std::cout << window->GetWidth() << ", " << window->GetHeight() << "from window-> class\n";
 
     BitEngine::RendererAPI* rendererAPI = BitEngine::RendererAPI::Create();
     BitEngine::Renderer2D* renderer2D = new BitEngine::Renderer2D(rendererAPI);

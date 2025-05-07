@@ -3,6 +3,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
 #include "Bit/Renderer/Renderer2D.h"
+#include "Bit/Scene/Compontents.h"
 #include <cstddef>
 
 
@@ -29,6 +30,15 @@ void Application::OnInit()
     BIT_CORE_INFO("Window Width: {}", m_EngineComponents.Window->GetWidth());
     BIT_CORE_INFO("Window Height: {}", m_EngineComponents.Window->GetHeight());
 
+    Archetype archetype;
+    archetype.AddComponent<CHealth>({19.0f});
+    archetype.AddComponent<CTest>({19.0f});
+    auto signature = archetype.GetSignature();
+    std::cout << signature << " This is a signature\n";
+    
+    BIT_CORE_INFO("ArcheType signature {}", signature);
+    BIT_CORE_INFO("second Window Height: {}", m_EngineComponents.Window->GetHeight());
+
 }
 void Application::OnRender()
 {
@@ -36,6 +46,7 @@ void Application::OnRender()
     m_EngineComponents.Renderer2D->Clear();
     m_EngineComponents.Renderer2D->DrawQuad(BitMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f));
 }
+
 void Application::OnUpdate(float deltaTime)
 {
 }
