@@ -75,7 +75,9 @@ private:
     LOGGER_TYPE m_LoggerType;
 };
 }
+
 // Core Log Macros
+#ifdef _DEBUG
 #define BIT_CORE_ERROR(fmt, ...)        BitEngine::Logger::GetCoreLogger().Error(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
 #define BIT_CORE_WARN(fmt, ...)        BitEngine::Logger::GetCoreLogger().Warn(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
 #define BIT_CORE_INFO(fmt, ...)        BitEngine::Logger::GetCoreLogger().Info(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
@@ -84,3 +86,12 @@ private:
 #define BIT_CLIENT_ERROR(fmt, ...)        BitEngine::Logger::GetClientLogger().Error(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
 #define BIT_CLIENT_WARN(fmt, ...)        BitEngine::Logger::GetClientLogger().Warn(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
 #define BIT_CLIENT_INFO(fmt, ...)        BitEngine::Logger::GetClientLogger().Info(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
+#else 
+#define BIT_CORE_ERROR(fmt, ...)   
+#define BIT_CORE_WARN(fmt, ...)    
+#define BIT_CORE_INFO(fmt, ...)    
+#define BIT_CLIENT_ERROR(fmt, ...) 
+#define BIT_CLIENT_WARN(fmt, ...)  
+#define BIT_CLIENT_INFO(fmt, ...)  
+#endif    
+

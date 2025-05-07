@@ -10,9 +10,13 @@ class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
 class RendererAPI;
+class Renderer2D;
+
 struct EngineComponents
 {
     BitEngine::Window* Window;
+    BitEngine::Renderer2D* Renderer2D;
+
 };
         
 class Application
@@ -21,20 +25,7 @@ public:
     Application();
     virtual ~Application();
     virtual void Run();
-    void InitializeEngineSystems(EngineComponents* engineComponents);
-
-    //Temporary data will be deleted 
-
-    VertexArray* VAO;
-    VertexBuffer* VBO;
-    IndexBuffer* IBO;
-    Shader* shader;
-    Texture* texture;
-
-    
-
-
-
+    void InitializeEngineSystems(const EngineComponents& engineComponents);
 
 protected:
     virtual void OnInit();
@@ -45,8 +36,7 @@ protected:
 private:
     bool m_IsRunning;
     Time m_Time;
-    EngineComponents* m_EngineComponents;
-    RendererAPI* m_RendererAPI;
+    EngineComponents m_EngineComponents;
 
 };
 Application* CreateApplication();
