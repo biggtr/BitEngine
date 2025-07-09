@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-Window* Window::Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
+Window* Window::Create(unsigned int windowWidth, unsigned int windowHeight, const char* windowName)
 {
 
     switch (RendererAPI::GetAPI()) 

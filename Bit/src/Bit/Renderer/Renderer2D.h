@@ -11,7 +11,7 @@ class IndexBuffer;
 class Renderer2D
 {
 public:
-    Renderer2D(RendererAPI* api);
+    Renderer2D();
     ~Renderer2D();
 
     void Init();

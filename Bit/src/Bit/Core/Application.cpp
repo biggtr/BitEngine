@@ -1,5 +1,7 @@
 #include "Application.h"
 #include "Bit/Core/Core.h"
+#include "Bit/Renderer/RendererAPI.h"
+#include "Game.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
 #include "Bit/Renderer/Renderer2D.h"
@@ -9,65 +11,84 @@
 
 namespace BitEngine
 {
+Application Application::s_Instance;
+bool Application::Create(Game *gameInstance)
+{
+    if(s_Instance.m_Initialized)
+    {
+        BIT_CORE_ERROR("You Cannot Create More Than One Application Instance At A Time");
+        return false;
+    }
+    // Init All systems inhere 
+    if(!s_Instance.Initialize(gameInstance->appConfig))
+    {
+        BIT_CORE_ERROR("Failed to initialize application");
+        return false;
+    }
+    s_Instance.m_GameInstance = gameInstance;
+    s_Instance.m_IsRunning = true;
+    s_Instance.m_IsSuspended = false;
+
+    if(!s_Instance.m_GameInstance->Initialize())
+    {
+        BIT_CORE_ERROR("Failed to initialize game instance");
+        return false;
+    }
+
+    return true;
+}
+
+bool Application::Initialize(ApplicationConfig appCfg)
+{
+    m_Initialized = true;
     
-Application::Application()
-{
-}
-Application::~Application()
-{
-    delete m_EngineComponents.Window;
-    delete m_EngineComponents.Renderer2D;
-}
-void Application::InitializeEngineSystems(const EngineComponents& engineComponents) 
-{
-    m_EngineComponents = engineComponents;
-    m_EngineComponents.Renderer2D->Init();
+    m_Window = BitEngine::Window::Create(appCfg.width, appCfg.height, appCfg.name);
+    if(!m_Window)
+    {
+        BIT_CORE_ERROR("Failed to create window");
+        return false;
+    }
     
-}
-void Application::OnInit()
-{
-
-    BIT_CORE_INFO("Window Width: {}", m_EngineComponents.Window->GetWidth());
-    BIT_CORE_INFO("Window Height: {}", m_EngineComponents.Window->GetHeight());
-
-    Archetype archetype;
-    archetype.AddComponent<CHealth>({19.0f});
-    archetype.AddComponent<CTest>({19.0f});
-    auto signature = archetype.GetSignature();
-    std::cout << signature << " This is a signature\n";
-    
-    BIT_CORE_INFO("ArcheType signature {}", signature);
-    BIT_CORE_INFO("second Window Height: {}", m_EngineComponents.Window->GetHeight());
-
-}
-void Application::OnRender()
-{
-    m_EngineComponents.Renderer2D->SetClearColor(BitMath::Vector4(0.0f, 6.0f, 0.0f, 0.0f));
-    m_EngineComponents.Renderer2D->Clear();
-    m_EngineComponents.Renderer2D->DrawQuad(BitMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f));
-}
-
-void Application::OnUpdate(float deltaTime)
-{
+    m_Renderer2D = new BitEngine::Renderer2D();
+    if(!m_Renderer2D)
+    {
+        BIT_CORE_ERROR("Failed to create renderer");
+        return false;
+    }
+    return true;
 }
 
 void Application::Run()
 {
-    m_IsRunning = true;
-    OnInit();
+    s_Instance.m_Time.Reset();
 
-    while(m_IsRunning)
+    while(s_Instance.m_IsRunning)
     {
-        OnUpdate(m_Time.GetDeltaTime());
+        s_Instance.m_Time.Update();
+        float deltaTime = s_Instance.m_Time.GetDeltaTime();
+        s_Instance.m_Window->OnUpdate();
 
-        OnRender();
+        if(!s_Instance.m_IsSuspended && s_Instance.m_GameInstance)
+        {
+            s_Instance.m_GameInstance->OnUpdate(deltaTime);
 
-        m_EngineComponents.Window->OnUpdate();
-
+            // s_Instance.m_Renderer2D->BeginScene();
+            s_Instance.m_Renderer2D->SetClearColor(BitMath::Vector4(0.0, 1.0, 0.0, 1.0));
+            s_Instance.m_Renderer2D->Clear();
+            s_Instance.m_GameInstance->OnRender();
+            // s_Instance.m_Renderer2D->EndScene();
+        }
     }
 }
+Application::~Application()
+{
+    delete m_Renderer2D;
+    delete m_Window;
+}
 
-
-
-    
+bool Application::Shutdown()
+{
+    s_Instance.m_IsRunning = false;
+    return s_Instance.m_IsRunning;
+}
 }

@@ -10,7 +10,7 @@ class CrsPlatWindow : public Window
 
 
 public:
-    CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight, char* windowName);
+    CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight, const char* windowName);
     virtual ~CrsPlatWindow() override;
 
     virtual void OnUpdate() override;

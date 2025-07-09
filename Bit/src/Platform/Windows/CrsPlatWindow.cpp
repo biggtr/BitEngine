@@ -3,7 +3,7 @@
 namespace BitEngine
 {
 
-CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight, char* windowName)
+CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight, const char* windowName)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

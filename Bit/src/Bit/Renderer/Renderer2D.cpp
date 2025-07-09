@@ -1,15 +1,18 @@
 #include "Renderer2D.h"
 #include "Bit/Renderer/Buffers.h"
+#include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/VertexArray.h"
 
 namespace BitEngine 
 {
 
-Renderer2D::Renderer2D(RendererAPI* api)
+Renderer2D::Renderer2D()
 {
+    RendererAPI* rendererAPI = BitEngine::RendererAPI::Create();
+    rendererAPI->SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
-    m_RenderCommand->Init(api);
+    m_RenderCommand->Init(rendererAPI);
 }
 void Renderer2D::Init()
 {

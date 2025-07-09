@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.30)
-add_executable(Sandbox)
-target_sources(Sandbox
+add_executable(TestGame)
+target_sources(TestGame
     PRIVATE
-   src/Sandbox.cpp
+   src/GameEntry.cpp
+   src/TestGame.cpp
 )
-target_include_directories(Sandbox
+target_include_directories(TestGame
    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-set_target_properties(Sandbox PROPERTIES
+set_target_properties(TestGame PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>/${PLATFORM_NAME}"
     OUTPUT_NAME "Sandbox"  
 )
 
-target_link_libraries(Sandbox PRIVATE BitEngine)
+target_link_libraries(TestGame PRIVATE BitEngine)

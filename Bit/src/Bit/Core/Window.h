@@ -19,7 +19,11 @@ public:
 
     virtual void* GetWindow() const = 0;
 
-    static Window* Create(unsigned int windowWidth, unsigned int windowHeight, char* windowName);
+    static Window* Create(unsigned int windowWidth, unsigned int windowHeight, const char* windowName);
+
+
+
 };
 
 }
+

@@ -15,4 +15,4 @@ elseif(UNIX)
 endif()
 
 add_subdirectory(Bit)
-add_subdirectory(Sandbox)
+add_subdirectory(Games)

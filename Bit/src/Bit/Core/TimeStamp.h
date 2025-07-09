@@ -6,34 +6,38 @@
 namespace BitEngine 
 {
 
-class Time 
+class Time
 {
-public:
-    Time()
-        : m_StartTime(Clock::now()), m_LastTime(m_StartTime) // initialize lasttime with starttime to avoid garbage value at first
-    {
-    }
-
-    double GetTotalTime()
-    {
-        auto now = Clock::now();
-        return std::chrono::duration<double>(now - m_StartTime).count();
-    }
-
-    float GetDeltaTime()
-    {
-        auto currentTime = Clock::now();
-        auto delta = currentTime - m_LastTime;
-        m_LastTime = currentTime;
-        return std::chrono::duration<float>(delta).count();
-    }
-
 private:
-    using Clock = std::chrono::steady_clock;
-    Clock::time_point m_StartTime;
-    Clock::time_point m_LastTime;
-
+    float m_LastFrameTime = 0.0f;
+    float m_DeltaTime = 0.0f;
+    
+public:
+    void Reset()
+    {
+        m_LastFrameTime = GetCurrentTime();
+    }
+    
+    void Update()
+    {
+        float currentTime = GetCurrentTime();
+        m_DeltaTime = currentTime - m_LastFrameTime;
+        m_LastFrameTime = currentTime;
+        
+        // Cap delta time to prevent huge jumps
+        if (m_DeltaTime > 0.1f)
+            m_DeltaTime = 0.1f;
+    }
+    
+    float GetDeltaTime() const { return m_DeltaTime; }
+    
+private:
+    float GetCurrentTime()
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration<float>(currentTime - startTime).count();
+    }
 };
-
 }
 
