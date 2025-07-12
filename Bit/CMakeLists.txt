@@ -3,7 +3,6 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "Disable Wayland support")
 
 add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/glad)
-add_subdirectory(vendor/ImageLoader)
 
 
 add_library(BitEngine STATIC)
@@ -25,6 +24,12 @@ target_sources(BitEngine
     src/Bit/Renderer/Buffers.cpp
     src/Bit/Scene/Entity.cpp
     src/Bit/Scene/Scene.cpp
+    
+    src/Bit/Utils/ImageLoader/BMPLoader.cpp
+    src/Bit/Utils/ImageLoader/ImageLoader.cpp
+
+
+    
 
     src/Platform/OpenGL/OpenGLBuffers.cpp
     src/Platform/OpenGL/OpenGLRendererAPI.cpp
@@ -41,12 +46,11 @@ target_include_directories(BitEngine
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     vendor/glad/include        
     vendor/GLFW/include
-    vendor/ImageLoader/include
 )
 target_precompile_headers(BitEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
 )
-target_link_libraries(BitEngine glfw glad ImageLoader ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

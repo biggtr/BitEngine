@@ -1,5 +1,6 @@
 #include "Renderer2D.h"
 #include "Bit/Renderer/Buffers.h"
+#include "Bit/Renderer/OrthographicCamera.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/VertexArray.h"
@@ -53,13 +54,13 @@ void Renderer2D::Clear() const
     m_RenderCommand->Clear();
 }
 
-void Renderer2D::BeginScene()
+void Renderer2D::BeginScene(const OrthographicCamera& orthoCamera)
 {
 }
-void Renderer2D::DrawQuad(BitMath::Vector4 color)
+void Renderer2D::DrawQuad(const BitMath::Vector3& position, const BitMath::Vector3& scale, const BitMath::Vector4& color)
 {
     m_QuadVAO->Bind();
-    m_QuadShader->SetFloat4("u_Color",color.X, color.Y, color.Z, color.W);
+    m_QuadShader->SetFloat4("u_Color",color.x, color.y, color.z, color.w);
     m_QuadShader->Bind();    
     m_RenderCommand->DrawIndexed(m_QuadVAO);
 }

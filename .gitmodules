@@ -1,6 +1,3 @@
 [submodule "Bit/vendor/GLFW"]
 	path = Bit/vendor/GLFW
 	url = https://github.com/glfw/glfw.git
-[submodule "Bit/vendor/ImageLoader"]
-	path = Bit/vendor/ImageLoader
-	url = git@github.com:biggtr/ImageLoader.git

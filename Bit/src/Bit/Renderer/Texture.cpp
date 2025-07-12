@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-Texture* Texture::Create(const std::string &path)
+Texture* Texture::Create(const char* path)
 {
 
     switch (RendererAPI::GetAPI()) 

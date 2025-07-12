@@ -7,7 +7,7 @@ namespace BitEngine
 class Shader;
 class VertexBuffer;
 class IndexBuffer;
-
+class OrthographicCamera;
 class Renderer2D
 {
 public:
@@ -20,8 +20,8 @@ public:
     void SetClearColor(const BitMath::Vector4& color) const;
     void Clear() const;
 
-    void BeginScene();
-    void DrawQuad(BitMath::Vector4 color);
+    void BeginScene(const OrthographicCamera& orthoCamera);
+    void DrawQuad(const BitMath::Vector3& position, const BitMath::Vector3& scale, const BitMath::Vector4& color);
     void EndScene();
 
 private:

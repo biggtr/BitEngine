@@ -12,7 +12,7 @@ public:
     virtual void Bind(unsigned int slot) const = 0;
     virtual void Unbind() const = 0;
 
-    static Texture* Create(const std::string& path);
+    static Texture* Create(const char* path);
 };
 
 }

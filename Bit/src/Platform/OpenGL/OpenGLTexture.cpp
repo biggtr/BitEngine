@@ -1,15 +1,16 @@
 #include "OpenGLTexture.h"
 #include <glad/glad.h>
 #include "Bit/Core/Core.h"
-#include <ImageLoader.h>
+#include "Bit/Utils/ImageLoader/ImageLoader.h"
+
 namespace BitEngine 
 {
 
-OpenGLTexture::OpenGLTexture(const std::string& path)
+OpenGLTexture::OpenGLTexture(const char* path)
     : m_FilePath(path)
 {
 
-    m_PixelData = ImageLoader::LoadImage(m_FilePath, m_Width, m_Height, m_Channels);
+    m_PixelData = ImageLoader::Load(m_FilePath, m_Width, m_Height, m_Channels);
     GLCall(glGenTextures(1, &m_ID));
     GLCall(glBindTexture(GL_TEXTURE_2D, m_ID));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
