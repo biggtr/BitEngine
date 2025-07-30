@@ -1,0 +1,38 @@
+#include "System.h"
+#include "Bit/Scene/Compontents.h"
+#include "Bit/Scene/Entity.h"
+#include <algorithm>
+
+
+
+namespace BitEngine
+{
+
+    void System::AddEntity(const Entity& entity)
+    {
+        m_Entities.push_back(entity);
+    }
+    void System::RemoveEntity(Entity& entity)
+    {
+        for(size_t i = 0; i < m_Entities.size(); i++)
+        {
+            if(m_Entities[i].GetID() == entity.GetID())
+            {
+                m_Entities[i] = m_Entities.back(); //swaping with the last element to pop it 
+                m_Entities.pop_back();
+                return;
+            }
+        }
+    }
+    const std::vector<Entity>& System::GetEntities() const
+    {
+        return m_Entities;
+    }
+
+    template<typename T>
+    void System::RequireComponent()
+    {
+        unsigned int componentId = Component::Type<T>();
+        m_ComponentSignature |= (1 << componentId);
+    }
+}

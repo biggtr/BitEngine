@@ -3,6 +3,7 @@
 
 class TestGame : public BitEngine::Game
 {
+private:
 
 public:
     TestGame(){}
