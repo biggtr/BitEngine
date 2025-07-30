@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/RendererAPI.h"
+#include "Bit/Scene/Entity.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
@@ -11,25 +12,26 @@
 
 namespace BitEngine
 {
-Application Application::s_Instance;
+Application* Application::s_Instance = nullptr;
 bool Application::Create(Game *gameInstance)
 {
-    if(s_Instance.m_Initialized)
+    if(s_Instance)
     {
         BIT_CORE_ERROR("You Cannot Create More Than One Application Instance At A Time");
         return false;
     }
+    s_Instance = new Application();
     // Init All systems inhere 
-    if(!s_Instance.Initialize(gameInstance->appConfig))
+    if(!s_Instance->Initialize(gameInstance->appConfig))
     {
         BIT_CORE_ERROR("Failed to initialize application");
         return false;
     }
-    s_Instance.m_GameInstance = gameInstance;
-    s_Instance.m_IsRunning = true;
-    s_Instance.m_IsSuspended = false;
+    s_Instance->m_GameInstance = gameInstance;
+    s_Instance->m_IsRunning = true;
+    s_Instance->m_IsSuspended = false;
 
-    if(!s_Instance.m_GameInstance->Initialize())
+    if(!s_Instance->m_GameInstance->Initialize())
     {
         BIT_CORE_ERROR("Failed to initialize game instance");
         return false;
@@ -49,10 +51,17 @@ bool Application::Initialize(ApplicationConfig appCfg)
         return false;
     }
     
-    m_Renderer2D = new BitEngine::Renderer2D();
+    m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D)
     {
         BIT_CORE_ERROR("Failed to create renderer");
+        return false;
+    }
+
+    m_EntityManager = new EntityManager();
+    if(!m_EntityManager)
+    {
+        BIT_CORE_ERROR("Failed to create EntityManager");
         return false;
     }
     return true;
@@ -60,35 +69,44 @@ bool Application::Initialize(ApplicationConfig appCfg)
 
 void Application::Run()
 {
-    s_Instance.m_Time.Reset();
+    s_Instance->m_Time.Reset();
 
-    while(s_Instance.m_IsRunning)
+    while(s_Instance->m_IsRunning)
     {
-        s_Instance.m_Time.Update();
-        float deltaTime = s_Instance.m_Time.GetDeltaTime();
-        s_Instance.m_Window->OnUpdate();
+        s_Instance->m_Time.Update();
+        float deltaTime = s_Instance->m_Time.GetDeltaTime();
+        s_Instance->m_Window->OnUpdate();
 
-        if(!s_Instance.m_IsSuspended && s_Instance.m_GameInstance)
+        if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
-            s_Instance.m_GameInstance->OnUpdate(deltaTime);
+            s_Instance->m_GameInstance->OnUpdate(deltaTime);
 
             // s_Instance.m_Renderer2D->BeginScene();
-            s_Instance.m_Renderer2D->SetClearColor(BitMath::Vector4(0.0, 1.0, 0.0, 1.0));
-            s_Instance.m_Renderer2D->Clear();
-            s_Instance.m_GameInstance->OnRender();
+            s_Instance->m_Renderer2D->SetClearColor(BitMath::Vector4(1.0, 0.0, 1.0, 1.0));
+            s_Instance->m_Renderer2D->Clear();
+            s_Instance->m_GameInstance->OnRender();
             // s_Instance.m_Renderer2D->EndScene();
         }
     }
 }
 Application::~Application()
 {
+    delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
+    m_EntityManager = nullptr;
+    m_Renderer2D = nullptr;
+    m_Window = nullptr;
 }
 
 bool Application::Shutdown()
 {
-    s_Instance.m_IsRunning = false;
-    return s_Instance.m_IsRunning;
+    if(!s_Instance)
+        return false;
+
+    s_Instance->m_IsRunning = false;
+    delete s_Instance;
+    s_Instance = nullptr;
+    return true;
 }
 }

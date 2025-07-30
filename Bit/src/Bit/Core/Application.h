@@ -1,14 +1,12 @@
 #pragma once
-
 #include "Bit/Core/TimeStamp.h"
-#include "Bit/Renderer/Renderer2D.h"
 #include <cstdint>
 namespace BitEngine
 {
 class Game;
 class Window;
 class Renderer2D;
-        
+class EntityManager;        
 struct ApplicationConfig
 {
     uint32_t x;
@@ -33,7 +31,8 @@ public:
 private:
     BitEngine::Window* m_Window;
     Renderer2D* m_Renderer2D;
-    static Application s_Instance;
+    EntityManager* m_EntityManager;
+    static Application* s_Instance;
 public:
     Application(){}
     virtual ~Application();
@@ -42,6 +41,8 @@ public:
     static bool Shutdown();
     bool Initialize(ApplicationConfig appCfg);
 
-    inline BitEngine::Renderer2D& GetRenderer() { return *s_Instance.m_Renderer2D; }
+    inline static Application& GetApplication() { return *s_Instance; }
+    inline Renderer2D& GetRenderer() { return *m_Renderer2D; }
+    inline EntityManager& GetEntityManager() { return *m_EntityManager; }
 };
 }

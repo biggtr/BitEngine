@@ -10,7 +10,6 @@ target_sources(BitEngine
     PRIVATE
 
     src/Bit/Core/Application.cpp
-    src/Bit/Core/Application.cpp
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
     src/Bit/Core/Window.cpp
