@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include "Bit/Core/Defines.h"
 namespace BitEngine
 {
 
@@ -13,8 +14,6 @@ enum class SYSTEM_TYPE : uint32_t
 #define SYSTEM_CLASS_TYPE(type) static SYSTEM_TYPE GetStaticType() { return SYSTEM_TYPE::type }\
                                                     virtual SYSTEM_TYPE GetSystemType() const override { return SYSTEM_TYPE::type}\
                                                     virtual const char* GetName() const override { return #type; }
-const unsigned int MAX_COMPONENTS = 32;
-typedef uint32_t Signature;
 class Entity;
 
 class System

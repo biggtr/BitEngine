@@ -1,30 +1,44 @@
-#include "Bit/Scene/Entity.h"
+#pragma once
 #include "Bit/Core/Logger.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/Scene/Entity.h"
 #include "Bit/Systems/System.h"
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <type_traits>
-#include <utility>
-namespace BitEngine
+#include "Bit/Scene/Compontents.h"
+#include "Bit/Utils/MemoryPool/Pool.h"
+namespace BitEngine 
 {
-
-Entity EntityManager::CreateEntity()
+class Entity;
+class System;
+class IPool;
+class EntityManager
 {
-    uint32_t entityID = m_NumOfEntities++;
+    
+private:
+    uint32_t m_NumOfEntities;
 
-    Entity newEntity(entityID);
+    std::vector<Signature> m_EntitiesSignatures;
 
-    m_EntitiesToAdd.push_back(newEntity);
+    System* m_Systems[(uint32_t)SYSTEM_TYPE::COUNT];
+    std::vector<IPool*> m_ComponentPools;
 
-    printf("New Entity with id: %d Got Added..", entityID);
-    return newEntity;
-}
+    std::vector<Entity> m_EntitiesToAdd;
+    std::vector<Entity> m_EntitiesToRemove;
 
 
-template<typename TComponent, typename ...TArgs> 
-void EntityManager::AddComponent(const Entity& entity, TArgs&& ...args)
+public:
+    EntityManager()
+        : m_NumOfEntities(0)
+    {}
+
+    void Update();
+    
+    Entity CreateEntity();
+    void AddEntity();
+    void RemoveEntity();
+    void KillEntity();
+    void AddEntityToSystems(const Entity &entity) const;
+
+template<typename TComponent, typename ...TArgs>
+void AddComponent(const Entity& entity, TArgs&& ...args)
 {
     uint32_t entityID = entity.GetID();
     uint32_t componentID = Component::Type<TComponent>();
@@ -36,10 +50,10 @@ void EntityManager::AddComponent(const Entity& entity, TArgs&& ...args)
 
     if(!m_ComponentPools[componentID])
     {
-        Pool<TComponent>* newComponentPool = new Pool<TComponent>();
+        Pool<TComponent>* newComponentPool = new Pool<TComponent>(m_NumOfEntities);
         m_ComponentPools[componentID] = newComponentPool;
     }
-    Pool<TComponent>* componentPool = m_ComponentPools[componentID];
+    Pool<TComponent>* componentPool = (Pool<TComponent>*)(m_ComponentPools[componentID]);
     if(entityID >= componentPool->GetSize())
     {
         componentPool->Resize(m_NumOfEntities);
@@ -49,17 +63,17 @@ void EntityManager::AddComponent(const Entity& entity, TArgs&& ...args)
     componentPool->Set(entityID, newComponent);
 
     m_EntitiesSignatures[entityID] |= (1 << componentID);
+    BIT_LOG_INFO("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
+
 }
-
-
 template<typename TComponent> 
-bool EntityManager::HasComponent(const Entity& entity)
+bool HasComponent(const Entity& entity)
 {
     auto entityID = entity.GetID();
     return m_EntitiesSignatures[entityID] & (1 << Component::Type<TComponent>());
 }
 template<typename TComponent> 
-void EntityManager::RemoveComponent(const Entity& entity)
+void RemoveComponent(const Entity& entity)
 {
     auto entityID = entity.GetID();
     m_EntitiesSignatures[entityID] &= ~(1 << Component::Type<TComponent>());
@@ -67,7 +81,7 @@ void EntityManager::RemoveComponent(const Entity& entity)
 
 
 template<typename TSystem, typename ...TArgs> 
-void EntityManager::AddSystem(TArgs&& ...args)
+void AddSystem(TArgs&& ...args)
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
 
@@ -80,7 +94,7 @@ void EntityManager::AddSystem(TArgs&& ...args)
 
 }
 template<typename TSystem> 
-void EntityManager::RemoveSystem()
+void RemoveSystem()
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
 
@@ -92,14 +106,14 @@ void EntityManager::RemoveSystem()
     }
 }
 template<typename TSystem> 
-bool EntityManager::HasSystem() const
+bool HasSystem() const
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
     SYSTEM_TYPE type = TSystem::GetStaticType();
     return m_Systems[(uint32_t)type] != nullptr;
 }
 template<typename TSystem> 
-TSystem& EntityManager::GetSystem() const
+TSystem& GetSystem() const
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
     SYSTEM_TYPE type = TSystem::GetStaticType();
@@ -107,7 +121,7 @@ TSystem& EntityManager::GetSystem() const
 
 }
 template<typename TSystem> 
-void EntityManager::AddEntityToSystem(const Entity& entity) const
+void AddEntityToSystem(const Entity& entity) const
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
     uint32_t entityID = entity.GetID();
@@ -122,23 +136,7 @@ void EntityManager::AddEntityToSystem(const Entity& entity) const
         system->AddEntity(entity);
     }
 }
-void EntityManager::AddEntityToSystems(const Entity &entity) const 
-{
 
-    uint32_t entityID = entity.GetID();
-    const Signature& entitySignature = m_EntitiesSignatures[entityID];
 
-    for(System* system : m_Systems)
-    {
-        if(!system) continue;
-        const Signature& systemSignature = system->GetComponentSignature();
-        if((systemSignature & entitySignature) == systemSignature)
-        {
-            system->AddEntity(entity);
-        }
-    }
+};
 }
-
-
-}
-

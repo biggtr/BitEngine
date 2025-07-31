@@ -15,7 +15,7 @@ int main()
    
     if(!BitEngine::Application::Create(game))
     {
-        BIT_CORE_ERROR("Couldnt create a new game");
+        BIT_LOG_ERROR("Couldnt create a new game");
         return -1;
     }
 

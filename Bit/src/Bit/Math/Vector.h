@@ -1,3 +1,4 @@
+#pragma once
 #include <cmath>
 namespace BitMath 
 {
@@ -9,11 +10,6 @@ public:
     Vector2(float x = 1, float y = 1)
         :  x(x), Y(y)
     {
-    }
-    Vector2()
-    {
-        x = 1;
-        Y = 1;
     }
 
     static float Dot(Vector2 vec1, Vector2 vec2)
@@ -46,11 +42,11 @@ public:
         : x(x), y(y), z(z)
     {
     }
-
-    Vector3()
-        : x(1.0f), y(1.0f), z(1.0f)
-    {
-    }
+    Vector3() = default;                              // Default constructor
+    Vector3(const Vector3& other) = default;         // Copy constructor
+    Vector3(Vector3&& other) = default;              // Move constructor
+    Vector3& operator=(const Vector3& other) = default;  // Copy assignment
+    Vector3& operator=(Vector3&& other) = default;       // Move assignment
     static float Dot(Vector3 vec1, Vector3 vec2)
     {
         return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
@@ -78,7 +74,6 @@ public:
         : x(x), y(y), z(z), w(w)
     {
     }
-    Vector4(){}
 
     static float Dot(Vector4 vec1, Vector4 vec2)
     {

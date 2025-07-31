@@ -1,6 +1,6 @@
 #pragma once 
 #include "Application.h"
-#include "Bit/Scene/Entity.h"
+#include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
 namespace BitEngine 
 {

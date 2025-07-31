@@ -30,6 +30,7 @@ struct CTransform
     BitMath::Vector3 Scale;
     BitMath::Vector3 Rotation;
 
+    CTransform() = default;
     CTransform(BitMath::Vector3 position, BitMath::Vector3 scale, BitMath::Vector3 rotation)
     :   Position(position), Scale(scale), Rotation(rotation)
     {}

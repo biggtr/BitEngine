@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/RendererAPI.h"
-#include "Bit/Scene/Entity.h"
+#include "Bit/Scene/EntityManager.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
@@ -9,22 +9,25 @@
 #include "Bit/Scene/Compontents.h"
 #include <cstddef>
 
-
 namespace BitEngine
 {
 Application* Application::s_Instance = nullptr;
 bool Application::Create(Game *gameInstance)
 {
+    if(!Logger::Initialize())
+    {
+        return false;
+    }
     if(s_Instance)
     {
-        BIT_CORE_ERROR("You Cannot Create More Than One Application Instance At A Time");
+        BIT_LOG_ERROR("You Cannot Create More Than One Application Instance At A Time");
         return false;
     }
     s_Instance = new Application();
     // Init All systems inhere 
     if(!s_Instance->Initialize(gameInstance->appConfig))
     {
-        BIT_CORE_ERROR("Failed to initialize application");
+        BIT_LOG_ERROR("Failed to initialize application");
         return false;
     }
     s_Instance->m_GameInstance = gameInstance;
@@ -33,7 +36,7 @@ bool Application::Create(Game *gameInstance)
 
     if(!s_Instance->m_GameInstance->Initialize())
     {
-        BIT_CORE_ERROR("Failed to initialize game instance");
+        BIT_LOG_ERROR("Failed to initialize game instance");
         return false;
     }
 
@@ -47,21 +50,21 @@ bool Application::Initialize(ApplicationConfig appCfg)
     m_Window = BitEngine::Window::Create(appCfg.width, appCfg.height, appCfg.name);
     if(!m_Window)
     {
-        BIT_CORE_ERROR("Failed to create window");
+        BIT_LOG_ERROR("Failed to create window");
         return false;
     }
     
     m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D)
     {
-        BIT_CORE_ERROR("Failed to create renderer");
+        BIT_LOG_ERROR("Failed to create renderer");
         return false;
     }
 
     m_EntityManager = new EntityManager();
     if(!m_EntityManager)
     {
-        BIT_CORE_ERROR("Failed to create EntityManager");
+        BIT_LOG_ERROR("Failed to create EntityManager");
         return false;
     }
     return true;
@@ -107,6 +110,8 @@ bool Application::Shutdown()
     s_Instance->m_IsRunning = false;
     delete s_Instance;
     s_Instance = nullptr;
+
+    Logger::Shutdown();
     return true;
 }
 }

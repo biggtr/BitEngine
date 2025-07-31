@@ -25,7 +25,7 @@ public:
 
     static Vector4 Multiply(const Matrix4x4& mat, const Vector4& vec)
     {
-        Vector4 result;
+        Vector4 result(1.0f, 1.0f, 1.0f, 1.0f);
         result.x = mat.Data[0] * vec.x + mat.Data[4] * vec.y + mat.Data[8]  * vec.z + mat.Data[12] * vec.w;
         result.y = mat.Data[1] * vec.x + mat.Data[5] * vec.y + mat.Data[9]  * vec.z + mat.Data[13] * vec.w;
         result.z = mat.Data[2] * vec.x + mat.Data[6] * vec.y + mat.Data[10] * vec.z + mat.Data[14] * vec.w;

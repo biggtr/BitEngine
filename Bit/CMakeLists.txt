@@ -21,7 +21,7 @@ target_sources(BitEngine
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
-    src/Bit/Scene/Entity.cpp
+    src/Bit/Scene/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
     
     src/Bit/Utils/ImageLoader/BMPLoader.cpp

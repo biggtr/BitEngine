@@ -1,48 +1,82 @@
 #include "Bitpch.h"
+#include <cstdarg>
+#include <cstdint>
+#include <cstdio>
+#include <ctime>
 #include "Logger.h"
 
 namespace BitEngine 
 {
+Logger* Logger::s_Instance = nullptr; 
 
-
-void Logger::Error(const std::string& msg, size_t line, const std::string& file)
+bool Logger::Initialize()
 {
-    BitEngine::LogMessage logMessage(LOG_TYPE::ERROR, msg, line, file);
-    PrintMessage(logMessage);
-}
-void Logger::Warn(const std::string& msg, size_t line, const std::string& file)
-{
-    BitEngine::LogMessage logMessage(LOG_TYPE::WARNING, msg, line, file);
-    PrintMessage(logMessage);
-}
-void Logger::Info(const std::string& msg, size_t line, const std::string& file)
-{
-    BitEngine::LogMessage logMessage(LOG_TYPE::INFO, msg, line, file);
-    PrintMessage(logMessage);
+    if(s_Instance)
+    {
+        printf("You Cannot Create More Than One Logger Instance At A Time\n");
+        return false;
+    }
+    s_Instance = new Logger();
+    return true;
 }
 
-// bool Logger::HasErrors() const
-// {
-//     return std::any_of(m_Messages.begin(),m_Messages.end(),
-//             [](const auto& msg) { return msg.LogType == LOG_TYPE::ERROR; }
-//             );
-// }
-void Logger::PrintMessage(LogMessage& msg) 
+void Logger::Log(LOG_LEVEL level, const char* msg, ...)
 {
-        if(!msg.Handled)
-        {
-            std::cerr << "["
-                << (msg.LoggerType == LOGGER_TYPE::CLIENT ? "CLIENT:" : "CORE:")
-                << (msg.LogType == LOG_TYPE::ERROR ? "ERROR" : 
-                msg.LogType == LOG_TYPE::WARNING ? "WARN" : "INFO")
-                << "] Line " << msg.Line << ", Col " << msg.File
-                << ": " << msg.Message << "\n";
-        }
-        msg.Handled = true;
 
-}
-Logger::~Logger()
+    constexpr size_t STACK_BUFFER_SIZE = 2048;
+    char stackBuffer[STACK_BUFFER_SIZE];
+    
+    va_list args;
+    va_start(args, msg);
+
+    int result = vsnprintf(stackBuffer, STACK_BUFFER_SIZE, msg, args); 
+    va_end(args);
+
+                          
+    if(result < STACK_BUFFER_SIZE)
+    {
+        s_Instance->LogInternal(level, stackBuffer);
+    }
+    else 
+    {
+        int size = result + 1; // +1 for nul term
+        char* buffer = new char[size]; 
+
+        va_start(args, msg);
+        vsnprintf(buffer, size, msg, args);
+        va_end(args);
+        s_Instance->LogInternal(level, buffer);
+        delete[] buffer;
+    }
+}                         
+void Logger::LogInternal(LOG_LEVEL level, const char* msg)
 {
+    time_t now = time(nullptr);
+    struct tm* timeinfo = localtime(&now);
+    printf("[%04d-%02d-%02d %02d:%02d:%02d] [%-5s] %s\n",
+           timeinfo->tm_year + 1900,
+           timeinfo->tm_mon + 1,
+           timeinfo->tm_mday,
+           timeinfo->tm_hour,
+           timeinfo->tm_min,
+           timeinfo->tm_sec,
+           GetLevelString(level),
+           msg);
+}
+                          
+const char* Logger::GetLevelString(LOG_LEVEL level)
+{
+    const char* levelStrings[] = {"FATAL" , "ERROR", "WARN", "INFO", "DEBUG", "TRACE" };
+    uint8_t index = (uint8_t)level;
+    return (index > 0 && index < 6) ? levelStrings[index] : "UNKOWN";
+}
+bool Logger::Shutdown()   
+{                         
+    if(!s_Instance)
+        return false;
+    delete s_Instance;
+    s_Instance = nullptr;
+    return true;
 }
 
 }

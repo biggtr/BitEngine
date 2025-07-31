@@ -1,97 +1,43 @@
 #pragma once
 
 #include "Bitpch.h"
-#include <format>
 
 namespace BitEngine 
 {
 
-enum class LOG_TYPE
+enum class LOG_LEVEL : uint8_t
 {
-    WARNING,
-    INFO,
-    ERROR
-};
-
-enum class LOGGER_TYPE
-{
-    CLIENT, CORE 
-};
-
-struct LogMessage
-{
-    LOGGER_TYPE LoggerType;
-    LOG_TYPE LogType;
-    std::string Message;
-    size_t Line;
-    std::string File;
-    bool Handled = false;
-
-    LogMessage(LOG_TYPE logType, const std::string& message, size_t line, const std::string& file)
-        : LogType(logType), Message(message), Line(line), File(file)   
-    {
-
-    }
-
-
+    FATAL = 0,
+    ERROR = 1,
+    WARN = 2,
+    INFO = 3,
+    DEBUG = 4,
+    TRACE = 5
 };
 
 class Logger
 {
-
+private:
+    static Logger* s_Instance;
 public:
 
-    static void Init();
-    static Logger& GetCoreLogger()
-    {
-        static Logger instance(LOGGER_TYPE::CORE);
-        return instance;
-    }
-    static Logger& GetClientLogger()
-    {
+    static bool Initialize();
 
-        static Logger instance(LOGGER_TYPE::CLIENT);
-        return instance;
-    }
-    
-    void Error(const std::string& msg, size_t line, const std::string& file);
-    void Warn(const std::string& msg, size_t line, const std::string& file);
-    void Info(const std::string& msg, size_t line, const std::string& file);
+    static void Log(LOG_LEVEL level, const char* msg, ...);
 
-    bool HasErrors() const;
-    void Clear();
-private: 
-    Logger(LOGGER_TYPE loggerType, bool useColors = true)
-    {
-        m_LoggerType = loggerType;
-        m_UseColors = useColors;
-    }
-    ~Logger();
-    void Log(LOG_TYPE logType, const std::string& msg, size_t line, const std::string& file);
+    static bool Shutdown();
 
+    static const char* GetLevelString(LOG_LEVEL level);
 private:
-    void PrintMessage(LogMessage& logMessage);
-    bool m_UseColors;
-    LOGGER_TYPE m_LoggerType;
+    void LogInternal(LOG_LEVEL level, const char* msg);
+
 };
+
+
+#define BIT_LOG_FATAL(message, ...) BitEngine::Logger::Log(BitEngine::LOG_LEVEL::FATAL, message, ##__VA_ARGS__);
+#define BIT_LOG_ERROR(message, ...) BitEngine::Logger::Log(BitEngine::LOG_LEVEL::ERROR, message, ##__VA_ARGS__);
+#define BIT_LOG_TRACE(message, ...) BitEngine::Logger::Log(BitEngine::LOG_LEVEL::TRACE, message, ##__VA_ARGS__);
+#define BIT_LOG_DEBUG(message, ...) BitEngine::Logger::Log(BitEngine::LOG_LEVEL::DEBUG, message, ##__VA_ARGS__);
+#define BIT_LOG_WARN(message, ...)  BitEngine::Logger::Log(BitEngine::LOG_LEVEL::WARN, message, ##__VA_ARGS__);
+#define BIT_LOG_INFO(message, ...)  BitEngine::Logger::Log(BitEngine::LOG_LEVEL::INFO, message, ##__VA_ARGS__);
 }
-
-// Core Log Macros
-#ifdef _DEBUG
-#define BIT_CORE_ERROR(fmt, ...)        BitEngine::Logger::GetCoreLogger().Error(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-#define BIT_CORE_WARN(fmt, ...)        BitEngine::Logger::GetCoreLogger().Warn(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-#define BIT_CORE_INFO(fmt, ...)        BitEngine::Logger::GetCoreLogger().Info(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-
-// Client Log Macros
-#define BIT_CLIENT_ERROR(fmt, ...)        BitEngine::Logger::GetClientLogger().Error(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-#define BIT_CLIENT_WARN(fmt, ...)        BitEngine::Logger::GetClientLogger().Warn(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-#define BIT_CLIENT_INFO(fmt, ...)        BitEngine::Logger::GetClientLogger().Info(std::format(fmt, ##__VA_ARGS__), __LINE__, __FILE__)
-#else 
-#define BIT_CORE_ERROR(fmt, ...)   
-#define BIT_CORE_WARN(fmt, ...)    
-#define BIT_CORE_INFO(fmt, ...)    
-#define BIT_CLIENT_ERROR(fmt, ...) 
-#define BIT_CLIENT_WARN(fmt, ...)  
-#define BIT_CLIENT_INFO(fmt, ...)  
-#endif    
-
