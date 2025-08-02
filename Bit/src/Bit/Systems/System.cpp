@@ -1,5 +1,4 @@
 #include "System.h"
-#include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include <algorithm>
 
@@ -7,7 +6,19 @@
 
 namespace BitEngine
 {
+    System::System() :
+        m_ComponentSignature(0),
+        m_Entities{},
+        m_SystemType(SYSTEM_TYPE::COUNT),
+        m_EntityManager(nullptr)
+    {
 
+    }
+
+    void System::SetEntityManager(EntityManager* entityManager)
+    {
+        m_EntityManager = entityManager;
+    }
     void System::AddEntity(const Entity& entity)
     {
         m_Entities.push_back(entity);
@@ -29,10 +40,4 @@ namespace BitEngine
         return m_Entities;
     }
 
-    template<typename T>
-    void System::RequireComponent()
-    {
-        unsigned int componentId = Component::Type<T>();
-        m_ComponentSignature |= (1 << componentId);
-    }
 }

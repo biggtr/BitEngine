@@ -10,7 +10,7 @@ void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint
 {
      GLCall(glViewport(x, y, width, height));
 }
-void OpenGLRendererAPI::SetClearColor(const BitMath::Vector4& color) const 
+void OpenGLRendererAPI::SetClearColor(const BMath::Vector4& color) const 
 {
     GLCall(glClearColor(color.x, color.y, color.z, color.w));
 }

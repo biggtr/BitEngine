@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-namespace BitMath 
+namespace BMath 
 {
 
 

@@ -4,9 +4,9 @@
 #include "Bit/Systems/System.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Utils/MemoryPool/Pool.h"
+#include <cstdint>
 namespace BitEngine 
 {
-class Entity;
 class System;
 class IPool;
 class EntityManager
@@ -26,8 +26,11 @@ private:
 
 public:
     EntityManager()
-        : m_NumOfEntities(0)
-    {}
+        :   m_NumOfEntities(0),
+            m_Systems{nullptr}
+    {
+
+    }
 
     void Update();
     
@@ -37,35 +40,36 @@ public:
     void KillEntity();
     void AddEntityToSystems(const Entity &entity) const;
 
-template<typename TComponent, typename ...TArgs>
-void AddComponent(const Entity& entity, TArgs&& ...args)
-{
-    uint32_t entityID = entity.GetID();
-    uint32_t componentID = Component::Type<TComponent>();
-    
-    if(componentID >= m_ComponentPools.size())
+
+    template<typename TComponent, typename ...TArgs>
+    void AddComponent(const Entity& entity, TArgs&& ...args)
     {
-        m_ComponentPools.resize(componentID + 1, nullptr);
+        uint32_t entityID = entity.GetID();
+        uint32_t componentID = Component::Type<TComponent>();
+        
+        if(componentID >= m_ComponentPools.size())
+        {
+            m_ComponentPools.resize(componentID + 1, nullptr);
+        }
+
+        if(!m_ComponentPools[componentID])
+        {
+            Pool<TComponent>* newComponentPool = new Pool<TComponent>(m_NumOfEntities);
+            m_ComponentPools[componentID] = newComponentPool;
+        }
+        Pool<TComponent>* componentPool = (Pool<TComponent>*)(m_ComponentPools[componentID]);
+        if(entityID >= componentPool->GetSize())
+        {
+            componentPool->Resize(m_NumOfEntities);
+        }
+
+        TComponent newComponent(std::forward<TArgs>(args)...);
+        componentPool->Set(entityID, newComponent);
+
+        m_EntitiesSignatures[entityID] |= (1 << componentID);
+        BIT_LOG_INFO("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
+
     }
-
-    if(!m_ComponentPools[componentID])
-    {
-        Pool<TComponent>* newComponentPool = new Pool<TComponent>(m_NumOfEntities);
-        m_ComponentPools[componentID] = newComponentPool;
-    }
-    Pool<TComponent>* componentPool = (Pool<TComponent>*)(m_ComponentPools[componentID]);
-    if(entityID >= componentPool->GetSize())
-    {
-        componentPool->Resize(m_NumOfEntities);
-    }
-
-    TComponent newComponent(std::forward<TArgs>(args)...);
-    componentPool->Set(entityID, newComponent);
-
-    m_EntitiesSignatures[entityID] |= (1 << componentID);
-    BIT_LOG_INFO("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
-
-}
 template<typename TComponent> 
 bool HasComponent(const Entity& entity)
 {
@@ -79,18 +83,29 @@ void RemoveComponent(const Entity& entity)
     m_EntitiesSignatures[entityID] &= ~(1 << Component::Type<TComponent>());
 }
 
+template<typename TComponent>
+TComponent& GetComponent(const Entity& entity)
+{
+    uint32_t componentID = Component::Type<TComponent>();
+    uint32_t entityID = entity.GetID();
+    Pool<TComponent>* componentPool = (Pool<TComponent>*)m_ComponentPools[componentID];
+    return componentPool->Get(entityID);
+}
 
-template<typename TSystem, typename ...TArgs> 
-void AddSystem(TArgs&& ...args)
+template<typename TSystem> 
+void AddSystem()
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
 
     SYSTEM_TYPE type = TSystem::GetStaticType();
-    if(m_Systems[(uint32_t)type])
+    uint32_t index = uint32_t(type);
+    if(m_Systems[index])
     {
         return; //already exists
     }
-    m_Systems[(uint32_t)type] = new TSystem(std::forward<TArgs>(args)...);
+    TSystem* system = new TSystem();
+    system->SetEntityManager(this);
+    m_Systems[index] = system;
 
 }
 template<typename TSystem> 
@@ -137,6 +152,6 @@ void AddEntityToSystem(const Entity& entity) const
     }
 }
 
-
 };
+
 }

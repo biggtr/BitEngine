@@ -16,6 +16,7 @@ Entity EntityManager::CreateEntity()
     uint32_t entityID = m_NumOfEntities++;
 
     Entity newEntity(entityID);
+    newEntity.m_EntityManager = this;
 
     m_EntitiesToAdd.push_back(newEntity);
     if(entityID >= m_EntitiesSignatures.size())
@@ -35,6 +36,7 @@ void EntityManager::AddEntityToSystems(const Entity &entity) const
 
     for(System* system : m_Systems)
     {
+
         if(!system) continue;
         const Signature& systemSignature = system->GetComponentSignature();
         if((systemSignature & entitySignature) == systemSignature)
@@ -53,8 +55,4 @@ void EntityManager::Update()
     m_EntitiesToAdd.clear();
 }
 
-
-
-
-}
-
+} 

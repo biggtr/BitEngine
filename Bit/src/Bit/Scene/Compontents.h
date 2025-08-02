@@ -26,16 +26,26 @@ public:
 
 struct CTransform 
 {
-    BitMath::Vector3 Position;
-    BitMath::Vector3 Scale;
-    BitMath::Vector3 Rotation;
+    BMath::Vector3 Position;
+    BMath::Vector3 Scale;
+    BMath::Vector3 Rotation;
 
     CTransform() = default;
-    CTransform(BitMath::Vector3 position, BitMath::Vector3 scale, BitMath::Vector3 rotation)
+    CTransform(BMath::Vector3 position, BMath::Vector3 scale, BMath::Vector3 rotation)
     :   Position(position), Scale(scale), Rotation(rotation)
     {}
 
 
 };
 
+struct CSprite
+{
+    uint32_t Width;
+    uint32_t Height;
+
+    CSprite(uint32_t width = 100, uint32_t height = 100)
+        : Width(width), Height(height)
+    {}
+
+};
 }

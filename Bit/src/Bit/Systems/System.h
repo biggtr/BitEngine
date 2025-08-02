@@ -1,18 +1,20 @@
 #pragma once
 #include <cstdint>
+#include "Bit/Scene/Compontents.h"
 #include <vector>
 #include "Bit/Core/Defines.h"
 namespace BitEngine
 {
-
+class EntityManager;
 enum class SYSTEM_TYPE : uint32_t
 {
     MOVEMENT,
+    RENDER,
     PHYSICS,
     COUNT, //Array size indicator
 };
-#define SYSTEM_CLASS_TYPE(type) static SYSTEM_TYPE GetStaticType() { return SYSTEM_TYPE::type }\
-                                                    virtual SYSTEM_TYPE GetSystemType() const override { return SYSTEM_TYPE::type}\
+#define SYSTEM_CLASS_TYPE(type) static SYSTEM_TYPE GetStaticType() { return SYSTEM_TYPE::type; }\
+                                                    virtual SYSTEM_TYPE GetSystemType() const override { return SYSTEM_TYPE::type; }\
                                                     virtual const char* GetName() const override { return #type; }
 class Entity;
 
@@ -24,10 +26,9 @@ private:
     SYSTEM_TYPE m_SystemType; 
     
 public:
-    System() = default;
+    System();
     virtual ~System() = default;
 
-    virtual void Update(float deltaTime) = 0;
     virtual void AddEntity(const Entity& entity);
     virtual void RemoveEntity(Entity& entity);
     virtual const std::vector<Entity>& GetEntities() const;
@@ -36,9 +37,17 @@ public:
     virtual SYSTEM_TYPE GetSystemType() const = 0; 
     virtual const char* GetName() const = 0;
 
+    void SetEntityManager(EntityManager* entityManager);
+
     
     template<typename T>
-    void RequireComponent();
+    void RequireComponent()
+    {
+        unsigned int componentId = Component::Type<T>();
+        m_ComponentSignature |= (1 << componentId);
+    }
 
+protected:
+    EntityManager* m_EntityManager;
 };
 }

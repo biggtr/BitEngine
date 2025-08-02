@@ -60,6 +60,7 @@ bool Application::Initialize(ApplicationConfig appCfg)
         BIT_LOG_ERROR("Failed to create renderer");
         return false;
     }
+    m_Renderer2D->Init();
 
     m_EntityManager = new EntityManager();
     if(!m_EntityManager)
@@ -82,10 +83,11 @@ void Application::Run()
 
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
+            s_Instance->m_EntityManager->Update();
             s_Instance->m_GameInstance->OnUpdate(deltaTime);
 
             // s_Instance.m_Renderer2D->BeginScene();
-            s_Instance->m_Renderer2D->SetClearColor(BitMath::Vector4(1.0, 0.0, 1.0, 1.0));
+            s_Instance->m_Renderer2D->SetClearColor(BMath::Vector4(1.0, 0.0, 1.0, 1.0));
             s_Instance->m_Renderer2D->Clear();
             s_Instance->m_GameInstance->OnRender();
             // s_Instance.m_Renderer2D->EndScene();

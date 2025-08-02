@@ -45,7 +45,7 @@ void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 {
     m_RenderCommand->SetViewport(x, y, width, height);
 }
-void Renderer2D::SetClearColor(const BitMath::Vector4& color) const 
+void Renderer2D::SetClearColor(const BMath::Vector4& color) const 
 {
     m_RenderCommand->SetClearColor(color);
 }
@@ -54,10 +54,11 @@ void Renderer2D::Clear() const
     m_RenderCommand->Clear();
 }
 
-void Renderer2D::BeginScene(const OrthographicCamera& orthoCamera)
+void Renderer2D::BeginScene(OrthographicCamera* orthoCamera) 
 {
+    m_Camera2D = orthoCamera;
 }
-void Renderer2D::DrawQuad(const BitMath::Vector3& position, const BitMath::Vector3& scale, const BitMath::Vector4& color)
+void Renderer2D::DrawQuad(const BMath::Vector3& position, const BMath::Vector3& scale, const BMath::Vector4& color)
 {
     m_QuadVAO->Bind();
     m_QuadShader->SetFloat4("u_Color",color.x, color.y, color.z, color.w);

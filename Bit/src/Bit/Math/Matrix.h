@@ -3,7 +3,7 @@
 #include "Bit/Renderer/RendererAPI.h"
 #include <complex>
 #include <math.h>
-namespace BitMath 
+namespace BMath 
 {
 class Matrix4x4
 {

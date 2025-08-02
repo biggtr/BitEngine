@@ -17,11 +17,11 @@ public:
     void Init();
     
     void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
-    void SetClearColor(const BitMath::Vector4& color) const;
+    void SetClearColor(const BMath::Vector4& color) const;
     void Clear() const;
 
-    void BeginScene(const OrthographicCamera& orthoCamera);
-    void DrawQuad(const BitMath::Vector3& position, const BitMath::Vector3& scale, const BitMath::Vector4& color);
+    void BeginScene(OrthographicCamera* orthoCamera);
+    void DrawQuad(const BMath::Vector3& position, const BMath::Vector3& scale, const BMath::Vector4& color);
     void EndScene();
 
 private:
@@ -30,6 +30,7 @@ private:
     VertexBuffer* m_QuadVBO;
     IndexBuffer* m_QuadIBO;
     Shader* m_QuadShader;
+    OrthographicCamera* m_Camera2D;
     
 };
 }
