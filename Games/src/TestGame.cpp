@@ -9,26 +9,26 @@
 
 bool TestGame::Initialize()
 {
-    Entities().AddSystem<BitEngine::RenderSystem>();
+    Assets().AddTexture("Basic", "assets/textures/icon_chest.png");
     auto entt1 = Entities().CreateEntity();
     
     Entities().AddComponent<BitEngine::CTransform>(entt1, 
-        BMath::Vector3(200.0f, 200.0f, 0.0f),  
-        BMath::Vector3(100.0f, 100.0f, 1.0f),  
+        BMath::Vector3(1.5f, 1.5f, 0.0f),  
+        BMath::Vector3(0.1f, 0.1f, 0.0f),  
         BMath::Vector3(0.0f, 0.0f, 0.0f)   
     ); 
-    printf("Hi from TestGame\n");
+    const auto& sprite = Entities().AddComponent<BitEngine::CSprite>(entt1,
+            Assets().GetTexture("Basic")
+    );
     
+    BIT_LOG_DEBUG("Sprite Width : %d, Height: %d", sprite.Width, sprite.Height);
     return true;
 }
 
-void TestGame::OnRender()
+void TestGame::Render()
 {
-    Entities().GetSystem<BitEngine::RenderSystem>().Update(Renderer());
-    return;
 }
-void TestGame::OnUpdate(float deltaTime)
+void TestGame::Update(float deltaTime)
 {
 
-    return;
 }

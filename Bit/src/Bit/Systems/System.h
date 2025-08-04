@@ -11,6 +11,7 @@ enum class SYSTEM_TYPE : uint32_t
     MOVEMENT,
     RENDER,
     PHYSICS,
+    CAMERA,
     COUNT, //Array size indicator
 };
 #define SYSTEM_CLASS_TYPE(type) static SYSTEM_TYPE GetStaticType() { return SYSTEM_TYPE::type; }\
@@ -22,7 +23,6 @@ class System
 {
 private:
     Signature m_ComponentSignature;
-    std::vector<Entity> m_Entities;
     SYSTEM_TYPE m_SystemType; 
     
 public:
@@ -49,5 +49,6 @@ public:
 
 protected:
     EntityManager* m_EntityManager;
+    std::vector<Entity> m_Entities;
 };
 }

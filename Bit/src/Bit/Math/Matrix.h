@@ -25,7 +25,7 @@ public:
 
     static Vector4 Multiply(const Matrix4x4& mat, const Vector4& vec)
     {
-        Vector4 result(1.0f, 1.0f, 1.0f, 1.0f);
+        Vector4 result(0.0f, 0.0f, 0.0f, 0.0f);
         result.x = mat.Data[0] * vec.x + mat.Data[4] * vec.y + mat.Data[8]  * vec.z + mat.Data[12] * vec.w;
         result.y = mat.Data[1] * vec.x + mat.Data[5] * vec.y + mat.Data[9]  * vec.z + mat.Data[13] * vec.w;
         result.z = mat.Data[2] * vec.x + mat.Data[6] * vec.y + mat.Data[10] * vec.z + mat.Data[14] * vec.w;
@@ -33,7 +33,7 @@ public:
         return result;
     }
 
-    static Matrix4x4 Multiply(const Matrix4x4 mat1, const Matrix4x4 mat2)
+    static Matrix4x4 Multiply(const Matrix4x4& mat1, const Matrix4x4& mat2)
     {
         Matrix4x4 result;
 
@@ -41,10 +41,12 @@ public:
         {
             for(size_t col = 0; col < 4; col++)
             {
+                float sum = 0.0f;
                 for(size_t k = 0; k < 4; k++)
                 {
-                    result.Data[col * 4 + row] += mat1.Data[k * 4 + col] * mat2.Data[k + 4 * col];
+                    sum += mat1.Data[k * 4 + row] * mat2.Data[col * 4 + k];
                 }
+                result.Data[col * 4 + row] = sum;
             }
         }
         return result;
@@ -103,7 +105,7 @@ public:
     }
     static Matrix4x4 CreateTransform(const Vector3& position, 
                                      const Vector3& scale, 
-                                     const Vector3& rotation)
+                                     const Vector3& rotation = Vector3(0.0f, 0.0f, 0.0f))
     {
         Matrix4x4 t = Translate(position.x, position.y, position.z);
         Matrix4x4 r = Rotate(rotation.x, rotation.y, rotation.z);

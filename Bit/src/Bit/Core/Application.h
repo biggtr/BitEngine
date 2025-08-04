@@ -1,4 +1,5 @@
 #pragma once
+#include "Bit/Assets/AssetManager.h"
 #include "Bit/Core/TimeStamp.h"
 #include <cstdint>
 namespace BitEngine
@@ -32,6 +33,7 @@ private:
     BitEngine::Window* m_Window;
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
+    AssetManager* m_AssetManager;
     static Application* s_Instance;
 public:
     Application(){}
@@ -44,5 +46,6 @@ public:
     inline static Application& GetApplication() { return *s_Instance; }
     inline Renderer2D& GetRenderer() { return *m_Renderer2D; }
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
+    inline AssetManager& GetAssetManager() { return *m_AssetManager; }
 };
 }

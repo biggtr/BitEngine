@@ -1,4 +1,5 @@
 #pragma once
+#include "Bit/Math/Matrix.h"
 #include <string>
 
 namespace BitEngine
@@ -14,13 +15,14 @@ public:
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
 
-    virtual void SetInt(const std::string& uniformName, int uniformValue) = 0;
-    virtual void SetFloat(const std::string& uniformName, float v1) = 0;
-    virtual void SetFloat2(const std::string& uniformName, float v1, float v2) = 0;
-    virtual void SetFloat3(const std::string& uniformName, float v1, float v2, float v3) = 0;
-    virtual void SetFloat4(const std::string& uniformName, float v1, float v2, float v3, float v4) = 0;
+    virtual void SetInt(const char* uniformName, int uniformValue) = 0;
+    virtual void SetFloat(const char*  uniformName, float v1) = 0;
+    virtual void SetFloat2(const char* uniformName, const BMath::Vector2& vec2) = 0;
+    virtual void SetFloat3(const char* uniformName, const BMath::Vector3& vec3) = 0;
+    virtual void SetFloat4(const char* uniformName, const BMath::Vector4& vec4) = 0;
+    virtual void SetMat4(const char* uniformName, const BMath::Matrix4x4& mat) = 0;
 
-    static Shader* Create(const std::string& path);
+    static Shader* Create(const char* path);
 };
 
 }

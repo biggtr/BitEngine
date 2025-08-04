@@ -9,6 +9,6 @@ public:
     TestGame(){}
     ~TestGame(){}
     virtual bool Initialize() override;
-    virtual void OnUpdate(float deltaTime) override;
-    virtual void OnRender() override;
+    virtual void Update(float deltaTime) override;
+    virtual void Render() override; 
 };

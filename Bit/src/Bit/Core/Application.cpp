@@ -1,7 +1,10 @@
 #include "Application.h"
+#include "Bit/Assets/AssetManager.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Scene/EntityManager.h"
+#include "Bit/Systems/RenderSystem.h"
+#include "Bit/Systems/MovementSystem.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Window.h"
@@ -34,7 +37,7 @@ bool Application::Create(Game *gameInstance)
     s_Instance->m_IsRunning = true;
     s_Instance->m_IsSuspended = false;
 
-    if(!s_Instance->m_GameInstance->Initialize())
+    if(!s_Instance->m_GameInstance->OnInitialize())
     {
         BIT_LOG_ERROR("Failed to initialize game instance");
         return false;
@@ -68,6 +71,13 @@ bool Application::Initialize(ApplicationConfig appCfg)
         BIT_LOG_ERROR("Failed to create EntityManager");
         return false;
     }
+
+    m_AssetManager = new AssetManager();
+    if(!m_AssetManager)
+    {
+        BIT_LOG_ERROR("Failed to create AssetManager");
+        return false;
+    }
     return true;
 }
 
@@ -79,26 +89,27 @@ void Application::Run()
     {
         s_Instance->m_Time.Update();
         float deltaTime = s_Instance->m_Time.GetDeltaTime();
-        s_Instance->m_Window->OnUpdate();
 
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
             s_Instance->m_EntityManager->Update();
             s_Instance->m_GameInstance->OnUpdate(deltaTime);
 
-            // s_Instance.m_Renderer2D->BeginScene();
-            s_Instance->m_Renderer2D->SetClearColor(BMath::Vector4(1.0, 0.0, 1.0, 1.0));
+            s_Instance->m_Renderer2D->SetClearColor(BMath::Vector4(0.0f, 1.0f, 0.0, 1.0));
             s_Instance->m_Renderer2D->Clear();
             s_Instance->m_GameInstance->OnRender();
-            // s_Instance.m_Renderer2D->EndScene();
         }
+        s_Instance->m_Window->OnUpdate();
     }
 }
 Application::~Application()
 {
+    delete m_AssetManager;
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
+    
+    m_AssetManager = nullptr;
     m_EntityManager = nullptr;
     m_Renderer2D = nullptr;
     m_Window = nullptr;
@@ -109,6 +120,7 @@ bool Application::Shutdown()
     if(!s_Instance)
         return false;
 
+    s_Instance->m_AssetManager->ClearTextures();
     s_Instance->m_IsRunning = false;
     delete s_Instance;
     s_Instance = nullptr;

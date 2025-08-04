@@ -1,4 +1,5 @@
 #pragma once
+#include "Bit/Core/Logger.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
@@ -14,6 +15,7 @@ public:
     RenderSystem()
     {
         RequireComponent<CTransform>();
+        RequireComponent<CSprite>();
     }
     SYSTEM_CLASS_TYPE(RENDER);
 
@@ -23,8 +25,9 @@ public:
     {
         for(const Entity& entity : GetEntities())
         {
-            CTransform transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, BMath::Vector4(1.0f,0.0f,0.0f, 1.0f));
+            const CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
+            renderer.DrawSprite({11.2f, 0.2f, 0.0f}, {11.2f, 11.2f, 0.0f},
+                        spriteComponent.m_Texture);
         }
     }
 

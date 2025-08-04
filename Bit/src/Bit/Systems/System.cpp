@@ -8,9 +8,9 @@ namespace BitEngine
 {
     System::System() :
         m_ComponentSignature(0),
-        m_Entities{},
         m_SystemType(SYSTEM_TYPE::COUNT),
-        m_EntityManager(nullptr)
+        m_EntityManager(nullptr),
+        m_Entities{}
     {
 
     }

@@ -8,6 +8,7 @@ class Shader;
 class VertexBuffer;
 class IndexBuffer;
 class OrthographicCamera;
+class Texture;
 class Renderer2D
 {
 public:
@@ -20,16 +21,13 @@ public:
     void SetClearColor(const BMath::Vector4& color) const;
     void Clear() const;
 
-    void BeginScene(OrthographicCamera* orthoCamera);
+    void BeginScene();
     void DrawQuad(const BMath::Vector3& position, const BMath::Vector3& scale, const BMath::Vector4& color);
+    void DrawSprite(const BMath::Vector3& position, const BMath::Vector3& scale, Texture* texture);
     void EndScene();
 
 private:
     RenderCommand* m_RenderCommand;
-    VertexArray* m_QuadVAO;
-    VertexBuffer* m_QuadVBO;
-    IndexBuffer* m_QuadIBO;
-    Shader* m_QuadShader;
     OrthographicCamera* m_Camera2D;
     
 };

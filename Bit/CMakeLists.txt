@@ -21,14 +21,13 @@ target_sources(BitEngine
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
+    src/Bit/Renderer/Camera.cpp
     src/Bit/Scene/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp
-    
-    src/Bit/Utils/ImageLoader/BMPLoader.cpp
-    src/Bit/Utils/ImageLoader/ImageLoader.cpp
+    src/Bit/Assets/AssetManager.cpp
 
-
+    vendor/stb_image/stb_image.cpp
     
 
     src/Platform/OpenGL/OpenGLBuffers.cpp
@@ -46,6 +45,7 @@ target_include_directories(BitEngine
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     vendor/glad/include        
     vendor/GLFW/include
+    vendor/stb_image
 )
 target_compile_definitions(BitEngine
     PRIVATE

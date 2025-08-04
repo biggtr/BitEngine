@@ -42,7 +42,7 @@ public:
 
 
     template<typename TComponent, typename ...TArgs>
-    void AddComponent(const Entity& entity, TArgs&& ...args)
+    const TComponent& AddComponent(const Entity& entity, TArgs&& ...args)
     {
         uint32_t entityID = entity.GetID();
         uint32_t componentID = Component::Type<TComponent>();
@@ -68,7 +68,7 @@ public:
 
         m_EntitiesSignatures[entityID] |= (1 << componentID);
         BIT_LOG_INFO("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
-
+        return componentPool->Get(entityID);
     }
 template<typename TComponent> 
 bool HasComponent(const Entity& entity)
@@ -106,7 +106,7 @@ void AddSystem()
     TSystem* system = new TSystem();
     system->SetEntityManager(this);
     m_Systems[index] = system;
-
+    BIT_LOG_INFO("System : %s Got Added..!", system->GetName());
 }
 template<typename TSystem> 
 void RemoveSystem()
@@ -125,7 +125,8 @@ bool HasSystem() const
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
     SYSTEM_TYPE type = TSystem::GetStaticType();
-    return m_Systems[(uint32_t)type] != nullptr;
+    uint32_t index = uint32_t(type);
+    return m_Systems[index]; 
 }
 template<typename TSystem> 
 TSystem& GetSystem() const

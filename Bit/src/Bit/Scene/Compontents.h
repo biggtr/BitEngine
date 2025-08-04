@@ -1,5 +1,9 @@
 #pragma once
+#include "Bit/Math/Matrix.h"
+#include "Bit/Math/Vector.h"
 #include "Bit/Renderer/RendererAPI.h"
+#include "Bit/Core/Logger.h"
+#include "Bit/Renderer/Texture.h"
 #include <cstddef>
 #include <cstdint>
 #include <unordered_map>
@@ -31,9 +35,10 @@ struct CTransform
     BMath::Vector3 Rotation;
 
     CTransform() = default;
-    CTransform(BMath::Vector3 position, BMath::Vector3 scale, BMath::Vector3 rotation)
+    CTransform(const BMath::Vector3& position, const BMath::Vector3& scale, const BMath::Vector3& rotation)
     :   Position(position), Scale(scale), Rotation(rotation)
-    {}
+    {
+    }
 
 
 };
@@ -42,10 +47,68 @@ struct CSprite
 {
     uint32_t Width;
     uint32_t Height;
+    Texture* m_Texture;
 
-    CSprite(uint32_t width = 100, uint32_t height = 100)
-        : Width(width), Height(height)
+    CSprite() 
+    {
+        m_Texture = nullptr; 
+        Width = Height = 1;
+    }
+    CSprite(Texture* texture)
+        : m_Texture(texture)
+    {
+        Width = m_Texture->GetWidth();
+        Height = m_Texture->GetHeight();
+    }
+
+};
+
+struct CRigidBody
+{
+    BMath::Vector2 Velocity;
+
+    CRigidBody(const BMath::Vector2& velocity = BMath::Vector2(20.0f, 20.0f))
+        : Velocity(velocity)
     {}
+
+};
+
+struct CCamera
+{
+    BMath::Vector3 Position;
+    BMath::Vector3 Rotation;
+    BMath::Matrix4x4 ProjectionMatrix;
+    BMath::Matrix4x4 ViewMatrix;
+    bool IsOrthographic;
+    uint32_t Left, Right, Top, Bottom, ZNear, ZFar;
+
+
+    CCamera(BMath::Vector3 Position, BMath::Vector3 Rotation,
+            bool IsOrthographic, uint32_t Left, uint32_t Right,
+            uint32_t Top, uint32_t Bottom, uint32_t ZNear, uint32_t ZFar)
+        :   
+            Position(Position), Rotation({0.0f, 0.0f, 0.0f}),
+            IsOrthographic(true), Left(Left), Right(Right), Top(Top),
+            Bottom(Bottom), ZNear(ZNear), ZFar(ZFar) 
+          {
+              ProjectionMatrix = BMath::Matrix4x4::Ortho(Left, 
+                      Right, 
+                      Bottom, 
+                      Top, 
+                      ZNear, 
+                      ZFar
+                  );
+              ViewMatrix = BMath::Matrix4x4();
+          }
+};
+
+
+struct CAnimation2D
+{
+    uint8_t NumFrames;
+    uint8_t CurrentFrame;
+    uint8_t FrameRateSpeed;
+    bool IsLooping;
 
 };
 }
