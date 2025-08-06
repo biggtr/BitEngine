@@ -30,14 +30,16 @@ public:
 
 struct CTransform 
 {
-    BMath::Vector3 Position;
-    BMath::Vector3 Scale;
-    BMath::Vector3 Rotation;
+    BMath::vec3 Position;
+    BMath::vec3 Scale;
+    BMath::vec3 Rotation;
 
     CTransform() = default;
-    CTransform(const BMath::Vector3& position, const BMath::Vector3& scale, const BMath::Vector3& rotation)
-    :   Position(position), Scale(scale), Rotation(rotation)
+    CTransform(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec3& rotation)
     {
+        Position = position;
+        Scale = scale;
+        Rotation = rotation;
     }
 
 
@@ -47,6 +49,7 @@ struct CSprite
 {
     uint32_t Width;
     uint32_t Height;
+    BMath::vec4 Color;
     Texture* m_Texture;
 
     CSprite() 
@@ -54,9 +57,10 @@ struct CSprite
         m_Texture = nullptr; 
         Width = Height = 1;
     }
-    CSprite(Texture* texture)
-        : m_Texture(texture)
+    CSprite(Texture* texture, const BMath::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f})
+        :  m_Texture(texture)
     {
+        Color = color;
         Width = m_Texture->GetWidth();
         Height = m_Texture->GetHeight();
     }
@@ -65,31 +69,31 @@ struct CSprite
 
 struct CRigidBody
 {
-    BMath::Vector2 Velocity;
+    BMath::vec2 Velocity;
 
-    CRigidBody(const BMath::Vector2& velocity = BMath::Vector2(20.0f, 20.0f))
-        : Velocity(velocity)
-    {}
+    CRigidBody(const BMath::vec2& velocity = {20.0f, 20.0f} )
+    {
+        Velocity = velocity;
+    }
 
 };
 
 struct CCamera
 {
-    BMath::Vector3 Position;
-    BMath::Vector3 Rotation;
+    BMath::vec3 Position;
+    BMath::vec3 Rotation;
     BMath::Matrix4x4 ProjectionMatrix;
     BMath::Matrix4x4 ViewMatrix;
     bool IsOrthographic;
-    uint32_t Left, Right, Top, Bottom, ZNear, ZFar;
+    f32 Left, Right, Top, Bottom, ZNear, ZFar;
 
-
-    CCamera(BMath::Vector3 Position, BMath::Vector3 Rotation,
-            bool IsOrthographic, uint32_t Left, uint32_t Right,
-            uint32_t Top, uint32_t Bottom, uint32_t ZNear, uint32_t ZFar)
+    CCamera() { }
+    CCamera(const BMath::vec3& position, const BMath::vec3& rotation,
+            bool isOrthographic, f32 left, f32 right,
+            f32 bottom, f32 top, f32 zNear, f32 zFar)
         :   
-            Position(Position), Rotation({0.0f, 0.0f, 0.0f}),
-            IsOrthographic(true), Left(Left), Right(Right), Top(Top),
-            Bottom(Bottom), ZNear(ZNear), ZFar(ZFar) 
+            Position(position), Rotation(rotation), IsOrthographic(isOrthographic), Left(left), Right(right), Top(top),
+            Bottom(bottom), ZNear(zNear), ZFar(zFar) 
           {
               ProjectionMatrix = BMath::Matrix4x4::Ortho(Left, 
                       Right, 
@@ -98,7 +102,8 @@ struct CCamera
                       ZNear, 
                       ZFar
                   );
-              ViewMatrix = BMath::Matrix4x4();
+                  ViewMatrix = BMath::Matrix4x4::Rotate(-Rotation.z) *
+                     BMath::Matrix4x4::Translate(-Position.x, -Position.y, -Position.z);
           }
 };
 
@@ -108,6 +113,7 @@ struct CAnimation2D
     uint8_t NumFrames;
     uint8_t CurrentFrame;
     uint8_t FrameRateSpeed;
+    float UVs[8];
     bool IsLooping;
 
 };

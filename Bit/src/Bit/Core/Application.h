@@ -1,6 +1,6 @@
 #pragma once
-#include "Bit/Assets/AssetManager.h"
 #include "Bit/Core/TimeStamp.h"
+#include "Bit/Renderer/Camera.h"
 #include <cstdint>
 namespace BitEngine
 {
@@ -8,6 +8,8 @@ class Game;
 class Window;
 class Renderer2D;
 class EntityManager;        
+class AssetManager;
+class CameraManager;
 struct ApplicationConfig
 {
     uint32_t x;
@@ -34,6 +36,7 @@ private:
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
+    CameraManager* m_CameraManager;
     static Application* s_Instance;
 public:
     Application(){}
@@ -47,5 +50,6 @@ public:
     inline Renderer2D& GetRenderer() { return *m_Renderer2D; }
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
+    inline CameraManager& GetCameraManager() { return *m_CameraManager; }
 };
 }

@@ -5,6 +5,7 @@
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Utils/MemoryPool/Pool.h"
 #include <cstdint>
+#include <utility>
 namespace BitEngine 
 {
 class System;
@@ -92,8 +93,8 @@ TComponent& GetComponent(const Entity& entity)
     return componentPool->Get(entityID);
 }
 
-template<typename TSystem> 
-void AddSystem()
+template<typename TSystem, typename ...TArgs> 
+void AddSystem(TArgs&& ...args)
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
 
@@ -103,7 +104,7 @@ void AddSystem()
     {
         return; //already exists
     }
-    TSystem* system = new TSystem();
+    TSystem* system = new TSystem(std::forward<TArgs>(args)...);
     system->SetEntityManager(this);
     m_Systems[index] = system;
     BIT_LOG_INFO("System : %s Got Added..!", system->GetName());

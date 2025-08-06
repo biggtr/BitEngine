@@ -25,9 +25,9 @@ public:
     {
         for(const Entity& entity : GetEntities())
         {
+            const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
             const CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
-            renderer.DrawSprite({11.2f, 0.2f, 0.0f}, {11.2f, 11.2f, 0.0f},
-                        spriteComponent.m_Texture);
+            renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, spriteComponent.Color);
         }
     }
 

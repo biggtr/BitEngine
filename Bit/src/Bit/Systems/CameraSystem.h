@@ -14,9 +14,9 @@ private:
     CameraManager* m_CameraManager;
 
 public:
-    CameraSystem()
+    CameraSystem(CameraManager* cameraManager)
     {
-        m_CameraManager = new CameraManager();
+        m_CameraManager = cameraManager;
         RequireComponent<CCamera>();
     }
     SYSTEM_CLASS_TYPE(CAMERA);
@@ -25,13 +25,11 @@ public:
     
     void Update(float deltaTime)
     {
+
         for(const Entity& entity : m_Entities)
         {
             CCamera& camera = m_EntityManager->GetComponent<CCamera>(entity);
             m_CameraManager->SetActiveCamera(&camera);
-            m_CameraManager->CalculateProjectionMatrix();
-            m_CameraManager->CalculateViewMatrix();
-            
 
         }
     }

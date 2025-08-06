@@ -1,15 +1,19 @@
 #pragma once
 #include "Bit/Renderer/Buffers.h"
+#include <cstdint>
 namespace BitEngine
 {
 
 class OpenGLVertexBuffer : public VertexBuffer
 {
 public:
+    OpenGLVertexBuffer(uint32_t size);
     OpenGLVertexBuffer(float* vertices, unsigned int size);
+
 
     virtual void Bind() override;
     virtual void UnBind() override;
+    virtual void SetData(void* data, uint32_t size) override;
     virtual void SetBufferLayout(const BufferLayout& bufferLayout) override { m_Layout = bufferLayout; }
     virtual const BufferLayout& GetBufferLayout() const override { return m_Layout; };
 
@@ -23,7 +27,7 @@ private:
 class OpenGLIndexBuffer : public IndexBuffer
 {
 public:
-    OpenGLIndexBuffer(unsigned int* indices, unsigned int count);
+    OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
 
     virtual ~OpenGLIndexBuffer() = default;
     virtual void Bind() const override;

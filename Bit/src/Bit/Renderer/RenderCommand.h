@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Renderer/RendererAPI.h"
+#include <cstdint>
 namespace BitEngine
 {
 class RenderCommand 
@@ -11,9 +12,9 @@ public:
     void Init(RendererAPI* api);
 
     void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
-    void SetClearColor(const BMath::Vector4& color) const;
+    void SetClearColor(const BMath::vec4& color) const;
     void Clear() const; 
-    void DrawIndexed(const VertexArray* VAO) const;
+    void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const;
 
 private:
     RendererAPI* m_API;

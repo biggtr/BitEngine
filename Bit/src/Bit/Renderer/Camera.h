@@ -16,12 +16,15 @@ public:
     ~CameraManager();
 
     void SetActiveCamera(CCamera* camera);
-    const CCamera& GetActiveCamera() const;
+    CCamera* GetActiveCamera();
+    
     void CalculateProjectionMatrix();
+    void SetProjectionMatrix();
+
     void CalculateViewMatrix();
-    void SetPosition(BMath::Vector3& position);
-    void SetRotation(BMath::Vector3& rotation);
-    void GetPosition();
-    void GetRotation();
+    void SetViewMatrix();
+
+    void SetPosition(BMath::vec3& position);
+    void SetRotation(BMath::vec3& rotation);
 };
 }

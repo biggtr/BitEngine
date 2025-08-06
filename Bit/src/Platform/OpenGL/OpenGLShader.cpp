@@ -37,17 +37,17 @@ void OpenGLShader::SetFloat(const char* uniformName, float v1)
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform1f(uniformLocation, v1));
 }
-void OpenGLShader::SetFloat2(const char* uniformName, const BMath::Vector2& vec2)
+void OpenGLShader::SetFloat2(const char* uniformName, const BMath::vec2& vec2)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform2f(uniformLocation, vec2.x, vec2.y));
 }
-void OpenGLShader::SetFloat3(const char* uniformName, const BMath::Vector3& vec3)
+void OpenGLShader::SetFloat3(const char* uniformName, const BMath::vec3& vec3)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform3f(uniformLocation, vec3.x, vec3.y, vec3.z));
 }
-void OpenGLShader::SetFloat4(const char* uniformName, const BMath::Vector4& vec4)
+void OpenGLShader::SetFloat4(const char* uniformName, const BMath::vec4& vec4)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform4f(uniformLocation, vec4.x, vec4.y, vec4.z, vec4.w));

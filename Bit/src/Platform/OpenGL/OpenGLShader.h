@@ -23,9 +23,9 @@ public:
 
     virtual void SetInt(const char* uniformName, int uniformValue) override;
     virtual void SetFloat(const char* uniformName, float v1) override;
-    virtual void SetFloat2(const char* uniformName, const BMath::Vector2& vec2) override;
-    virtual void SetFloat3(const char* uniformName, const BMath::Vector3& vec3) override;
-    virtual void SetFloat4(const char* uniformName, const BMath::Vector4& vec4) override;
+    virtual void SetFloat2(const char* uniformName, const BMath::vec2& vec2) override;
+    virtual void SetFloat3(const char* uniformName, const BMath::vec3& vec3) override;
+    virtual void SetFloat4(const char* uniformName, const BMath::vec4& vec4) override;
     virtual void SetMat4(const char* uniformName, const BMath::Matrix4x4& mat) override;
 private: 
     unsigned int CompileShader(unsigned int shaderType,const std::string& shaderSource);

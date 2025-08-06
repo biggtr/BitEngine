@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Bit/Core/Logger.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include <complex>
 #include <math.h>
@@ -23,9 +24,9 @@ public:
 
 
 
-    static Vector4 Multiply(const Matrix4x4& mat, const Vector4& vec)
+    static vec4 Multiply(const Matrix4x4& mat, const vec4& vec)
     {
-        Vector4 result(0.0f, 0.0f, 0.0f, 0.0f);
+        vec4 result{0.0f, 0.0f, 0.0f, 0.0f};
         result.x = mat.Data[0] * vec.x + mat.Data[4] * vec.y + mat.Data[8]  * vec.z + mat.Data[12] * vec.w;
         result.y = mat.Data[1] * vec.x + mat.Data[5] * vec.y + mat.Data[9]  * vec.z + mat.Data[13] * vec.w;
         result.z = mat.Data[2] * vec.x + mat.Data[6] * vec.y + mat.Data[10] * vec.z + mat.Data[14] * vec.w;
@@ -37,21 +38,25 @@ public:
     {
         Matrix4x4 result;
 
-        for(size_t row = 0; row < 4; row++)
+        const float* a = mat1.Data;
+        const float* b = mat2.Data;
+        float* r = result.Data;
+
+        for (int col = 0; col < 4; ++col)
         {
-            for(size_t col = 0; col < 4; col++)
+            for (int row = 0; row < 4; ++row)
             {
-                float sum = 0.0f;
-                for(size_t k = 0; k < 4; k++)
-                {
-                    sum += mat1.Data[k * 4 + row] * mat2.Data[col * 4 + k];
-                }
-                result.Data[col * 4 + row] = sum;
+                float sum = a[row + 0*4] * b[0 + col*4] +
+                            a[row + 1*4] * b[1 + col*4] +
+                            a[row + 2*4] * b[2 + col*4] +
+                            a[row + 3*4] * b[3 + col*4]; 
+                
+                r[row + col*4] = sum;
             }
         }
+
         return result;
     }
-
     Matrix4x4 operator*(const Matrix4x4& mat)
     {
         return Multiply(*this, mat);
@@ -103,9 +108,9 @@ public:
         translationMatrix.Data[14] = tz;
         return translationMatrix;
     }
-    static Matrix4x4 CreateTransform(const Vector3& position, 
-                                     const Vector3& scale, 
-                                     const Vector3& rotation = Vector3(0.0f, 0.0f, 0.0f))
+    static Matrix4x4 CreateTransform(const vec3& position, 
+                                     const vec3& scale, 
+                                     const vec3& rotation = vec3(0.0f, 0.0f, 0.0f))
     {
         Matrix4x4 t = Translate(position.x, position.y, position.z);
         Matrix4x4 r = Rotate(rotation.x, rotation.y, rotation.z);
@@ -115,15 +120,23 @@ public:
     }
     static Matrix4x4 Ortho(float left, float right, float bot, float top, float zNear, float zFar) 
     {
+       BIT_LOG_DEBUG("=== ORTHO FUNCTION CALLED ===");
+       BIT_LOG_DEBUG("Parameters: left=%.2f, right=%.2f, bot=%.2f, top=%.2f, near=%.4f, far=%.2f", 
+                  left, right, bot, top, zNear, zFar);
        Matrix4x4 orthoMatrix; 
-
-       orthoMatrix.Data[0] = 2 / (right -left);
-       orthoMatrix.Data[5] = 2 / (top - bot);
-       orthoMatrix.Data[10] = -2 / (zFar - zNear);
-       orthoMatrix.Data[12] = -(right + left) / (right - left);
-       orthoMatrix.Data[13] = -(top + bot) / (top - bot);
-       orthoMatrix.Data[14] = -(zFar + zNear) / (zFar - zNear);
-       orthoMatrix.Data[15] = 1;
+       f32 lr = right - left;
+       f32 bt = top - bot;  
+       f32 nf = zFar - zNear;
+       BIT_LOG_DEBUG("Calculated: lr=%.2f, bt=%.2f, nf=%.4f", lr, bt, nf);
+       orthoMatrix.Data[0] = 2.0f / lr; 
+       orthoMatrix.Data[5] = 2.0f / bt; 
+       orthoMatrix.Data[10] = -2.0f / nf;
+       orthoMatrix.Data[12] = -(right + left) / lr;
+       orthoMatrix.Data[13] = -(top + bot) / bt;
+       orthoMatrix.Data[14] = -(zFar + zNear) / nf;
+       orthoMatrix.Data[15] = 1.0f;
+       BIT_LOG_DEBUG("Matrix elements: [0]=%.6f, [5]=%.6f, [10]=%.6f, [14]=%.6f", 
+                  orthoMatrix.Data[0], orthoMatrix.Data[5], orthoMatrix.Data[10], orthoMatrix.Data[14]);
        return orthoMatrix;
 
     }

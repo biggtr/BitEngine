@@ -1,4 +1,5 @@
 #include "Buffers.h"
+#include <cstdint>
 #include <glad/glad.h>
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/RendererAPI.h"
@@ -7,6 +8,19 @@
 namespace BitEngine
 {
 
+VertexBuffer* VertexBuffer::Create(uint32_t size)
+{
+    switch (RendererAPI::GetAPI()) 
+    {
+
+    case RENDERER_API::NONE:
+        return nullptr;
+    case RENDERER_API::OPENGL:
+            return new OpenGLVertexBuffer(size);
+      break;
+    }
+    return nullptr;
+}
 VertexBuffer* VertexBuffer::Create(float *vertices, unsigned int size)
 {
     switch (RendererAPI::GetAPI()) 
@@ -20,7 +34,7 @@ VertexBuffer* VertexBuffer::Create(float *vertices, unsigned int size)
     }
     return nullptr;
 }
-IndexBuffer* IndexBuffer::Create(unsigned int * indices, unsigned int count)
+IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t count)
 {
     switch (RendererAPI::GetAPI()) 
     {

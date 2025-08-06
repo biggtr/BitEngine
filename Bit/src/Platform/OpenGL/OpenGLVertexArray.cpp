@@ -8,6 +8,7 @@ OpenGLVertexArray::OpenGLVertexArray()
 {
     // GLCall(glCreateVertexArrays(1, &m_ID));
     GLCall(glGenVertexArrays(1, &m_ID));
+    GLCall(glBindVertexArray(m_ID));
 }
 
 OpenGLVertexArray::~OpenGLVertexArray()

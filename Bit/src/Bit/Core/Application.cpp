@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Bit/Assets/AssetManager.h"
 #include "Bit/Core/Core.h"
+#include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Systems/RenderSystem.h"
@@ -78,6 +79,13 @@ bool Application::Initialize(ApplicationConfig appCfg)
         BIT_LOG_ERROR("Failed to create AssetManager");
         return false;
     }
+
+    m_CameraManager = new CameraManager();
+    if(!m_CameraManager)
+    {
+        BIT_LOG_ERROR("Failed to create CameraManager");
+        return false;
+    }
     return true;
 }
 
@@ -90,25 +98,27 @@ void Application::Run()
         s_Instance->m_Time.Update();
         float deltaTime = s_Instance->m_Time.GetDeltaTime();
 
+        s_Instance->m_Window->OnUpdate();
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
             s_Instance->m_EntityManager->Update();
             s_Instance->m_GameInstance->OnUpdate(deltaTime);
 
-            s_Instance->m_Renderer2D->SetClearColor(BMath::Vector4(0.0f, 1.0f, 0.0, 1.0));
             s_Instance->m_Renderer2D->Clear();
+            s_Instance->m_Renderer2D->SetClearColor(BMath::vec4(1.0f, 1.0f, 1.0, 1.0));
             s_Instance->m_GameInstance->OnRender();
         }
-        s_Instance->m_Window->OnUpdate();
     }
 }
 Application::~Application()
 {
+    delete m_CameraManager;
     delete m_AssetManager;
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
     
+    m_CameraManager = nullptr;
     m_AssetManager = nullptr;
     m_EntityManager = nullptr;
     m_Renderer2D = nullptr;

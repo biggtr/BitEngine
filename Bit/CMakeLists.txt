@@ -59,7 +59,7 @@ target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 
         PRIVATE -Wall -Wextra -Wpedantic 
-        -Wno-unused-function -Wno-unused-parameter
+        -Wno-unused-function -Wno-unused-parameter -Wno-pedantic 
     ) 
 endif()
 set_target_properties(BitEngine PROPERTIES
