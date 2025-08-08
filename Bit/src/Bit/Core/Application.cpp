@@ -105,7 +105,7 @@ void Application::Run()
             s_Instance->m_GameInstance->OnUpdate(deltaTime);
 
             s_Instance->m_Renderer2D->Clear();
-            s_Instance->m_Renderer2D->SetClearColor(BMath::vec4(1.0f, 1.0f, 1.0, 1.0));
+            s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
             s_Instance->m_GameInstance->OnRender();
         }
     }

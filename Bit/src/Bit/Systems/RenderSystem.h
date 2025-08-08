@@ -28,6 +28,7 @@ public:
             const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
             const CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
             renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, spriteComponent.Color);
+
         }
     }
 

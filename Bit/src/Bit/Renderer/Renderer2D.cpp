@@ -14,9 +14,9 @@ namespace BitEngine
 {
 struct QuadVertex
 {
-    BMath::vec3 Position;
-    BMath::vec4 Color;
-    BMath::vec2 TexCoords;
+    BMath::Vec3 Position;
+    BMath::Vec4 Color;
+    BMath::Vec2 TexCoords;
     // float TextIndex;
 };
 struct Renderer2DData
@@ -86,7 +86,7 @@ void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t he
 {
     m_RenderCommand->SetViewport(x, y, width, height);
 }
-void Renderer2D::SetClearColor(const BMath::vec4& color) const 
+void Renderer2D::SetClearColor(const BMath::Vec4& color) const 
 {
     m_RenderCommand->SetClearColor(color);
 }
@@ -97,32 +97,17 @@ void Renderer2D::Clear() const
 
 void Renderer2D::BeginScene(CCamera* camera2D) 
 {
-    BIT_LOG_DEBUG("=== COMPLETE PROJECTION MATRIX ===");
-    for(int i = 0; i < 16; i++) {
-        BIT_LOG_DEBUG("P[%d] = %.6f", i, camera2D->ProjectionMatrix.Data[i]);
-    }
-    BIT_LOG_DEBUG("=== COMPLETE VIEW MATRIX ===");  
-    for(int i = 0; i < 16; i++) {
-        BIT_LOG_DEBUG("V[%d] = %.6f", i, camera2D->ViewMatrix.Data[i]);
-    } 
-    BMath::Matrix4x4 viewProjectionMatrix = camera2D->ProjectionMatrix * camera2D->ViewMatrix; 
-    BIT_LOG_DEBUG("=== COMPLETE view PROJECTION MATRIX ===");
-    for(int i = 0; i < 16; i++) {
-        BIT_LOG_DEBUG("P[%d] = %.6f", i, viewProjectionMatrix.Data[i]);
-    }
+    BMath::Mat4 viewProjectionMatrix = camera2D->ProjectionMatrix * camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
-    BIT_LOG_DEBUG("BeginScene called");
     StartBatch();}
 void Renderer2D::EndScene()
 {
-    BIT_LOG_DEBUG("EndScene called");
     Flush();
 }
 
 void Renderer2D::StartBatch()
 {
-    BIT_LOG_DEBUG("StartBatch called - resetting QuadIndexCount from %d to 0", s_RenderData.QuadIndexCount); 
     s_RenderData.QuadIndexCount = 0;
     s_RenderData.QuadVertexBufferPtr = s_RenderData.QuadVertexBufferBase;
 
@@ -138,34 +123,45 @@ void Renderer2D::Flush()
     }
 
 }
-void Renderer2D::DrawQuad(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec4& color)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color)
 {
-    BIT_LOG_DEBUG("Drawing quad at position: (%.2f, %.2f, %.2f), scale: (%.2f, %.2f, %.2f)", 
-    position.x, position.y, position.z, scale.x, scale.y, scale.z);
+    
     s_RenderData.QuadVertexBufferPtr->Position = position;
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {0.0f, 0.0f };
     s_RenderData.QuadVertexBufferPtr++; 
 
+    BIT_LOG_DEBUG("quadVertex1 scale.x :%.2f, scale.y : %.2f", 
+            s_RenderData.QuadVertexBufferPtr->Position.x,
+            s_RenderData.QuadVertexBufferPtr->Position.y);
     s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 0.0f };
     s_RenderData.QuadVertexBufferPtr++; 
 
+    BIT_LOG_DEBUG("quadVertex2 scale.x :%.2f, scale.y : %.2f", 
+            s_RenderData.QuadVertexBufferPtr->Position.x,
+            s_RenderData.QuadVertexBufferPtr->Position.y);
     s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y + scale.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 1.0f };
     s_RenderData.QuadVertexBufferPtr++; 
 
+    BIT_LOG_DEBUG("quadVertex3 scale.x :%.2f, scale.y : %.2f", 
+            s_RenderData.QuadVertexBufferPtr->Position.x,
+            s_RenderData.QuadVertexBufferPtr->Position.y);
     s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + scale.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {0.0f, 1.0f };
     s_RenderData.QuadVertexBufferPtr++; 
+    BIT_LOG_DEBUG("quadVertex4 scale.x :%.2f, scale.y : %.2f", 
+            s_RenderData.QuadVertexBufferPtr->Position.x,
+            s_RenderData.QuadVertexBufferPtr->Position.y);
 
     s_RenderData.QuadIndexCount += 6;
 
 }
-void Renderer2D::DrawQuad(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec4& color, Texture* texture)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color, Texture* texture)
 {
 }
 

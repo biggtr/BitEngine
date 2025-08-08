@@ -22,12 +22,12 @@ public:
     void Init();
     
     void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
-    void SetClearColor(const BMath::vec4& color) const;
+    void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const;
 
     void BeginScene(CCamera* camera2D);
-    void DrawQuad(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec4& color);
-    void DrawQuad(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec4& color, Texture* texture);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color, Texture* texture);
     void EndScene();
 
 private:

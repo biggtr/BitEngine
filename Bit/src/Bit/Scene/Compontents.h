@@ -30,12 +30,12 @@ public:
 
 struct CTransform 
 {
-    BMath::vec3 Position;
-    BMath::vec3 Scale;
-    BMath::vec3 Rotation;
+    BMath::Vec3 Position;
+    BMath::Vec3 Scale;
+    BMath::Vec3 Rotation;
 
     CTransform() = default;
-    CTransform(const BMath::vec3& position, const BMath::vec3& scale, const BMath::vec3& rotation)
+    CTransform(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec3& rotation)
     {
         Position = position;
         Scale = scale;
@@ -49,7 +49,7 @@ struct CSprite
 {
     uint32_t Width;
     uint32_t Height;
-    BMath::vec4 Color;
+    BMath::Vec4 Color;
     Texture* m_Texture;
 
     CSprite() 
@@ -57,7 +57,7 @@ struct CSprite
         m_Texture = nullptr; 
         Width = Height = 1;
     }
-    CSprite(Texture* texture, const BMath::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f})
+    CSprite(Texture* texture, const BMath::Vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f})
         :  m_Texture(texture)
     {
         Color = color;
@@ -69,9 +69,9 @@ struct CSprite
 
 struct CRigidBody
 {
-    BMath::vec2 Velocity;
+    BMath::Vec2 Velocity;
 
-    CRigidBody(const BMath::vec2& velocity = {20.0f, 20.0f} )
+    CRigidBody(const BMath::Vec2& velocity = {20.0f, 20.0f} )
     {
         Velocity = velocity;
     }
@@ -80,30 +80,30 @@ struct CRigidBody
 
 struct CCamera
 {
-    BMath::vec3 Position;
-    BMath::vec3 Rotation;
-    BMath::Matrix4x4 ProjectionMatrix;
-    BMath::Matrix4x4 ViewMatrix;
+    BMath::Vec3 Position;
+    BMath::Vec3 Rotation;
+    BMath::Mat4 ProjectionMatrix;
+    BMath::Mat4 ViewMatrix;
     bool IsOrthographic;
     f32 Left, Right, Top, Bottom, ZNear, ZFar;
 
     CCamera() { }
-    CCamera(const BMath::vec3& position, const BMath::vec3& rotation,
+    CCamera(const BMath::Vec3& position, const BMath::Vec3& rotation,
             bool isOrthographic, f32 left, f32 right,
             f32 bottom, f32 top, f32 zNear, f32 zFar)
         :   
             Position(position), Rotation(rotation), IsOrthographic(isOrthographic), Left(left), Right(right), Top(top),
             Bottom(bottom), ZNear(zNear), ZFar(zFar) 
           {
-              ProjectionMatrix = BMath::Matrix4x4::Ortho(Left, 
+              ProjectionMatrix = BMath::Mat4::Ortho(Left, 
                       Right, 
                       Bottom, 
                       Top, 
                       ZNear, 
                       ZFar
                   );
-                  ViewMatrix = BMath::Matrix4x4::Rotate(-Rotation.z) *
-                     BMath::Matrix4x4::Translate(-Position.x, -Position.y, -Position.z);
+                  ViewMatrix = BMath::Mat4::Rotate(-Rotation.z) *
+                     BMath::Mat4::Translate(-Position.x, -Position.y, -Position.z);
           }
 };
 

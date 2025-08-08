@@ -1,4 +1,5 @@
 #include "Bit/Core/Defines.h"
+#include "math.h"
 #define B_PI 3.14159265358979323846f
 #define B_2PI (2.0f * B_PI)
 #define B_4PI (4.0f * B_PI)
@@ -23,9 +24,8 @@
 
 inline bool IsPowerOf2(u64 value)
 {
-    return (value != 0) && (value & value - 1) == 0;
+    return (value != 0) && (value & (value - 1)) == 0;
 }
 
 
-
-vec2
+f32 babs(f32 x); 

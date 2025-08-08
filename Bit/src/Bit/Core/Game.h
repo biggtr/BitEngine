@@ -33,13 +33,15 @@ public:
         Entities().AddSystem<CameraSystem>(&Camera());
 
 
+        float width = (float)appConfig.width;
+        float height = (float)appConfig.height;
         auto camera = Entities().CreateEntity();
         BIT_LOG_DEBUG("Width: %d, Height : %d", appConfig.width, appConfig.height);
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
-                BMath::vec3(0.0f, 0.0f, 10.0f),
-                BMath::vec3(0.0f, 0.0f, 1.0f),
-                true, -300.0f, 300.0f,
-                -400.0f, 400.0f,
+                BMath::Vec3(0.0f, 0.0f, 10.0f),
+                BMath::Vec3(0.0f, 0.0f, 1.0f),
+                true, -width / 2.0f, width / 2.0f,
+                -height / 2.0f, height / 2.0f,
                 -100.0f, 100.0f
                 );
 

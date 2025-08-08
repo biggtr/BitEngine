@@ -24,7 +24,7 @@ public:
     void CalculateViewMatrix();
     void SetViewMatrix();
 
-    void SetPosition(BMath::vec3& position);
-    void SetRotation(BMath::vec3& rotation);
+    void SetPosition(BMath::Vec3& position);
+    void SetRotation(BMath::Vec3& rotation);
 };
 }
