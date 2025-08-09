@@ -98,19 +98,8 @@ void Renderer2D::Clear() const
 
 void Renderer2D::BeginScene(CCamera* camera2D) 
 {
-    BIT_LOG_DEBUG("=== PROJECTION MATRIX DEBUG ===");
-    for(int i = 0; i < 4; i++) {
-        BIT_LOG_DEBUG("Row %d: [%.3f, %.3f, %.3f, %.3f]", i,
-            camera2D->ProjectionMatrix.Data[i + 0 * 4], camera2D->ProjectionMatrix.Data[i + 1 * 4], 
-            camera2D->ProjectionMatrix.Data[i + 2 * 4], camera2D->ProjectionMatrix.Data[i + 3 * 4]);
-    }
     int viewportWidth = static_cast<int>(camera2D->Right - camera2D->Left);
     int viewportHeight = static_cast<int>(camera2D->Top - camera2D->Bottom);
-    BIT_LOG_DEBUG("=== VIEWPORT/CAMERA MISMATCH DEBUG ===");
-    BIT_LOG_DEBUG("Camera bounds: %.0f×%.0f (%.0f,%.0f) to (%.0f,%.0f)", 
-                  camera2D->Right - camera2D->Left, camera2D->Top - camera2D->Bottom,
-                  camera2D->Left, camera2D->Bottom, camera2D->Right, camera2D->Top);
-    BIT_LOG_DEBUG("Setting viewport: 0, 0, %d, %d", viewportWidth, viewportHeight);
     glViewport(0, 0, viewportWidth, viewportHeight);
     BMath::Mat4 viewProjectionMatrix = camera2D->ProjectionMatrix * camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
@@ -131,11 +120,9 @@ void Renderer2D::StartBatch()
 }
 void Renderer2D::Flush()
 {
-    BIT_LOG_DEBUG("=== FLUSH CALLED - QuadIndexCount: %d ===", s_RenderData.QuadIndexCount);
     
     if(s_RenderData.QuadIndexCount)
     {
-        BIT_LOG_DEBUG("Flushing %d indices (%d quads)", s_RenderData.QuadIndexCount, s_RenderData.QuadIndexCount / 6);
         
         uint32_t dataSize = (uint32_t)((uint8_t*)s_RenderData.QuadVertexBufferPtr - (uint8_t*)s_RenderData.QuadVertexBufferBase);
         s_RenderData.QuadVertexBuffer->SetData(s_RenderData.QuadVertexBufferBase, dataSize);
@@ -144,7 +131,6 @@ void Renderer2D::Flush()
         s_RenderData.QuadShader->Bind();
         m_RenderCommand->DrawIndexed(s_RenderData.QuadVertexArray, s_RenderData.QuadIndexCount);
         
-        BIT_LOG_DEBUG("Draw call completed!");
     }
     else
     {

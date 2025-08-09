@@ -21,11 +21,12 @@
 #define B_FLOAT_MIN -3.40282e+38F
 #define B_FLOAT_MAX 3.40282e+38F
 
-
 inline bool IsPowerOf2(u64 value)
 {
     return (value != 0) && (value & (value - 1)) == 0;
 }
+inline f32 DegToRad(f32 degrees) { return degrees * B_DEG2RAD_MULTIPLIER; }
+inline f32 RadToDeg(f32 radians) { return radians * B_RAD2DEG_MULTIPLIER; }
 
 
 f32 babs(f32 x); 

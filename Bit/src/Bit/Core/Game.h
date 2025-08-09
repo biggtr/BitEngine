@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Bit/Assets/AssetManager.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Renderer/Camera.h"
 #include "Bit/Scene/Compontents.h"
@@ -40,7 +41,7 @@ public:
         BIT_LOG_DEBUG("Camera bounds: 0 to %.0f, 0 to %.0f", width, height);
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
                 BMath::Vec3(0.0f, 0.0f, 10.0f),
-                BMath::Vec3(0.0f, 0.0f, 0.0f),
+                DegToRad(0.0f),
                 true, 
                 0.0f, width,
                 0.0f, height,

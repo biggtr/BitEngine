@@ -37,7 +37,7 @@ void CameraManager::CalculateProjectionMatrix()
             
 }void CameraManager::CalculateViewMatrix()
 {
-    m_ActiveCamera->ViewMatrix = BMath::Mat4::Rotate(-m_ActiveCamera->Rotation.z) *
+    m_ActiveCamera->ViewMatrix = BMath::Mat4::Rotate(0.0f, 0.0f, -m_ActiveCamera->Rotation) *
         BMath::Mat4::Translate(-m_ActiveCamera->Position.x,
                 -m_ActiveCamera->Position.y, -m_ActiveCamera->Position.z);
 }
@@ -47,7 +47,7 @@ void CameraManager::SetPosition(BMath::Vec3& newPosition)
     CalculateViewMatrix();
 }
 
-void CameraManager::SetRotation(BMath::Vec3& newRotation)
+void CameraManager::SetRotation(f32 newRotation)
 {
     m_ActiveCamera->Rotation = newRotation;
     CalculateViewMatrix();

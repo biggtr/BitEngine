@@ -1,10 +1,10 @@
 #pragma once 
 
-typedef uint32_t Signature;
-const unsigned int MAX_COMPONENTS = 32;
 
 #include <cstdint>
 
+typedef uint32_t Signature;
+const unsigned int MAX_COMPONENTS = 32;
 // Unsigned int types
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -18,7 +18,7 @@ typedef int32_t i32;
 typedef int64_t i64;
 
 
-typedef int8_t  b8;
+typedef bool b8;
 typedef int32_t b32; 
 
 // Floating point types

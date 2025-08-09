@@ -81,14 +81,14 @@ struct CRigidBody
 struct CCamera
 {
     BMath::Vec3 Position;
-    BMath::Vec3 Rotation;
+    f32 Rotation;
     BMath::Mat4 ProjectionMatrix;
     BMath::Mat4 ViewMatrix;
     bool IsOrthographic;
     f32 Left, Right, Top, Bottom, ZNear, ZFar;
 
     CCamera() { }
-    CCamera(const BMath::Vec3& position, const BMath::Vec3& rotation,
+    CCamera(const BMath::Vec3& position, f32 rotation, 
             bool isOrthographic, f32 left, f32 right,
             f32 bottom, f32 top, f32 zNear = -1.0f, f32 zFar = 1.0f)
         :   
@@ -102,7 +102,7 @@ struct CCamera
                       ZNear, 
                       ZFar
                   );
-                  ViewMatrix = BMath::Mat4::Rotate(-Rotation.z) *
+                  ViewMatrix = BMath::Mat4::Rotate(0.0f, 0.0f, -rotation) *
                      BMath::Mat4::Translate(-Position.x, -Position.y, -Position.z);
           }
 };
