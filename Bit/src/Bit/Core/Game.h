@@ -32,16 +32,18 @@ public:
         Entities().AddSystem<MovementSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
 
-
-        float width = (float)appConfig.width;
-        float height = (float)appConfig.height;
+        f32 width = 683.0f;
+        f32 height = 768.0f;
         auto camera = Entities().CreateEntity();
-        BIT_LOG_DEBUG("Width: %d, Height : %d", appConfig.width, appConfig.height);
+        BIT_LOG_DEBUG("=== CAMERA SETUP DEBUG ===");
+        BIT_LOG_DEBUG("Config size: %d x %d", appConfig.width, appConfig.height);
+        BIT_LOG_DEBUG("Camera bounds: 0 to %.0f, 0 to %.0f", width, height);
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
                 BMath::Vec3(0.0f, 0.0f, 10.0f),
-                BMath::Vec3(0.0f, 0.0f, 1.0f),
-                true, -width / 2.0f, width / 2.0f,
-                -height / 2.0f, height / 2.0f,
+                BMath::Vec3(0.0f, 0.0f, 0.0f),
+                true, 
+                0.0f, width,
+                0.0f, height,
                 -100.0f, 100.0f
                 );
 

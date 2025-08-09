@@ -1,4 +1,5 @@
 #include "CrsPlatWindow.h"
+#include "Bit/Core/Logger.h"
 #include <GLFW/glfw3.h>
 namespace BitEngine
 {
@@ -29,6 +30,7 @@ CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight
     m_Context = GraphicsContext::Create(m_Window);
     m_Context->Init();
     glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height){
+        BIT_LOG_DEBUG("Window width : %d window height : %d", width, height);
         glViewport(0, 0, width, height);
 
     });

@@ -90,7 +90,7 @@ struct CCamera
     CCamera() { }
     CCamera(const BMath::Vec3& position, const BMath::Vec3& rotation,
             bool isOrthographic, f32 left, f32 right,
-            f32 bottom, f32 top, f32 zNear, f32 zFar)
+            f32 bottom, f32 top, f32 zNear = -1.0f, f32 zFar = 1.0f)
         :   
             Position(position), Rotation(rotation), IsOrthographic(isOrthographic), Left(left), Right(right), Top(top),
             Bottom(bottom), ZNear(zNear), ZFar(zFar) 
