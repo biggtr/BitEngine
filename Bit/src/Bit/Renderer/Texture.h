@@ -1,4 +1,5 @@
 #pragma once
+#include "Bit/Core/Defines.h"
 #include "Bitpch.h"
 #include <cstdint>
 
@@ -10,6 +11,7 @@ class Texture
 
 public:
     virtual ~Texture() = default;
+    virtual u32 GetID() const = 0;
     virtual void Bind(unsigned int slot = 0) const = 0;
     virtual void Unbind() const = 0;
     virtual int GetWidth() const = 0;

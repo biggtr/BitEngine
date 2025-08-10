@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Bit/Core/Defines.h"
 #include <array>
 namespace BitEngine
@@ -9,33 +8,33 @@ struct EventContext
     //data is 128 bytes in total
     union data
     {
-        i64 i64[2];
-        u64 u64[2];
+        i64 I64[2];
+        u64 U64[2];
         
-        f64 f64[2];
+        f64 F64[2];
 
-        i32 i32[4];
-        u32 u32[4];
-        f32 f32[4];
+        i32 I32[4];
+        u32 U32[4];
+        f32 F32[4];
 
-        i16 i16[8];
-        u16 u16[8];
+        i16 I16[8];
+        u16 U16[8];
 
-        i8 i8[16];
-        u8 u8[16];
+        i8 I8[16];
+        u8 U8[16];
 
     };
 };
-enum class EVENT_CODE : u8
+typedef enum 
 {
-    APPLICATION_QUIT = 0x01,
-    KEY_PRESSED = 0x02,
-    KEY_RELEASED = 0x03,
-    BUTTON_PRESSED = 0x04,
-    BUTTON_RELEASED = 0x05,
-    MAX = 0xFF,
+    EVENT_CODE_APPLICATION_QUIT = 0x01,
+    EVENT_CODE_KEY_PRESSED = 0x02,
+    EVENT_CODE_KEY_RELEASED = 0x03,
+    EVENT_CODE_BUTTON_PRESSED = 0x04,
+    EVENT_CODE_BUTTON_RELEASED = 0x05,
+    EVENT_CODE_MAX = 0xFF,
 
-};
+}EVENT_CODE;
 typedef b8 (*PFN_ON_EVENT)(u16 code, void* sender, void* listener, EventContext data);
 
 struct RegisteredEvent
@@ -49,7 +48,7 @@ struct RegisteredEvents
 {
     std::vector<RegisteredEvent> events;
 };
-class Event
+class EventManager
 {
 private:
 // TODO: Change it to my custom made containter
@@ -57,6 +56,8 @@ private:
     b8 m_Initialized = false;
 
 public:
+    EventManager(){}
+    ~EventManager(){}
     b8 Initialize();
     void Shutdown();
     b8 Register(u16 code, void* listener, PFN_ON_EVENT callback);

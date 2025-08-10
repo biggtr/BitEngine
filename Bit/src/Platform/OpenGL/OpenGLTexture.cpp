@@ -47,6 +47,10 @@ void OpenGLTexture::SetData(void* data, uint32_t size)
 {
     GLCall(glTexImage2D(GL_TEXTURE_2D, 0, m_DataFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data));
 }
+u32 OpenGLTexture::GetID() const
+{
+    return m_ID;
+}
 void OpenGLTexture::Bind(unsigned int slot) const 
 {
     GLCall(glActiveTexture(GL_TEXTURE0 + slot));

@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-b8 Event::Initialize()
+b8 EventManager::Initialize()
 {
     if(m_Initialized)
     {
@@ -15,7 +15,7 @@ b8 Event::Initialize()
     m_Initialized = true;
     return true;
 }
-void Event::Shutdown()
+void EventManager::Shutdown()
 {
     for(auto& registered : m_Registered)
     {
@@ -23,7 +23,7 @@ void Event::Shutdown()
     }
     BIT_LOG_INFO("Event System Is shutting down..!");
 }
-b8 Event::Register(u16 code, void* listener, PFN_ON_EVENT callback)
+b8 EventManager::Register(u16 code, void* listener, PFN_ON_EVENT callback)
 {
     if(code >= MAX_MESSAGE_CODE)
     {
@@ -50,7 +50,7 @@ b8 Event::Register(u16 code, void* listener, PFN_ON_EVENT callback)
     m_Registered[code].events.push_back(newEvent);
     return true;
 }
-b8 Event::UnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
+b8 EventManager::UnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
 {
 
     if(code >= MAX_MESSAGE_CODE)
@@ -72,7 +72,7 @@ b8 Event::UnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
     return false;
 
 }
-b8 Event::EventFire(u16 code, void* sender, EventContext data)
+b8 EventManager::EventFire(u16 code, void* sender, EventContext data)
 {
     if(code >= MAX_MESSAGE_CODE)
     {

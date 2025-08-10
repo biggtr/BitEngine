@@ -11,6 +11,8 @@
 #include "Bit/Core/Window.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
+#include "Bit/Core/Event.h"
+#include "Bit/Core/Input.h"
 #include <cstddef>
 
 namespace BitEngine
@@ -59,12 +61,11 @@ bool Application::Initialize(ApplicationConfig appCfg)
     }
     
     m_Renderer2D = new Renderer2D();
-    if(!m_Renderer2D)
+    if(!m_Renderer2D->Initialize())
     {
         BIT_LOG_ERROR("Failed to create renderer");
         return false;
     }
-    m_Renderer2D->Init();
 
     m_EntityManager = new EntityManager();
     if(!m_EntityManager)
@@ -86,6 +87,13 @@ bool Application::Initialize(ApplicationConfig appCfg)
         BIT_LOG_ERROR("Failed to create CameraManager");
         return false;
     }
+    m_EventManager = new EventManager();
+    if(!m_EventManager->Initialize())
+    {
+        BIT_LOG_ERROR("Failed to create CameraManager");
+        return false;
+    }
+    m_EventManager->Register(EVENT_CODE_APPLICATION_QUIT, 0, Application::ApplicationOnEvent);
     return true;
 }
 
@@ -110,6 +118,19 @@ void Application::Run()
         }
     }
 }
+b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data)
+{
+    switch (code) 
+    {
+        case EVENT_CODE_APPLICATION_QUIT:
+            {
+                BIT_LOG_INFO("Application is shutting down..!");
+                s_Instance->m_IsRunning = false;
+                return true;
+            }
+    }
+    return false;
+}
 Application::~Application()
 {
     delete m_CameraManager;
@@ -117,19 +138,25 @@ Application::~Application()
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
+    delete m_Input;
+    delete m_EventManager;
     
     m_CameraManager = nullptr;
     m_AssetManager = nullptr;
     m_EntityManager = nullptr;
     m_Renderer2D = nullptr;
     m_Window = nullptr;
+    m_Input = nullptr;
+    m_EventManager = nullptr;
 }
 
-bool Application::Shutdown()
+b8 Application::Shutdown()
 {
     if(!s_Instance)
         return false;
 
+    s_Instance->m_EventManager->Shutdown();
+    s_Instance->m_Input->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
     s_Instance->m_IsRunning = false;
     delete s_Instance;

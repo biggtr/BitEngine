@@ -13,6 +13,8 @@ target_sources(BitEngine
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
     src/Bit/Core/Window.cpp
+    src/Bit/Core/Event.cpp
+    src/Bit/Core/Input.cpp
     src/Bit/Renderer/RendererAPI.cpp
     src/Bit/Renderer/RenderCommand.cpp
     src/Bit/Renderer/Renderer2D.cpp
@@ -26,6 +28,7 @@ target_sources(BitEngine
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp
     src/Bit/Assets/AssetManager.cpp
+
 
     vendor/stb_image/stb_image.cpp
     

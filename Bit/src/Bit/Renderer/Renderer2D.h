@@ -16,10 +16,10 @@ private:
     RenderCommand* m_RenderCommand;
     CCamera* m_Camera2D;
 public:
-    Renderer2D();
-    ~Renderer2D();
+    Renderer2D(){}
+    ~Renderer2D(){}
 
-    void Init();
+    b8 Initialize();
     
     void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
     void SetClearColor(const BMath::Vec4& color) const;
@@ -27,8 +27,10 @@ public:
 
     void BeginScene(CCamera* camera2D);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color);
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color, Texture* texture);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale,Texture* texture);
     void EndScene();
+
+    void Shutdown();
 
 private:
     void StartBatch();

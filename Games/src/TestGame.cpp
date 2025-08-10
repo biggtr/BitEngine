@@ -1,4 +1,5 @@
 #include "TestGame.h"
+#include "Bit/Core/Defines.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Scene/Compontents.h"
@@ -10,12 +11,23 @@
 bool TestGame::Initialize()
 {
     Assets().AddTexture("Basic", "assets/textures/icon_chest.png");
-    auto entt1 = Entities().CreateEntity();
-    Entities().AddComponent<BitEngine::CTransform>(entt1, 
-            BMath::Vec3(400.0f, 400.0f, 0.0f),  
-            BMath::Vec3(500.2f, 200.1f, 0.0f), 
-            BMath::Vec3(0.0f, 0.0f, 0.0f)    
-            ); 
+    for(u32 i = 0; i < 1000; ++i)
+    {
+        auto entity = Entities().CreateEntity();
+        float x = 0.0f;
+        x = i % 50 == 0 ? 0.0f : 50.0f * i;
+        float y = 50.0f;
+        y = i % 50 ? y + 50.0f : 0.0f;
+
+        Entities().AddComponent<BitEngine::CTransform>(entity, 
+                BMath::Vec3(x, y, 0.0f),  
+                BMath::Vec3(50.0f, 50.1f, 0.0f), 
+                BMath::Vec3(0.0f, 0.0f, 0.0f)    
+                ); 
+        Entities().AddComponent<BitEngine::CSprite>(entity,
+                Assets().GetTexture("Basic")
+                );
+    }
     return true;
 }
 

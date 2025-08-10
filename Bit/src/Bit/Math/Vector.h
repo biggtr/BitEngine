@@ -170,6 +170,7 @@ public:
     };
 
 public:
+    constexpr Vec4(float value) : x(value), y(value), z(value), w(value) {}
     constexpr Vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
     constexpr Vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
     Vec4(const Vec4&) = default;

@@ -15,6 +15,7 @@ public:
     RenderSystem()
     {
         RequireComponent<CTransform>();
+        RequireComponent<CSprite>();
     }
     SYSTEM_CLASS_TYPE(RENDER);
 
@@ -25,9 +26,11 @@ public:
         for(const Entity& entity : GetEntities())
         {
             const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            renderer.DrawQuad(transformComponent.Position, 
+            const CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
+            renderer.DrawQuad(transformComponent.Position,
                     transformComponent.Scale,
-                    {1.0f, 0.0f, 0.0f, 1.0f});
+                    spriteComponent.m_Texture
+                    );
         }
     }
 

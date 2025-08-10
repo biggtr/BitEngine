@@ -189,6 +189,8 @@ private:
     b8 m_Initialized = false;
 
 public:
+    Input(){}
+    ~Input(){}
     b8 Initialize();
     void Shutdown();
     void Update();

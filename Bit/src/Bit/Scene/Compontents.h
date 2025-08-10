@@ -50,7 +50,7 @@ struct CSprite
     uint32_t Width;
     uint32_t Height;
     BMath::Vec4 Color;
-    Texture* m_Texture;
+    Texture* m_Texture; //TODO: change it to texture id and in systems query the texture objects with asset manager
 
     CSprite() 
     {

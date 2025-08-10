@@ -32,6 +32,11 @@ void OpenGLShader::SetInt(const char* uniformName, int uniformValue)
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform1i(uniformLocation, uniformValue));
 }
+void OpenGLShader::SetIntArray(const char* uniformName, int* uniformValue, u32 count)
+{
+    int uniformLocation = GetUniformLocation(uniformName);
+    GLCall(glUniform1iv(uniformLocation, count, uniformValue));
+}
 void OpenGLShader::SetFloat(const char* uniformName, float v1)
 {
     int uniformLocation = GetUniformLocation(uniformName);

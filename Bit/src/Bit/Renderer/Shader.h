@@ -16,6 +16,7 @@ public:
     virtual void Unbind() const = 0;
 
     virtual void SetInt(const char* uniformName, int uniformValue) = 0;
+    virtual void SetIntArray(const char* uniformName, int* uniformValue, u32 count) = 0;
     virtual void SetFloat(const char*  uniformName, float v1) = 0;
     virtual void SetFloat2(const char* uniformName, const BMath::Vec2& vec2) = 0;
     virtual void SetFloat3(const char* uniformName, const BMath::Vec3& vec3) = 0;

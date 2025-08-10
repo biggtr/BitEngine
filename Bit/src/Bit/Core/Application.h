@@ -10,6 +10,9 @@ class Renderer2D;
 class EntityManager;        
 class AssetManager;
 class CameraManager;
+class EventManager;
+class Input;
+class EventContext;
 struct ApplicationConfig
 {
     uint32_t x;
@@ -37,6 +40,8 @@ private:
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
+    EventManager* m_EventManager;
+    Input* m_Input;
     static Application* s_Instance;
 public:
     Application(){}
@@ -51,5 +56,8 @@ public:
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
     inline CameraManager& GetCameraManager() { return *m_CameraManager; }
+
+private:
+    static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);
 };
 }
