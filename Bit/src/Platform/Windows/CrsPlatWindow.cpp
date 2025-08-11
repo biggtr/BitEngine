@@ -1,4 +1,6 @@
 #include "CrsPlatWindow.h"
+#include "Bit/Core/Event.h"
+#include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include <GLFW/glfw3.h>
 namespace BitEngine
@@ -36,17 +38,26 @@ CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight
     });
 }
 
-
+void CrsPlatWindow::ProcessInput()
+{
+    if(glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        b8 pressed = true;
+        KEYS key = KEY_ESCAPE;
+        Input::ProcessKey(key, pressed);
+    }
+}
+void CrsPlatWindow::OnUpdate()
+{
+    ProcessInput();
+    m_Context->SwapBuffers();
+    glfwPollEvents();
+}
 CrsPlatWindow::~CrsPlatWindow()
 {
     glfwDestroyWindow(m_Window);
     glfwTerminate();
     delete m_Context;
-}
-void CrsPlatWindow::OnUpdate()
-{
-    m_Context->SwapBuffers();
-    glfwPollEvents();
 }
 
 

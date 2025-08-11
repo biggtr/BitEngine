@@ -6,7 +6,7 @@ namespace BitEngine
 struct EventContext
 {
     //data is 128 bytes in total
-    union data
+    union 
     {
         i64 I64[2];
         u64 U64[2];
@@ -23,7 +23,7 @@ struct EventContext
         i8 I8[16];
         u8 U8[16];
 
-    };
+    }data;
 };
 typedef enum 
 {
@@ -52,7 +52,6 @@ class EventManager
 {
 private:
 // TODO: Change it to my custom made containter
-    std::array<RegisteredEvents, MAX_MESSAGE_CODE> m_Registered;
     b8 m_Initialized = false;
 
 public:
@@ -62,7 +61,7 @@ public:
     void Shutdown();
     b8 Register(u16 code, void* listener, PFN_ON_EVENT callback);
     b8 UnRegister(u16 code, void* listener, PFN_ON_EVENT callback);
-    b8 EventFire(u16 code, void* sender, EventContext data);
+    static b8 EventFire(u16 code, void* sender, EventContext data);
 
 
 };

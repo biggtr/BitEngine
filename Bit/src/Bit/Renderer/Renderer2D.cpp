@@ -22,6 +22,14 @@ struct QuadVertex
     BMath::Vec2 TexCoords;
     f32 TexIndex;
 };
+
+struct RenderStats
+{
+    u32 DrawCalls = 0;
+    u32 QuadCount = 0;
+};
+static RenderStats Stats; 
+
 struct Renderer2DData
 {
     static const u32 MaxQuads = 10000;
@@ -29,6 +37,7 @@ struct Renderer2DData
     static const u32 MaxIndices = MaxQuads * 6;
     static const u32 MaxTextureSlots = 16;
 
+    
     std::array<Texture*, MaxTextureSlots> TextureSlots;
     u32 TextureSlotIndex = 1; // starts from 1 because 0 is reserved for WhiteTexture
 
@@ -110,9 +119,6 @@ void Renderer2D::Clear() const
 
 void Renderer2D::BeginScene(CCamera* camera2D) 
 {
-    int viewportWidth = static_cast<int>(camera2D->Right - camera2D->Left);
-    int viewportHeight = static_cast<int>(camera2D->Top - camera2D->Bottom);
-    glViewport(0, 0, viewportWidth, viewportHeight);
     BMath::Mat4 viewProjectionMatrix = camera2D->ProjectionMatrix * camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
@@ -128,6 +134,7 @@ void Renderer2D::StartBatch()
     s_RenderData.QuadVertexBufferPtr = s_RenderData.QuadVertexBufferBase;
     s_RenderData.TextureSlotIndex = 1;
 
+    Stats.DrawCalls = 0;
 }
 void Renderer2D::Flush()
 {
@@ -144,6 +151,7 @@ void Renderer2D::Flush()
         }
         s_RenderData.QuadShader->Bind();
         m_RenderCommand->DrawIndexed(s_RenderData.QuadVertexArray, s_RenderData.QuadIndexCount);
+        Stats.DrawCalls++;
         
     }
     else

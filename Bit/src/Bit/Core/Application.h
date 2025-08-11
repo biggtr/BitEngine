@@ -59,5 +59,6 @@ public:
 
 private:
     static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);
+    static b8 ApplicationOnKey(u16 code, void* sender, void* listener, EventContext data);
 };
 }

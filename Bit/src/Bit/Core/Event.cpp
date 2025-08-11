@@ -5,6 +5,7 @@
 namespace BitEngine
 {
 
+static std::array<RegisteredEvents, MAX_MESSAGE_CODE> m_Registered;
 b8 EventManager::Initialize()
 {
     if(m_Initialized)

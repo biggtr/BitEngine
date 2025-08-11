@@ -17,6 +17,7 @@ public:
     virtual unsigned int GetWidth() const override { return m_Width; }
     virtual unsigned int GetHeight() const override { return m_Height; }
     virtual void* GetWindow() const override { return (GLFWwindow*)m_Window; }
+    void ProcessInput();
 
 private:
     unsigned int m_Width, m_Height;

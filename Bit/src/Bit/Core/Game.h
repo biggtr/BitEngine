@@ -33,8 +33,8 @@ public:
         Entities().AddSystem<MovementSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
 
-        f32 width = 683.0f;
-        f32 height = 768.0f;
+        f32 width = (float)appConfig.width;
+        f32 height = (float)appConfig.height;
         auto camera = Entities().CreateEntity();
         BIT_LOG_DEBUG("=== CAMERA SETUP DEBUG ===");
         BIT_LOG_DEBUG("Config size: %d x %d", appConfig.width, appConfig.height);

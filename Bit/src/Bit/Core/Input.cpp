@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <cstring>
+#include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
 
 
@@ -49,7 +50,12 @@ b8 Input::WasKeyUp(KEYS key)
 {
     return m_InputState.KeyboardPrevState.Keys[(u16)key] == false;
 }
-// void Input::ProcessKey(KEYS key, b8 pressed)
+void Input::ProcessKey(KEYS key, b8 pressed)
+{
+    EventContext context;
+    context.data.U16[0] = key;
+    EventManager::EventFire(pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context);
+}
 
 b8 Input::IsMouseButtonDown(MOUSE_BUTTONS button)
 {

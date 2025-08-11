@@ -90,10 +90,18 @@ bool Application::Initialize(ApplicationConfig appCfg)
     m_EventManager = new EventManager();
     if(!m_EventManager->Initialize())
     {
-        BIT_LOG_ERROR("Failed to create CameraManager");
+        BIT_LOG_ERROR("Failed to create EventManager");
         return false;
     }
-    m_EventManager->Register(EVENT_CODE_APPLICATION_QUIT, 0, Application::ApplicationOnEvent);
+    m_EventManager->Register(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
+    m_EventManager->Register(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
+
+    m_Input = new Input();
+    if(!m_Input->Initialize())
+    {
+        BIT_LOG_ERROR("Failed to create Input System");
+        return false;
+    }
     return true;
 }
 
@@ -115,21 +123,9 @@ void Application::Run()
             s_Instance->m_Renderer2D->Clear();
             s_Instance->m_GameInstance->OnRender();
             s_Instance->m_Window->OnUpdate();
+            s_Instance->m_Input->Update();
         }
     }
-}
-b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data)
-{
-    switch (code) 
-    {
-        case EVENT_CODE_APPLICATION_QUIT:
-            {
-                BIT_LOG_INFO("Application is shutting down..!");
-                s_Instance->m_IsRunning = false;
-                return true;
-            }
-    }
-    return false;
 }
 Application::~Application()
 {
@@ -155,8 +151,10 @@ b8 Application::Shutdown()
     if(!s_Instance)
         return false;
 
-    s_Instance->m_EventManager->Shutdown();
     s_Instance->m_Input->Shutdown();
+    s_Instance->m_EventManager->UnRegister(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
+    s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
+    s_Instance->m_EventManager->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
     s_Instance->m_IsRunning = false;
     delete s_Instance;
@@ -164,5 +162,35 @@ b8 Application::Shutdown()
 
     Logger::Shutdown();
     return true;
+}
+b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data)
+{
+    switch (code) 
+    {
+        case EVENT_CODE_APPLICATION_QUIT:
+            {
+                BIT_LOG_INFO("Application is shutting down..!");
+                s_Instance->m_IsRunning = false;
+                return true;
+            }
+    }
+    return false;
+}
+b8 Application::ApplicationOnKey(u16 code, void* sender, void* listener, EventContext data)
+{
+    switch (code) 
+    {
+        case EVENT_CODE_KEY_PRESSED:
+            {
+                u16 key = data.data.U16[0];
+                if(key == KEY_ESCAPE)
+                {
+                    EventContext zerodata = {};
+                    EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);
+                }
+                return true;
+            }
+    }
+    return false;
 }
 }
