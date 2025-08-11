@@ -27,7 +27,7 @@ public:
 
     void BeginScene(CCamera* camera2D);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color);
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale,Texture* texture);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, CSprite& sprite);
     void EndScene();
 
     void Shutdown();

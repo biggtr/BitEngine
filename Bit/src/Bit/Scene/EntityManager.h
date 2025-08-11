@@ -43,7 +43,7 @@ public:
 
 
     template<typename TComponent, typename ...TArgs>
-    const TComponent& AddComponent(const Entity& entity, TArgs&& ...args)
+    TComponent& AddComponent(const Entity& entity, TArgs&& ...args)
     {
         uint32_t entityID = entity.GetID();
         uint32_t componentID = Component::Type<TComponent>();
@@ -68,7 +68,7 @@ public:
         componentPool->Set(entityID, newComponent);
 
         m_EntitiesSignatures[entityID] |= (1 << componentID);
-        BIT_LOG_INFO("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
+        // BIT_LOG_DEBUG("Added new new component with ID : %d to entity with ID : %d", componentID, entityID);
         return componentPool->Get(entityID);
     }
 template<typename TComponent> 

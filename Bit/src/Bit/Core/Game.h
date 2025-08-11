@@ -8,6 +8,7 @@
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
+#include "Bit/Systems/Animation2DSystem.h"
 #include "Bit/Systems/CameraSystem.h"
 #include "Bit/Systems/MovementSystem.h"
 #include "Bit/Systems/RenderSystem.h"
@@ -32,6 +33,7 @@ public:
         Entities().AddSystem<RenderSystem>();
         Entities().AddSystem<MovementSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
+        Entities().AddSystem<Animation2DSystem>();
 
         f32 width = (float)appConfig.width;
         f32 height = (float)appConfig.height;
@@ -51,9 +53,10 @@ public:
         Camera().SetActiveCamera(&cameraComponent);
         return Initialize();
     }
-    virtual void OnUpdate(float deltaTime)
+    virtual void OnUpdate(f64 deltaTime)
     {
         Entities().GetSystem<CameraSystem>().Update(deltaTime);
+        Entities().GetSystem<Animation2DSystem>().Update(deltaTime);
 
         Update(deltaTime);
     }

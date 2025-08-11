@@ -50,23 +50,86 @@ struct CSprite
     uint32_t Width;
     uint32_t Height;
     BMath::Vec4 Color;
-    Texture* m_Texture; //TODO: change it to texture id and in systems query the texture objects with asset manager
+//TODO: change it to texture id and in systems query the texture objects with asset manager
+    Texture* STexture; 
+    u32 FrameWidth;
+    u32 FrameHeight;
+    u32 CurrentFrame;
+    float UVs[8];
 
     CSprite() 
     {
-        m_Texture = nullptr; 
-        Width = Height = 1;
+        STexture = nullptr; 
+        Width = Height = FrameWidth = FrameHeight = 1;
+        CurrentFrame = 0;
+        UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
+        UVs[2] = 1.0f; UVs[3] = 0.0f; //br
+        UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
+        UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-    CSprite(Texture* texture, const BMath::Vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f})
-        :  m_Texture(texture)
+    CSprite(Texture* texture, const BMath::Vec4 color = {1.0f, 1.0f, 1.0f, 1.0f}) 
+        :  STexture(texture)
     {
         Color = color;
-        Width = m_Texture->GetWidth();
-        Height = m_Texture->GetHeight();
+        Width = texture->GetWidth();
+        Height = texture->GetHeight();
+        FrameWidth = Width;
+        FrameHeight = Height;
+        CurrentFrame = 0;
+        UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
+        UVs[2] = 1.0f; UVs[3] = 0.0f; //br
+        UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
+        UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-
+    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight) 
+        :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight)
+    {
+        Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
+        Width = texture->GetWidth();
+        Height = texture->GetHeight();
+        CurrentFrame = 0;
+        UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
+        UVs[2] = 1.0f; UVs[3] = 0.0f; //br
+        UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
+        UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
+    }
+    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight, u32 currentFrame) 
+        :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight), CurrentFrame(currentFrame)
+    {
+        Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
+        Width = texture->GetWidth();
+        Height = texture->GetHeight();
+        UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
+        UVs[2] = 1.0f; UVs[3] = 0.0f; //br
+        UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
+        UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
+    }
 };
 
+struct CAnimation2D
+{
+    const char* Name;
+    u8 NumFrames;
+    u8 StartFrame;
+    u8 FrameRateSpeed;
+    f32 FrameDuration;
+    bool IsLooping;
+};
+struct CAnimation2DController
+{
+    std::vector<CAnimation2D> Animations;
+    const char* CurrentAnimationName;
+    f32 ElapsedTime;
+    u8 CurrentFrame;
+    b8 AnimationChanged;
+
+    CAnimation2DController()
+        : CurrentAnimationName(""), ElapsedTime(0.0f), CurrentFrame(0), AnimationChanged(false)
+    {
+
+    }
+    
+};
 struct CRigidBody
 {
     BMath::Vec2 Velocity;
@@ -108,13 +171,4 @@ struct CCamera
 };
 
 
-struct CAnimation2D
-{
-    uint8_t NumFrames;
-    uint8_t CurrentFrame;
-    uint8_t FrameRateSpeed;
-    float UVs[8];
-    bool IsLooping;
-
-};
 }

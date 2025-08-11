@@ -112,7 +112,7 @@ void Application::Run()
     while(s_Instance->m_IsRunning)
     {
         s_Instance->m_Time.Update();
-        float deltaTime = s_Instance->m_Time.GetDeltaTime();
+        f64 deltaTime = s_Instance->m_Time.GetDeltaTime();
 
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {

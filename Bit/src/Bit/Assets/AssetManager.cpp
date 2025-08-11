@@ -34,8 +34,6 @@ Texture* AssetManager::GetTexture(const char *assetID)
     return texture;
 }
 
-
-
 void AssetManager::ClearTextures()
 {
     for(const auto& pair : m_Textures)
@@ -44,5 +42,17 @@ void AssetManager::ClearTextures()
     }
     BIT_LOG_INFO("Removed All Texture Assets");
     m_Textures.clear();
+}
+void AssetManager::ClearAnimations()
+{
+
+}
+void AssetManager::AddAnimation(const char *assetID, const CAnimation2D& animation)
+{
+
+}
+const CAnimation2D& GetAnimation(const char *assetID)
+{
+
 }
 }

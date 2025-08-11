@@ -12,6 +12,7 @@ enum class SYSTEM_TYPE : uint32_t
     RENDER,
     PHYSICS,
     CAMERA,
+    ANIMATION2D,
     COUNT, //Array size indicator
 };
 #define SYSTEM_CLASS_TYPE(type) static SYSTEM_TYPE GetStaticType() { return SYSTEM_TYPE::type; }\

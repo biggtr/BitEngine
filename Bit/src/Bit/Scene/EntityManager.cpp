@@ -24,7 +24,7 @@ Entity EntityManager::CreateEntity()
         m_EntitiesSignatures.resize(entityID + 1);
     }
 
-    BIT_LOG_INFO("New Entity with id: %d Got Added..", entityID);
+    // BIT_LOG_DEBUG("New Entity with id: %d Got Added..", entityID);
     return newEntity;
 }
 
