@@ -12,7 +12,7 @@ target_sources(BitEngine
     src/Bit/Core/Application.cpp
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
-    src/Bit/Core/Window.cpp
+    src/Bit/Core/Platform.cpp
     src/Bit/Core/Event.cpp
     src/Bit/Core/Input.cpp
     src/Bit/Renderer/RendererAPI.cpp
@@ -40,6 +40,7 @@ target_sources(BitEngine
     src/Platform/OpenGL/OpenGLShader.cpp
     src/Platform/OpenGL/OpenGLTexture.cpp
     src/Platform/Windows/CrsPlatWindow.cpp
+    src/Platform/Windows/PlatformLinux.cpp
     
 )
 
@@ -57,7 +58,7 @@ target_compile_definitions(BitEngine
 target_precompile_headers(BitEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
 )
-target_link_libraries(BitEngine glfw glad ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+target_link_libraries(BitEngine glfw glad X11 ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

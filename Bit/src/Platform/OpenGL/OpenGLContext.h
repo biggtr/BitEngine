@@ -1,16 +1,20 @@
 #pragma once
+#include "Bit/Core/Platform.h"
 #include "Bit/Renderer/GraphicsContext.h"
+#include <GL/glx.h>
 struct GLFWwindow;
 namespace BitEngine
 {
 
 class OpenGLContext : public GraphicsContext
 {
-public:
-    OpenGLContext(GLFWwindow* window);
-    virtual void Init() override;
-    virtual void SwapBuffers() override;
 private:
-    GLFWwindow* m_Window;
+    PlatformWindow* m_Window;
+    GLXContext m_GLContext;
+public:
+    OpenGLContext(PlatformWindow* window);
+    virtual b8 Initialize() override;
+    virtual void SwapBuffers() override;
+    virtual void Shutdown() override;
 };
 }

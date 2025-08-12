@@ -15,7 +15,6 @@ RendererAPI* RendererAPI::Create()
         return nullptr;
     case RENDERER_API::OPENGL:
             return new OpenGLRendererAPI();
-
           break;
     }
     return nullptr;

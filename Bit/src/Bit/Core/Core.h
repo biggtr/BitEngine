@@ -1,6 +1,6 @@
 #pragma once
 #include <glad/glad.h>
-#include <iostream>
+#include "Logger.h"
 
 #ifdef _DEBUG
 static void ClearGLErrors()
@@ -13,8 +13,7 @@ static bool CheckGLError(const char* functionName, size_t line, const char* file
     while (unsigned int newError = glGetError()) 
     {
         isError = true;
-        std::cerr << " [OpenGL: Error] : " << newError << " Function Name: " << functionName 
-            << " Line: " << line << " File: " << file << "\n";
+        BIT_LOG_ERROR(" [OpenGL: Error] : line %d, File %s ", line, file);
     }
     return isError;
 }

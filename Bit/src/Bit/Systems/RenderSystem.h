@@ -40,12 +40,10 @@ private:
 
         const uint8_t columns = sprite.Width / sprite.FrameWidth;
         const uint8_t rows = sprite.Height / sprite.FrameHeight;
-        BIT_LOG_DEBUG("Rows : %d, cols : %d CurrentFrame : %d", rows, columns, sprite.CurrentFrame)
 
         const uint8_t x = sprite.CurrentFrame % columns;
         const uint8_t y = sprite.CurrentFrame / columns;
 
-        BIT_LOG_DEBUG("x : %d, y : %d CurrentFrame : %d", x, y, sprite.CurrentFrame)
         float u1,v1,u2,v2;
 
         u1 = (float)x / columns; 

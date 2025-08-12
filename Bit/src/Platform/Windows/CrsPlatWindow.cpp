@@ -6,7 +6,7 @@
 namespace BitEngine
 {
 
-CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight, const char* windowName)
+CrsPlatWindow::CrsPlatWindow(u32 width, u32 height, const char* name)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -21,16 +21,16 @@ CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight
     // glfw window creation
     // --------------------
     //
-    m_Width = windowWidth;
-    m_Height = windowHeight;
-    m_Window = glfwCreateWindow(windowWidth, windowHeight, windowName, NULL, NULL);
+    m_Width = width;
+    m_Height = height;
+    m_Window = glfwCreateWindow(width, height, name, NULL, NULL);
     if (m_Window == NULL)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
     }
     m_Context = GraphicsContext::Create(m_Window);
-    m_Context->Init();
+    m_Context->Initialize();
     glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height){
         BIT_LOG_DEBUG("Window width : %d window height : %d", width, height);
         glViewport(0, 0, width, height);
@@ -38,6 +38,14 @@ CrsPlatWindow::CrsPlatWindow(unsigned int windowWidth, unsigned int windowHeight
     });
 }
 
+b8 CrsPlatWindow::Initialize() 
+{
+    return true;
+}
+void CrsPlatWindow::Shutdown()
+{
+
+}
 void CrsPlatWindow::ProcessInput()
 {
     if(glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -46,6 +54,10 @@ void CrsPlatWindow::ProcessInput()
         KEYS key = KEY_ESCAPE;
         Input::ProcessKey(key, pressed);
     }
+}
+void CrsPlatWindow::ProcessEvents()
+{
+
 }
 void CrsPlatWindow::OnUpdate()
 {
@@ -59,8 +71,6 @@ CrsPlatWindow::~CrsPlatWindow()
     glfwTerminate();
     delete m_Context;
 }
-
-
 
 }
 

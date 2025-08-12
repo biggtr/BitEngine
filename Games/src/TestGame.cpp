@@ -6,7 +6,6 @@
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Systems/RenderSystem.h"
-#include <cstdio>
 
 bool TestGame::Initialize()
 {
@@ -29,7 +28,7 @@ bool TestGame::Initialize()
                 BMath::Vec3(0.0f, 0.0f, 0.0f)    
                 ); 
     }
-    return true;
+     return true;
 }
 
 void TestGame::Render()

@@ -8,7 +8,7 @@
 #include "Bit/Systems/MovementSystem.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Core/Window.h"
+#include "Platform.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Core/Event.h"
@@ -53,12 +53,13 @@ bool Application::Initialize(ApplicationConfig appCfg)
 {
     m_Initialized = true;
     
-    m_Window = BitEngine::Window::Create(appCfg.width, appCfg.height, appCfg.name);
+    m_Window = BitEngine::Platform::Create(appCfg.width, appCfg.height, appCfg.name);
     if(!m_Window)
     {
         BIT_LOG_ERROR("Failed to create window");
         return false;
     }
+    m_Window->Initialize();
     
     m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D->Initialize())
@@ -156,6 +157,7 @@ b8 Application::Shutdown()
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
     s_Instance->m_EventManager->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
+    s_Instance->m_Window->Shutdown();
     s_Instance->m_IsRunning = false;
     delete s_Instance;
     s_Instance = nullptr;

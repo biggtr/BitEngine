@@ -2,7 +2,6 @@
 #include "Bit/Core/Application.h"
 #include "Bit/Core/Game.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Core/Window.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Renderer/RendererAPI.h"
 
@@ -20,7 +19,7 @@ int main()
     }
 
     BitEngine::Application::Run();
-
+    
     if(BitEngine::Application::Shutdown())
     {
         delete game;

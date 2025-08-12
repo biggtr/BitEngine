@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 class Game;
-class Window;
+class Platform;
 class Renderer2D;
 class EntityManager;        
 class AssetManager;
@@ -35,7 +35,7 @@ public:
     Game* m_GameInstance; // stack owns the game so dont delete it 
     
 private:
-    BitEngine::Window* m_Window;
+    BitEngine::Platform* m_Window;
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
