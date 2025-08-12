@@ -1,7 +1,6 @@
 find_package(OpenGL REQUIRED)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "Disable Wayland support")
 
-add_subdirectory(vendor/GLFW)
 add_subdirectory(vendor/glad)
 
 
@@ -39,7 +38,6 @@ target_sources(BitEngine
     src/Platform/OpenGL/OpenGLContext.cpp
     src/Platform/OpenGL/OpenGLShader.cpp
     src/Platform/OpenGL/OpenGLTexture.cpp
-    src/Platform/Windows/CrsPlatWindow.cpp
     src/Platform/Windows/PlatformLinux.cpp
     
 )
@@ -48,7 +46,6 @@ target_include_directories(BitEngine
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     vendor/glad/include        
-    vendor/GLFW/include
     vendor/stb_image
 )
 target_compile_definitions(BitEngine
@@ -58,7 +55,7 @@ target_compile_definitions(BitEngine
 target_precompile_headers(BitEngine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
 )
-target_link_libraries(BitEngine glfw glad X11 ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+target_link_libraries(BitEngine glad X11 ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

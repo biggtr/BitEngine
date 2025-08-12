@@ -1,6 +1,5 @@
 #include "Platform.h"
 #include "Platform/Windows/PlatformLinux.h"
-#include "Platform/Windows/CrsPlatWindow.h"
 
 namespace BitEngine
 {
@@ -17,7 +16,7 @@ Platform* Platform::Create(u32 width, u32 height, const char* name)
         case PLATFORM_LINUX:
             return new PlatformLinux(width, height, name);
         case PLATFORM_WINDOWS:
-            return new CrsPlatWindow(width, height, name);
+            return nullptr;
 
     }
     return nullptr;

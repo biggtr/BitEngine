@@ -32,9 +32,10 @@ public:
 
     void Shutdown();
 
+    void OnWindowResize(u16 width, u16 height);
+
 private:
     void StartBatch();
     void Flush();
-    
 };
 }

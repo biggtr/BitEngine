@@ -53,7 +53,7 @@ b8 Input::WasKeyUp(KEYS key)
 void Input::ProcessKey(KEYS key, b8 pressed)
 {
     EventContext context;
-    context.data.U16[0] = key;
+    context.U16[0] = key;
     EventManager::EventFire(pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context);
 }
 

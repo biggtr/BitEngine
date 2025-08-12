@@ -23,7 +23,7 @@ struct EventContext
         i8 I8[16];
         u8 U8[16];
 
-    }data;
+    };
 };
 typedef enum 
 {
@@ -32,6 +32,7 @@ typedef enum
     EVENT_CODE_KEY_RELEASED = 0x03,
     EVENT_CODE_BUTTON_PRESSED = 0x04,
     EVENT_CODE_BUTTON_RELEASED = 0x05,
+    EVENT_CODE_WINDOW_RESIZED = 0x06,
     EVENT_CODE_MAX = 0xFF,
 
 }EVENT_CODE;

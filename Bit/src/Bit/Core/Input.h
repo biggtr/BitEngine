@@ -3,7 +3,7 @@
 namespace BitEngine
 {
 
-typedef enum 
+typedef enum MOUSE_BUTTONS 
 {
     BUTTON_LEFT,
     BUTTON_RIGHT,
@@ -11,7 +11,7 @@ typedef enum
     BUTTON_MAX
 } MOUSE_BUTTONS;
 
-typedef enum 
+typedef enum KEYS 
 {
     KEY_BACKSPACE = 0x08,
     KEY_ENTER = 0x0D,

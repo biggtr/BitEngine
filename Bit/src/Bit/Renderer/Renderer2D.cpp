@@ -119,7 +119,8 @@ void Renderer2D::Clear() const
 
 void Renderer2D::BeginScene(CCamera* camera2D) 
 {
-    BMath::Mat4 viewProjectionMatrix = camera2D->ProjectionMatrix * camera2D->ViewMatrix; 
+    m_Camera2D = camera2D;
+    BMath::Mat4 viewProjectionMatrix = m_Camera2D->ProjectionMatrix * m_Camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     StartBatch();
@@ -246,4 +247,11 @@ void Renderer2D::Shutdown()
     delete s_RenderData.WhiteTexture;
     delete s_RenderData.QuadVertexBufferBase;
 }
-} // namespace BitEngine
+void Renderer2D::OnWindowResize(u16 width, u16 height)
+{
+    BIT_LOG_DEBUG("Changed ProjectionMatrix with width : %d, height: %d", width, height);
+    m_Camera2D->ProjectionMatrix = BMath::Mat4::Ortho(0, (f32)width, 0, (f32)height, -100.0f, 100.0f);
+
+}
+
+} 

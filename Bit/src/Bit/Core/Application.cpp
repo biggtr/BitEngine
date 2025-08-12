@@ -96,6 +96,7 @@ bool Application::Initialize(ApplicationConfig appCfg)
     }
     m_EventManager->Register(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
     m_EventManager->Register(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
+    m_EventManager->Register(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
 
     m_Input = new Input();
     if(!m_Input->Initialize())
@@ -154,6 +155,7 @@ b8 Application::Shutdown()
 
     s_Instance->m_Input->Shutdown();
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
+    s_Instance->m_EventManager->Register(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
     s_Instance->m_EventManager->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
@@ -175,6 +177,14 @@ b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, Event
                 s_Instance->m_IsRunning = false;
                 return true;
             }
+        case EVENT_CODE_WINDOW_RESIZED:
+            {
+                u16 width = data.U16[0];
+                u16 height = data.U16[1];
+                BIT_LOG_INFO("Updated Window size -> Width : %d, Height: %d", width, height);
+                s_Instance->m_Renderer2D->OnWindowResize(width, height);
+                
+            }
     }
     return false;
 }
@@ -184,9 +194,10 @@ b8 Application::ApplicationOnKey(u16 code, void* sender, void* listener, EventCo
     {
         case EVENT_CODE_KEY_PRESSED:
             {
-                u16 key = data.data.U16[0];
+                u16 key = data.U16[0];
                 if(key == KEY_ESCAPE)
                 {
+                    BIT_LOG_DEBUG("Applicaion : escape Key recieved");
                     EventContext zerodata = {};
                     EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);
                 }
