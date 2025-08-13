@@ -23,7 +23,6 @@ PlatformLinux::PlatformLinux(u32 width, u32 height, const char* name)
     : m_Width(width), m_Height(height), m_Name(name)
 {
     m_PlatformWindow = new PlatformWindow();
-    memset(m_PlatformWindow, 0, sizeof(PlatformWindow));
 }
 b8 PlatformLinux::Initialize()
 {
@@ -43,45 +42,84 @@ b8 PlatformLinux::Initialize()
     GLint attributes[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
         GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-        GLX_DOUBLEBUFFER, True,
+        GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+
         GLX_RED_SIZE, 8,
         GLX_GREEN_SIZE, 8,
         GLX_BLUE_SIZE, 8,
         GLX_ALPHA_SIZE, 8,
+
         GLX_DEPTH_SIZE, 24,
+        GLX_STENCIL_SIZE, 8,
+
+        GLX_DOUBLEBUFFER, True,
         None
     };
 
     i32 frameBuffersCount;
-    GLXFBConfig* fb= glXChooseFBConfig(display, screen, attributes, &frameBuffersCount);
-    GLXFBConfig bestFB = fb[0];
-    XFree(fb);
-    XVisualInfo* visualInfo = glXGetVisualFromFBConfig(display, bestFB);
-    m_PlatformWindow->Linux.VisualInfo = visualInfo;
+    GLXFBConfig* fbConfig= glXChooseFBConfig(display, screen, attributes, &frameBuffersCount);
+
+    GLXFBConfig cfgChoosen;
+    i32 indexBestConfig = 0;
+    i32 bestSamples = 0;
+    for(i32 i = 0; i < frameBuffersCount; ++i)
+    {
+        XVisualInfo* vi = glXGetVisualFromFBConfig(display, fbConfig[i]);
+        if(vi)
+        {
+            i32 sampleBuffers = 0;
+            i32 samples = 0;
+            glXGetFBConfigAttrib(display, fbConfig[i], GLX_SAMPLE_BUFFERS, &sampleBuffers);
+            glXGetFBConfigAttrib(display, fbConfig[i], GLX_SAMPLES, &samples);
+            BIT_LOG_INFO("\t%02lx, Sample buffers: %d, Samples: %d\n", vi->visualid, sampleBuffers, samples);
+            if((bestSamples < samples) && (sampleBuffers > 0))
+            {
+                bestSamples = samples;
+                indexBestConfig = i;
+            }
+        }
+    }
+    cfgChoosen = fbConfig[indexBestConfig];
+
+    XVisualInfo* vi = glXGetVisualFromFBConfig(display, cfgChoosen);
+    XFree(fbConfig);
+    m_PlatformWindow->Linux.VisualInfo = vi;
+    m_PlatformWindow->Linux.FBConfig = cfgChoosen;
 
     m_WindowRoot = RootWindow(display, screen);
-    u32 colormap = XCreateColormap(display, m_WindowRoot, visualInfo->visual, AllocNone); 
+    u32 colormap = XCreateColormap(display, m_WindowRoot, vi->visual, AllocNone); 
     m_PlatformWindow->Linux.ColorMap = colormap;
 
     XSetWindowAttributes attr;
     memset(&attr, 0, sizeof(XSetWindowAttributes));
-    attr.colormap = m_PlatformWindow->Linux.ColorMap;
+    attr.colormap = colormap;
     attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | 
                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                       StructureNotifyMask | FocusChangeMask;
-    attr.background_pixel = BlackPixel(display, screen);
+    attr.background_pixmap = None;
+    attr.border_pixel = 0;
 
     u64 valueMask = CWEventMask | CWBackPixel | CWColormap;
 
     Window window = XCreateWindow(display, m_WindowRoot, 0, 0,
                 m_Width, m_Height, 0,
-                visualInfo->depth, InputOutput, visualInfo->visual, valueMask, &attr);
+                vi->depth, InputOutput, vi->visual, valueMask, &attr);
+    if(!window)
+    {
+        BIT_LOG_ERROR("Failed To Create A Window");
+        XCloseDisplay(display);
+        XFree(vi);
+        return false;
+    }
     m_PlatformWindow->Linux.Window = window;
 
     XStoreName(display, window, m_Name);
     XMapWindow(display, window);
+    XSync(display, false);
+
     m_Context = GraphicsContext::Create(m_PlatformWindow);
     m_Context->Initialize();
+
     return true;
 }
 void PlatformLinux::Shutdown()
@@ -94,7 +132,7 @@ void PlatformLinux::Shutdown()
 void PlatformLinux::ProcessEvents()
 {
     Display* display = (Display*)m_PlatformWindow->Linux.Display;
-    Window window = m_PlatformWindow->Linux.Window;
+    // Window window = m_PlatformWindow->Linux.Window;
     XEvent event;
     while(XPending(display))
     {
@@ -115,7 +153,7 @@ void PlatformLinux::ProcessEvents()
                         glViewport(0, 0, width, height);
                         EventContext context{};
                         context.U16[0] = width;
-                        context.U16[1] = width;
+                        context.U16[1] = height;
                         EventManager::EventFire(EVENT_CODE_WINDOW_RESIZED, 0, context);
                     }
                     break;

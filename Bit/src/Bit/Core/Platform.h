@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Core/Defines.h"
 #include "Bitpch.h"
+#include <GL/glx.h>
 namespace BitEngine
 {
 
@@ -18,6 +19,8 @@ struct LinuxWindowData
     u32 Window;
     u32 ColorMap;
     void* VisualInfo;
+    GLXContext GLContext;
+    GLXFBConfig FBConfig;
 };
 struct WindowsWindowData
 {
