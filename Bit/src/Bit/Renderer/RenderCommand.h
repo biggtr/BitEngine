@@ -1,8 +1,10 @@
 #pragma once
-#include "Bit/Renderer/RendererAPI.h"
+#include "Bit/Math/Vector.h"
 #include <cstdint>
 namespace BitEngine
 {
+class RendererAPI;
+class VertexArray;
 class RenderCommand 
 {
 public:
@@ -15,6 +17,8 @@ public:
     void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const; 
     void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const;
+    void DrawLine(const VertexArray* VAO, u32 vertexCount);
+    void SetLineWidth(f32 width) ;
 
 private:
     RendererAPI* m_API;

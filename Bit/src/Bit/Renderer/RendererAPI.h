@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cstdint>
 #include "Bit/Math/Vector.h"
 namespace BitEngine
@@ -18,6 +17,8 @@ public:
     virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const = 0;
     virtual void SetClearColor(const BMath::Vec4& color) const = 0;
     virtual void Clear() const = 0;
+    virtual void DrawLine(const VertexArray* VAO, u32 vertexCount) = 0;
+    virtual void SetLineWidth(f32 width) = 0;
 
     virtual void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const = 0;
 

@@ -12,15 +12,33 @@
 #include "Bit/Scene/Compontents.h"
 #include <cstdint>
 
-namespace BitEngine {
-using std::array;
+namespace BitEngine 
+{
 
+static u32 GetGLRenderMode(RENDER_MODE renderMode) 
+{
+    switch (renderMode) 
+    {
+        case RENDER_FILL:
+            return GL_FILL;
+        case RENDER_LINE:
+            return GL_LINE;
+        default:
+            return 0;
+    }
+}
 struct QuadVertex
 {
     BMath::Vec3 Position;
     BMath::Vec4 Color;
     BMath::Vec2 TexCoords;
     f32 TexIndex;
+};
+struct LineVertex
+{
+
+    BMath::Vec3 Position;
+    BMath::Vec4 Color;
 };
 
 struct RenderStats
@@ -38,24 +56,39 @@ struct Renderer2DData
     static const u32 MaxTextureSlots = 16;
 
     
-    std::array<Texture*, MaxTextureSlots> TextureSlots;
-    u32 TextureSlotIndex = 1; // starts from 1 because 0 is reserved for WhiteTexture
 
     VertexArray* QuadVertexArray;
     VertexBuffer* QuadVertexBuffer;
     Shader* QuadShader;
     Texture* WhiteTexture; 
 
+    VertexArray* LineVertexArray;
+    VertexBuffer* LineVertexBuffer;
+    Shader* LineShader;
+
+    VertexArray* RectVertexArray;
+    VertexBuffer* RectVertexBuffer;
+    Shader* RectShader;
+
     uint32_t QuadIndexCount = 0;
     QuadVertex* QuadVertexBufferBase = nullptr;
     QuadVertex* QuadVertexBufferPtr = nullptr;
 
+    uint32_t LineVertexCount = 0;
+    LineVertex* LineVertexBufferBase = nullptr;
+    LineVertex* LineVertexBufferPtr = nullptr;
+
+    float LineWidth = 2.0f;
+    
+    std::array<Texture*, MaxTextureSlots> TextureSlots;
+    u32 TextureSlotIndex = 1; // starts from 1 because 0 is reserved for WhiteTexture
 };
 
 static Renderer2DData s_RenderData;
 
 b8 Renderer2D::Initialize()
 {
+    IsDebugMode = false;
     RendererAPI* rendererAPI = BitEngine::RendererAPI::Create();
     rendererAPI->SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
@@ -93,14 +126,25 @@ b8 Renderer2D::Initialize()
     uint8_t whitePixel[4] = { 255, 255, 255, 255 }; 
     s_RenderData.WhiteTexture->SetData(whitePixel, sizeof(whitePixel));
 
+    s_RenderData.LineVertexArray = VertexArray::Create();
+    s_RenderData.LineVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(LineVertex));
+    BufferLayout LineLayout = BufferLayout({
+            { SHADER_DATA_TYPE::FLOAT3, "a_Position"}, 
+            { SHADER_DATA_TYPE::FLOAT4, "a_Color"}, 
+            });
+    s_RenderData.LineVertexBuffer->SetBufferLayout(LineLayout);
+    s_RenderData.LineVertexArray->AddVertexBuffer(s_RenderData.LineVertexBuffer);
+    s_RenderData.LineVertexBufferBase = new LineVertex[s_RenderData.MaxVertices];
+
     s_RenderData.QuadShader = Shader::Create("assets/shaders/QuadShader.glsl");
-    s_RenderData.QuadShader->Bind();
+    s_RenderData.LineShader = Shader::Create("assets/shaders/LineShader.glsl");
     i32 samplers[s_RenderData.MaxTextureSlots];
     for(u32 i = 0; i < s_RenderData.MaxTextureSlots; ++i)
     {
         samplers[i] = i;
     }
     s_RenderData.TextureSlots[0] = s_RenderData.WhiteTexture;
+    s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetIntArray("u_Textures", samplers, s_RenderData.MaxTextureSlots);
     return true;
 }
@@ -123,6 +167,8 @@ void Renderer2D::BeginScene(CCamera* camera2D)
     BMath::Mat4 viewProjectionMatrix = m_Camera2D->ProjectionMatrix * m_Camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+    s_RenderData.LineShader->Bind();
+    s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -135,7 +181,8 @@ void Renderer2D::StartBatch()
     s_RenderData.QuadVertexBufferPtr = s_RenderData.QuadVertexBufferBase;
     s_RenderData.TextureSlotIndex = 1;
 
-    Stats.DrawCalls = 0;
+    s_RenderData.LineVertexCount= 0;
+    s_RenderData.LineVertexBufferPtr = s_RenderData.LineVertexBufferBase;
 }
 void Renderer2D::Flush()
 {
@@ -153,13 +200,20 @@ void Renderer2D::Flush()
         s_RenderData.QuadShader->Bind();
         m_RenderCommand->DrawIndexed(s_RenderData.QuadVertexArray, s_RenderData.QuadIndexCount);
         Stats.DrawCalls++;
-        
     }
-    else
+    if(s_RenderData.LineVertexCount)
     {
-        BIT_LOG_DEBUG("Nothing to flush - QuadIndexCount is 0");
+        uint32_t dataSize = (uint32_t)((uint8_t*)s_RenderData.LineVertexBufferPtr - (uint8_t*)s_RenderData.LineVertexBufferBase);
+        s_RenderData.LineVertexBuffer->SetData(s_RenderData.LineVertexBufferBase, dataSize);
+
+        s_RenderData.LineShader->Bind();
+        m_RenderCommand->SetLineWidth(s_RenderData.LineWidth);
+        m_RenderCommand->DrawLine(s_RenderData.LineVertexArray, s_RenderData.LineVertexCount);
+
+        Stats.DrawCalls++;
     }
-}void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color)
+}
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
 {
     f32 textureIndex = 0.0f;
     s_RenderData.QuadVertexBufferPtr->Position = position;
@@ -168,19 +222,19 @@ void Renderer2D::Flush()
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 0.0f };
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y + scale.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y + size.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 1.0f };
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + scale.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + size.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {0.0f, 1.0f };
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
@@ -189,7 +243,7 @@ void Renderer2D::Flush()
     s_RenderData.QuadIndexCount += 6;
 
 }
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, CSprite& sprite)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite)
 {
     float textureIndex = 0.0f;
     const BMath::Vec4 color(1.0f);
@@ -218,19 +272,19 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale,
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[2], Uvs[3]};
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + scale.x, position.y + scale.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y + size.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[4], Uvs[5]};
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
     s_RenderData.QuadVertexBufferPtr++; 
 
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + scale.y, position.z };
+    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + size.y, position.z };
     s_RenderData.QuadVertexBufferPtr->Color = color;
     s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[6], Uvs[7]};
     s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
@@ -238,7 +292,30 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale,
 
     s_RenderData.QuadIndexCount += 6;
 }
+void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color)
+{
+    s_RenderData.LineVertexBufferPtr->Position = p0;
+    s_RenderData.LineVertexBufferPtr->Color= color;
+    s_RenderData.LineVertexBufferPtr++;
 
+    s_RenderData.LineVertexBufferPtr->Position = p1;
+    s_RenderData.LineVertexBufferPtr->Color= color;
+    s_RenderData.LineVertexBufferPtr++;
+
+    s_RenderData.LineVertexCount += 2;
+}
+void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
+{
+    BMath::Vec3 p0(position.x, position.y, position.z);
+    BMath::Vec3 p1(position.x + size.x, position.y, position.z);
+    BMath::Vec3 p2(position.x + size.x, position.y + size.y, position.z);
+    BMath::Vec3 p3(position.x, position.y + size.y, position.z);
+
+    DrawLine(p0, p1, color);
+    DrawLine(p1, p2, color);
+    DrawLine(p2, p3, color);
+    DrawLine(p3, p0, color);
+}
 void Renderer2D::Shutdown()
 {
     delete s_RenderData.QuadVertexArray;
@@ -246,6 +323,11 @@ void Renderer2D::Shutdown()
     delete s_RenderData.QuadShader;
     delete s_RenderData.WhiteTexture;
     delete s_RenderData.QuadVertexBufferBase;
+
+    delete s_RenderData.LineVertexArray;
+    delete s_RenderData.LineVertexBuffer;
+    delete s_RenderData.LineShader;
+    delete s_RenderData.LineVertexBufferBase;
 }
 void Renderer2D::OnWindowResize(u16 width, u16 height)
 {
@@ -253,5 +335,4 @@ void Renderer2D::OnWindowResize(u16 width, u16 height)
     m_Camera2D->ProjectionMatrix = BMath::Mat4::Ortho(0, (f32)width, 0, (f32)height, -100.0f, 100.0f);
 
 }
-
 } 

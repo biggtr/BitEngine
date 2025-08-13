@@ -10,8 +10,16 @@ class VertexBuffer;
 class IndexBuffer;
 struct CCamera;
 class Texture;
+
+typedef enum
+{
+    RENDER_FILL,
+    RENDER_LINE,
+} RENDER_MODE;
 class Renderer2D
 {
+public:
+    b8 IsDebugMode;
 private:
     RenderCommand* m_RenderCommand;
     CCamera* m_Camera2D;
@@ -26,14 +34,18 @@ public:
     void Clear() const;
 
     void BeginScene(CCamera* camera2D);
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec4& color);
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& scale, CSprite& sprite);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
+
+    void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
+    void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
     void EndScene();
+
+    
 
     void Shutdown();
 
     void OnWindowResize(u16 width, u16 height);
-
 private:
     void StartBatch();
     void Flush();

@@ -1,4 +1,5 @@
 #pragma once 
+#include "Bit/Core/Defines.h"
 #include <cstdint>
 namespace BitEngine
 {
@@ -17,6 +18,11 @@ private:
     Entity(unsigned int id)
     :   m_ID(id)
     {
+    }
+public:
+    b8 operator==(const Entity& other) const
+    {
+        return m_ID == other.GetID();
     }
 public:
     uint32_t GetID() const { return m_ID; }

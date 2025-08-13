@@ -1,11 +1,10 @@
 #pragma once
-
+#include "BMath.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Renderer/RendererAPI.h"
+#include "Bit/Math/Vector.h"
 #include <cmath>
 #include <complex>
 #include <cstring>
-#include "BMath.h"
 namespace BMath 
 {
 class Mat4

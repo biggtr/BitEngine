@@ -4,6 +4,7 @@
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Texture.h"
+#include <X11/Xlib.h>
 #include <cstddef>
 #include <cstdint>
 #include <unordered_map>
@@ -41,10 +42,23 @@ struct CTransform
         Scale = scale;
         Rotation = rotation;
     }
-
-
 };
 
+struct CBoxCollider
+{
+    u16 Width;
+    u16 Height;
+    BMath::Vec3 Offset;
+    CBoxCollider()
+        : Width(0), Height(0), Offset(0.0f)
+    {
+
+    }
+    CBoxCollider(u16 width, u16 height, const BMath::Vec3& offset = {0.0f})
+        : Width(width), Height(height), Offset(offset)
+    {
+    }
+};
 struct CSprite
 {
     uint32_t Width;

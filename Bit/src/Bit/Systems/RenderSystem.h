@@ -31,6 +31,13 @@ public:
             renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                     spriteComponent
                     );
+            if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+            {
+
+                renderer.DrawRect(transformComponent.Position, transformComponent.Scale,
+                        {1.0f, 0.0f, 0.0f, 1.0f}
+                        );
+            }
         }
     }
 

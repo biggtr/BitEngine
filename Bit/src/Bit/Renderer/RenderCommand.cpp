@@ -1,4 +1,5 @@
 #include "RenderCommand.h"
+#include "Bit/Renderer/Renderer2D.h"
 #include <cstdint>
 
 namespace BitEngine 
@@ -25,6 +26,15 @@ void RenderCommand::Clear() const
 void RenderCommand::DrawIndexed(const VertexArray* VAO, uint32_t indexCount) const
 {
     m_API->DrawIndexed(VAO, indexCount);
+}
+void RenderCommand::DrawLine(const VertexArray* VAO, u32 vertexCount)
+{
+    m_API->DrawLine(VAO, vertexCount);
+
+}
+void RenderCommand::SetLineWidth(f32 width) 
+{
+    m_API->SetLineWidth(width);
 }
 RenderCommand::~RenderCommand()
 {

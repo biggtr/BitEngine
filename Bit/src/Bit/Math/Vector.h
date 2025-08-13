@@ -90,6 +90,7 @@ public:
 
 public:
     constexpr Vec3() : x(1.0f), y(1.0f), z(1.0f) {}
+    constexpr Vec3(float value) : x(value), y(value), z(value){}
     constexpr Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
     Vec3(const Vec3&) = default;
     ~Vec3() = default;

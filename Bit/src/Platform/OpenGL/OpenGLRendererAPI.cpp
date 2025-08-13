@@ -1,6 +1,8 @@
 #include "OpenGLRendererAPI.h"
 #include "Bit/Core/Core.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Renderer/VertexArray.h"
+#include <GL/gl.h>
 #include <cstdint>
 
 namespace BitEngine
@@ -18,6 +20,17 @@ void OpenGLRendererAPI::SetClearColor(const BMath::Vec4& color) const
 void OpenGLRendererAPI::Clear() const 
 {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+}
+
+
+void OpenGLRendererAPI::DrawLine(const VertexArray* VAO, u32 vertexCount)
+{
+    VAO->Bind();
+    GLCall(glDrawArrays(GL_LINES, 0,vertexCount));
+}
+void OpenGLRendererAPI::SetLineWidth(f32 width)
+{
+    GLCall(glLineWidth(width));
 }
 void OpenGLRendererAPI::DrawIndexed(const VertexArray* VAO, uint32_t indexCount)  const
 {

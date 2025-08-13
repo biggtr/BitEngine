@@ -1,6 +1,5 @@
 #pragma once
 #include "Bit/Core/TimeStamp.h"
-#include "Bit/Renderer/Camera.h"
 #include <cstdint>
 namespace BitEngine
 {

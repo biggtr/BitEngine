@@ -15,6 +15,9 @@ public:
     virtual void SetClearColor(const BMath::Vec4& color) const override;
     virtual void Clear() const override;
 
+    virtual void DrawLine(const VertexArray* VAO, u32 vertexCount) override;
+    virtual void SetLineWidth(f32 width) override;
+
     virtual void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const override;
 };
 }
