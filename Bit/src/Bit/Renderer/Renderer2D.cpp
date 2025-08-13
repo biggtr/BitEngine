@@ -50,7 +50,7 @@ static RenderStats Stats;
 
 struct Renderer2DData
 {
-    static const u32 MaxQuads = 10000;
+    static const u32 MaxQuads = 100000;
     static const u32 MaxVertices = MaxQuads * 4;
     static const u32 MaxIndices = MaxQuads * 6;
     static const u32 MaxTextureSlots = 16;
@@ -174,6 +174,7 @@ void Renderer2D::BeginScene(CCamera* camera2D)
 void Renderer2D::EndScene()
 {
     Flush();
+    BIT_LOG_INFO("DrawCalls :%d, QuadCount : %d", Stats.DrawCalls, Stats.QuadCount);
 }
 void Renderer2D::StartBatch()
 {
@@ -183,6 +184,9 @@ void Renderer2D::StartBatch()
 
     s_RenderData.LineVertexCount= 0;
     s_RenderData.LineVertexBufferPtr = s_RenderData.LineVertexBufferBase;
+
+    Stats.QuadCount = 0;
+    Stats.DrawCalls = 0;
 }
 void Renderer2D::Flush()
 {
@@ -242,6 +246,7 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
 
     s_RenderData.QuadIndexCount += 6;
 
+    Stats.QuadCount++;
 }
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite)
 {
@@ -291,6 +296,7 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
     s_RenderData.QuadVertexBufferPtr++; 
 
     s_RenderData.QuadIndexCount += 6;
+    Stats.QuadCount++;
 }
 void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color)
 {

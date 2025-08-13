@@ -34,7 +34,8 @@ public:
             if(m_EntityManager->HasComponent<CBoxCollider>(entity))
             {
 
-                renderer.DrawRect(transformComponent.Position, transformComponent.Scale,
+                CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
+                renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
                         {1.0f, 0.0f, 0.0f, 1.0f}
                         );
             }

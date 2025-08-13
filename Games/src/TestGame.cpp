@@ -11,20 +11,26 @@ bool TestGame::Initialize()
 {
     Assets().AddTexture("Basic", "assets/textures/Projectutumno.png");
     // Assets().AddTexture("Basic", "assets/textures/icon_chest.png");
+    
+    for(u32 i = 0; i < 10000; ++i)
+    {
         auto entity = Entities().CreateEntity();
+        float x = (i % 50) * 50.0f;
+        float y = ((float)i / 50) * 50.0f;
         auto& sprite = Entities().AddComponent<BitEngine::CSprite>(entity,
-                Assets().GetTexture("Basic")
-                );
+                    Assets().GetTexture("Basic")
+                    );
         sprite.FrameWidth = sprite.FrameHeight =  32;
         sprite.CurrentFrame = 300;
         Entities().AddComponent<BitEngine::CBoxCollider>(entity, 
-                32, 32
-                );
+                        BMath::Vec3(15.0f, 32.0f, 0.0f)
+                    );
         Entities().AddComponent<BitEngine::CTransform>(entity, 
-                BMath::Vec3(100.0f, 300.0f, 0.0f),  
-                BMath::Vec3(150.0f, 150.1f, 0.0f), 
-                BMath::Vec3(0.0f, 0.0f, 0.0f)    
-                ); 
+                    BMath::Vec3(x, y, 0.0f),  
+                    BMath::Vec3(50.0f, 50.1f, 0.0f), 
+                    BMath::Vec3(0.0f, 0.0f, 0.0f)    
+                    ); 
+    }
 
     return true;
 }

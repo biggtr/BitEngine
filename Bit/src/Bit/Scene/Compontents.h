@@ -46,16 +46,17 @@ struct CTransform
 
 struct CBoxCollider
 {
-    u16 Width;
-    u16 Height;
+    
+    BMath::Vec3 Size;
+    
     BMath::Vec3 Offset;
     CBoxCollider()
-        : Width(0), Height(0), Offset(0.0f)
+        : Size(0.0f), Offset(0.0f)
     {
 
     }
-    CBoxCollider(u16 width, u16 height, const BMath::Vec3& offset = {0.0f})
-        : Width(width), Height(height), Offset(offset)
+    CBoxCollider(BMath::Vec3 size, const BMath::Vec3& offset = {0.0f})
+        : Size(size), Offset(offset)
     {
     }
 };
