@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "Bit/Assets/AssetManager.h"
+#include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/RendererAPI.h"

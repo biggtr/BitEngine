@@ -16,8 +16,6 @@ public:
     void SetActiveCamera(CCamera* camera);
     CCamera* GetActiveCamera();
     
-    void CalculateProjectionMatrix();
-    void SetProjectionMatrix();
 
     void CalculateViewMatrix();
     void SetViewMatrix();

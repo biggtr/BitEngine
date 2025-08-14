@@ -57,7 +57,6 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
             case SHADER_DATA_TYPE::MAT3:     
             case SHADER_DATA_TYPE::MAT4:     
                 {
-                    std::cout << m_VertexBufferIndex << "Vertex Index\n";
                     GLCall(glEnableVertexAttribArray(m_VertexBufferIndex));  
                     GLCall(glVertexAttribPointer(m_VertexBufferIndex, 
                             element.GetComponentCount(), 
@@ -97,7 +96,6 @@ void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
                 }
             case SHADER_DATA_TYPE::NONE:    
                 break;
-                     
 
         }
 

@@ -1,4 +1,5 @@
 #include "RenderCommand.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include <cstdint>
 
@@ -6,9 +7,16 @@ namespace BitEngine
 {
 
 
-void RenderCommand::Init(RendererAPI* api)
+b8 RenderCommand::Init(RendererAPI* api)
 {
     m_API = api;
+    if(!m_API->Init())
+    {
+
+        BIT_LOG_FATAL("Couldnt initialize RendererAPI");
+        return false;
+    }
+    return true;
 }
 
 void RenderCommand::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const 

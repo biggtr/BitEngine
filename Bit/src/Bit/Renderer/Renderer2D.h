@@ -23,6 +23,9 @@ public:
 private:
     RenderCommand* m_RenderCommand;
     CCamera* m_Camera2D;
+    BMath::Mat4 m_ProjectionMatrix;
+    f32 m_ZNear, m_ZFar;
+    
 public:
     Renderer2D(){}
     ~Renderer2D(){}

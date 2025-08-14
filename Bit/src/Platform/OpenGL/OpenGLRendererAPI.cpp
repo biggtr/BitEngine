@@ -1,5 +1,6 @@
 #include "OpenGLRendererAPI.h"
 #include "Bit/Core/Core.h"
+#include "Bit/Core/Defines.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/VertexArray.h"
 #include <GL/gl.h>
@@ -8,7 +9,14 @@
 namespace BitEngine
 {
 
-
+b8 OpenGLRendererAPI::Init()
+{
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    return true;
+}
 void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const 
 {
      GLCall(glViewport(x, y, width, height));

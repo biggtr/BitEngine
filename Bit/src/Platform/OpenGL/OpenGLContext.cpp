@@ -145,8 +145,6 @@ b8 OpenGLContext::Initialize()
             glXDestroyContext(display, context);
             context = 0;
         }
-        
-        BIT_LOG_ERROR("Failed to create OpenGL %s context", version_names[i]);
     }
     
     XSetErrorHandler(oldHandler);
@@ -188,10 +186,6 @@ b8 OpenGLContext::Initialize()
     BIT_LOG_INFO("OpenGL Version: %s", glGetString(GL_VERSION));
     BIT_LOG_INFO("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
     
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     return true;
 }
 

@@ -1,6 +1,6 @@
 #pragma once 
 #include "Application.h"
-#include "Bit/Assets/AssetManager.h"
+#include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
@@ -35,19 +35,11 @@ public:
         Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
 
-        f32 width = (float)appConfig.width;
-        f32 height = (float)appConfig.height;
+
         auto camera = Entities().CreateEntity();
-        BIT_LOG_DEBUG("=== CAMERA SETUP DEBUG ===");
-        BIT_LOG_DEBUG("Config size: %d x %d", appConfig.width, appConfig.height);
-        BIT_LOG_DEBUG("Camera bounds: 0 to %.0f, 0 to %.0f", width, height);
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
                 BMath::Vec3(0.0f, 0.0f, 10.0f),
-                DegToRad(0.0f),
-                true, 
-                0.0f, width,
-                0.0f, height,
-                -100.0f, 100.0f
+                DegToRad(0.0f)
                 );
 
         Camera().SetActiveCamera(&cameraComponent);

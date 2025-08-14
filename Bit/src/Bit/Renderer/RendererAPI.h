@@ -13,7 +13,7 @@ class RendererAPI
 
 public:
     virtual ~RendererAPI() = default;
-    virtual void Init() = 0;
+    virtual b8 Init() = 0;
     virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const = 0;
     virtual void SetClearColor(const BMath::Vec4& color) const = 0;
     virtual void Clear() const = 0;

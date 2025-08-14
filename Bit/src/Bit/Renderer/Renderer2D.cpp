@@ -93,6 +93,9 @@ b8 Renderer2D::Initialize()
     rendererAPI->SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
     m_RenderCommand->Init(rendererAPI);
+    m_ZNear = -100.0f;
+    m_ZFar = 100.0f;
+    m_ProjectionMatrix = BMath::Mat4::Ortho(0.0f, 1920.0f, 0.0f, 1080.0f, m_ZNear, m_ZFar);
 
     s_RenderData.QuadVertexArray = VertexArray::Create();
     s_RenderData.QuadVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(QuadVertex));
@@ -164,7 +167,7 @@ void Renderer2D::Clear() const
 void Renderer2D::BeginScene(CCamera* camera2D) 
 {
     m_Camera2D = camera2D;
-    BMath::Mat4 viewProjectionMatrix = m_Camera2D->ProjectionMatrix * m_Camera2D->ViewMatrix; 
+    BMath::Mat4 viewProjectionMatrix = m_ProjectionMatrix * m_Camera2D->ViewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     s_RenderData.LineShader->Bind();
@@ -174,7 +177,6 @@ void Renderer2D::BeginScene(CCamera* camera2D)
 void Renderer2D::EndScene()
 {
     Flush();
-    BIT_LOG_INFO("DrawCalls :%d, QuadCount : %d", Stats.DrawCalls, Stats.QuadCount);
 }
 void Renderer2D::StartBatch()
 {
@@ -337,8 +339,9 @@ void Renderer2D::Shutdown()
 }
 void Renderer2D::OnWindowResize(u16 width, u16 height)
 {
-    BIT_LOG_DEBUG("Changed ProjectionMatrix with width : %d, height: %d", width, height);
-    m_Camera2D->ProjectionMatrix = BMath::Mat4::Ortho(0, (f32)width, 0, (f32)height, -100.0f, 100.0f);
-
+    f32 aspectRatio = width / (f32)height;
+    f32 worldHeight = 1080.0f;
+    f32 worldWidth = worldHeight * aspectRatio;
+    m_ProjectionMatrix = BMath::Mat4::Ortho(0, worldWidth, 0, worldHeight, m_ZNear, m_ZFar);
 }
 } 

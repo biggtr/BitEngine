@@ -1,7 +1,6 @@
 #pragma once 
 #include "Bit/Renderer/Texture.h"
 #include <cstdint>
-#include <sys/types.h>
 namespace BitEngine 
 {
 
