@@ -1,9 +1,9 @@
 #pragma once 
 #include "Bit/Core/Defines.h"
 #include <cstdint>
+#include <utility>
 namespace BitEngine
 {
-
 class EntityManager;
 enum class ENTITY_TYPE
 {
@@ -16,7 +16,7 @@ private:
     uint32_t m_ID;
     EntityManager* m_EntityManager;
     Entity(unsigned int id)
-    :   m_ID(id)
+    :   m_ID(id), m_EntityManager(nullptr)
     {
     }
 public:
@@ -27,11 +27,14 @@ public:
 public:
     uint32_t GetID() const { return m_ID; }
 
+    template<typename TComponent, typename ...TArgs>
+    TComponent& AddComponent(TArgs&& ...args);
     template<typename TComponent> 
-    bool HasComponent();
+    b8 HasComponent();
     template<typename TComponent> 
-    void RemoveComponent(const Entity& entity);
+    void RemoveComponent();
+    void KillEntity();
+    
     friend class EntityManager;
 };
-
 }

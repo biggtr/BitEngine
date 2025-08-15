@@ -54,7 +54,6 @@ public:
     
     Entity CreateEntity();
     void AddEntity();
-    void RemoveEntity();
     void KillEntity(const Entity& entity);
     void AddEntityToSystems(const Entity& entity) const;
     void RemoveEntityFromSystems(const Entity& entity) const;
@@ -175,3 +174,4 @@ void AddEntityToSystem(const Entity& entity) const
 };
 
 }
+#include "Entity.inl"

@@ -30,7 +30,7 @@ protected:
 public:
     Game(){}
     virtual ~Game(){}
-    virtual bool OnInitialize() 
+    virtual b8 OnInitialize() 
     {
         Entities().AddSystem<RenderSystem>();
         Entities().AddSystem<MovementSystem>();
@@ -45,7 +45,8 @@ public:
                 );
 
         Camera().SetActiveCamera(&cameraComponent);
-        return Initialize();
+        Initialize();
+        return true;
     }
     virtual void OnUpdate(f64 deltaTime)
     {
@@ -63,7 +64,7 @@ public:
     }
 
 protected:
-    virtual bool Initialize() = 0;
+    virtual void Initialize() = 0;
     virtual void Update(float deltaTime) = 0;
     virtual void Render() = 0; 
 };

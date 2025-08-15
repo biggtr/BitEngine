@@ -8,7 +8,7 @@ private:
 public:
     TestGame(){}
     ~TestGame(){}
-    virtual bool Initialize() override;
+    virtual void Initialize() override;
     virtual void Update(float deltaTime) override;
     virtual void Render() override; 
 };
