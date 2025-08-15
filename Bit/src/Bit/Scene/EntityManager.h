@@ -147,11 +147,11 @@ bool HasSystem() const
     return m_Systems[index]; 
 }
 template<typename TSystem> 
-TSystem& GetSystem() const
+TSystem* GetSystem() const
 {
     static_assert(std::is_base_of<System, TSystem>::value,"TSystem must be derived from System.!");
     SYSTEM_TYPE type = TSystem::GetStaticType();
-    return *(TSystem*)m_Systems[(uint32_t)type];
+    return (TSystem*)m_Systems[(uint32_t)type];
 
 }
 template<typename TSystem> 

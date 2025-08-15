@@ -11,6 +11,13 @@ TComponent& Entity::AddComponent(TArgs&& ...args)
 {
     return m_EntityManager->AddComponent<TComponent>(*this, std::forward<TArgs>(args)...);
 }
+
+template<typename TComponent>
+TComponent& Entity::GetComponent()
+{
+    return m_EntityManager->GetComponent<TComponent>(*this);
+
+}
 template<typename TComponent> 
 b8 Entity::HasComponent()
 {

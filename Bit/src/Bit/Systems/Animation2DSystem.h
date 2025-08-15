@@ -19,6 +19,16 @@ public:
     }
     SYSTEM_CLASS_TYPE(ANIMATION2D);
 
+
+    void CreateAnimation(const Entity& entity, const char* name, u8 frameCount, u8 startFrame, f32 frameDuration, b8 isLooping = true)
+    {
+        if(!m_EntityManager->HasComponent<CAnimation2DController>(entity)) return;
+        CAnimation2DController& animationController = m_EntityManager->GetComponent<CAnimation2DController>(entity);
+        CAnimation2D animation{name, frameCount, startFrame, frameDuration, isLooping};
+        animationController.Animations.push_back(animation);
+        animationController.CurrentAnimationName = name;
+    }
+
     void SetAnimation(const Entity& entity, const char* animationName)
     {
         if(!m_EntityManager->HasComponent<CAnimation2DController>(entity)) return;

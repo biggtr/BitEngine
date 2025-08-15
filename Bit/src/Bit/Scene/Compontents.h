@@ -126,7 +126,6 @@ struct CAnimation2D
     const char* Name;
     u8 NumFrames;
     u8 StartFrame;
-    u8 FrameRateSpeed;
     f32 FrameDuration;
     bool IsLooping;
 };

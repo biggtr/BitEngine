@@ -27,6 +27,11 @@ protected:
     AssetManager& Assets() { return App().GetAssetManager(); }
     CameraManager& Camera() { return App().GetCameraManager(); }
     Input& Inputs() { return App().GetInput(); }
+
+    RenderSystem* m_RenderSystem;
+    MovementSystem* m_MovementSystem;
+    CameraSystem* m_CameraSystem;
+    Animation2DSystem* m_Animation2DSystem;
 public:
     Game(){}
     virtual ~Game(){}
@@ -37,6 +42,10 @@ public:
         Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
 
+        m_RenderSystem = Entities().GetSystem<RenderSystem>();
+        m_MovementSystem = Entities().GetSystem<MovementSystem>();
+        m_CameraSystem = Entities().GetSystem<CameraSystem>();
+        m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
 
         auto camera = Entities().CreateEntity();
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
@@ -50,15 +59,16 @@ public:
     }
     virtual void OnUpdate(f64 deltaTime)
     {
-        Entities().GetSystem<CameraSystem>().Update(deltaTime);
-        Entities().GetSystem<Animation2DSystem>().Update(deltaTime);
+        m_CameraSystem->Update(deltaTime);
+        
+        m_Animation2DSystem->Update(deltaTime);
 
         Update(deltaTime);
     }
     virtual void OnRender() 
     {
         Renderer().BeginScene(Camera().GetActiveCamera());
-        Entities().GetSystem<RenderSystem>().Update(Renderer());
+        m_RenderSystem->Update(Renderer());
         Render();
         Renderer().EndScene();
     }
