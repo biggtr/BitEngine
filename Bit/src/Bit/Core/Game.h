@@ -1,5 +1,6 @@
 #pragma once 
 #include "Application.h"
+#include "Bit/Core/Input.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
@@ -25,6 +26,7 @@ protected:
     EntityManager& Entities() { return App().GetEntityManager(); }
     AssetManager& Assets() { return App().GetAssetManager(); }
     CameraManager& Camera() { return App().GetCameraManager(); }
+    Input& Inputs() { return App().GetInput(); }
 public:
     Game(){}
     virtual ~Game(){}

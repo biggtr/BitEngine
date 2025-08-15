@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Bit/Profiler/Profiler.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/Camera.h"
@@ -118,12 +119,21 @@ void Application::Run()
 
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
-            s_Instance->m_EntityManager->Update();
-            s_Instance->m_GameInstance->OnUpdate(deltaTime);
+            {
+                // ProfilerTime Time("Entity Update");
+                s_Instance->m_EntityManager->Update();
+            }
+            {
+                // ProfilerTime Time("GameInstance update");
+                s_Instance->m_GameInstance->OnUpdate(deltaTime);
+            }
 
-            s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
-            s_Instance->m_Renderer2D->Clear();
-            s_Instance->m_GameInstance->OnRender();
+            {
+                // ProfilerTime Time("Renderer");
+                s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
+                s_Instance->m_Renderer2D->Clear();
+                s_Instance->m_GameInstance->OnRender();
+            }
             s_Instance->m_Window->OnUpdate();
             s_Instance->m_Input->Update();
         }
@@ -155,10 +165,11 @@ b8 Application::Shutdown()
 
     s_Instance->m_Input->Shutdown();
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
-    s_Instance->m_EventManager->Register(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
+    s_Instance->m_EventManager->UnRegister(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
     s_Instance->m_EventManager->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
+    s_Instance->m_Renderer2D->Shutdown();
     s_Instance->m_Window->Shutdown();
     s_Instance->m_IsRunning = false;
     delete s_Instance;
@@ -195,11 +206,14 @@ b8 Application::ApplicationOnKey(u16 code, void* sender, void* listener, EventCo
         case EVENT_CODE_KEY_PRESSED:
             {
                 u16 key = data.U16[0];
-                if(key == KEY_ESCAPE)
+                switch (key) 
                 {
-                    BIT_LOG_DEBUG("Applicaion : escape Key recieved");
-                    EventContext zerodata = {};
-                    EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);
+                    case KEY_ESCAPE:
+                    {
+                        BIT_LOG_DEBUG("Applicaion : escape Key recieved");
+                        EventContext zerodata = {};
+                        EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);
+                    }
                 }
                 return true;
             }

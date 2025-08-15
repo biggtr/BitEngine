@@ -6,7 +6,7 @@
 
 namespace BitEngine
 {
-
+static InputState m_InputState{};
 b8 Input::Initialize()
 {
     if(m_Initialized)
@@ -27,7 +27,7 @@ void Input::Shutdown()
         return;
     }
     m_Initialized = false;
-    BIT_LOG_INFO("Input Is Shuttingdown..");
+    BIT_LOG_INFO("Input Is Shutting down..");
 }
 void Input::Update()
 {
@@ -55,6 +55,7 @@ void Input::ProcessKey(KEYS key, b8 pressed)
     EventContext context;
     context.U16[0] = key;
     EventManager::EventFire(pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context);
+    m_InputState.KeyboardCurrentState.Keys[key] = pressed;
 }
 
 b8 Input::IsMouseButtonDown(MOUSE_BUTTONS button)

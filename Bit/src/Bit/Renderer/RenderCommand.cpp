@@ -1,15 +1,16 @@
 #include "RenderCommand.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Renderer2D.h"
+#include "Bit/Renderer/RendererAPI.h"
 #include <cstdint>
 
 namespace BitEngine 
 {
 
 
-b8 RenderCommand::Init(RendererAPI* api)
+b8 RenderCommand::Init()
 {
-    m_API = api;
+    m_API = RendererAPI::Create();
     if(!m_API->Init())
     {
 

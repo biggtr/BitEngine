@@ -32,7 +32,7 @@ public:
     virtual ~System() = default;
 
     virtual void AddEntity(const Entity& entity);
-    virtual void RemoveEntity(Entity& entity);
+    virtual void RemoveEntity(const Entity& entity);
     virtual const std::vector<Entity>& GetEntities() const;
     virtual const Signature& GetComponentSignature() { return m_ComponentSignature; };
     static SYSTEM_TYPE GetStaticType();

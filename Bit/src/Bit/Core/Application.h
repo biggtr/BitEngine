@@ -55,6 +55,7 @@ public:
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
     inline CameraManager& GetCameraManager() { return *m_CameraManager; }
+    inline Input& GetInput() { return *m_Input; }
 
 private:
     static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);

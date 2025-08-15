@@ -194,8 +194,4 @@ void OpenGLContext::SwapBuffers()
     glXSwapBuffers((Display*)m_Window->Linux.Display, m_Window->Linux.Window);
 }
 
-void OpenGLContext::Shutdown()
-{
-
-}
 }

@@ -15,6 +15,5 @@ public:
     OpenGLContext(PlatformWindow* window);
     virtual b8 Initialize() override;
     virtual void SwapBuffers() override;
-    virtual void Shutdown() override;
 };
 }

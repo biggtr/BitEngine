@@ -185,7 +185,6 @@ struct InputState
 class Input
 {
 private:
-    InputState m_InputState;
     b8 m_Initialized = false;
 
 public:

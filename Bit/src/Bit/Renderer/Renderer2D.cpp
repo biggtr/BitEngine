@@ -89,10 +89,9 @@ static Renderer2DData s_RenderData;
 b8 Renderer2D::Initialize()
 {
     IsDebugMode = false;
-    RendererAPI* rendererAPI = BitEngine::RendererAPI::Create();
-    rendererAPI->SetAPI(RENDERER_API::OPENGL);
+    RendererAPI::SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
-    m_RenderCommand->Init(rendererAPI);
+    m_RenderCommand->Init();
     m_ZNear = -100.0f;
     m_ZFar = 100.0f;
     m_ProjectionMatrix = BMath::Mat4::Ortho(0.0f, 1920.0f, 0.0f, 1080.0f, m_ZNear, m_ZFar);
@@ -171,7 +170,7 @@ void Renderer2D::BeginScene(CCamera* camera2D)
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     s_RenderData.LineShader->Bind();
-    s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+    s_RenderData.LineShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -327,15 +326,15 @@ void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, 
 void Renderer2D::Shutdown()
 {
     delete s_RenderData.QuadVertexArray;
-    delete s_RenderData.QuadVertexBuffer;
     delete s_RenderData.QuadShader;
     delete s_RenderData.WhiteTexture;
-    delete s_RenderData.QuadVertexBufferBase;
+    delete[] s_RenderData.QuadVertexBufferBase;
 
     delete s_RenderData.LineVertexArray;
-    delete s_RenderData.LineVertexBuffer;
     delete s_RenderData.LineShader;
-    delete s_RenderData.LineVertexBufferBase;
+    delete[] s_RenderData.LineVertexBufferBase;
+
+    delete m_RenderCommand;
 }
 void Renderer2D::OnWindowResize(u16 width, u16 height)
 {

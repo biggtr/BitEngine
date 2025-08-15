@@ -9,7 +9,6 @@ public:
     virtual ~GraphicsContext() = default;
     virtual b8 Initialize() = 0;
     virtual void SwapBuffers() = 0;
-    virtual void Shutdown() = 0;
 
     static GraphicsContext* Create(void* window);
 };

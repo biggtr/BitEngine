@@ -78,6 +78,7 @@ b8 PlatformLinux::Initialize()
                 indexBestConfig = i;
             }
         }
+        XFree(vi);
     }
     cfgChoosen = fbConfig[indexBestConfig];
 
@@ -124,6 +125,8 @@ b8 PlatformLinux::Initialize()
 }
 void PlatformLinux::Shutdown()
 {
+    delete m_Context;
+    XFree(m_PlatformWindow->Linux.VisualInfo);
     XUnmapWindow((Display*)m_PlatformWindow->Linux.Display, m_PlatformWindow->Linux.Window);
     XDestroyWindow((Display*)m_PlatformWindow->Linux.Display, m_PlatformWindow->Linux.Window);
     XCloseDisplay((Display *)m_PlatformWindow->Linux.Display);

@@ -1,4 +1,5 @@
 #pragma once
+#include "Bit/Containers/BQueue.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/System.h"
@@ -22,7 +23,9 @@ private:
     std::vector<IPool*> m_ComponentPools;
 
     std::vector<Entity> m_EntitiesToAdd;
-    std::vector<Entity> m_EntitiesToRemove;
+    std::vector<Entity> m_EntitiesToKill;
+
+    BContainer::Queue<u32> m_FreeIDs;
 
 
 public:
@@ -32,14 +35,29 @@ public:
     {
 
     }
+    ~EntityManager()
+    {
+        for(u32 i = 0; i < (u32)SYSTEM_TYPE::COUNT; i++)
+        {
+            delete m_Systems[i];
+            m_Systems[i] = nullptr;
+        }
+        for(u32 i = 0; i < m_ComponentPools.size(); i++)
+        {
+            delete m_ComponentPools[i];
+            m_ComponentPools[i] = nullptr;
+        }
+
+    }
 
     void Update();
     
     Entity CreateEntity();
     void AddEntity();
     void RemoveEntity();
-    void KillEntity();
-    void AddEntityToSystems(const Entity &entity) const;
+    void KillEntity(const Entity& entity);
+    void AddEntityToSystems(const Entity& entity) const;
+    void RemoveEntityFromSystems(const Entity& entity) const;
 
 
     template<typename TComponent, typename ...TArgs>

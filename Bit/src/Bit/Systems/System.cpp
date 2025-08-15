@@ -23,7 +23,7 @@ namespace BitEngine
     {
         m_Entities.push_back(entity);
     }
-    void System::RemoveEntity(Entity& entity)
+    void System::RemoveEntity(const Entity& entity)
     {
         for(size_t i = 0; i < m_Entities.size(); i++)
         {

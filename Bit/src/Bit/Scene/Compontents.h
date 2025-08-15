@@ -161,8 +161,7 @@ struct CCamera
     BMath::Vec3 Position;
     f32 Rotation;
     BMath::Mat4 ViewMatrix;
-    f32 Left, Right, Top, Bottom, ZNear, ZFar;
-
+    b8 ViewDirty;
     CCamera() { }
     CCamera(const BMath::Vec3& position, f32 rotation)
         :   
@@ -170,6 +169,7 @@ struct CCamera
           {
                   ViewMatrix = BMath::Mat4::Rotate(0.0f, 0.0f, -rotation) *
                      BMath::Mat4::Translate(-Position.x, -Position.y, -Position.z);
+                  ViewDirty = true;
           }
 };
 

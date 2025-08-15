@@ -13,19 +13,31 @@ namespace BitEngine
 
 Entity EntityManager::CreateEntity()
 {
-    uint32_t entityID = m_NumOfEntities++;
+    u32 entityID{};
+    if(m_FreeIDs.IsEmpty())
+    {
+        entityID = m_NumOfEntities++;
+        if(entityID >= m_EntitiesSignatures.size())
+        {
+            m_EntitiesSignatures.resize(entityID + 1);
+        }
+    }
+    else 
+    {
+        entityID = m_FreeIDs.Pop();
+    }
+
 
     Entity newEntity(entityID);
     newEntity.m_EntityManager = this;
 
     m_EntitiesToAdd.push_back(newEntity);
-    if(entityID >= m_EntitiesSignatures.size())
-    {
-        m_EntitiesSignatures.resize(entityID + 1);
-    }
 
-    // BIT_LOG_DEBUG("New Entity with id: %d Got Added..", entityID);
     return newEntity;
+}
+void EntityManager::KillEntity(const Entity& entity)
+{
+    m_EntitiesToKill.push_back(entity);
 }
 
 void EntityManager::AddEntityToSystems(const Entity &entity) const 
@@ -46,6 +58,24 @@ void EntityManager::AddEntityToSystems(const Entity &entity) const
     }
 }
 
+void EntityManager::RemoveEntityFromSystems(const Entity &entity) const 
+{
+
+    uint32_t entityID = entity.GetID();
+    const Signature& entitySignature = m_EntitiesSignatures[entityID];
+
+    for(System* system : m_Systems)
+    {
+
+        if(!system) continue;
+        const Signature& systemSignature = system->GetComponentSignature();
+        if((systemSignature & entitySignature) == systemSignature)
+        {
+            system->RemoveEntity(entity);
+        }
+    }
+}
+
 void EntityManager::Update()
 {
     for(const Entity& entity : m_EntitiesToAdd)
@@ -53,6 +83,13 @@ void EntityManager::Update()
         AddEntityToSystems(entity);
     }
     m_EntitiesToAdd.clear();
+    for(const Entity& entity : m_EntitiesToKill)
+    {
+        RemoveEntityFromSystems(entity);
+        m_EntitiesSignatures[entity.GetID()] = 0;
+        m_FreeIDs.PushBack(entity.GetID());
+    }
+    m_EntitiesToKill.clear();
 }
 
 } 

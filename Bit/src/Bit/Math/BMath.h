@@ -1,3 +1,4 @@
+#pragma once 
 #include "Bit/Core/Defines.h"
 #include "math.h"
 #define B_PI 3.14159265358979323846f
