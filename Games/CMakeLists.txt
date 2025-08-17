@@ -12,7 +12,7 @@ target_include_directories(TestGame
 
 set_target_properties(TestGame PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>/${PLATFORM_NAME}"
-    OUTPUT_NAME "Sandbox"  
+    OUTPUT_NAME "TestGame"  
 )
 
 target_link_libraries(TestGame PRIVATE BitEngine)

@@ -11,6 +11,7 @@
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Systems/Animation2DSystem.h"
 #include "Bit/Systems/CameraSystem.h"
+#include "Bit/Systems/InputSystem.h"
 #include "Bit/Systems/MovementSystem.h"
 #include "Bit/Systems/RenderSystem.h"
 namespace BitEngine 
@@ -32,6 +33,7 @@ protected:
     MovementSystem* m_MovementSystem;
     CameraSystem* m_CameraSystem;
     Animation2DSystem* m_Animation2DSystem;
+    InputSystem* m_InputSystem;
 public:
     Game(){}
     virtual ~Game(){}
@@ -41,11 +43,13 @@ public:
         Entities().AddSystem<MovementSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
+        Entities().AddSystem<InputSystem>(&Inputs());
 
         m_RenderSystem = Entities().GetSystem<RenderSystem>();
         m_MovementSystem = Entities().GetSystem<MovementSystem>();
         m_CameraSystem = Entities().GetSystem<CameraSystem>();
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
+        m_InputSystem = Entities().GetSystem<InputSystem>();
 
         auto camera = Entities().CreateEntity();
         CCamera cameraComponent = Entities().AddComponent<CCamera>(camera, 
@@ -54,6 +58,7 @@ public:
                 );
 
         Camera().SetActiveCamera(&cameraComponent);
+        SetupInput();
         Initialize();
         return true;
     }
@@ -75,6 +80,7 @@ public:
 
 protected:
     virtual void Initialize() = 0;
+    virtual void SetupInput() {}
     virtual void Update(float deltaTime) = 0;
     virtual void Render() = 0; 
 };

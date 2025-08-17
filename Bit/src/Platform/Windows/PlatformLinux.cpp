@@ -116,7 +116,7 @@ b8 PlatformLinux::Initialize()
 
     XStoreName(display, window, m_Name);
     XMapWindow(display, window);
-    XSync(display, false);
+    XFlush(display);
 
     m_Context = GraphicsContext::Create(m_PlatformWindow);
     m_Context->Initialize();

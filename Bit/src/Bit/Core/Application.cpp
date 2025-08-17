@@ -19,7 +19,7 @@
 namespace BitEngine
 {
 Application* Application::s_Instance = nullptr;
-bool Application::Create(Game *gameInstance)
+b8 Application::Create(Game *gameInstance)
 {
     if(!Logger::Initialize())
     {
@@ -111,25 +111,27 @@ bool Application::Initialize(ApplicationConfig appCfg)
 void Application::Run()
 {
     s_Instance->m_Time.Reset();
-
+    f64 FPS = 0.0f;
     while(s_Instance->m_IsRunning)
     {
         s_Instance->m_Time.Update();
         f64 deltaTime = s_Instance->m_Time.GetDeltaTime();
+        FPS = 1.0f / deltaTime;
 
+        BIT_LOG_DEBUG("FPS: %.2f", FPS);
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
             {
-                // ProfilerTime Time("Entity Update");
+                ProfilerTime Time("Entity Update");
                 s_Instance->m_EntityManager->Update();
             }
             {
-                // ProfilerTime Time("GameInstance update");
+                ProfilerTime Time("GameInstance update");
                 s_Instance->m_GameInstance->OnUpdate(deltaTime);
             }
 
             {
-                // ProfilerTime Time("Renderer");
+                ProfilerTime Time("Renderer");
                 s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
                 s_Instance->m_Renderer2D->Clear();
                 s_Instance->m_GameInstance->OnRender();
@@ -210,7 +212,6 @@ b8 Application::ApplicationOnKey(u16 code, void* sender, void* listener, EventCo
                 {
                     case KEY_ESCAPE:
                     {
-                        BIT_LOG_DEBUG("Applicaion : escape Key recieved");
                         EventContext zerodata = {};
                         EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);
                     }

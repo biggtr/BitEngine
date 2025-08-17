@@ -3,15 +3,15 @@
 namespace BitEngine
 {
 
-typedef enum MOUSE_BUTTONS 
+enum MOUSE_BUTTONS 
 {
-    BUTTON_LEFT,
-    BUTTON_RIGHT,
-    BUTTON_MIDDLE,
-    BUTTON_MAX
-} MOUSE_BUTTONS;
+    MOUSE_BUTTON_LEFT,
+    MOUSE_BUTTON_RIGHT,
+    MOUSE_BUTTON_MIDDLE,
+    MOUSE_BUTTON_MAX
+};
 
-typedef enum KEYS 
+enum KEYS 
 {
     KEY_BACKSPACE = 0x08,
     KEY_ENTER = 0x0D,
@@ -163,7 +163,7 @@ typedef enum KEYS
     KEY_RBRACKET = 0xDD,
 
     MAX_KEYS = 0xFF
-} KEYS;
+};
 
 struct KeyboardState
 {
@@ -173,7 +173,7 @@ struct MouseState
 {
     i16 X;
     i16 Y;
-    b8 Buttons[(u8)MOUSE_BUTTONS::BUTTON_MAX];
+    b8 Buttons[MOUSE_BUTTON_MAX];
 };
 struct InputState
 {
