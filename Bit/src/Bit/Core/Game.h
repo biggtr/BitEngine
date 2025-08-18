@@ -72,10 +72,14 @@ public:
     }
     virtual void OnRender() 
     {
-        Renderer().BeginScene(Camera().GetActiveCamera());
-        m_RenderSystem->Update(Renderer());
+        Renderer().BeginScene(BMath::Mat4::Identity());
         Render();
         Renderer().EndScene();
+
+        Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
+        m_RenderSystem->Update(Renderer());
+        Renderer().EndScene();
+
     }
 
 protected:

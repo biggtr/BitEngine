@@ -163,10 +163,9 @@ void Renderer2D::Clear() const
     m_RenderCommand->Clear();
 }
 
-void Renderer2D::BeginScene(CCamera* camera2D) 
+void Renderer2D::BeginScene(const BMath::Mat4& viewMatrix) 
 {
-    m_Camera2D = camera2D;
-    BMath::Mat4 viewProjectionMatrix = m_ProjectionMatrix * m_Camera2D->ViewMatrix; 
+    BMath::Mat4 viewProjectionMatrix = m_ProjectionMatrix * viewMatrix; 
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     s_RenderData.LineShader->Bind();

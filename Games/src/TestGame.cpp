@@ -1,5 +1,6 @@
 #include "TestGame.h"
 #include "Bit/Core/Input.h"
+#include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/InputSystem.h"
 
@@ -7,7 +8,17 @@ void TestGame::Initialize()
 {
     Assets().AddTexture("Player", "assets/textures/player.png");
     Assets().AddTexture("Tree", "assets/textures/tree.png");
+    Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
 
+    m_Background = Entities().CreateEntity();
+    m_Background.AddComponent<BitEngine::CSprite>(
+            Assets().GetTexture("background")
+            );
+    m_Background.AddComponent<BitEngine::CTransform>(
+            BMath::Vec3(0.0f, 0.0f, 0.0f),
+            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
     m_Player = Entities().CreateEntity();
     m_Player.AddComponent<BitEngine::CTransform>(
             BMath::Vec3(600.0f, 400.0f, 0.0f),
@@ -32,6 +43,12 @@ void TestGame::Initialize()
 
 void TestGame::Render()
 {
+    BitEngine::CSprite& sprite = m_Background.GetComponent<BitEngine::CSprite>();
+    Renderer().DrawQuad(
+            BMath::Vec3(100.0f, 100.0f, -4.0f),
+            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
+            sprite
+            );
 
 }
 void TestGame::Update(f32 deltaTime)

@@ -6,6 +6,7 @@ class TestGame : public BitEngine::Game
 {
 private:
         BitEngine::Entity m_Player;
+        BitEngine::Entity m_Background;
 public:
     TestGame()
     {

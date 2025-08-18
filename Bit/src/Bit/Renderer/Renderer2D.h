@@ -36,7 +36,7 @@ public:
     void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const;
 
-    void BeginScene(CCamera* camera2D);
+    void BeginScene(const BMath::Mat4& viewMatrix);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
 
