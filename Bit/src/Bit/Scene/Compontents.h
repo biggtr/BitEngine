@@ -72,16 +72,19 @@ struct CSprite
     u32 FrameHeight;
     u32 CurrentFrame;
     float UVs[8];
+    b8 IsStatic;
 
     CSprite() 
     {
         STexture = nullptr; 
         Width = Height = FrameWidth = FrameHeight = 1;
         CurrentFrame = 0;
+        IsStatic = false;
         UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
         UVs[2] = 1.0f; UVs[3] = 0.0f; //br
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
+
     }
     CSprite(Texture* texture, const BMath::Vec4 color = {1.0f, 1.0f, 1.0f, 1.0f}) 
         :  STexture(texture)
@@ -92,29 +95,32 @@ struct CSprite
         FrameWidth = Width;
         FrameHeight = Height;
         CurrentFrame = 0;
+        IsStatic = false;
         UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
         UVs[2] = 1.0f; UVs[3] = 0.0f; //br
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight) 
+    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight)
         :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight)
     {
         Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
         Width = texture->GetWidth();
         Height = texture->GetHeight();
+        IsStatic = false;
         CurrentFrame = 0;
         UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
         UVs[2] = 1.0f; UVs[3] = 0.0f; //br
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight, u32 currentFrame) 
+    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight, u32 currentFrame)
         :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight), CurrentFrame(currentFrame)
     {
         Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
         Width = texture->GetWidth();
         Height = texture->GetHeight();
+        IsStatic = false;
         UVs[0] = 0.0f; UVs[1] = 0.0f; //bt
         UVs[2] = 1.0f; UVs[3] = 0.0f; //br
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr

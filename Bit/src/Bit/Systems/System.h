@@ -10,6 +10,7 @@ enum class SYSTEM_TYPE : uint32_t
 {
     MOVEMENT,
     RENDER,
+    UI_RENDER,
     PHYSICS,
     CAMERA,
     ANIMATION2D,

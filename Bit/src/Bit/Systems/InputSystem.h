@@ -6,6 +6,7 @@
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Systems/System.h"
 #include <functional>
+#include <vector>
 namespace BitEngine 
 {
 
@@ -22,12 +23,19 @@ struct Action
 {
     std::vector<KEYS> keys;
     f32 value = 0.0f;
+    Action()
+    {
+        //HACK:: use something else in future 
+        keys.resize(KEYS::MAX_KEYS);
+    }
 };
 struct CInput
 {
     std::unordered_map<ACTION_TYPE, Action> Actions;
     std::unordered_map<ACTION_TYPE, std::function<void(const Entity&)>> ActionBindings;
     std::unordered_map<ACTION_TYPE, std::function<void(const Entity&, f32)>> AxisBindings;
+    CInput()
+    {}
 };
 class InputSystem : public System
 {
@@ -96,15 +104,36 @@ public:
             BIT_LOG_DEBUG("Action Was Not Found To Bind the function..!");
             return;
         }
-        inputComponent.ActionBindings[actionType] = [instance, memberFunc](const Entity& entity){
+        inputComponent.AxisBindings[actionType] = [instance, memberFunc](const Entity& entity){
             (instance->*memberFunc)(entity);
         };
     }
 
-    void Update(float deltaTime)
+    void Update()
     {
         for(const Entity& entity : m_Entities)
         {
+            auto& inputComponent = m_EntityManager->GetComponent<CInput>(entity);
+            for(auto& [type, action] : inputComponent.Actions)
+            {
+                for(KEYS key : action.keys)
+                {
+                    if(m_Input->IsKeyDown(key))
+                    {
+                        //HACK: Change actions to use event system not everyframe 
+                        if(inputComponent.ActionBindings.contains(type))
+                        {
+                            inputComponent.ActionBindings[type](entity);
+                        }
+                        if(inputComponent.AxisBindings.contains(type))
+                        {
+                            inputComponent.AxisBindings[type](entity, action.value);
+                        }
+                    }
+
+                }
+
+            }
 
         }
     }

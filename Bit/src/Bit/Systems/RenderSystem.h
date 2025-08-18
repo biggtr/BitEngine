@@ -27,17 +27,21 @@ public:
         {
             const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
             CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
-            UpdateUVs(spriteComponent);
-            renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
-                    spriteComponent
-                    );
-            if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+            if(!spriteComponent.IsStatic)
             {
 
-                CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
-                renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
-                        {1.0f, 0.0f, 0.0f, 1.0f}
+                UpdateUVs(spriteComponent);
+                renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                        spriteComponent
                         );
+                if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+                {
+
+                    CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
+                    renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
+                            {1.0f, 0.0f, 0.0f, 1.0f}
+                            );
+                }
             }
         }
     }

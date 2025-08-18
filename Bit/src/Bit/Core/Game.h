@@ -14,6 +14,7 @@
 #include "Bit/Systems/InputSystem.h"
 #include "Bit/Systems/MovementSystem.h"
 #include "Bit/Systems/RenderSystem.h"
+#include "Bit/Systems/UIRenderSystem.h"
 namespace BitEngine 
 {
 extern Game* CreateGame();
@@ -30,6 +31,7 @@ protected:
     Input& Inputs() { return App().GetInput(); }
 
     RenderSystem* m_RenderSystem;
+    UIRenderSystem* m_UIRenderSystem;
     MovementSystem* m_MovementSystem;
     CameraSystem* m_CameraSystem;
     Animation2DSystem* m_Animation2DSystem;
@@ -40,12 +42,14 @@ public:
     virtual b8 OnInitialize() 
     {
         Entities().AddSystem<RenderSystem>();
+        Entities().AddSystem<UIRenderSystem>();
         Entities().AddSystem<MovementSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
         Entities().AddSystem<InputSystem>(&Inputs());
 
         m_RenderSystem = Entities().GetSystem<RenderSystem>();
+        m_UIRenderSystem = Entities().GetSystem<UIRenderSystem>();
         m_MovementSystem = Entities().GetSystem<MovementSystem>();
         m_CameraSystem = Entities().GetSystem<CameraSystem>();
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
@@ -58,33 +62,35 @@ public:
                 );
 
         Camera().SetActiveCamera(&cameraComponent);
-        SetupInput();
         Initialize();
+        SetupInput();
         return true;
     }
     virtual void OnUpdate(f64 deltaTime)
     {
         m_CameraSystem->Update(deltaTime);
-        
         m_Animation2DSystem->Update(deltaTime);
-
+        m_InputSystem->Update();
         Update(deltaTime);
     }
     virtual void OnRender() 
     {
         Renderer().BeginScene(BMath::Mat4::Identity());
-        Render();
+        m_UIRenderSystem->Update(Renderer());
         Renderer().EndScene();
 
         Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
         m_RenderSystem->Update(Renderer());
         Renderer().EndScene();
 
+        // Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
+        // Render();
+        // Renderer().EndScene();
     }
 
 protected:
     virtual void Initialize() = 0;
-    virtual void SetupInput() {}
+    virtual void SetupInput() = 0;
     virtual void Update(float deltaTime) = 0;
     virtual void Render() = 0; 
 };

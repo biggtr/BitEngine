@@ -1,5 +1,6 @@
 #include "TestGame.h"
 #include "Bit/Core/Input.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/InputSystem.h"
@@ -10,12 +11,28 @@ void TestGame::Initialize()
     Assets().AddTexture("Tree", "assets/textures/tree.png");
     Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
 
+    for(u32 i = 0; i < 10000; ++i)
+    {
+        auto entity = Entities().CreateEntity();
+        f32 x = (i % 50) * 80.0f;
+        f32 y = ((f32)i / 50) * 80.0f;
+        entity.AddComponent<BitEngine::CTransform>(
+                BMath::Vec3(x, y, -3.0f),
+                BMath::Vec3(100.0f, 100.0f, 0.0f),
+                BMath::Vec3(0.0f, 0.0f, 0.0f)
+                );
+        entity.AddComponent<BitEngine::CSprite>(
+                Assets().GetTexture("Tree")
+                );
+    }
+    
     m_Background = Entities().CreateEntity();
-    m_Background.AddComponent<BitEngine::CSprite>(
+    auto& backgroundsprite = m_Background.AddComponent<BitEngine::CSprite>(
             Assets().GetTexture("background")
             );
+    backgroundsprite.IsStatic = true;
     m_Background.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(0.0f, 0.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, -4.0f),
             BMath::Vec3(1000.0f, 1000.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
@@ -25,11 +42,12 @@ void TestGame::Initialize()
             BMath::Vec3(100.0f, 100.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
-
-    m_Player.AddComponent<BitEngine::CSprite>(
+    m_Player.AddComponent<BitEngine::CInput>();
+    auto& playersprite = m_Player.AddComponent<BitEngine::CSprite>(
             Assets().GetTexture("Player"),
             32, 32
             );
+    playersprite.IsStatic = false;
 
     m_Player.AddComponent<BitEngine::CAnimation2DController>();
     u8 frameCount = 4; 
@@ -43,13 +61,6 @@ void TestGame::Initialize()
 
 void TestGame::Render()
 {
-    BitEngine::CSprite& sprite = m_Background.GetComponent<BitEngine::CSprite>();
-    Renderer().DrawQuad(
-            BMath::Vec3(100.0f, 100.0f, -4.0f),
-            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
-            sprite
-            );
-
 }
 void TestGame::Update(f32 deltaTime)
 {
@@ -80,11 +91,12 @@ void TestGame::Update(f32 deltaTime)
 }
 void TestGame::OnJump(const BitEngine::Entity& entity)
 {
-
+    BIT_LOG_DEBUG("Player JUMP..!");
 }
 
 void TestGame::SetupInput()
 {
+    BIT_LOG_DEBUG("CREATING ACTIONS AND INPUTS");
     m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_FORWARD, m_Player, BitEngine::KEY_W, 1.0f);
     m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_BACKWARD, m_Player, BitEngine::KEY_S, -1.0f);
     m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_LEFT, m_Player, BitEngine::KEY_D, 1.0f);
