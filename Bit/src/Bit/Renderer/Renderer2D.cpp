@@ -34,6 +34,14 @@ struct QuadVertex
     BMath::Vec2 TexCoords;
     f32 TexIndex;
 };
+struct CircleVertex
+{
+    BMath::Vec3 WorldPosition;
+    BMath::Vec2 NormalizedPosition; // -1, 1
+    BMath::Vec4 Color;
+    f32 Thickness;
+    f32 Fade;
+};
 struct LineVertex
 {
 
@@ -50,7 +58,7 @@ static RenderStats Stats;
 
 struct Renderer2DData
 {
-    static const u32 MaxQuads = 100000;
+    static const u32 MaxQuads = 10000;
     static const u32 MaxVertices = MaxQuads * 4;
     static const u32 MaxIndices = MaxQuads * 6;
     static const u32 MaxTextureSlots = 16;
@@ -61,6 +69,10 @@ struct Renderer2DData
     VertexBuffer* QuadVertexBuffer;
     Shader* QuadShader;
     Texture* WhiteTexture; 
+
+    VertexArray* CircleVertexArray;
+    VertexBuffer* CircleVertexBuffer;
+    Shader* CircleShader;
 
     VertexArray* LineVertexArray;
     VertexBuffer* LineVertexBuffer;
@@ -73,6 +85,10 @@ struct Renderer2DData
     uint32_t QuadIndexCount = 0;
     QuadVertex* QuadVertexBufferBase = nullptr;
     QuadVertex* QuadVertexBufferPtr = nullptr;
+
+    uint32_t CircleIndexCount = 0;
+    CircleVertex* CircleVertexBufferBase = nullptr;
+    CircleVertex* CircleVertexBufferPtr = nullptr;
 
     uint32_t LineVertexCount = 0;
     LineVertex* LineVertexBufferBase = nullptr;
@@ -88,7 +104,6 @@ static Renderer2DData s_RenderData;
 
 b8 Renderer2D::Initialize()
 {
-    IsDebugMode = false;
     RendererAPI::SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
     m_RenderCommand->Init();
@@ -124,6 +139,20 @@ b8 Renderer2D::Initialize()
     s_RenderData.QuadVertexArray->SetIndexBuffer(QuadIBO);
     delete[] quadIndices;
 
+    s_RenderData.CircleVertexArray = VertexArray::Create();
+    s_RenderData.CircleVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(CircleVertex));
+    BufferLayout CircleLayout = BufferLayout({
+            { SHADER_DATA_TYPE::FLOAT3, "a_WorldPosition"}, 
+            { SHADER_DATA_TYPE::FLOAT2, "a_NormalizedPosition"}, 
+            { SHADER_DATA_TYPE::FLOAT4, "a_Color"}, 
+            { SHADER_DATA_TYPE::FLOAT, "a_Thickness"}, 
+            { SHADER_DATA_TYPE::FLOAT, "a_Fade"}, 
+            });
+    s_RenderData.CircleVertexBuffer->SetBufferLayout(CircleLayout);
+    s_RenderData.CircleVertexArray->AddVertexBuffer(s_RenderData.CircleVertexBuffer);
+    s_RenderData.CircleVertexBufferBase = new CircleVertex[s_RenderData.MaxVertices];
+    s_RenderData.CircleVertexArray->SetIndexBuffer(QuadIBO);
+
     s_RenderData.WhiteTexture = Texture::Create(1,1);
     uint8_t whitePixel[4] = { 255, 255, 255, 255 }; 
     s_RenderData.WhiteTexture->SetData(whitePixel, sizeof(whitePixel));
@@ -140,6 +169,8 @@ b8 Renderer2D::Initialize()
 
     s_RenderData.QuadShader = Shader::Create("assets/shaders/QuadShader.glsl");
     s_RenderData.LineShader = Shader::Create("assets/shaders/LineShader.glsl");
+    s_RenderData.CircleShader = Shader::Create("assets/shaders/CircleShader.glsl");
+
     i32 samplers[s_RenderData.MaxTextureSlots];
     for(u32 i = 0; i < s_RenderData.MaxTextureSlots; ++i)
     {
@@ -166,10 +197,15 @@ void Renderer2D::Clear() const
 void Renderer2D::BeginScene(const BMath::Mat4& viewMatrix) 
 {
     BMath::Mat4 viewProjectionMatrix = m_ProjectionMatrix * viewMatrix; 
+
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+
     s_RenderData.LineShader->Bind();
     s_RenderData.LineShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+
+    s_RenderData.CircleShader->Bind();
+    s_RenderData.CircleShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -181,6 +217,9 @@ void Renderer2D::StartBatch()
     s_RenderData.QuadIndexCount = 0;
     s_RenderData.QuadVertexBufferPtr = s_RenderData.QuadVertexBufferBase;
     s_RenderData.TextureSlotIndex = 1;
+
+    s_RenderData.CircleIndexCount = 0;
+    s_RenderData.CircleVertexBufferPtr = s_RenderData.CircleVertexBufferBase;
 
     s_RenderData.LineVertexCount= 0;
     s_RenderData.LineVertexBufferPtr = s_RenderData.LineVertexBufferBase;
@@ -203,6 +242,16 @@ void Renderer2D::Flush()
         }
         s_RenderData.QuadShader->Bind();
         m_RenderCommand->DrawIndexed(s_RenderData.QuadVertexArray, s_RenderData.QuadIndexCount);
+        Stats.DrawCalls++;
+    }
+    if(s_RenderData.CircleIndexCount)
+    {
+        
+        uint32_t dataSize = (uint32_t)((uint8_t*)s_RenderData.CircleVertexBufferPtr - (uint8_t*)s_RenderData.CircleVertexBufferBase);
+        s_RenderData.CircleVertexBuffer->SetData(s_RenderData.CircleVertexBufferBase, dataSize);
+
+        s_RenderData.CircleShader->Bind();
+        m_RenderCommand->DrawIndexed(s_RenderData.CircleVertexArray, s_RenderData.CircleIndexCount);
         Stats.DrawCalls++;
     }
     if(s_RenderData.LineVertexCount)
@@ -298,6 +347,41 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
     s_RenderData.QuadIndexCount += 6;
     Stats.QuadCount++;
 }
+void Renderer2D::DrawCircle(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color, f32 thickness, f32 fade) 
+{
+
+    s_RenderData.CircleVertexBufferPtr->WorldPosition = position;
+    s_RenderData.CircleVertexBufferPtr->NormalizedPosition = {-1.0f, -1.0f };
+    s_RenderData.CircleVertexBufferPtr->Color = color;
+    s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
+    s_RenderData.CircleVertexBufferPtr->Fade = fade;
+    s_RenderData.CircleVertexBufferPtr++; 
+
+    s_RenderData.CircleVertexBufferPtr->WorldPosition= { position.x + size.x, position.y, position.z };
+    s_RenderData.CircleVertexBufferPtr->NormalizedPosition= {1.0f, -1.0f };
+    s_RenderData.CircleVertexBufferPtr->Color = color;
+    s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
+    s_RenderData.CircleVertexBufferPtr->Fade = fade;
+    s_RenderData.CircleVertexBufferPtr++; 
+
+    s_RenderData.CircleVertexBufferPtr->WorldPosition = { position.x + size.x, position.y + size.y, position.z };
+    s_RenderData.CircleVertexBufferPtr->NormalizedPosition= {1.0f, 1.0f };
+    s_RenderData.CircleVertexBufferPtr->Color = color;
+    s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
+    s_RenderData.CircleVertexBufferPtr->Fade = fade;
+    s_RenderData.CircleVertexBufferPtr++; 
+
+    s_RenderData.CircleVertexBufferPtr->WorldPosition = { position.x, position.y + size.y, position.z };
+    s_RenderData.CircleVertexBufferPtr->NormalizedPosition = {-1.0f, 1.0f };
+    s_RenderData.CircleVertexBufferPtr->Color = color;
+    s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
+    s_RenderData.CircleVertexBufferPtr->Fade = fade;
+    s_RenderData.CircleVertexBufferPtr++; 
+
+    s_RenderData.CircleIndexCount += 6;
+
+    Stats.QuadCount++;
+}
 void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color)
 {
     s_RenderData.LineVertexBufferPtr->Position = p0;
@@ -328,6 +412,10 @@ void Renderer2D::Shutdown()
     delete s_RenderData.QuadShader;
     delete s_RenderData.WhiteTexture;
     delete[] s_RenderData.QuadVertexBufferBase;
+
+    delete s_RenderData.CircleVertexArray;
+    delete s_RenderData.CircleShader;
+    delete[] s_RenderData.CircleVertexBufferBase;
 
     delete s_RenderData.LineVertexArray;
     delete s_RenderData.LineShader;

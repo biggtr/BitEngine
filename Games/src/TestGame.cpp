@@ -11,7 +11,7 @@ void TestGame::Initialize()
     Assets().AddTexture("Tree", "assets/textures/tree.png");
     Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
 
-    for(u32 i = 0; i < 10000; ++i)
+    for(u32 i = 0; i < 1000; ++i)
     {
         auto entity = Entities().CreateEntity();
         f32 x = (i % 50) * 80.0f;
@@ -61,6 +61,10 @@ void TestGame::Initialize()
 
 void TestGame::Render()
 {
+    Renderer().DrawCircle(
+            BMath::Vec3(300.0f, 300.0f, 0.0f), 
+            BMath::Vec3(300.0f, 300.0f, 0.0f),
+            BMath::Vec4(1.0f,0.0f, 0.0f, 1.0f));
 }
 void TestGame::Update(f32 deltaTime)
 {

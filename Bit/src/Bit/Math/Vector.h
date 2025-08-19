@@ -36,7 +36,14 @@ public:
         y = vec.y;
         return *this;
     }
-
+    Vec2 operator+(Vec2& other)
+    {
+        return Vec2(x + other.x, y + other.y);
+    }
+    Vec2 operator-(Vec2& other)
+    {
+        return Vec2(x - other.x, y - other.y);
+    }
     static float Dot(const Vec2& a, const Vec2& b)
     {
         return a.x * b.x + a.y * b.y;
@@ -111,6 +118,39 @@ public:
         return *this;
     }
 
+    Vec3 operator*(Vec3& other)
+    {
+        return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+    Vec3 operator/(Vec3& other)
+    {
+        return Vec3(x / other.x, y / other.y, z / other.z);
+    }
+    Vec3 operator*(f32 scalar)
+    {
+        return Vec3(x * scalar, y * scalar, z * scalar);
+    }
+    Vec3 operator/(f32 scalar)
+    {
+        return Vec3(x / scalar, y / scalar, z / scalar);
+    }
+    Vec3 operator+(Vec3& other)
+    {
+        return Vec3(x + other.x, y + other.y, z + other.z);
+    }
+    Vec3& operator+=(const Vec3& other)
+    {
+        this->x += other.x;
+        this->y += other.y;
+        this->z += other.z;
+        
+        return *this;
+    }
+    Vec3 operator-(Vec3& other)
+    {
+        return Vec3(x - other.x, y - other.y, z - other.z);
+    }
+
     static float Dot(const Vec3& a, const Vec3& b)
     {
         return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -133,6 +173,14 @@ public:
         return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
     }
 
+    Vec3 Normalize() 
+    {
+        float vecLength = Vec3::Length(*this);
+
+        if(vecLength > 0.000000f)
+            return Vec3(x /= vecLength, y /= vecLength, z /= vecLength);
+        return *this;
+    }
     static void Normalize(Vec3* vec) 
     {
         float vecLength = Vec3::Length(*vec);
@@ -195,6 +243,15 @@ public:
         return *this;
     }
 
+    Vec4 operator+(Vec4& other)
+    {
+        return Vec4(x + other.x, y + other.y, z + other.z, w + other.w);
+    }
+
+    Vec4 operator-(Vec4& other)
+    {
+        return Vec4(x - other.x, y - other.y, z - other.z, w + other.w);
+    }
     static float Dot(const Vec4& a, const Vec4& b)
     {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

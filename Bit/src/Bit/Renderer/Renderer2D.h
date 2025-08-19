@@ -18,8 +18,6 @@ typedef enum
 } RENDER_MODE;
 class Renderer2D
 {
-public:
-    b8 IsDebugMode;
 private:
     RenderCommand* m_RenderCommand;
     CCamera* m_Camera2D;
@@ -42,6 +40,7 @@ public:
 
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
     void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
+    void DrawCircle(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color, f32 thickness = 0.5f, f32 fade = 0.005f);
     void EndScene();
 
     

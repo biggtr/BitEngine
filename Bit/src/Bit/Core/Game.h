@@ -83,14 +83,14 @@ public:
         m_RenderSystem->Update(Renderer());
         Renderer().EndScene();
 
-        // Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
-        // Render();
-        // Renderer().EndScene();
+        Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
+        Render();
+        Renderer().EndScene();
     }
 
 protected:
     virtual void Initialize() = 0;
-    virtual void SetupInput() = 0;
+    virtual void SetupInput(){} 
     virtual void Update(float deltaTime) = 0;
     virtual void Render() = 0; 
 };
