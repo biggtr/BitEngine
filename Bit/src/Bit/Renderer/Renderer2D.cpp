@@ -63,7 +63,7 @@ struct Renderer2DData
     static const u32 MaxIndices = MaxQuads * 6;
     static const u32 MaxTextureSlots = 16;
 
-    
+    IndexBuffer* QuadIndexBuffer;
 
     VertexArray* QuadVertexArray;
     VertexBuffer* QuadVertexBuffer;
@@ -421,6 +421,7 @@ void Renderer2D::Shutdown()
     delete s_RenderData.LineShader;
     delete[] s_RenderData.LineVertexBufferBase;
 
+    delete s_RenderData.QuadIndexBuffer;
     delete m_RenderCommand;
 }
 void Renderer2D::OnWindowResize(u16 width, u16 height)

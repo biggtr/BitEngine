@@ -4,6 +4,7 @@
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/InputSystem.h"
+#include "Bit/Font/Font.h"
 
 void TestGame::Initialize()
 {
@@ -56,6 +57,11 @@ void TestGame::Initialize()
     m_Animation2DSystem->CreateAnimation(m_Player, "runTop", frameCount, 8, 0.1f);
     m_Animation2DSystem->CreateAnimation(m_Player, "runBottom", frameCount, 12, 0.1f);
 
+
+    //experimenting with fonts
+
+    BitEngine::Font::ParseFont("assets/fonts/dejavu.ttf");
+    BitEngine::Font::Shutdown();
 
 }
 

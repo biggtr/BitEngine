@@ -18,11 +18,6 @@ OpenGLVertexArray::~OpenGLVertexArray()
         delete buffer;
     }
     m_VertexBuffers.clear();
-
-    if(m_IndexBuffer)
-    {
-        delete m_IndexBuffer;
-    }
 }
 
 void OpenGLVertexArray::Bind() const 

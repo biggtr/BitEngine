@@ -45,6 +45,18 @@ BMath::Vec3 BPhysics2D::GenerateGravitationalForce(CParticle a, CParticle b, f32
     return gravitationalForce;
 
 }
+// k -> Spring stiff constant == how much force do we need to deform the object
+// l -> displacement after deformation
+BMath::Vec3 BPhysics2D::GenerateSpringForce(CParticle particle, BMath::Vec3& anchor,f32 restLength, f32 k)
+{
+    BMath::Vec3 d = particle.Position - anchor;
+    f32 displacement = BMath::Vec3::Length(d) - restLength;
+
+    BMath::Vec3 springDirection = d.Normalize();
+    f32 springForceMagnitude = -k * displacement;
+    BMath::Vec3 springForce = springDirection * springForceMagnitude;
+    return springForce;
+}
 void BPhysics2D::EnableWeight(CParticle particle, f32 gravity)
 {
     BMath::Vec3 weightForce(0.0, particle.Mass * gravity, 0.0f);

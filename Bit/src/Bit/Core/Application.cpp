@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Bit/Font/Font.h"
 #include "Bit/Profiler/Profiler.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Core.h"
