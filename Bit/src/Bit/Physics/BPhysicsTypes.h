@@ -21,18 +21,12 @@ struct BParticle
 enum SHAPE_TYPE
 {
     SHAPE_CIRCLE,
-    SHAPE_POLYGON,
     SHAPE_BOX
 };
 struct BCircleShape
 {
     f32 Radius;
     f32 InertiaWithoutMass;
-    BCircleShape(f32 radius)
-        : Radius(radius)
-    {
-        InertiaWithoutMass = 0.5f * (radius * radius);
-    }
 };
 struct BPolygonShape
 {
@@ -49,15 +43,19 @@ struct BBoxShape
     f32 Width;
     f32 Height;
     f32 InertiaWithoutMass;
-    BBoxShape(f32 width, f32 height)
-        : Width(width), Height(height)
+};
+struct BShape
+{
+    SHAPE_TYPE Type;
+    union
     {
-        InertiaWithoutMass = (1.0f/12.0f) * ((Width * Width) + (Height * Height));
-    }
+        BCircleShape BCircle;
+        BBoxShape BBox;
+    };
 };
 struct BBody
 {
-    SHAPE_TYPE ShapeType;
+    u32 ShapeIndex;
 
     BMath::Vec3 Acceleration;
     BMath::Vec3 Velocity; 
@@ -76,28 +74,5 @@ struct BBody
     
     f32 Inertia;
     f32 InvInertia;
-    union
-    {
-        BCircleShape BCircle;
-        BPolygonShape BPolygon;
-        BBoxShape BBox;
-    };
-    
-    BBody(SHAPE_TYPE shapeType, const BMath::Vec3& position, f32 mass)
-        : ShapeType(shapeType), Position(position), Mass(mass)
-    {
-        switch (shapeType) 
-        {
-            case SHAPE_CIRCLE:
-                Inertia = BCircle.InertiaWithoutMass * Mass;
-                break;
-            case SHAPE_POLYGON:
-                Inertia = BPolygon.InertiaWithoutMass * Mass;
-                break;
-            case SHAPE_BOX:
-                Inertia = BBox.InertiaWithoutMass * Mass;
-                break;
-        }
-    }
 };
 }
