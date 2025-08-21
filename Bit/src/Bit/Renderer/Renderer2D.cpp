@@ -135,8 +135,8 @@ b8 Renderer2D::Initialize()
         quadIndices[i + 5] = offset + 0;
         offset += 4;
     }
-    IndexBuffer* QuadIBO = IndexBuffer::Create(quadIndices, s_RenderData.MaxIndices);
-    s_RenderData.QuadVertexArray->SetIndexBuffer(QuadIBO);
+    s_RenderData.QuadIndexBuffer= IndexBuffer::Create(quadIndices, s_RenderData.MaxIndices);
+    s_RenderData.QuadVertexArray->SetIndexBuffer(s_RenderData.QuadIndexBuffer);
     delete[] quadIndices;
 
     s_RenderData.CircleVertexArray = VertexArray::Create();
@@ -151,7 +151,7 @@ b8 Renderer2D::Initialize()
     s_RenderData.CircleVertexBuffer->SetBufferLayout(CircleLayout);
     s_RenderData.CircleVertexArray->AddVertexBuffer(s_RenderData.CircleVertexBuffer);
     s_RenderData.CircleVertexBufferBase = new CircleVertex[s_RenderData.MaxVertices];
-    s_RenderData.CircleVertexArray->SetIndexBuffer(QuadIBO);
+    s_RenderData.CircleVertexArray->SetIndexBuffer(s_RenderData.QuadIndexBuffer);
 
     s_RenderData.WhiteTexture = Texture::Create(1,1);
     uint8_t whitePixel[4] = { 255, 255, 255, 255 }; 
@@ -420,6 +420,7 @@ void Renderer2D::Shutdown()
     delete s_RenderData.LineVertexArray;
     delete s_RenderData.LineShader;
     delete[] s_RenderData.LineVertexBufferBase;
+
 
     delete s_RenderData.QuadIndexBuffer;
     delete m_RenderCommand;

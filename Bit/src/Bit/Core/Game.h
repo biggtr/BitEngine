@@ -80,12 +80,13 @@ public:
         Renderer().EndScene();
 
         Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
-        m_RenderSystem->Update(Renderer());
+        Render();
         Renderer().EndScene();
 
         Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
-        Render();
+        m_RenderSystem->Update(Renderer());
         Renderer().EndScene();
+
     }
 
 protected:

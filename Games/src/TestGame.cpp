@@ -68,9 +68,9 @@ void TestGame::Initialize()
 void TestGame::Render()
 {
     Renderer().DrawCircle(
-            BMath::Vec3(300.0f, 300.0f, 0.0f), 
+            BMath::Vec3(300.0f, 300.0f, -3.0f), 
             BMath::Vec3(300.0f, 300.0f, 0.0f),
-            BMath::Vec4(1.0f,0.0f, 0.0f, 1.0f));
+            BMath::Vec4(1.0f,0.0f, 1.0f, 1.0f), 1.0f);
 }
 void TestGame::Update(f32 deltaTime)
 {
@@ -99,6 +99,7 @@ void TestGame::Update(f32 deltaTime)
     BMath::Vec3 cameraPos = BMath::Vec3(playerPosition.x - (1920.0f / 2.0f), playerPosition.y - (1080.0f / 2.0f), 0.0f);
     Camera().SetPosition(cameraPos);
 }
+
 void TestGame::OnJump(const BitEngine::Entity& entity)
 {
     BIT_LOG_DEBUG("Player JUMP..!");
