@@ -9,6 +9,18 @@ struct FontState
 {
     u8* buffer;
 };
+struct CmapFormat12Table
+{
+    u16 Format;
+    u32 Length;
+    u32 NGroups;
+};
+struct CharacterGroup
+{
+    u32 StartCharCode;
+    u32 EndCharCode;
+    u32 StartGylfCode;
+};
 struct GylfDescription
 {
     i16 ContourNums;

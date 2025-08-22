@@ -140,6 +140,38 @@ GylfSimple ReadSimpleGylf(u8* buffer,i16 contourNumbers, u32& gylfSimpleOffset)
     }
     return gylfSimple;
 }
+CmapFormat12Table ReadCmapSubtable(u8* buffer, u32& offset)
+{
+    CmapFormat12Table subtable;
+    subtable.Format = ReadU16BE(buffer, offset);
+    subtable.Length = ReadU32BE(buffer, offset + 4);
+    subtable.NGroups = ReadU32BE(buffer, offset + 12);
+
+    offset+= 16;
+    BIT_LOG_DEBUG("subtable.Format %d, subtable.length %d, subtable.NGroups : %d", 
+            subtable.Format, subtable.Length, subtable.NGroups
+            );
+    return subtable;
+}
+CharacterGroup* ReadCharGroups(u8* buffer, u32 nGroups, u32& offset)
+{
+    CharacterGroup* charGroups = new CharacterGroup[nGroups];
+
+    for(u32 i = 0; i < nGroups; ++i)
+    {
+        charGroups[i].StartCharCode = ReadU32BE(buffer, offset + (12 * i));
+        charGroups[i].EndCharCode = ReadU32BE(buffer, (offset + 4) + (12 * i));
+        charGroups[i].StartGylfCode = ReadU32BE(buffer, (offset + 8) + (12 * i));
+
+        BIT_LOG_DEBUG("group %d StartCharCode U+%04X EndCharCode U+%04X StartGylfCode %d", 
+                i,
+                charGroups[i].StartCharCode,
+                charGroups[i].EndCharCode,
+                charGroups[i].StartGylfCode
+                );
+    }
+    return charGroups;
+}
 void Font::ParseFont(const char* fontPath)
 {
 
@@ -155,6 +187,16 @@ void Font::ParseFont(const char* fontPath)
 
 
     u16 numTables = (buffer[4] << 8) | buffer[5];
+
+    u32 headOffset = 0;
+    u32 headTableLength = 0;
+
+    u32 locaOffset = 0;
+    u32 locaTableLength = 0;
+
+    u32 cmapOffset = 0;
+    u32 cmapTableLength = 0;
+
     u32 glyfOffset = 0;
     u32 glyfTableLength = 0;
     BIT_LOG_DEBUG(" number of tables : %d", numTables); 
@@ -168,7 +210,26 @@ void Font::ParseFont(const char* fontPath)
 
         u32 lengthIndex = 24 + (16 * i);
         u32 lengthValue = ReadU32BE(buffer, lengthIndex);
-        BIT_LOG_DEBUG("%s at offset %d table length %d", tagName, offsetValue, lengthValue);
+
+        if(strcmp(tagName, "head") == 0)
+        {
+            headOffset = offsetValue;
+            headTableLength = lengthValue;
+            BIT_LOG_INFO("head offset : %d length %d", headOffset, headTableLength);
+        }
+
+        if(strcmp(tagName, "cmap") == 0)
+        {
+            cmapOffset = offsetValue;
+            cmapTableLength = lengthValue;
+            BIT_LOG_INFO("cmap offset : %d length %d", cmapOffset, cmapTableLength);
+        }
+        if(strcmp(tagName, "loca") == 0)
+        {
+            locaOffset = offsetValue;
+            locaTableLength = lengthValue;
+            BIT_LOG_INFO("loca offset : %d length %d", locaOffset, locaTableLength);
+        }
         if(strcmp(tagName, "glyf") == 0)
         {
             glyfOffset = offsetValue;
@@ -176,8 +237,37 @@ void Font::ParseFont(const char* fontPath)
             BIT_LOG_INFO("GLYF offset : %d length %d", glyfOffset, glyfTableLength);
         }
     }
+
+    u16 unitsPerEm = ReadU16BE(buffer, headOffset + 18);
+    BIT_LOG_DEBUG("UnitsPerEm : %d", unitsPerEm);
+
+    u16 numOfSubtables = ReadU16BE(buffer, cmapOffset + 2);
+    BIT_LOG_DEBUG("num of subtables: %d", numOfSubtables);
+
+    u32 subtableOffset = 0;
+    for(u32 i = 0; i < numOfSubtables; ++i)
+    {
+
+        u32 platformIDOffset     = (cmapOffset + 4) + (8 * i);
+        u32 platformSpecIDOffset = (cmapOffset + 6) + (8 * i);
+        u32 subtable = (cmapOffset + 8) + (8 * i);
+
+        u16 platforID = ReadU16BE(buffer, platformIDOffset);
+        u16 platforSpecID = ReadU16BE(buffer, platformSpecIDOffset);
+        if(platforID == 3 && platforSpecID == 10)
+        {
+            subtableOffset = cmapOffset + ReadU32BE(buffer, subtable);
+            break;
+        }
+    }
+    BIT_LOG_DEBUG("platform : windows with encoding 10 , subtable Offset is %d ", subtableOffset);
+
+    CmapFormat12Table cmapFormat12Table = ReadCmapSubtable(buffer, subtableOffset); // subtableoffset is pointing to first group now 
+
+
+    CharacterGroup* charGroups = ReadCharGroups(buffer, cmapFormat12Table.NGroups, subtableOffset);
+    
     GylfDescription gylfDisc = ReadGylfDescription(buffer, glyfOffset);
-        
     
     GylfSimple gylfSimple = ReadSimpleGylf(buffer,gylfDisc.ContourNums, glyfOffset);
 
@@ -185,6 +275,7 @@ void Font::ParseFont(const char* fontPath)
     delete[] gylfSimple.YCoordinates;
     delete[] gylfSimple.Flags;
     delete[] gylfSimple.ContourEndPts;
+    delete[] charGroups;
 }
    
 
