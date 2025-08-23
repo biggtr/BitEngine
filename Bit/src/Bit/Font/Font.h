@@ -7,7 +7,19 @@ namespace BitEngine
 
 struct FontState
 {
-    u8* buffer;
+    u8* Buffer;
+
+    u32 HeadTableOffset;
+    u32 HeadTableLength;
+
+    u32 GylfTableOffset;
+    u32 GylfTableLength;
+
+    u32 CmapTableOffset;
+    u32 CmapTableLength;
+
+    u32 LocaTableOffset;
+    u32 LocaTableLength;
 };
 struct CmapFormat12Table
 {

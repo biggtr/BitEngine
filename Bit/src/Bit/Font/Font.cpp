@@ -172,6 +172,59 @@ CharacterGroup* ReadCharGroups(u8* buffer, u32 nGroups, u32& offset)
     }
     return charGroups;
 }
+void StrToUnicodes(u32* unicode, const char* str)
+{
+
+    u32 i = 0;
+    while(i < strlen(str))
+    {
+        if(!IsBitOn(str[i], 8))
+        {
+            unicode[i] = (u32)str[i];
+            ++i;
+        }
+        else if(IsBitOn(str[i], 8) && IsBitOn(str[i], 7) && !IsBitOn(str[i], 6))
+        {
+            u32 firstByte = str[i] << 3;
+            u32 secondByte = str[i + 1] << 2;
+            unicode[i] = (firstByte << 6) | secondByte;
+            i += 2;
+        }
+    }
+}
+u32 GylfCharSearch(const CharacterGroup& charGroup, u32& unicode)
+{
+    if(unicode < charGroup.StartCharCode || unicode > charGroup.EndCharCode)
+        return 0;
+
+    return charGroup.StartGylfCode + (unicode - charGroup.StartCharCode);
+}
+u32* GetGylfFromString(CharacterGroup* charGroups,u32 nGroups, const char* str)
+{
+    u32 strLen = strlen(str);
+    
+    u32* unicodes = new u32[strLen];
+    u32* gylfIndices = new u32[strLen];
+    StrToUnicodes(unicodes, str);
+
+    memset(gylfIndices, 0, sizeof(u32) * strLen);
+
+    for(u32 j = 0; j < strLen; ++j)
+    {
+        for(u32 i = 0; i < nGroups; ++i)
+        {
+            u32 gylfIndex = GylfCharSearch(charGroups[i], unicodes[j]);
+            if(gylfIndex != 0)
+            {
+                gylfIndices[j] = gylfIndex;
+                BIT_LOG_DEBUG("Glyf Index For %c is %d unicode : U+04%x", str[j], gylfIndex, unicodes[j])
+                break;
+            }
+        }
+    }
+    delete[] unicodes;
+    return gylfIndices;
+}
 void Font::ParseFont(const char* fontPath)
 {
 
@@ -181,24 +234,12 @@ void Font::ParseFont(const char* fontPath)
     fseek(fontFile, 0, SEEK_END);
     u64 fileSize = ftell(fontFile);
     rewind(fontFile);
-    fontState.buffer = new unsigned char[fileSize];
-    unsigned char* buffer = fontState.buffer;
-    fread(fontState.buffer, 1, fileSize, fontFile);
-
+    fontState.Buffer = new unsigned char[fileSize];
+    unsigned char* buffer = fontState.Buffer;
+    fread(fontState.Buffer, 1, fileSize, fontFile);
 
     u16 numTables = (buffer[4] << 8) | buffer[5];
 
-    u32 headOffset = 0;
-    u32 headTableLength = 0;
-
-    u32 locaOffset = 0;
-    u32 locaTableLength = 0;
-
-    u32 cmapOffset = 0;
-    u32 cmapTableLength = 0;
-
-    u32 glyfOffset = 0;
-    u32 glyfTableLength = 0;
     BIT_LOG_DEBUG(" number of tables : %d", numTables); 
     for(u32 i = 0; i < numTables; ++i)
     {
@@ -213,50 +254,50 @@ void Font::ParseFont(const char* fontPath)
 
         if(strcmp(tagName, "head") == 0)
         {
-            headOffset = offsetValue;
-            headTableLength = lengthValue;
-            BIT_LOG_INFO("head offset : %d length %d", headOffset, headTableLength);
+            fontState.HeadTableOffset = offsetValue;
+            fontState.HeadTableLength = lengthValue;
+            BIT_LOG_INFO("head offset : %d length %d", fontState.HeadTableOffset, fontState.HeadTableLength);
         }
 
         if(strcmp(tagName, "cmap") == 0)
         {
-            cmapOffset = offsetValue;
-            cmapTableLength = lengthValue;
-            BIT_LOG_INFO("cmap offset : %d length %d", cmapOffset, cmapTableLength);
+            fontState.CmapTableOffset= offsetValue;
+            fontState.CmapTableLength = lengthValue;
+            BIT_LOG_INFO("cmap offset : %d length %d", fontState.CmapTableOffset, fontState.CmapTableLength);
         }
         if(strcmp(tagName, "loca") == 0)
         {
-            locaOffset = offsetValue;
-            locaTableLength = lengthValue;
-            BIT_LOG_INFO("loca offset : %d length %d", locaOffset, locaTableLength);
+            fontState.LocaTableOffset = offsetValue;
+            fontState.LocaTableLength = lengthValue;
+            BIT_LOG_INFO("loca offset : %d length %d", fontState.LocaTableOffset, fontState.LocaTableLength);
         }
         if(strcmp(tagName, "glyf") == 0)
         {
-            glyfOffset = offsetValue;
-            glyfTableLength = lengthValue;
-            BIT_LOG_INFO("GLYF offset : %d length %d", glyfOffset, glyfTableLength);
+            fontState.GylfTableOffset = offsetValue;
+            fontState.GylfTableLength = lengthValue;
+            BIT_LOG_INFO("GLYF offset : %d length %d", fontState.GylfTableOffset, fontState.GylfTableLength);
         }
     }
 
-    u16 unitsPerEm = ReadU16BE(buffer, headOffset + 18);
+    u16 unitsPerEm = ReadU16BE(buffer, fontState.HeadTableOffset + 18);
     BIT_LOG_DEBUG("UnitsPerEm : %d", unitsPerEm);
 
-    u16 numOfSubtables = ReadU16BE(buffer, cmapOffset + 2);
+    u16 numOfSubtables = ReadU16BE(buffer, fontState.CmapTableOffset + 2);
     BIT_LOG_DEBUG("num of subtables: %d", numOfSubtables);
 
     u32 subtableOffset = 0;
     for(u32 i = 0; i < numOfSubtables; ++i)
     {
 
-        u32 platformIDOffset     = (cmapOffset + 4) + (8 * i);
-        u32 platformSpecIDOffset = (cmapOffset + 6) + (8 * i);
-        u32 subtable = (cmapOffset + 8) + (8 * i);
+        u32 platformIDOffset     = (fontState.CmapTableOffset + 4) + (8 * i);
+        u32 platformSpecIDOffset = (fontState.CmapTableOffset + 6) + (8 * i);
+        u32 subtable = (fontState.CmapTableOffset + 8) + (8 * i);
 
         u16 platforID = ReadU16BE(buffer, platformIDOffset);
         u16 platforSpecID = ReadU16BE(buffer, platformSpecIDOffset);
         if(platforID == 3 && platforSpecID == 10)
         {
-            subtableOffset = cmapOffset + ReadU32BE(buffer, subtable);
+            subtableOffset = fontState.CmapTableOffset + ReadU32BE(buffer, subtable);
             break;
         }
     }
@@ -267,22 +308,29 @@ void Font::ParseFont(const char* fontPath)
 
     CharacterGroup* charGroups = ReadCharGroups(buffer, cmapFormat12Table.NGroups, subtableOffset);
     
-    GylfDescription gylfDisc = ReadGylfDescription(buffer, glyfOffset);
+    GylfDescription gylfDisc = ReadGylfDescription(buffer, fontState.GylfTableOffset);
     
-    GylfSimple gylfSimple = ReadSimpleGylf(buffer,gylfDisc.ContourNums, glyfOffset);
+    GylfSimple gylfSimple = ReadSimpleGylf(buffer,gylfDisc.ContourNums, fontState.GylfTableOffset);
+
+    const char* hellostr = "Hello";
+    
+    u32* gylfIndices = GetGylfFromString(charGroups,cmapFormat12Table.NGroups, hellostr);
+
+
 
     delete[] gylfSimple.XCoordinates;
     delete[] gylfSimple.YCoordinates;
     delete[] gylfSimple.Flags;
     delete[] gylfSimple.ContourEndPts;
     delete[] charGroups;
+    delete[] gylfIndices;
 }
    
 
 
 void Font::Shutdown()
 {
-    delete[] fontState.buffer;
+    delete[] fontState.Buffer;
 }
 
 
