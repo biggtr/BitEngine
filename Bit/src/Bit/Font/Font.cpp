@@ -176,19 +176,23 @@ void StrToUnicodes(u32* unicode, const char* str)
 {
 
     u32 i = 0;
-    while(i < strlen(str))
+    u32 j = 0;
+    u32 strLen = strlen(str);
+    while(i < strLen)
     {
         if(!IsBitOn(str[i], 8))
         {
-            unicode[i] = (u32)str[i];
+            unicode[j] = (u32)str[i];
             ++i;
+            ++j;
         }
         else if(IsBitOn(str[i], 8) && IsBitOn(str[i], 7) && !IsBitOn(str[i], 6))
         {
-            u32 firstByte = str[i] << 3;
-            u32 secondByte = str[i + 1] << 2;
-            unicode[i] = (firstByte << 6) | secondByte;
+            u32 firstByte = str[i] & 0x1F; //get first 5 bits 0x1F == 00011111
+            u32 secondByte = str[i + 1] & 0x3F; // get first 6 bits 0x3F == 00111111
+            unicode[j] = (firstByte << 6) | secondByte;
             i += 2;
+            j++;
         }
     }
 }
@@ -202,7 +206,6 @@ u32 GylfCharSearch(const CharacterGroup& charGroup, u32& unicode)
 u32* GetGylfFromString(CharacterGroup* charGroups,u32 nGroups, const char* str)
 {
     u32 strLen = strlen(str);
-    
     u32* unicodes = new u32[strLen];
     u32* gylfIndices = new u32[strLen];
     StrToUnicodes(unicodes, str);
@@ -217,7 +220,7 @@ u32* GetGylfFromString(CharacterGroup* charGroups,u32 nGroups, const char* str)
             if(gylfIndex != 0)
             {
                 gylfIndices[j] = gylfIndex;
-                BIT_LOG_DEBUG("Glyf Index For %c is %d unicode : U+04%x", str[j], gylfIndex, unicodes[j])
+                BIT_LOG_DEBUG("Glyf Index For %c is %d unicode : U+%04X", str[j], gylfIndex, unicodes[j])
                 break;
             }
         }
