@@ -63,6 +63,12 @@ public:
         return Multiply(*this, mat);
     }
 
+    Vec4 operator*(const Vec4& vec)
+    {
+        return Multiply(*this, vec);
+    }
+
+
     static Mat4 Identity()
     {
         return Mat4();

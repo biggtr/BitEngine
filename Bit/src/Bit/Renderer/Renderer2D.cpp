@@ -29,7 +29,7 @@ static u32 GetGLRenderMode(RENDER_MODE renderMode)
 }
 struct QuadVertex
 {
-    BMath::Vec3 Position;
+    BMath::Vec4 Position;
     BMath::Vec4 Color;
     BMath::Vec2 TexCoords;
     f32 TexIndex;
@@ -98,6 +98,8 @@ struct Renderer2DData
     
     std::array<Texture*, MaxTextureSlots> TextureSlots;
     u32 TextureSlotIndex = 1; // starts from 1 because 0 is reserved for WhiteTexture
+                            
+    BMath::Vec4 QuadVertexPositions[4];
 };
 
 static Renderer2DData s_RenderData;
@@ -114,7 +116,7 @@ b8 Renderer2D::Initialize()
     s_RenderData.QuadVertexArray = VertexArray::Create();
     s_RenderData.QuadVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(QuadVertex));
     BufferLayout QuadLayout = BufferLayout({
-            { SHADER_DATA_TYPE::FLOAT3, "a_Position"}, 
+            { SHADER_DATA_TYPE::FLOAT4, "a_Position"}, 
             { SHADER_DATA_TYPE::FLOAT4, "a_Color"}, 
             { SHADER_DATA_TYPE::FLOAT2, "a_TexCoords"}, 
             { SHADER_DATA_TYPE::FLOAT, "a_TexIndex"}, 
@@ -179,6 +181,12 @@ b8 Renderer2D::Initialize()
     s_RenderData.TextureSlots[0] = s_RenderData.WhiteTexture;
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetIntArray("u_Textures", samplers, s_RenderData.MaxTextureSlots);
+
+    s_RenderData.QuadVertexPositions[0]= {-0.5f, -0.5f, 0.0f, 1.0f};
+    s_RenderData.QuadVertexPositions[1]= { 0.5f, -0.5f, 0.0f, 1.0f};
+    s_RenderData.QuadVertexPositions[2]= { 0.5f,  0.5f, 0.0f, 1.0f};
+    s_RenderData.QuadVertexPositions[3]= {-0.5f,  0.5f, 0.0f, 1.0f};
+
     return true;
 }
 void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const 
@@ -266,43 +274,41 @@ void Renderer2D::Flush()
         Stats.DrawCalls++;
     }
 }
+
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
 {
+    BMath::Mat4 transform = BMath::Mat4::CreateTransform(position, size);
+    DrawQuad(transform, color);
+}
+void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
+{
     f32 textureIndex = 0.0f;
-    s_RenderData.QuadVertexBufferPtr->Position = position;
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {0.0f, 0.0f };
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 0.0f };
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y + size.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {1.0f, 1.0f };
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + size.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {0.0f, 1.0f };
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
+    BMath::Vec2 texCoords[4] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
+    for(u32 i = 0; i < 4; ++i)
+    {
+        s_RenderData.QuadVertexBufferPtr->Position = transform * s_RenderData.QuadVertexPositions[i];
+        s_RenderData.QuadVertexBufferPtr->Color = color;
+        s_RenderData.QuadVertexBufferPtr->TexCoords = texCoords[i];
+        s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_RenderData.QuadVertexBufferPtr++; 
+    }
 
     s_RenderData.QuadIndexCount += 6;
 
     Stats.QuadCount++;
 }
+
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite)
+{
+    BMath::Mat4 transform = BMath::Mat4::CreateTransform(position, size);
+    DrawQuad(transform, sprite);
+}
+void Renderer2D::DrawQuad(BMath::Mat4& transform, CSprite& sprite)
 {
     float textureIndex = 0.0f;
     const BMath::Vec4 color(1.0f);
     float* Uvs = sprite.UVs;
-
+    BMath::Vec2 texCoords[4] = { {Uvs[0], Uvs[1]}, {Uvs[2], Uvs[3]},{Uvs[4], Uvs[5]},{Uvs[6], Uvs[7]}};
     //Check if we already have the texture stored inside the texture slots to be bound in future
     for(u32 i = 0; i < s_RenderData.TextureSlotIndex; ++i)
     {
@@ -320,30 +326,14 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
         s_RenderData.TextureSlotIndex++;
     }
 
-    s_RenderData.QuadVertexBufferPtr->Position = position;
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[0], Uvs[1]};
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[2], Uvs[3]};
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x + size.x, position.y + size.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[4], Uvs[5]};
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
-    s_RenderData.QuadVertexBufferPtr->Position = { position.x, position.y + size.y, position.z };
-    s_RenderData.QuadVertexBufferPtr->Color = color;
-    s_RenderData.QuadVertexBufferPtr->TexCoords = {Uvs[6], Uvs[7]};
-    s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
-    s_RenderData.QuadVertexBufferPtr++; 
-
+    for(u32 i = 0; i < 4; ++i)
+    {
+        s_RenderData.QuadVertexBufferPtr->Position = transform * s_RenderData.QuadVertexPositions[i];
+        s_RenderData.QuadVertexBufferPtr->Color = color;
+        s_RenderData.QuadVertexBufferPtr->TexCoords = texCoords[i];
+        s_RenderData.QuadVertexBufferPtr->TexIndex = textureIndex;
+        s_RenderData.QuadVertexBufferPtr++; 
+    }
     s_RenderData.QuadIndexCount += 6;
     Stats.QuadCount++;
 }

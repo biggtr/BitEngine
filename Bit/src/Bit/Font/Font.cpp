@@ -62,7 +62,7 @@ GylfSimple ReadSimpleGylf(u8* buffer,i16 contourNumbers, u32& gylfSimpleOffset)
         u32 gylfSimpleFlagOffset = InsLenOffset + 2 + gylfSimple.InstructionLength; 
         u16 numPoints = gylfSimple.ContourEndPts[contourNumbers - 1] + 1;
         gylfSimple.Flags = new u8[numPoints];
-        BIT_LOG_DEBUG("Numb Points, %d", numPoints)
+        // BIT_LOG_DEBUG("Numb Points, %d", numPoints)
         gylfSimple.XCoordinates = new i16[numPoints];
         gylfSimple.YCoordinates = new i16[numPoints];
         u32 i = 0;
@@ -108,7 +108,7 @@ GylfSimple ReadSimpleGylf(u8* buffer,i16 contourNumbers, u32& gylfSimpleOffset)
                }
            }
            gylfSimple.XCoordinates[i] = currentX;
-           BIT_LOG_DEBUG("point x.%d xcoord : %d", i, currentX);
+           // BIT_LOG_DEBUG("point x.%d xcoord : %d", i, currentX);
 
        }
         i32 currentY = 0;
@@ -135,7 +135,7 @@ GylfSimple ReadSimpleGylf(u8* buffer,i16 contourNumbers, u32& gylfSimpleOffset)
                 }
             }
             gylfSimple.YCoordinates[i] = currentY;
-            BIT_LOG_DEBUG("point y.%d ycoord : %d", i, currentY);
+            // BIT_LOG_DEBUG("point y.%d ycoord : %d", i, currentY);
         }
     }
     return gylfSimple;

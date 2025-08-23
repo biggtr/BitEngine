@@ -37,6 +37,8 @@ public:
     void BeginScene(const BMath::Mat4& viewMatrix);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
+    void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color);
+    void DrawQuad(BMath::Mat4& transform, CSprite& sprite);
 
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
     void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);

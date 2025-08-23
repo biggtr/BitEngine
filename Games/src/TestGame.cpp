@@ -33,13 +33,13 @@ void TestGame::Initialize()
             );
     backgroundsprite.IsStatic = true;
     m_Background.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(0.0f, 0.0f, -4.0f),
-            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
+            BMath::Vec3(0.0f, 50.0f, -4.0f),
+            BMath::Vec3(2000.0f, 1000.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
     m_Player = Entities().CreateEntity();
     m_Player.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(600.0f, 400.0f, 0.0f),
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, 0.0f),
             BMath::Vec3(100.0f, 100.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
