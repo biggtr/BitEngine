@@ -20,6 +20,9 @@ struct FontState
 
     u32 LocaTableOffset;
     u32 LocaTableLength;
+
+    u32 MaxpTableOffset;
+    u32 MaxpTableLength;
 };
 struct CmapFormat12Table
 {
