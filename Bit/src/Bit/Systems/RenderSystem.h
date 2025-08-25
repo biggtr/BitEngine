@@ -27,7 +27,7 @@ public:
         {
             const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
             CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
-            if(!spriteComponent.IsStatic)
+            if(!spriteComponent.IsUI)
             {
 
                 UpdateUVs(spriteComponent);

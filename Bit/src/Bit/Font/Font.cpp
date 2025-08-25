@@ -62,7 +62,7 @@ GylfSimple ReadSimpleGylf(u8* buffer,i16 contourNumbers, u32& gylfSimpleOffset)
         u32 gylfSimpleFlagOffset = InsLenOffset + 2 + gylfSimple.InstructionLength; 
         u16 numPoints = gylfSimple.ContourEndPts[contourNumbers - 1] + 1;
         gylfSimple.Flags = new u8[numPoints];
-        // BIT_LOG_DEBUG("Numb Points, %d", numPoints)
+        // BIT_LOG_DEBUG("Num Points, %d", numPoints)
         gylfSimple.XCoordinates = new i16[numPoints];
         gylfSimple.YCoordinates = new i16[numPoints];
         u32 i = 0;
@@ -174,7 +174,6 @@ CharacterGroup* ReadCharGroups(u8* buffer, u32 nGroups, u32& offset)
 }
 void StrToUnicodes(u32* unicode, const char* str)
 {
-
     u32 i = 0;
     u32 j = 0;
     u32 strLen = strlen(str);

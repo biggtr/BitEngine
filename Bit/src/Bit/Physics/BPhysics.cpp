@@ -1,23 +1,24 @@
 #include "BPhysics.h"
+#include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 
-namespace BPhysics
+namespace BPhysics2D
 {
 
 static BPhysics2DState* physicsState;
 
-b8 BPhysics2D::Initialize()
+b8 Initialize()
 {
     physicsState = new BPhysics2DState();
 
     return true;
 }
-void BPhysics2D::Shutdown()
+void Shutdown()
 {
     delete physicsState;
 }
 
-u32 BPhysics2D::BCreateCircleShape(f32 radius)
+u32 BCreateCircleShape(f32 radius)
 {
     BShape shape; 
     shape.Type = SHAPE_CIRCLE;
@@ -26,7 +27,7 @@ u32 BPhysics2D::BCreateCircleShape(f32 radius)
     physicsState->Shapes.push_back(shape);
     return physicsState->Shapes.size() - 1; // return the id of shape
 }
-u32 BPhysics2D::BCreateBoxShape(f32 width, f32 height)
+u32 BCreateBoxShape(f32 width, f32 height)
 {
     BShape shape;
     shape.Type = SHAPE_BOX;
@@ -42,28 +43,38 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     BBody body; 
     body.ShapeIndex = ShapeIndex;
     body.Position = position;
+    body.Rotation = 0.0f;
+    body.Acceleration = 0.0f;
+    body.Velocity = 0.0f;
     body.Mass = mass;
-    body.InvMass = mass == 0.0 ? 0.0f : 1.0f / mass;
+    body.InvMass = NearlyEqual(mass, 0.0f) ? 0.0f : 1.0f / mass;
     switch (shape.Type) 
     {
         case SHAPE_CIRCLE:
             body.Inertia = shape.BCircle.InertiaWithoutMass * body.Mass;
-            body.InvInertia = body.Inertia == 0.0f ? 0.0f : 1.0f / body.Inertia;
+            body.InvInertia = NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
             break;
 
         case SHAPE_BOX:
             body.Inertia = shape.BBox.InertiaWithoutMass * body.Mass;
-            body.InvInertia = body.Inertia == 0.0f ? 0.0f : 1.0f / body.Inertia;
+            body.InvInertia = NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
             break;
     }
     physicsState->Bodies.push_back(body);
     return physicsState->Bodies.size() - 1;
 }
-void BPhysics2D::AddForce(BParticle& particle, BMath::Vec3& force)
+BShape& GetShape(BBody* body)
+{
+    return physicsState->Shapes[body->ShapeIndex];
+}
+////////////////////////////////////////////////////////
+// Linear Movement
+////////////////////////////////////////////////////////
+void AddForce(BParticle& particle, BMath::Vec3& force)
 {
     particle.SumForces += force;
 }
-BMath::Vec3 BPhysics2D::GenerateDragForce(BParticle particle, f32 dragValue)
+BMath::Vec3 GenerateDragForce(BParticle particle, f32 dragValue)
 {
     //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
     if(BMath::Vec3::LengthSquared(particle.Velocity) < 0.0f)
@@ -76,7 +87,7 @@ BMath::Vec3 BPhysics2D::GenerateDragForce(BParticle particle, f32 dragValue)
 
     return dragForce;
 }
-BMath::Vec3 BPhysics2D::GenerateFrictionForce(BParticle particle, f32 frictionValue)
+BMath::Vec3 GenerateFrictionForce(BParticle particle, f32 frictionValue)
 {
     //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the particle
     BMath::Vec3 frictionDirection = particle.Velocity.Normalize() * -1.0f;
@@ -84,7 +95,7 @@ BMath::Vec3 BPhysics2D::GenerateFrictionForce(BParticle particle, f32 frictionVa
 
     return frictionForce;
 }
-BMath::Vec3 BPhysics2D::GenerateGravitationalForce(BParticle a, BParticle b, f32 G)
+BMath::Vec3 GenerateGravitationalForce(BParticle a, BParticle b, f32 G)
 {
     BMath::Vec3 d = b.Position - a.Position;
     f32 distanceSquared = BMath::Vec3::LengthSquared(d);
@@ -102,7 +113,7 @@ BMath::Vec3 BPhysics2D::GenerateGravitationalForce(BParticle a, BParticle b, f32
 }
 // k -> Spring stiff constant == how much force do we need to deform the object
 // l -> displacement after deformation
-BMath::Vec3 BPhysics2D::GenerateSpringForce(BParticle particle, BMath::Vec3& anchor,f32 restLength, f32 k)
+BMath::Vec3 GenerateSpringForce(BParticle particle, BMath::Vec3& anchor,f32 restLength, f32 k)
 {
     BMath::Vec3 d = particle.Position - anchor;
     f32 displacement = BMath::Vec3::Length(d) - restLength;
@@ -112,13 +123,13 @@ BMath::Vec3 BPhysics2D::GenerateSpringForce(BParticle particle, BMath::Vec3& anc
     BMath::Vec3 springForce = springDirection * springForceMagnitude;
     return springForce;
 }
-void BPhysics2D::EnableWeight(BParticle& particle, f32 gravity)
+void EnableWeight(BParticle& particle, f32 gravity)
 {
     BMath::Vec3 weightForce(0.0, particle.Mass * gravity, 0.0f);
 
     AddForce(particle, weightForce);
 }
-void BPhysics2D::LinearIntegrate(BParticle particle, f32 deltaTime)
+void LinearIntegrate(BParticle particle, f32 deltaTime)
 {
     if(particle.Mass == 0)
     {
@@ -132,11 +143,11 @@ void BPhysics2D::LinearIntegrate(BParticle particle, f32 deltaTime)
     particle.SumForces = (0.0f);
 }
 
-void BPhysics2D::AddForce(BBody& body, BMath::Vec3& force)
+void AddForce(BBody& body, BMath::Vec3& force)
 {
     body.SumForces += force;
 }
-BMath::Vec3 BPhysics2D::GenerateDragForce(BBody body, f32 dragValue)
+BMath::Vec3 GenerateDragForce(BBody body, f32 dragValue)
 {
     //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
     if(BMath::Vec3::LengthSquared(body.Velocity) < 0.0f)
@@ -149,7 +160,7 @@ BMath::Vec3 BPhysics2D::GenerateDragForce(BBody body, f32 dragValue)
 
     return dragForce;
 }
-BMath::Vec3 BPhysics2D::GenerateFrictionForce(BBody body, f32 frictionValue)
+BMath::Vec3 GenerateFrictionForce(BBody body, f32 frictionValue)
 {
     //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the body
     BMath::Vec3 frictionDirection = body.Velocity.Normalize() * -1.0f;
@@ -157,7 +168,7 @@ BMath::Vec3 BPhysics2D::GenerateFrictionForce(BBody body, f32 frictionValue)
 
     return frictionForce;
 }
-BMath::Vec3 BPhysics2D::GenerateGravitationalForce(BBody a, BBody b, f32 G)
+BMath::Vec3 GenerateGravitationalForce(BBody a, BBody b, f32 G)
 {
     BMath::Vec3 d = b.Position - a.Position;
     f32 distanceSquared = BMath::Vec3::LengthSquared(d);
@@ -175,7 +186,7 @@ BMath::Vec3 BPhysics2D::GenerateGravitationalForce(BBody a, BBody b, f32 G)
 }
 // k -> Spring stiff constant == how much force do we need to deform the object
 // l -> displacement after deformation
-BMath::Vec3 BPhysics2D::GenerateSpringForce(BBody body, BMath::Vec3& anchor,f32 restLength, f32 k)
+BMath::Vec3 GenerateSpringForce(BBody body, BMath::Vec3& anchor,f32 restLength, f32 k)
 {
     BMath::Vec3 d = body.Position - anchor;
     f32 displacement = BMath::Vec3::Length(d) - restLength;
@@ -185,15 +196,15 @@ BMath::Vec3 BPhysics2D::GenerateSpringForce(BBody body, BMath::Vec3& anchor,f32 
     BMath::Vec3 springForce = springDirection * springForceMagnitude;
     return springForce;
 }
-void BPhysics2D::EnableWeight(BBody& body, f32 gravity)
+void EnableWeight(BBody& body, f32 gravity)
 {
     BMath::Vec3 weightForce(0.0, body.Mass * gravity, 0.0f);
     
     AddForce(body, weightForce);
 }
-void BPhysics2D::LinearIntegrate(BBody body, f32 deltaTime)
+void LinearIntegrate(BBody body, f32 deltaTime)
 {
-    if(body.Mass == 0)
+    if(NearlyEqual(body.InvMass, 0.0f))
     {
         return;
     }
@@ -205,8 +216,19 @@ void BPhysics2D::LinearIntegrate(BBody body, f32 deltaTime)
     body.SumForces = (0.0f);
 }
 
-void BPhysics2D::AngularIntegrate(BBody body, f32 deltaTime)
+////////////////////////////////////////////////////////
+// Angural Movement
+////////////////////////////////////////////////////////
+void AddTorque(BBody& body, f32 torque)
 {
+    body.SumTorques += torque;
+}
+void AngularIntegrate(BBody body, f32 deltaTime)
+{
+    if(NearlyEqual(body.InvInertia, 0.0f))
+    {
+        return;
+    }
     body.AngularAcceleration = body.SumTorques * body.InvInertia;
     body.AngularVelocity += body.AngularAcceleration * deltaTime;
     body.Rotation += body.AngularVelocity * deltaTime;

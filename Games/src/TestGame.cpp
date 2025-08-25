@@ -31,10 +31,10 @@ void TestGame::Initialize()
     auto& backgroundsprite = m_Background.AddComponent<BitEngine::CSprite>(
             Assets().GetTexture("background")
             );
-    backgroundsprite.IsStatic = true;
+    backgroundsprite.IsUI = true;
     m_Background.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(0.0f, 50.0f, -4.0f),
-            BMath::Vec3(2000.0f, 1000.0f, 0.0f),
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -4.0f),
+            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
     m_Player = Entities().CreateEntity();
@@ -48,7 +48,7 @@ void TestGame::Initialize()
             Assets().GetTexture("Player"),
             32, 32
             );
-    playersprite.IsStatic = false;
+    playersprite.IsUI = false;
 
     m_Player.AddComponent<BitEngine::CAnimation2DController>();
     u8 frameCount = 4; 

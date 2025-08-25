@@ -386,16 +386,28 @@ void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BM
 }
 void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
 {
-    BMath::Vec3 p0(position.x, position.y, position.z);
-    BMath::Vec3 p1(position.x + size.x, position.y, position.z);
-    BMath::Vec3 p2(position.x + size.x, position.y + size.y, position.z);
-    BMath::Vec3 p3(position.x, position.y + size.y, position.z);
+    BMath::Vec3 p0(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+    BMath::Vec3 p1(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+    BMath::Vec3 p2(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+    BMath::Vec3 p3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
 
     DrawLine(p0, p1, color);
     DrawLine(p1, p2, color);
     DrawLine(p2, p3, color);
     DrawLine(p3, p0, color);
 }
+// void Renderer2D::DrawRect(BMath::Mat4& transform, const BMath::Vec4& color)
+// {
+//     BMath::Vec3 lineVertices[4];
+//     for(u32 i = 0; i < 4; ++i)
+//     {
+//         lineVertices[i] = transform * s_RenderData.QuadVertexPositions[i];
+//     }
+//     DrawLine(lineVertices[0], lineVertices[1], color);
+//     DrawLine(lineVertices[1], lineVertices[2], color);
+//     DrawLine(lineVertices[2], lineVertices[3], color);
+//     DrawLine(lineVertices[3], lineVertices[0], color);
+// }
 void Renderer2D::Shutdown()
 {
     delete s_RenderData.QuadVertexArray;

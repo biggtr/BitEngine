@@ -27,8 +27,11 @@ target_sources(BitEngine
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp
     src/Bit/Resources/AssetManager.cpp
+
     src/Bit/Font/Font.cpp
+
     src/Bit/Physics/BPhysics.cpp
+    src/Bit/Physics/BCollision.cpp
 
 
     vendor/stb_image/stb_image.cpp

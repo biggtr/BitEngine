@@ -118,11 +118,11 @@ public:
         return *this;
     }
 
-    Vec3 operator*(Vec3& other)
+    Vec3 operator*(const Vec3& other)
     {
         return Vec3(x * other.x, y * other.y, z * other.z);
     }
-    Vec3 operator/(Vec3& other)
+    Vec3 operator/(const Vec3& other)
     {
         return Vec3(x / other.x, y / other.y, z / other.z);
     }
@@ -134,10 +134,11 @@ public:
     {
         return Vec3(x / scalar, y / scalar, z / scalar);
     }
-    Vec3 operator+(Vec3& other)
+    Vec3 operator+(const Vec3& other)
     {
         return Vec3(x + other.x, y + other.y, z + other.z);
     }
+
     Vec3& operator+=(const Vec3& other)
     {
         this->x += other.x;
@@ -146,11 +147,19 @@ public:
         
         return *this;
     }
-    Vec3 operator-(Vec3& other)
+    Vec3 operator-(const Vec3& other)
     {
         return Vec3(x - other.x, y - other.y, z - other.z);
     }
 
+    Vec3& operator-=(const Vec3& other)
+    {
+        this->x -= other.x;
+        this->y -= other.y;
+        this->z -= other.z;
+        
+        return *this;
+    }
     static float Dot(const Vec3& a, const Vec3& b)
     {
         return a.x * b.x + a.y * b.y + a.z * b.z;
