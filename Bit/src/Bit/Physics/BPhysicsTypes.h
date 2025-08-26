@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bit/Math/Vector.h"
+#include <vector>
 namespace BPhysics2D
 {
 struct BParticle

@@ -43,7 +43,7 @@ public:
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
     void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
     // void DrawRect(BMath::Mat4& transform, const BMath::Vec4& color)
-    void DrawCircle(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color, f32 thickness = 0.5f, f32 fade = 0.005f);
+    void DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f32 thickness = 0.5, f32 fade = 0.0005);
     void EndScene();
 
     

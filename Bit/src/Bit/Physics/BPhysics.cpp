@@ -1,4 +1,5 @@
 #include "BPhysics.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 
@@ -24,8 +25,9 @@ u32 BCreateCircleShape(f32 radius)
     shape.Type = SHAPE_CIRCLE;
     shape.BCircle.Radius = radius;
     shape.BCircle.InertiaWithoutMass = 0.5f * (radius * radius);
+    u32 shapeIndex = physicsState->Shapes.size();
     physicsState->Shapes.push_back(shape);
-    return physicsState->Shapes.size() - 1; // return the id of shape
+    return shapeIndex;
 }
 u32 BCreateBoxShape(f32 width, f32 height)
 {
@@ -34,8 +36,9 @@ u32 BCreateBoxShape(f32 width, f32 height)
     shape.BBox.Width = width; 
     shape.BBox.Height= height; 
     shape.BBox.InertiaWithoutMass = (1.0f/12.0f) * ((width * width) + (height * height));
+    u32 shapeIndex = physicsState->Shapes.size();
     physicsState->Shapes.push_back(shape);
-    return physicsState->Shapes.size() - 1; // return the id of shape
+    return shapeIndex;
 }
 u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
 {
@@ -43,6 +46,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     BBody body; 
     body.ShapeIndex = ShapeIndex;
     body.Position = position;
+    BIT_LOG_DEBUG("from physics pos is : %f, %f, %f", body.Position.x, body.Position.y, body.Position.z);
     body.Rotation = 0.0f;
     body.Acceleration = 0.0f;
     body.Velocity = 0.0f;
@@ -60,13 +64,20 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
             body.InvInertia = NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
             break;
     }
+    u32 bodyIndex = physicsState->Bodies.size();
     physicsState->Bodies.push_back(body);
-    return physicsState->Bodies.size() - 1;
+    return bodyIndex;
 }
 BShape& GetShape(BBody* body)
 {
     return physicsState->Shapes[body->ShapeIndex];
 }
+
+BBody& GetBody(u32 bodyIndex)
+{
+    return physicsState->Bodies[bodyIndex];
+}
+
 ////////////////////////////////////////////////////////
 // Linear Movement
 ////////////////////////////////////////////////////////
@@ -147,7 +158,7 @@ void AddForce(BBody& body, BMath::Vec3& force)
 {
     body.SumForces += force;
 }
-BMath::Vec3 GenerateDragForce(BBody body, f32 dragValue)
+BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue)
 {
     //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
     if(BMath::Vec3::LengthSquared(body.Velocity) < 0.0f)
@@ -160,7 +171,7 @@ BMath::Vec3 GenerateDragForce(BBody body, f32 dragValue)
 
     return dragForce;
 }
-BMath::Vec3 GenerateFrictionForce(BBody body, f32 frictionValue)
+BMath::Vec3 GenerateFrictionForce(BBody& body, f32 frictionValue)
 {
     //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the body
     BMath::Vec3 frictionDirection = body.Velocity.Normalize() * -1.0f;
@@ -168,7 +179,7 @@ BMath::Vec3 GenerateFrictionForce(BBody body, f32 frictionValue)
 
     return frictionForce;
 }
-BMath::Vec3 GenerateGravitationalForce(BBody a, BBody b, f32 G)
+BMath::Vec3 GenerateGravitationalForce(BBody& a, BBody b, f32 G)
 {
     BMath::Vec3 d = b.Position - a.Position;
     f32 distanceSquared = BMath::Vec3::LengthSquared(d);
@@ -186,7 +197,7 @@ BMath::Vec3 GenerateGravitationalForce(BBody a, BBody b, f32 G)
 }
 // k -> Spring stiff constant == how much force do we need to deform the object
 // l -> displacement after deformation
-BMath::Vec3 GenerateSpringForce(BBody body, BMath::Vec3& anchor,f32 restLength, f32 k)
+BMath::Vec3 GenerateSpringForce(BBody& body, BMath::Vec3& anchor,f32 restLength, f32 k)
 {
     BMath::Vec3 d = body.Position - anchor;
     f32 displacement = BMath::Vec3::Length(d) - restLength;
@@ -202,7 +213,7 @@ void EnableWeight(BBody& body, f32 gravity)
     
     AddForce(body, weightForce);
 }
-void LinearIntegrate(BBody body, f32 deltaTime)
+void LinearIntegrate(BBody& body, f32 deltaTime)
 {
     if(NearlyEqual(body.InvMass, 0.0f))
     {
@@ -223,7 +234,7 @@ void AddTorque(BBody& body, f32 torque)
 {
     body.SumTorques += torque;
 }
-void AngularIntegrate(BBody body, f32 deltaTime)
+void AngularIntegrate(BBody& body, f32 deltaTime)
 {
     if(NearlyEqual(body.InvInertia, 0.0f))
     {

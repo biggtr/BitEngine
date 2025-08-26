@@ -199,6 +199,9 @@ public:
     b8 WasKeyUp(KEYS key);
 
     static void ProcessKey(KEYS key, b8 pressed);
+    static void ProcessMouseButton(MOUSE_BUTTONS button, b8 pressed);
+    static void ProcessMouseMove(i16* x, i16* y);
+    static void ProcessMouseWheel(i8 delta);
     
     b8 IsMouseButtonDown(MOUSE_BUTTONS button);
     b8 IsMouseButtonUp(MOUSE_BUTTONS button);
@@ -207,6 +210,5 @@ public:
 
     void GetMousePosition(i32* x, i32* y);
     void GetPrevMousePosition(i32* x, i32* y);
-    void ProcessMouseButton(MOUSE_BUTTONS button, b8 pressed);
 };
 }

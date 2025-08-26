@@ -170,6 +170,43 @@ void PlatformLinux::ProcessEvents()
                 Input::ProcessKey(key, pressed);
                 break;
             }
+            case ButtonPress:
+            case ButtonRelease:
+            {
+                MOUSE_BUTTONS button;
+                i8 middleButton = 0;
+                switch (event.xbutton.button) 
+                {
+                    case Button1:
+                        button = MOUSE_BUTTON_LEFT;
+                        break;
+                    case Button2:
+                        button = MOUSE_BUTTON_MIDDLE;
+                        break;
+                    case Button3:
+                        button = MOUSE_BUTTON_RIGHT;
+                        break;
+                    case Button4:
+                        middleButton += 1;
+                        Input::ProcessMouseWheel(1);
+                        break;
+
+                    case Button5:
+                        middleButton -= 1;
+                        Input::ProcessMouseWheel(-1);
+                        break;
+                }
+                b8 pressed = event.type == ButtonPress ? true : false;
+                Input::ProcessMouseButton(button,  pressed);
+            }
+            case MotionNotify:
+            {
+                i16 x, y;
+                x = event.xmotion.x;
+                y = event.xmotion.y;
+                Input::ProcessMouseMove(&x, &y);
+                break;
+            }
         }
 
     }

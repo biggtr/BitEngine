@@ -21,8 +21,9 @@ void Shutdown();
 
 u32 BCreateCircleShape(f32 radius);
 u32 BCreateBoxShape(f32 width, f32 height);
-u32 CreateBody();
+u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass);
 BShape& GetShape(BBody* body);
+BBody& GetBody(u32 bodyIndex);
 BParticle* CreateParticle();
 
 
@@ -36,15 +37,15 @@ void EnableWeight(BParticle& particle, f32 gravity);
 void LinearIntegrate(BParticle particle, f32 deltaTime);
 
 void AddForce(BBody& body, BMath::Vec3& force);
-BMath::Vec3 GenerateDragForce(BBody body, f32 dragValue);
-BMath::Vec3 GenerateFrictionForce(BBody body, f32 frictionValue);
-BMath::Vec3 GenerateGravitationalForce(BBody a, BBody b, f32 G);
-BMath::Vec3 GenerateSpringForce(BBody body, BMath::Vec3& anchor,f32 restLength, f32 k);
+BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue);
+BMath::Vec3 GenerateFrictionForce(BBody& body, f32 frictionValue);
+BMath::Vec3 GenerateGravitationalForce(BBody& a, BBody b, f32 G);
+BMath::Vec3 GenerateSpringForce(BBody& body, BMath::Vec3& anchor,f32 restLength, f32 k);
 void EnableWeight(BBody& body, f32 gravity);
-void LinearIntegrate(BBody body, f32 deltaTime);
+void LinearIntegrate(BBody& body, f32 deltaTime);
 
 void AddTorque(BBody& body, f32 torque);
-void AngularIntegrate(BBody particle, f32 deltaTime);
+void AngularIntegrate(BBody& particle, f32 deltaTime);
     
 
 }

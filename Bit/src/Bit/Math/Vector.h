@@ -298,6 +298,10 @@ public:
         Vec4::Normalize(&vector);
         return vector;
     }
+    Vec3 ToVec3()
+    {
+        return Vec3(x, y, z);
+    }
 
     static f32 Distance(const Vec4& vec1, const Vec4& vec2)
     {
