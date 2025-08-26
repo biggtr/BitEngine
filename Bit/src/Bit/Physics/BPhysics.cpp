@@ -46,7 +46,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     BBody body; 
     body.ShapeIndex = ShapeIndex;
     body.Position = position;
-    BIT_LOG_DEBUG("from physics pos is : %f, %f, %f", body.Position.x, body.Position.y, body.Position.z);
+    // BIT_LOG_DEBUG("from physics pos is : %f, %f, %f", body.Position.x, body.Position.y, body.Position.z);
     body.Rotation = 0.0f;
     body.Acceleration = 0.0f;
     body.Velocity = 0.0f;

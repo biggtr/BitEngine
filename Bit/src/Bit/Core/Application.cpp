@@ -197,7 +197,7 @@ b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, Event
                 u16 height = data.U16[1];
                 BIT_LOG_INFO("Updated Window size -> Width : %d, Height: %d", width, height);
                 s_Instance->m_Renderer2D->OnWindowResize(width, height);
-                
+                s_Instance->m_GameInstance->OnWindowResize(width, height);
             }
     }
     return false;

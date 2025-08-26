@@ -36,6 +36,9 @@ protected:
     CameraSystem* m_CameraSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
+
+    f32 m_WorldHeight;
+    f32 m_WorldWidth;
 public:
     Game(){}
     virtual ~Game(){}
@@ -84,6 +87,14 @@ public:
         Render();
         Renderer().EndScene();
 
+    }
+    void OnWindowResize(u16 width, u16 height)
+    {
+        appConfig.width = width;
+        appConfig.height = height;
+        f32 aspectRatio = width / (f32)height;
+        m_WorldHeight = 1080.0f;
+        m_WorldWidth = m_WorldHeight * aspectRatio;
     }
 
 protected:

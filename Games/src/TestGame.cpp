@@ -17,21 +17,6 @@ void TestGame::Initialize()
     Assets().AddTexture("Tree", "assets/textures/tree.png");
     Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
 
-    for(u32 i = 0; i < 1000; ++i)
-    {
-        auto entity = Entities().CreateEntity();
-        f32 x = (i % 50) * 80.0f;
-        f32 y = ((f32)i / 50) * 80.0f;
-        entity.AddComponent<BitEngine::CTransform>(
-                BMath::Vec3(x, y, -3.0f),
-                BMath::Vec3(100.0f, 100.0f, 0.0f),
-                BMath::Vec3(0.0f, 0.0f, 0.0f)
-                );
-        entity.AddComponent<BitEngine::CSprite>(
-                Assets().GetTexture("Tree")
-                );
-    }
-   
     m_Player = Entities().CreateEntity();
     m_Player.AddComponent<BitEngine::CTransform>(
             BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, 0.0f),
@@ -70,7 +55,7 @@ void TestGame::Render()
         BPhysics2D::BBody physicsBody = BPhysics2D::GetBody(body);
         BMath::Vec3 renderPos = physicsBody.Position;
         renderPos.z = -3.0f;
-        BIT_LOG_DEBUG("Pos from render : %f, %f, %f", physicsBody.Position.x, physicsBody.Position.y, physicsBody.Position.z);
+        // BIT_LOG_DEBUG("Pos from render : %f, %f, %f", physicsBody.Position.x, physicsBody.Position.y, physicsBody.Position.z);
         BMath::Mat4 transform = BMath::Mat4::CreateTransform(renderPos, {200.0f, 200.0f, 0.0f});
         Renderer().DrawCircle(transform , {1.0f, 1.0f, 1.0f, 1.0f}, 1.0f);
     }
@@ -102,13 +87,20 @@ void TestGame::Update(f32 deltaTime)
     }
     if(Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
     {
-        i32 x,y;
-        Inputs().GetMousePosition(&x, &y);
-        // f32 screenX = (f32)x;
-        // f32 screenY = appConfig.height - (f32)y;
+        BMath::Vec3 cameraPos = Camera().GetActiveCamera()->Position;
+        i32 screenX, screenY;
+        Inputs().GetMousePosition(&screenX, &screenY);
+        f32 normalizedX = (f32)screenX / (f32)appConfig.width;
+        f32 normalizedY = (f32)(appConfig.height - screenY) / (f32)appConfig.height; // Flip Y
+        BIT_LOG_DEBUG("Screen: (%d, %d), Camera: (%.2f, %.2f), WorldDims: (%.2f, %.2f)", 
+                  screenX, screenY, cameraPos.x, cameraPos.y, m_WorldWidth, m_WorldHeight);
+        f32 worldX = cameraPos.x + normalizedX * m_WorldWidth; 
+        f32 worldY = cameraPos.y + normalizedY * m_WorldHeight; 
+        BIT_LOG_DEBUG("Screen: (%d, %d) -> Normalized: (%.2f, %.2f) -> World: (%.2f, %.2f)", 
+                  screenX, screenY, normalizedX, normalizedY, worldX, worldY);
         BMath::Vec3 mousePos = {
-            (f32)x,
-            (f32)y,
+            worldX,
+            worldY,
             -4.0f
         };
 
@@ -117,7 +109,7 @@ void TestGame::Update(f32 deltaTime)
         m_Bodies.push_back(body);
     }
 
-    BMath::Vec3 cameraPos = BMath::Vec3(playerPosition.x - (1920.0f / 2.0f), playerPosition.y - (1080.0f / 2.0f), 0.0f);
+    BMath::Vec3 cameraPos = BMath::Vec3(playerPosition.x - (m_WorldWidth / 2.0f), playerPosition.y - (m_WorldHeight / 2.0f), 0.0f);
     Camera().SetPosition(cameraPos);
 }
 
