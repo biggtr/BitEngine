@@ -32,6 +32,8 @@ void main()
     float circle = smoothstep(0.0, v_Fade, d);
     circle *= smoothstep(v_Thickness + v_Fade, v_Thickness, d);
 
+    if(circle  == 0.0)
+        discard;
 
     o_Color = v_Color;
     o_Color.a = circle;

@@ -1,4 +1,5 @@
 #include "Bit/Scene/EntityManager.h"
+#include "Bit/Core/Defines.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
@@ -51,7 +52,7 @@ void EntityManager::AddEntityToSystems(const Entity &entity) const
 
         if(!system) continue;
         const Signature& systemSignature = system->GetComponentSignature();
-        if((systemSignature & entitySignature) == systemSignature)
+        if((systemSignature & entitySignature) == systemSignature) 
         {
             system->AddEntity(entity);
         }

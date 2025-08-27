@@ -37,6 +37,7 @@ public:
     virtual void RemoveEntity(const Entity& entity);
     virtual const std::vector<Entity>& GetEntities() const;
     virtual const Signature& GetComponentSignature() { return m_ComponentSignature; };
+
     static SYSTEM_TYPE GetStaticType();
     virtual SYSTEM_TYPE GetSystemType() const = 0; 
     virtual const char* GetName() const = 0;
@@ -50,7 +51,6 @@ public:
         unsigned int componentId = Component::Type<T>();
         m_ComponentSignature |= (1 << componentId);
     }
-
 protected:
     EntityManager* m_EntityManager;
     std::vector<Entity> m_Entities;

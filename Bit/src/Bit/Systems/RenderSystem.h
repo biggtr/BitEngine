@@ -1,10 +1,14 @@
 #pragma once
+#include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/System.h"
+#include <vector>
+#include <algorithm>
+#include <strings.h>
 namespace BitEngine
 {
 
@@ -15,7 +19,6 @@ public:
     RenderSystem()
     {
         RequireComponent<CTransform>();
-        RequireComponent<CSprite>();
     }
     SYSTEM_CLASS_TYPE(RENDER);
 
@@ -23,27 +26,49 @@ public:
     
     void Update(Renderer2D& renderer) 
     {
+        std::vector<Entity> RenderableEntities;
         for(const Entity& entity : GetEntities())
         {
-            const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
-            if(!spriteComponent.IsUI)
+            if(m_EntityManager->HasComponent<CSprite>(entity) || m_EntityManager->HasComponent<CCircle>(entity))
             {
-
+                RenderableEntities.push_back(entity);
+            }
+        }
+        std::sort(RenderableEntities.begin(), RenderableEntities.end(),
+                [this](const Entity& a, const Entity& b){
+                    CTransform& transformA = m_EntityManager->GetComponent<CTransform>(a);
+                    CTransform& transformB = m_EntityManager->GetComponent<CTransform>(b);
+                   float aZ = transformA.Position.z;
+                   float bZ = transformB.Position.z;
+                   return aZ < bZ;
+                });
+        for(const Entity& entity : RenderableEntities)
+        {
+            CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
+            if(m_EntityManager->HasComponent<CSprite>(entity))
+            {
+                CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
                 UpdateUVs(spriteComponent);
                 renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                         spriteComponent
                         );
-                if(m_EntityManager->HasComponent<CBoxCollider>(entity))
-                {
+            }
+            if(m_EntityManager->HasComponent<CCircle>(entity))
+            {
+                CCircle& circleComponent = m_EntityManager->GetComponent<CCircle>(entity);
+                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position, transformComponent.Scale);
+                renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
+            }
+            if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+            {
 
-                    CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
-                    renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
-                            {1.0f, 0.0f, 0.0f, 1.0f}
-                            );
-                }
+                CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
+                renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
+                        {1.0f, 0.0f, 0.0f, 1.0f}
+                        );
             }
         }
+        
     }
 
 private:

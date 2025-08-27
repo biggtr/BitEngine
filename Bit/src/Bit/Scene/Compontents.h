@@ -61,6 +61,23 @@ struct CBoxCollider
     {
     }
 };
+struct CCircle
+{
+    f32 Radius;
+    BMath::Vec4 Color;
+    f32 Thickness;
+    f32 Fade;
+    CCircle()
+    {
+        Radius = 12.0f;
+        Color = {1.0f, 1.0f, 1.0f, 1.0};
+        Thickness = 1.0f;
+        Fade = 0.05f;
+    }
+    CCircle(f32 radius, const BMath::Vec4 color, f32 thickness, f32 fade = 0.005f)
+        : Radius(radius), Color(color), Thickness(thickness), Fade(fade)
+    {}
+};
 struct CSprite
 {
     uint32_t Width;

@@ -82,10 +82,12 @@ public:
         m_UIRenderSystem->Update(Renderer());
         Renderer().EndScene();
 
+
         Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
         m_RenderSystem->Update(Renderer());
-        Render();
         Renderer().EndScene();
+
+        Render();
 
     }
     void OnWindowResize(u16 width, u16 height)

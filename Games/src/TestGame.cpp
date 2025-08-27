@@ -16,10 +16,27 @@ void TestGame::Initialize()
     Assets().AddTexture("Player", "assets/textures/player.png");
     Assets().AddTexture("Tree", "assets/textures/tree.png");
     Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
-
+    auto entity = Entities().CreateEntity();
+    entity.AddComponent<BitEngine::CTransform>(
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -10.0f),
+            BMath::Vec3(1000.0f, 1000.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
+    auto tree = Entities().CreateEntity();
+    tree.AddComponent<BitEngine::CTransform>(
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -7.0f),
+            BMath::Vec3(100.0f, 100.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f));
+    auto& treesprite = tree.AddComponent<BitEngine::CSprite>(
+            Assets().GetTexture("Tree")
+            );
+    treesprite.IsUI = false;
+    auto& sprite = entity.AddComponent<BitEngine::CSprite>(
+            Assets().GetTexture("background")
+            );
     m_Player = Entities().CreateEntity();
     m_Player.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, 0.0f),
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -5.0f),
             BMath::Vec3(100.0f, 100.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
@@ -29,6 +46,24 @@ void TestGame::Initialize()
             32, 32
             );
     playersprite.IsUI = false;
+    sprite.IsUI = false;
+    auto circle1 = Entities().CreateEntity();
+    circle1.AddComponent<BitEngine::CTransform>(
+            BMath::Vec3(400, 300, -7), 
+            BMath::Vec3(200, 200, 0),
+            (0.0f)
+            );
+    auto& c1 = circle1.AddComponent<BitEngine::CCircle>();
+    c1.Color = {1.0f, 0.0f, 0.0f, 0.0f}; 
+
+    auto circle2 = Entities().CreateEntity();
+    circle2.AddComponent<BitEngine::CTransform>(
+            BMath::Vec3(450, 350, -7), 
+            BMath::Vec3(200, 200, 0),
+            (0.0f)
+            );
+    auto& c2 = circle2.AddComponent<BitEngine::CCircle>();
+    c2.Color = {0.0f, 0.0f, 1.0f, 0.0f}; 
 
     m_Player.AddComponent<BitEngine::CAnimation2DController>();
     u8 frameCount = 4; 
@@ -47,19 +82,6 @@ void TestGame::Initialize()
 
 void TestGame::Render()
 {
-
-    BMath::Mat4 transform = BMath::Mat4::CreateTransform({appConfig.width/2.0f, appConfig.height / 2.0f, -3.0f}, {200.0f, 200.0f, 0.0f});
-    Renderer().DrawCircle(transform , {0.0f, 1.0f, 0.0f, 1.0f}, 1.0f);
-    for(auto& body : m_Bodies)
-    {
-        BPhysics2D::BBody physicsBody = BPhysics2D::GetBody(body);
-        BMath::Vec3 renderPos = physicsBody.Position;
-        renderPos.z = -3.0f;
-        // BIT_LOG_DEBUG("Pos from render : %f, %f, %f", physicsBody.Position.x, physicsBody.Position.y, physicsBody.Position.z);
-        BMath::Mat4 transform = BMath::Mat4::CreateTransform(renderPos, {200.0f, 200.0f, 0.0f});
-        Renderer().DrawCircle(transform , {1.0f, 1.0f, 1.0f, 1.0f}, 1.0f);
-    }
-    // BPhysics2D::BShape physicsShape = BPhysics2D::GetShape(&physicsBody);
 }
 void TestGame::Update(f32 deltaTime)
 {
@@ -101,12 +123,19 @@ void TestGame::Update(f32 deltaTime)
         BMath::Vec3 mousePos = {
             worldX,
             worldY,
-            -4.0f
+            -7.0f
         };
 
         u32 circle = BPhysics2D::BCreateCircleShape(12.0f);
         u32 body = BPhysics2D::CreateBody(circle, mousePos, 0.0f);
         m_Bodies.push_back(body);
+        auto circleEntity= Entities().CreateEntity();
+        circleEntity.AddComponent<BitEngine::CCircle>();
+        circleEntity.AddComponent<BitEngine::CTransform>(
+                mousePos,
+                BMath::Vec3(300.0f, 300.0f, 0.0f),
+                (0.0f)
+                );
     }
 
     BMath::Vec3 cameraPos = BMath::Vec3(playerPosition.x - (m_WorldWidth / 2.0f), playerPosition.y - (m_WorldHeight / 2.0f), 0.0f);

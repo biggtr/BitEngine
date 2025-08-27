@@ -108,7 +108,11 @@ b8 Renderer2D::Initialize()
 {
     RendererAPI::SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
-    m_RenderCommand->Init();
+    if(!m_RenderCommand->Init())
+    {
+        BIT_LOG_ERROR("failed to Initialize RenderCommand");
+        return false;
+    }
     m_ZNear = -100.0f;
     m_ZFar = 100.0f;
     m_ProjectionMatrix = BMath::Mat4::Ortho(0.0f, 1920.0f, 0.0f, 1080.0f, m_ZNear, m_ZFar);
