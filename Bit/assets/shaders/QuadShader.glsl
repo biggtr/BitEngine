@@ -63,6 +63,10 @@ void main()
         // case 31: texColor = texture(u_Textures[31], v_TexCoords); break;
         default: texColor = texture(u_Textures[0], v_TexCoords); break;
     }   
+
+    if(texColor.a < 0.1)
+        discard;
+
     color =  texColor * v_Color;
 }
 

@@ -27,11 +27,16 @@ public:
     void Update(Renderer2D& renderer) 
     {
         std::vector<Entity> RenderableEntities;
+        std::vector<Entity> CircleEntities;
         for(const Entity& entity : GetEntities())
         {
-            if(m_EntityManager->HasComponent<CSprite>(entity) || m_EntityManager->HasComponent<CCircle>(entity))
+            if(m_EntityManager->HasComponent<CSprite>(entity)) 
             {
                 RenderableEntities.push_back(entity);
+            }
+            if(m_EntityManager->HasComponent<CCircle>(entity))
+            {
+                CircleEntities.push_back(entity);
             }
         }
         std::sort(RenderableEntities.begin(), RenderableEntities.end(),
@@ -42,6 +47,24 @@ public:
                    float bZ = transformB.Position.z;
                    return aZ < bZ;
                 });
+        std::sort(CircleEntities.begin(), CircleEntities.end(),
+                [this](const Entity& a, const Entity& b){
+                    CTransform& transformA = m_EntityManager->GetComponent<CTransform>(a);
+                    CTransform& transformB = m_EntityManager->GetComponent<CTransform>(b);
+                   float aZ = transformA.Position.z;
+                   float bZ = transformB.Position.z;
+                   return aZ < bZ;
+                });
+        for(const Entity& entity : CircleEntities)
+        {
+            CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
+            if(m_EntityManager->HasComponent<CCircle>(entity))
+            {
+                CCircle& circleComponent = m_EntityManager->GetComponent<CCircle>(entity);
+                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position, transformComponent.Scale);
+                renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
+            }
+        }
         for(const Entity& entity : RenderableEntities)
         {
             CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
@@ -52,12 +75,6 @@ public:
                 renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                         spriteComponent
                         );
-            }
-            if(m_EntityManager->HasComponent<CCircle>(entity))
-            {
-                CCircle& circleComponent = m_EntityManager->GetComponent<CCircle>(entity);
-                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position, transformComponent.Scale);
-                renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
             }
             if(m_EntityManager->HasComponent<CBoxCollider>(entity))
             {

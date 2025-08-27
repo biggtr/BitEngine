@@ -54,7 +54,7 @@ void TestGame::Initialize()
             (0.0f)
             );
     auto& c1 = circle1.AddComponent<BitEngine::CCircle>();
-    c1.Color = {1.0f, 0.0f, 0.0f, 0.0f}; 
+    c1.Color = {1.0f, 0.0f, 0.0f, 1.0f}; 
 
     auto circle2 = Entities().CreateEntity();
     circle2.AddComponent<BitEngine::CTransform>(
@@ -63,7 +63,7 @@ void TestGame::Initialize()
             (0.0f)
             );
     auto& c2 = circle2.AddComponent<BitEngine::CCircle>();
-    c2.Color = {0.0f, 0.0f, 1.0f, 0.0f}; 
+    c2.Color = {0.0f, 0.0f, 1.0f, 1.0f}; 
 
     m_Player.AddComponent<BitEngine::CAnimation2DController>();
     u8 frameCount = 4; 
