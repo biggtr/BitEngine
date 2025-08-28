@@ -3,18 +3,18 @@
 namespace BitEngine
 {
 
-class CCamera;
+class Camera2DComponent;
 class CameraManager
 {
 private:
-    CCamera* m_ActiveCamera;
+    Camera2DComponent* m_ActiveCamera;
 
 public:
     CameraManager();
     ~CameraManager();
 
-    void SetActiveCamera(CCamera* camera);
-    CCamera* GetActiveCamera();
+    void SetActiveCamera(Camera2DComponent* camera);
+    Camera2DComponent* GetActiveCamera();
     
 
     void CalculateViewMatrix();

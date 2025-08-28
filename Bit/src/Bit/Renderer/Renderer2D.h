@@ -8,7 +8,7 @@ namespace BitEngine
 class Shader;
 class VertexBuffer;
 class IndexBuffer;
-struct CCamera;
+struct Camera2DComponent;
 class Texture;
 
 typedef enum
@@ -20,7 +20,7 @@ class Renderer2D
 {
 private:
     RenderCommand* m_RenderCommand;
-    CCamera* m_Camera2D;
+    Camera2DComponent* m_Camera2D;
     BMath::Mat4 m_ProjectionMatrix;
     f32 m_ZNear, m_ZFar;
     
@@ -35,10 +35,10 @@ public:
     void Clear() const;
 
     void BeginScene(const BMath::Mat4& viewMatrix);
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
     void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color);
-    void DrawQuad(BMath::Mat4& transform, CSprite& sprite);
+    void DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite);
 
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
     void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);

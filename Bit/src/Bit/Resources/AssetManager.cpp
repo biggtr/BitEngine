@@ -47,11 +47,11 @@ void AssetManager::ClearAnimations()
 {
 
 }
-void AssetManager::AddAnimation(const char *assetID, const CAnimation2D& animation)
+void AssetManager::AddAnimation(const char *assetID, const Animation2DComponent& animation)
 {
 
 }
-const CAnimation2D& GetAnimation(const char *assetID)
+const Animation2DComponent& GetAnimation(const char *assetID)
 {
 
 }

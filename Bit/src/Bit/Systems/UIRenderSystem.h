@@ -14,8 +14,8 @@ class UIRenderSystem : public System
 public:
     UIRenderSystem()
     {
-        RequireComponent<CTransform>();
-        RequireComponent<CSprite>();
+        RequireComponent<TransformComponent>();
+        RequireComponent<SpriteComponent>();
     }
     SYSTEM_CLASS_TYPE(UI_RENDER);
 
@@ -25,18 +25,18 @@ public:
     {
         for(const Entity& entity : GetEntities())
         {
-            const CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
+            const TransformComponent& transformComponent = m_EntityManager->GetComponent<TransformComponent>(entity);
+            SpriteComponent& spriteComponent = m_EntityManager->GetComponent<SpriteComponent>(entity);
             if(spriteComponent.IsUI)
             {
                 UpdateUVs(spriteComponent);
                 renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                         spriteComponent
                         );
-                if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+                if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
                 {
 
-                    CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
+                    Box2DColliderComponent& boxColliderComponent = m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
                     renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
                             {1.0f, 0.0f, 0.0f, 1.0f}
                             );
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    void UpdateUVs(CSprite& sprite)
+    void UpdateUVs(SpriteComponent& sprite)
     {
 
         const uint8_t columns = sprite.Width / sprite.FrameWidth;

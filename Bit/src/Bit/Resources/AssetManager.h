@@ -9,7 +9,7 @@ class AssetManager
 {
 private:
     std::map<const char* , Texture*> m_Textures;
-    std::map<const char* , CAnimation2D&> m_Animations;
+    std::map<const char* , Animation2DComponent&> m_Animations;
 
 
 public:
@@ -20,8 +20,8 @@ public:
     Texture* GetTexture(const char *assetID);
 
     void ClearAnimations();
-    void AddAnimation(const char *assetID, const CAnimation2D& animation);
-    const CAnimation2D& GetAnimation(const char *assetID);
+    void AddAnimation(const char *assetID, const Animation2DComponent& animation);
+    const Animation2DComponent& GetAnimation(const char *assetID);
 
 };
 

@@ -17,7 +17,7 @@ public:
     CameraSystem(CameraManager* cameraManager)
     {
         m_CameraManager = cameraManager;
-        RequireComponent<CCamera>();
+        RequireComponent<Camera2DComponent>();
     }
     SYSTEM_CLASS_TYPE(CAMERA);
 
@@ -28,7 +28,7 @@ public:
 
         for(const Entity& entity : m_Entities)
         {
-            CCamera& camera = m_EntityManager->GetComponent<CCamera>(entity);
+            Camera2DComponent& camera = m_EntityManager->GetComponent<Camera2DComponent>(entity);
             m_CameraManager->SetActiveCamera(&camera);
 
         }

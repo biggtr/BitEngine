@@ -15,7 +15,7 @@ class EntityManager
 {
     
 private:
-    uint32_t m_NumOfEntities;
+    u32 m_NumOfEntities;
 
     std::vector<Signature> m_EntitiesSignatures;
 
@@ -53,6 +53,7 @@ public:
     void Update();
     
     Entity CreateEntity();
+    Entity GetEntity(u32 entityID);
     void AddEntity();
     void KillEntity(const Entity& entity);
     void AddEntityToSystems(const Entity& entity) const;
@@ -78,7 +79,7 @@ public:
         Pool<TComponent>* componentPool = (Pool<TComponent>*)(m_ComponentPools[componentID]);
         if(entityID >= componentPool->GetSize())
         {
-            componentPool->Resize(m_NumOfEntities);
+            componentPool->Resize(entityID + 1);
         }
 
         TComponent newComponent(std::forward<TArgs>(args)...);

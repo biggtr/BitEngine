@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Bit/Font/Font.h"
+#include "Bit/Physics/BPhysics.h"
 #include "Bit/Profiler/Profiler.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Core.h"
@@ -23,6 +24,10 @@ Application* Application::s_Instance = nullptr;
 b8 Application::Create(Game *gameInstance)
 {
     if(!Logger::Initialize())
+    {
+        return false;
+    }
+    if(!BPhysics2D::Initialize())
     {
         return false;
     }
@@ -179,6 +184,7 @@ b8 Application::Shutdown()
     s_Instance = nullptr;
 
     Logger::Shutdown();
+    BPhysics2D::Shutdown();
     return true;
 }
 b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data)

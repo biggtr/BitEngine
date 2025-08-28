@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Core/Defines.h"
 #include <array>
+#include <vector>
 namespace BitEngine
 {
 struct EventContext
@@ -23,6 +24,12 @@ struct EventContext
         i8 I8[16];
         u8 U8[16];
 
+        union
+        {
+            u64 Size;
+            void* Data;
+        };
+
     };
 };
 typedef enum 
@@ -35,6 +42,8 @@ typedef enum
     EVENT_CODE_MOUSE_MOVE = 0x06,
     EVENT_CODE_MOUSE_WHEEL = 0x07,
     EVENT_CODE_WINDOW_RESIZED = 0x08,
+    EVENT_CODE_ENTITY_CREATE = 0x09,
+    EVENT_CODE_ENTITY_DESTROY = 0x0A,
     EVENT_CODE_MAX = 0xFF,
 
 }EVENT_CODE;
@@ -62,8 +71,8 @@ public:
     ~EventManager(){}
     b8 Initialize();
     void Shutdown();
-    b8 Register(u16 code, void* listener, PFN_ON_EVENT callback);
-    b8 UnRegister(u16 code, void* listener, PFN_ON_EVENT callback);
+    static b8 Register(u16 code, void* listener, PFN_ON_EVENT callback);
+    static b8 UnRegister(u16 code, void* listener, PFN_ON_EVENT callback);
     static b8 EventFire(u16 code, void* sender, EventContext data);
 
 

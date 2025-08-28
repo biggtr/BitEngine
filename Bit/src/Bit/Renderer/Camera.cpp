@@ -15,12 +15,12 @@ CameraManager::~CameraManager()
     
 }
 
-void CameraManager::SetActiveCamera(CCamera* camera)
+void CameraManager::SetActiveCamera(Camera2DComponent* camera)
 {
     m_ActiveCamera = camera;
     CalculateViewMatrix();
 }
-CCamera* CameraManager::GetActiveCamera() 
+Camera2DComponent* CameraManager::GetActiveCamera() 
 {
     return m_ActiveCamera;
 }

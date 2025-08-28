@@ -1,4 +1,6 @@
 #include "System.h"
+#include "Bit/Core/Event.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Scene/Entity.h"
 #include <algorithm>
 
@@ -12,9 +14,12 @@ namespace BitEngine
         m_EntityManager(nullptr),
         m_Entities{}
     {
-
     }
 
+    void System::OnEntityAdded(const Entity& entity)
+    {
+        BIT_LOG_DEBUG("OnEntityAdded fired for system=%p, entityID=%u", this, entity.GetID());
+    }
     void System::SetEntityManager(EntityManager* entityManager)
     {
         m_EntityManager = entityManager;

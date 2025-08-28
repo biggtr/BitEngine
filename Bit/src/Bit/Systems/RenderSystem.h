@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Vector.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
@@ -18,7 +19,7 @@ class RenderSystem : public System
 public:
     RenderSystem()
     {
-        RequireComponent<CTransform>();
+        RequireComponent<TransformComponent>();
     }
     SYSTEM_CLASS_TYPE(RENDER);
 
@@ -27,59 +28,42 @@ public:
     void Update(Renderer2D& renderer) 
     {
         std::vector<Entity> RenderableEntities;
-        std::vector<Entity> CircleEntities;
         for(const Entity& entity : GetEntities())
         {
-            if(m_EntityManager->HasComponent<CSprite>(entity)) 
+            if(m_EntityManager->HasComponent<SpriteComponent>(entity) || m_EntityManager->HasComponent<Circle2DComponent>(entity))
             {
                 RenderableEntities.push_back(entity);
-            }
-            if(m_EntityManager->HasComponent<CCircle>(entity))
-            {
-                CircleEntities.push_back(entity);
             }
         }
         std::sort(RenderableEntities.begin(), RenderableEntities.end(),
                 [this](const Entity& a, const Entity& b){
-                    CTransform& transformA = m_EntityManager->GetComponent<CTransform>(a);
-                    CTransform& transformB = m_EntityManager->GetComponent<CTransform>(b);
+                    TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(a);
+                    TransformComponent& transformB = m_EntityManager->GetComponent<TransformComponent>(b);
                    float aZ = transformA.Position.z;
                    float bZ = transformB.Position.z;
                    return aZ < bZ;
                 });
-        std::sort(CircleEntities.begin(), CircleEntities.end(),
-                [this](const Entity& a, const Entity& b){
-                    CTransform& transformA = m_EntityManager->GetComponent<CTransform>(a);
-                    CTransform& transformB = m_EntityManager->GetComponent<CTransform>(b);
-                   float aZ = transformA.Position.z;
-                   float bZ = transformB.Position.z;
-                   return aZ < bZ;
-                });
-        for(const Entity& entity : CircleEntities)
-        {
-            CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            if(m_EntityManager->HasComponent<CCircle>(entity))
-            {
-                CCircle& circleComponent = m_EntityManager->GetComponent<CCircle>(entity);
-                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position, transformComponent.Scale);
-                renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
-            }
-        }
         for(const Entity& entity : RenderableEntities)
         {
-            CTransform& transformComponent = m_EntityManager->GetComponent<CTransform>(entity);
-            if(m_EntityManager->HasComponent<CSprite>(entity))
+            TransformComponent& transformComponent = m_EntityManager->GetComponent<TransformComponent>(entity);
+            if(m_EntityManager->HasComponent<SpriteComponent>(entity))
             {
-                CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
+                SpriteComponent& spriteComponent = m_EntityManager->GetComponent<SpriteComponent>(entity);
                 UpdateUVs(spriteComponent);
                 renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                         spriteComponent
                         );
             }
-            if(m_EntityManager->HasComponent<CBoxCollider>(entity))
+            if(m_EntityManager->HasComponent<Circle2DComponent>(entity))
+            {
+                Circle2DComponent& circleComponent = m_EntityManager->GetComponent<Circle2DComponent>(entity);
+                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleComponent.Radius);
+                renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
+            }
+            if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
             {
 
-                CBoxCollider& boxColliderComponent = m_EntityManager->GetComponent<CBoxCollider>(entity);
+                Box2DColliderComponent& boxColliderComponent= m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
                 renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
                         {1.0f, 0.0f, 0.0f, 1.0f}
                         );
@@ -89,7 +73,7 @@ public:
     }
 
 private:
-    void UpdateUVs(CSprite& sprite)
+    void UpdateUVs(SpriteComponent& sprite)
     {
 
         const uint8_t columns = sprite.Width / sprite.FrameWidth;

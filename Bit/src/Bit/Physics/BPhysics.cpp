@@ -154,7 +154,7 @@ void LinearIntegrate(BParticle particle, f32 deltaTime)
     particle.SumForces = (0.0f);
 }
 
-void AddForce(BBody& body, BMath::Vec3& force)
+void AddForce(BBody& body, const BMath::Vec3& force)
 {
     body.SumForces += force;
 }
@@ -222,6 +222,7 @@ void LinearIntegrate(BBody& body, f32 deltaTime)
     body.Acceleration = body.SumForces * body.InvMass;
     body.Velocity += body.Acceleration * deltaTime;
     body.Position += body.Velocity * deltaTime;
+    BIT_LOG_DEBUG("position.x %f", body.Position.x);
 
     // Clearing All Forces after Integration
     body.SumForces = (0.0f);

@@ -12,60 +12,45 @@
 
 void TestGame::Initialize()
 {
-    BPhysics2D::Initialize();
     Assets().AddTexture("Player", "assets/textures/player.png");
     Assets().AddTexture("Tree", "assets/textures/tree.png");
     Assets().AddTexture("background", "assets/textures/blazes/snow/snow_bg.png");
     auto entity = Entities().CreateEntity();
-    entity.AddComponent<BitEngine::CTransform>(
+    entity.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -10.0f),
             BMath::Vec3(1000.0f, 1000.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
     auto tree = Entities().CreateEntity();
-    tree.AddComponent<BitEngine::CTransform>(
+    tree.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -7.0f),
             BMath::Vec3(100.0f, 100.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f));
-    auto& treesprite = tree.AddComponent<BitEngine::CSprite>(
+    tree.AddComponent<BitEngine::SpriteComponent>(
             Assets().GetTexture("Tree")
             );
+    auto& treesprite = tree.GetComponent<BitEngine::SpriteComponent>();
     treesprite.IsUI = false;
-    auto& sprite = entity.AddComponent<BitEngine::CSprite>(
+    entity.AddComponent<BitEngine::SpriteComponent>(
             Assets().GetTexture("background")
             );
+    auto& sprite = entity.GetComponent<BitEngine::SpriteComponent>();
+    sprite.IsUI = false;
     m_Player = Entities().CreateEntity();
-    m_Player.AddComponent<BitEngine::CTransform>(
+    m_Player.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -5.0f),
             BMath::Vec3(100.0f, 100.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
     m_Player.AddComponent<BitEngine::CInput>();
-    auto& playersprite = m_Player.AddComponent<BitEngine::CSprite>(
+    m_Player.AddComponent<BitEngine::SpriteComponent>(
             Assets().GetTexture("Player"),
             32, 32
             );
+    auto& playersprite = m_Player.GetComponent<BitEngine::SpriteComponent>();
     playersprite.IsUI = false;
-    sprite.IsUI = false;
-    auto circle1 = Entities().CreateEntity();
-    circle1.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(400, 300, -7), 
-            BMath::Vec3(200, 200, 0),
-            (0.0f)
-            );
-    auto& c1 = circle1.AddComponent<BitEngine::CCircle>();
-    c1.Color = {1.0f, 0.0f, 0.0f, 1.0f}; 
 
-    auto circle2 = Entities().CreateEntity();
-    circle2.AddComponent<BitEngine::CTransform>(
-            BMath::Vec3(450, 350, -7), 
-            BMath::Vec3(200, 200, 0),
-            (0.0f)
-            );
-    auto& c2 = circle2.AddComponent<BitEngine::CCircle>();
-    c2.Color = {0.0f, 0.0f, 1.0f, 1.0f}; 
-
-    m_Player.AddComponent<BitEngine::CAnimation2DController>();
+    m_Player.AddComponent<BitEngine::Animation2DControllerComponent>();
     u8 frameCount = 4; 
     m_Animation2DSystem->CreateAnimation(m_Player, "runRight", frameCount, 0, 0.1f);
     m_Animation2DSystem->CreateAnimation(m_Player, "runLeft", frameCount, 4, 0.1f);
@@ -85,8 +70,10 @@ void TestGame::Render()
 }
 void TestGame::Update(f32 deltaTime)
 {
+    
+
     f32 movementSpeed = 1150.0f * deltaTime;
-    auto& playerPosition = m_Player.GetComponent<BitEngine::CTransform>().Position;
+    auto playerPosition = m_Player.GetComponent<BitEngine::TransformComponent>().Position;
     if(Inputs().IsKeyDown(BitEngine::KEY_A))
     {
         playerPosition.x -= movementSpeed;
@@ -126,20 +113,22 @@ void TestGame::Update(f32 deltaTime)
             -7.0f
         };
 
-        u32 circle = BPhysics2D::BCreateCircleShape(12.0f);
-        u32 body = BPhysics2D::CreateBody(circle, mousePos, 0.0f);
-        m_Bodies.push_back(body);
         auto circleEntity= Entities().CreateEntity();
-        circleEntity.AddComponent<BitEngine::CCircle>();
-        circleEntity.AddComponent<BitEngine::CTransform>(
+        circleEntity.AddComponent<BitEngine::TransformComponent>(
                 mousePos,
-                BMath::Vec3(300.0f, 300.0f, 0.0f),
+                (0.0f),
                 (0.0f)
                 );
+        circleEntity.AddComponent<BitEngine::Circle2DComponent>(200.0f);
+        circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(200.0f);
+        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(12.0f);
+
     }
 
+    
     BMath::Vec3 cameraPos = BMath::Vec3(playerPosition.x - (m_WorldWidth / 2.0f), playerPosition.y - (m_WorldHeight / 2.0f), 0.0f);
     Camera().SetPosition(cameraPos);
+
 }
 
 void TestGame::OnJump(const BitEngine::Entity& entity)

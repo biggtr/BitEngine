@@ -14,26 +14,26 @@ class Animation2DSystem : public System
 public:
     Animation2DSystem()
     {
-        RequireComponent<CAnimation2DController>();
-        RequireComponent<CSprite>();
+        RequireComponent<Animation2DControllerComponent>();
+        RequireComponent<SpriteComponent>();
     }
     SYSTEM_CLASS_TYPE(ANIMATION2D);
 
 
     void CreateAnimation(const Entity& entity, const char* name, u8 frameCount, u8 startFrame, f32 frameDuration, b8 isLooping = true)
     {
-        if(!m_EntityManager->HasComponent<CAnimation2DController>(entity)) return;
-        CAnimation2DController& animationController = m_EntityManager->GetComponent<CAnimation2DController>(entity);
-        CAnimation2D animation{name, frameCount, startFrame, frameDuration, isLooping};
+        if(!m_EntityManager->HasComponent<Animation2DControllerComponent>(entity)) return;
+        Animation2DControllerComponent& animationController = m_EntityManager->GetComponent<Animation2DControllerComponent>(entity);
+        Animation2DComponent animation{name, frameCount, startFrame, frameDuration, isLooping};
         animationController.Animations.push_back(animation);
         animationController.CurrentAnimationName = name;
     }
 
     void SetAnimation(const Entity& entity, const char* animationName)
     {
-        if(!m_EntityManager->HasComponent<CAnimation2DController>(entity)) return;
+        if(!m_EntityManager->HasComponent<Animation2DControllerComponent>(entity)) return;
 
-        CAnimation2DController& animationController = m_EntityManager->GetComponent<CAnimation2DController>(entity);
+        Animation2DControllerComponent& animationController = m_EntityManager->GetComponent<Animation2DControllerComponent>(entity);
 
         if(animationController.CurrentAnimationName != animationName)
         {
@@ -47,7 +47,7 @@ public:
             }
         }
     }
-    CAnimation2D* GetCurrentAnimation(CAnimation2DController& animationController)
+    Animation2DComponent* GetCurrentAnimation(Animation2DControllerComponent& animationController)
     {
 
         for(auto& animation : animationController.Animations)
@@ -66,9 +66,9 @@ public:
     {
         for(const Entity& entity : GetEntities())
         {
-            CSprite& spriteComponent = m_EntityManager->GetComponent<CSprite>(entity);
-            CAnimation2DController& animationController = m_EntityManager->GetComponent<CAnimation2DController>(entity);
-            CAnimation2D* currentAnimation = GetCurrentAnimation(animationController);
+            SpriteComponent& spriteComponent = m_EntityManager->GetComponent<SpriteComponent>(entity);
+            Animation2DControllerComponent& animationController = m_EntityManager->GetComponent<Animation2DControllerComponent>(entity);
+            Animation2DComponent* currentAnimation = GetCurrentAnimation(animationController);
             if(!currentAnimation) continue;
             if(animationController.AnimationChanged)
             {

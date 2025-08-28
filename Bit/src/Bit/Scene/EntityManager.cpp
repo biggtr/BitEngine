@@ -1,5 +1,6 @@
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Core/Defines.h"
+#include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
@@ -36,6 +37,10 @@ Entity EntityManager::CreateEntity()
 
     return newEntity;
 }
+Entity EntityManager::GetEntity(u32 entityID)
+{
+    return Entity(entityID);
+}
 void EntityManager::KillEntity(const Entity& entity)
 {
     m_EntitiesToKill.push_back(entity);
@@ -55,6 +60,7 @@ void EntityManager::AddEntityToSystems(const Entity &entity) const
         if((systemSignature & entitySignature) == systemSignature) 
         {
             system->AddEntity(entity);
+            system->OnEntityAdded(entity);
         }
     }
 }

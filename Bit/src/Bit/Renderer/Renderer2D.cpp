@@ -302,12 +302,12 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
     Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, CSprite& sprite)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite)
 {
     BMath::Mat4 transform = BMath::Mat4::CreateTransform(position, size);
     DrawQuad(transform, sprite);
 }
-void Renderer2D::DrawQuad(BMath::Mat4& transform, CSprite& sprite)
+void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)
 {
     float textureIndex = 0.0f;
     const BMath::Vec4 color(1.0f);

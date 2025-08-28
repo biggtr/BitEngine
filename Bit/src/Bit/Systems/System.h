@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "Bit/Core/Event.h"
 #include "Bit/Scene/Compontents.h"
 #include <vector>
 #include "Bit/Core/Defines.h"
@@ -11,7 +12,7 @@ enum class SYSTEM_TYPE : uint32_t
     MOVEMENT,
     RENDER,
     UI_RENDER,
-    PHYSICS,
+    PHYSICS2D,
     CAMERA,
     ANIMATION2D,
     COLLISION,
@@ -31,8 +32,9 @@ private:
     
 public:
     System();
-    virtual ~System() = default;
+    virtual ~System() = default; 
 
+    virtual void OnEntityAdded(const Entity& entity);
     virtual void AddEntity(const Entity& entity);
     virtual void RemoveEntity(const Entity& entity);
     virtual const std::vector<Entity>& GetEntities() const;
@@ -55,4 +57,5 @@ protected:
     EntityManager* m_EntityManager;
     std::vector<Entity> m_Entities;
 };
-}
+
+} 

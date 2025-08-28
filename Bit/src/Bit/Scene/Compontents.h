@@ -30,14 +30,14 @@ public:
     }
 };
 
-struct CTransform 
+struct TransformComponent 
 {
     BMath::Vec3 Position;
     BMath::Vec3 Scale;
     BMath::Vec3 Rotation;
 
-    CTransform() = default;
-    CTransform(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec3& rotation)
+    TransformComponent() = default;
+    TransformComponent(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec3& rotation)
     {
         Position = position;
         Scale = scale;
@@ -45,40 +45,7 @@ struct CTransform
     }
 };
 
-struct CBoxCollider
-{
-    
-    BMath::Vec3 Size;
-    
-    BMath::Vec3 Offset;
-    CBoxCollider()
-        : Size(0.0f), Offset(0.0f)
-    {
-
-    }
-    CBoxCollider(BMath::Vec3 size, const BMath::Vec3& offset = {0.0f})
-        : Size(size), Offset(offset)
-    {
-    }
-};
-struct CCircle
-{
-    f32 Radius;
-    BMath::Vec4 Color;
-    f32 Thickness;
-    f32 Fade;
-    CCircle()
-    {
-        Radius = 12.0f;
-        Color = {1.0f, 1.0f, 1.0f, 1.0};
-        Thickness = 1.0f;
-        Fade = 0.05f;
-    }
-    CCircle(f32 radius, const BMath::Vec4 color, f32 thickness, f32 fade = 0.005f)
-        : Radius(radius), Color(color), Thickness(thickness), Fade(fade)
-    {}
-};
-struct CSprite
+struct SpriteComponent
 {
     uint32_t Width;
     uint32_t Height;
@@ -91,7 +58,7 @@ struct CSprite
     float UVs[8];
     b8 IsUI;
 
-    CSprite() 
+    SpriteComponent() 
     {
         STexture = nullptr; 
         Width = Height = FrameWidth = FrameHeight = 1;
@@ -103,7 +70,7 @@ struct CSprite
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
 
     }
-    CSprite(Texture* texture, const BMath::Vec4 color = {1.0f, 1.0f, 1.0f, 1.0f}) 
+    SpriteComponent(Texture* texture, const BMath::Vec4 color = {1.0f, 1.0f, 1.0f, 1.0f}) 
         :  STexture(texture)
     {
         Color = color;
@@ -118,7 +85,7 @@ struct CSprite
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight)
+    SpriteComponent(Texture* texture, u32 frameWidth, u32 frameHeight)
         :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight)
     {
         Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
@@ -131,7 +98,7 @@ struct CSprite
         UVs[4] = 1.0f; UVs[5] = 1.0f; //tr
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
     }
-    CSprite(Texture* texture, u32 frameWidth, u32 frameHeight, u32 currentFrame)
+    SpriteComponent(Texture* texture, u32 frameWidth, u32 frameHeight, u32 currentFrame)
         :  STexture(texture), FrameWidth(frameWidth), FrameHeight(frameHeight), CurrentFrame(currentFrame)
     {
         Color = { 1.0f, 1.0f, 1.0f, 1.0f}; 
@@ -145,7 +112,24 @@ struct CSprite
     }
 };
 
-struct CAnimation2D
+struct Circle2DComponent
+{
+    f32 Radius;
+    BMath::Vec4 Color;
+    f32 Thickness;
+    f32 Fade;
+    Circle2DComponent()
+    {
+        Radius = 12.0f;
+        Color = {1.0f, 1.0f, 1.0f, 1.0};
+        Thickness = 1.0f;
+        Fade = 0.05f;
+    }
+    Circle2DComponent(f32 radius, const BMath::Vec4 color = (1.0f), f32 thickness = 1.0f, f32 fade = 0.005f)
+        : Radius(radius), Color(color), Thickness(thickness), Fade(fade)
+    {}
+};
+struct Animation2DComponent
 {
     const char* Name;
     u8 NumFrames;
@@ -153,40 +137,72 @@ struct CAnimation2D
     f32 FrameDuration;
     bool IsLooping;
 };
-struct CAnimation2DController
+struct Animation2DControllerComponent
 {
-    std::vector<CAnimation2D> Animations;
+    std::vector<Animation2DComponent> Animations;
     const char* CurrentAnimationName;
     f32 ElapsedTime;
     u8 CurrentFrame;
     b8 AnimationChanged;
 
-    CAnimation2DController()
+    Animation2DControllerComponent()
         : CurrentAnimationName(""), ElapsedTime(0.0f), CurrentFrame(0), AnimationChanged(false)
     {
 
     }
     
 };
-struct CRigidBody
+struct Box2DColliderComponent
 {
-    BMath::Vec2 Velocity;
-
-    CRigidBody(const BMath::Vec2& velocity = {20.0f, 20.0f} )
+    
+    BMath::Vec3 Size;
+    
+    BMath::Vec3 Offset;
+    Box2DColliderComponent()
+        : Size(0.0f), Offset(0.0f)
     {
-        Velocity = velocity;
+
+    }
+    Box2DColliderComponent(BMath::Vec3 size, const BMath::Vec3& offset = {0.0f})
+        : Size(size), Offset(offset)
+    {
+    }
+};
+struct Circle2DColliderComponent
+{
+    f32 Radius;
+    BMath::Vec3 Offset;
+    Circle2DColliderComponent()
+    {
+        Radius = 12.0f;
+    }
+    Circle2DColliderComponent(f32 radius)
+        : Radius(radius)
+    {}
+};
+struct Rigid2DBodyComponent
+{
+    enum class BodyType { Static, Dynamic, Kinematic};
+    BodyType Type = BodyType::Dynamic;
+
+    u32 BodyIndex;
+    f32 Mass;
+    Rigid2DBodyComponent(){}
+    Rigid2DBodyComponent(f32 mass)
+        : Mass(mass) 
+    {
     }
 
 };
 
-struct CCamera
+struct Camera2DComponent
 {
     BMath::Vec3 Position;
     f32 Rotation;
     BMath::Mat4 ViewMatrix;
     b8 ViewDirty;
-    CCamera() { }
-    CCamera(const BMath::Vec3& position, f32 rotation)
+    Camera2DComponent() { }
+    Camera2DComponent(const BMath::Vec3& position, f32 rotation)
         :   
             Position(position), Rotation(rotation)
           {
