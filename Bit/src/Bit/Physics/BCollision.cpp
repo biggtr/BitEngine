@@ -1,4 +1,5 @@
 #include "BCollision.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Physics/BPhysics.h"

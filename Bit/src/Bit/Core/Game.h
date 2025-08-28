@@ -11,6 +11,7 @@
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Systems/Animation2DSystem.h"
 #include "Bit/Systems/CameraSystem.h"
+#include "Bit/Systems/CollisionSystem.h"
 #include "Bit/Systems/InputSystem.h"
 #include "Bit/Systems/MovementSystem.h"
 #include "Bit/Systems/Physics2DSystem.h"
@@ -34,6 +35,7 @@ protected:
     RenderSystem* m_RenderSystem;
     UIRenderSystem* m_UIRenderSystem;
     Physics2DSystem* m_Physics2DSystem;
+    CollisionSystem* m_CollisionSystem;
     CameraSystem* m_CameraSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
@@ -48,6 +50,7 @@ public:
         Entities().AddSystem<RenderSystem>();
         Entities().AddSystem<UIRenderSystem>();
         Entities().AddSystem<Physics2DSystem>();
+        Entities().AddSystem<CollisionSystem>();
         Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
         Entities().AddSystem<InputSystem>(&Inputs());
@@ -55,6 +58,7 @@ public:
         m_RenderSystem = Entities().GetSystem<RenderSystem>();
         m_UIRenderSystem = Entities().GetSystem<UIRenderSystem>();
         m_Physics2DSystem = Entities().GetSystem<Physics2DSystem>();
+        m_CollisionSystem = Entities().GetSystem<CollisionSystem>();
         m_CameraSystem = Entities().GetSystem<CameraSystem>();
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
         m_InputSystem = Entities().GetSystem<InputSystem>();
@@ -76,6 +80,7 @@ public:
         m_Animation2DSystem->Update(deltaTime);
         m_InputSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
+        m_CollisionSystem->Update();
         Update(deltaTime);
     }
     virtual void OnRender() 

@@ -71,29 +71,6 @@ void TestGame::Render()
 void TestGame::Update(f32 deltaTime)
 {
     
-
-    f32 movementSpeed = 1150.0f * deltaTime;
-    auto playerPosition = m_Player.GetComponent<BitEngine::TransformComponent>().Position;
-    if(Inputs().IsKeyDown(BitEngine::KEY_A))
-    {
-        playerPosition.x -= movementSpeed;
-        m_Animation2DSystem->SetAnimation(m_Player, "runLeft");
-    }
-    if(Inputs().IsKeyDown(BitEngine::KEY_D))
-    {
-        playerPosition.x += movementSpeed; 
-        m_Animation2DSystem->SetAnimation(m_Player, "runRight");
-    }
-    if(Inputs().IsKeyDown(BitEngine::KEY_W))
-    {
-        playerPosition.y += movementSpeed;
-        m_Animation2DSystem->SetAnimation(m_Player, "runTop");
-    }
-    if(Inputs().IsKeyDown(BitEngine::KEY_S))
-    {
-        playerPosition.y -= movementSpeed;
-        m_Animation2DSystem->SetAnimation(m_Player, "runBottom");
-    }
     if(Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
     {
         BMath::Vec3 cameraPos = Camera().GetActiveCamera()->Position;
@@ -119,10 +96,33 @@ void TestGame::Update(f32 deltaTime)
                 (0.0f),
                 (0.0f)
                 );
-        circleEntity.AddComponent<BitEngine::Circle2DComponent>(200.0f);
-        circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(200.0f);
+        circleEntity.AddComponent<BitEngine::Circle2DComponent>(50.0f);
+        circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(50.0f);
         circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(12.0f);
 
+    }
+
+    f32 movementSpeed = 1150.0f * deltaTime;
+    auto& playerPosition = m_Player.GetComponent<BitEngine::TransformComponent>().Position;
+    if(Inputs().IsKeyDown(BitEngine::KEY_A))
+    {
+        playerPosition.x -= movementSpeed;
+        m_Animation2DSystem->SetAnimation(m_Player, "runLeft");
+    }
+    if(Inputs().IsKeyDown(BitEngine::KEY_D))
+    {
+        playerPosition.x += movementSpeed; 
+        m_Animation2DSystem->SetAnimation(m_Player, "runRight");
+    }
+    if(Inputs().IsKeyDown(BitEngine::KEY_W))
+    {
+        playerPosition.y += movementSpeed;
+        m_Animation2DSystem->SetAnimation(m_Player, "runTop");
+    }
+    if(Inputs().IsKeyDown(BitEngine::KEY_S))
+    {
+        playerPosition.y -= movementSpeed;
+        m_Animation2DSystem->SetAnimation(m_Player, "runBottom");
     }
 
     

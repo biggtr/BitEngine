@@ -1,12 +1,15 @@
 #pragma  once 
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/Entity.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Systems/System.h"
+
+#define METER_PER_PIXEL 100
 namespace BitEngine 
 {
 
@@ -36,27 +39,28 @@ public:
             }
             else if(m_EntityManager->HasComponent<Circle2DColliderComponent>(entity))
             {
-                Circle2DComponent& circleCollider = m_EntityManager->GetComponent<Circle2DComponent>(entity);
+                Circle2DColliderComponent& circleCollider = m_EntityManager->GetComponent<Circle2DColliderComponent>(entity);
                 shapeIndex = BPhysics2D::BCreateCircleShape(circleCollider.Radius);
             }
-            rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Type == Rigid2DBodyComponent::BodyType::Static ? 0.0f : rigidBody.Mass);
+            rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass);
             BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
     }
 
     void Update(float deltaTime)
     {
-        for(const Entity& entity : m_Entities)
+        for(u32 i = 0; i < m_Entities.size();  ++i)
         {
-            Rigid2DBodyComponent& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
-            TransformComponent& transform = m_EntityManager->GetComponent<TransformComponent>(entity);
+            const Entity& entityA = m_Entities[i];
+            Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
+            TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(entityA);
 
-            BPhysics2D::BBody& body = BPhysics2D::GetBody(rigidBody.BodyIndex);
-            BPhysics2D::EnableWeight(body, 9.8f);
-            BPhysics2D::LinearIntegrate(body, deltaTime);
+            BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
+            // BPhysics2D::EnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
+            BPhysics2D::LinearIntegrate(bodyA, deltaTime);
 
-            transform.Position = body.Position;
-            transform.Rotation = body.Rotation;
+            transformA.Position = bodyA.Position;
+            transformA.Rotation = bodyA.Rotation;
         }
     }
 

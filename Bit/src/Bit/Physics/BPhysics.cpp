@@ -51,7 +51,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     body.Acceleration = 0.0f;
     body.Velocity = 0.0f;
     body.Mass = mass;
-    body.InvMass = NearlyEqual(mass, 0.0f) ? 0.0f : 1.0f / mass;
+    body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
     switch (shape.Type) 
     {
         case SHAPE_CIRCLE:
