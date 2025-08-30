@@ -77,5 +77,7 @@ struct BBody
     
     f32 Inertia;
     f32 InvInertia;
+
+    f32 Restitution;
 };
 }

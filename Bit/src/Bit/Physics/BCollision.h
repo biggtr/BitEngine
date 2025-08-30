@@ -22,5 +22,6 @@ b8 IsColliding(BBody* a, BBody* b, Contact& contact);
 b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& constact);
 
 void ResolvePenetration(Contact& contact);
+void ResolveCollision(Contact& contact);
     
 }

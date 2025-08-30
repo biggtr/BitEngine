@@ -47,4 +47,21 @@ void ResolvePenetration(Contact& contact)
     contact.a->Position -= contact.Normal * displacementA;
     contact.b->Position += contact.Normal * displacementB;
 }
+void ResolveCollision(Contact& contact)
+{
+    ResolvePenetration(contact);
+        
+    f32 e = fmin(contact.a->Restitution, contact.b->Restitution);
+
+    BMath::Vec3 relativeVelocity = contact.a->Velocity - contact.b->Velocity;
+
+    BMath::Vec3 impulseDirection = contact.Normal;
+    f32 impulseMagnitude = -(1 + e) * BMath::Vec3::Dot(relativeVelocity, contact.Normal) / (contact.a->InvMass + contact.b->InvMass);
+
+    BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
+
+    ApplyImpulse(*contact.a, impulse);
+    ApplyImpulse(*contact.b, impulse * -1.0f);
+
+}
 }

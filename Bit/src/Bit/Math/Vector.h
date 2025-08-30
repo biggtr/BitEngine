@@ -126,7 +126,11 @@ public:
     {
         return Vec3(x / other.x, y / other.y, z / other.z);
     }
-    Vec3 operator*(f32 scalar)
+    Vec3 operator*(f32 scalar) 
+    {
+        return Vec3(x * scalar, y * scalar, z * scalar);
+    }
+    Vec3 operator*(f32 scalar) const 
     {
         return Vec3(x * scalar, y * scalar, z * scalar);
     }

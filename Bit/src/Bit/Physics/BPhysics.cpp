@@ -52,6 +52,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     body.Velocity = 0.0f;
     body.Mass = mass;
     body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
+    body.Restitution = 0.2;
     switch (shape.Type) 
     {
         case SHAPE_CIRCLE:
@@ -157,6 +158,13 @@ void LinearIntegrate(BParticle particle, f32 deltaTime)
 void AddForce(BBody& body, const BMath::Vec3& force)
 {
     body.SumForces += force;
+}
+void ApplyImpulse(BBody& body, const BMath::Vec3& impulse)
+{
+    if(NearlyEqual(body.Mass, 0.0f))
+        return;
+
+    body.Velocity += impulse * body.InvMass;
 }
 BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue)
 {

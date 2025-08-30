@@ -49,6 +49,8 @@ void TestGame::Initialize()
             );
     auto& playersprite = m_Player.GetComponent<BitEngine::SpriteComponent>();
     playersprite.IsUI = false;
+    m_Player.AddComponent<BitEngine::Circle2DColliderComponent>(100.0f);
+    m_Player.AddComponent<BitEngine::Rigid2DBodyComponent>(5.0f);
 
     m_Player.AddComponent<BitEngine::Animation2DControllerComponent>();
     u8 frameCount = 4; 
@@ -98,7 +100,7 @@ void TestGame::Update(f32 deltaTime)
                 );
         circleEntity.AddComponent<BitEngine::Circle2DComponent>(50.0f);
         circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(50.0f);
-        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(12.0f);
+        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(100.0f);
 
     }
 

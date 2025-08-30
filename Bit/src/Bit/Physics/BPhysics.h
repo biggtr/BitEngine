@@ -37,6 +37,7 @@ void EnableWeight(BParticle& particle, f32 gravity);
 void LinearIntegrate(BParticle particle, f32 deltaTime);
 
 void AddForce(BBody& body, const BMath::Vec3& force);
+void ApplyImpulse(BBody& body, const BMath::Vec3& impulse);
 BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue);
 BMath::Vec3 GenerateFrictionForce(BBody& body, f32 frictionValue);
 BMath::Vec3 GenerateGravitationalForce(BBody& a, BBody b, f32 G);
