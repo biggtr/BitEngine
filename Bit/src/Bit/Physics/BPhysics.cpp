@@ -41,10 +41,17 @@ u32 BCreateBoxShape(f32 width, f32 height)
     physicsState->Shapes.push_back(shape);
     return shapeIndex;
 }
-u32 BCreatePolygonShape(BMath::Vec3* vertices, u32 count)
+u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count)
 {
     BShape shape;
     shape.Type = SHAPE_POLYGON;
+    if(count > MAX_POLYGON_VERTEX_COUNT)
+        count = MAX_POLYGON_VERTEX_COUNT;
+
+    for(u32 i = 0; i < count; ++i)
+    {
+        shape.BPolygon.Vertices[i] = vertices[i];
+    }
     shape.BPolygon.InertiaWithoutMass = 0.0f;
     u32 shapeIndex = physicsState->Shapes.size();
     physicsState->Shapes.push_back(shape);
