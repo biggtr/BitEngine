@@ -127,23 +127,18 @@ void Application::Run()
         // BIT_LOG_DEBUG("FPS: %.2f", FPS);
         if(!s_Instance->m_IsSuspended && s_Instance->m_GameInstance)
         {
-            {
-                // ProfilerTime Time("Entity Update");
-                s_Instance->m_EntityManager->Update();
-            }
-            {
-                // ProfilerTime Time("GameInstance update");
-                s_Instance->m_GameInstance->OnUpdate(deltaTime);
-            }
-
-            {
-                // ProfilerTime Time("Renderer");
-                s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
-                s_Instance->m_Renderer2D->Clear();
-                s_Instance->m_GameInstance->OnRender();
-            }
-            s_Instance->m_Window->OnUpdate();
+            
+            s_Instance->m_EntityManager->Update();
+        
+            s_Instance->m_GameInstance->OnUpdate(deltaTime);
             s_Instance->m_Input->Update();
+        
+
+            s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
+            s_Instance->m_Renderer2D->Clear();
+            s_Instance->m_GameInstance->OnRender();
+
+            s_Instance->m_Window->OnUpdate();
         }
     }
 }

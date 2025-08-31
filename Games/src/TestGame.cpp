@@ -49,8 +49,6 @@ void TestGame::Initialize()
             );
     auto& playersprite = m_Player.GetComponent<BitEngine::SpriteComponent>();
     playersprite.IsUI = false;
-    m_Player.AddComponent<BitEngine::Circle2DColliderComponent>(100.0f);
-    m_Player.AddComponent<BitEngine::Rigid2DBodyComponent>(5.0f);
 
     m_Player.AddComponent<BitEngine::Animation2DControllerComponent>();
     u8 frameCount = 4; 
@@ -59,6 +57,16 @@ void TestGame::Initialize()
     m_Animation2DSystem->CreateAnimation(m_Player, "runTop", frameCount, 8, 0.1f);
     m_Animation2DSystem->CreateAnimation(m_Player, "runBottom", frameCount, 12, 0.1f);
 
+    isDragging = false;
+    auto whiteBall = Entities().CreateEntity();
+    whiteBall.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -5.0f),
+            BMath::Vec3(0.0f),
+            BMath::Vec3(1.0f)
+            );
+    whiteBall.AddComponent<BitEngine::Circle2DComponent>(300.0f);
+    whiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(300.0f);
+    whiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(12.0f);
 
     //experimenting with fonts
 
@@ -66,31 +74,45 @@ void TestGame::Initialize()
     BitEngine::Font::Shutdown();
 
 }
-
 void TestGame::Render()
 {
+    if(isDragging)
+    {
+        BMath::Vec3 initialMousePos = ScreenToWorldCoords(initialMouseX, initialMouseY);
+        BMath::Vec3 endMousePos = ScreenToWorldCoords(currentMouseX, currentMouseY);
+        BIT_LOG_DEBUG("initiamousepos %.2f, %.2f", initialMousePos.x, initialMousePos.y);
+        BIT_LOG_DEBUG("endMousePos %.2f, %.2f", endMousePos.x, endMousePos.y);
+        Renderer().DrawLine(initialMousePos, endMousePos, {1.0f,0.0f, 0.0f, 1.0f});
+    }
 }
 void TestGame::Update(f32 deltaTime)
 {
-    
+    if(Inputs().IsMouseButtonPressed(BitEngine::MOUSE_BUTTON_RIGHT)) 
+    {
+        Inputs().GetMousePosition(&initialMouseX, &initialMouseY);
+        isDragging = true;
+        BIT_LOG_DEBUG("Mouse RIGHT pressed - started dragging at %d, %d", initialMouseX, initialMouseY);
+    }
+    if(isDragging && Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_RIGHT))
+    {
+        if(Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_RIGHT))
+        {
+            Inputs().GetMousePosition(&currentMouseX, &currentMouseY);
+        }
+    }
+    if(isDragging && Inputs().IsMouseButtonReleased(BitEngine::MOUSE_BUTTON_RIGHT))
+    {
+        BMath::Vec3 impulse = {(f32)(currentMouseX - initialMouseX), (f32)(currentMouseY - initialMouseY), 0.0f};
+        isDragging = false;
+    }
     if(Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
     {
-        BMath::Vec3 cameraPos = Camera().GetActiveCamera()->Position;
         i32 screenX, screenY;
         Inputs().GetMousePosition(&screenX, &screenY);
-        f32 normalizedX = (f32)screenX / (f32)appConfig.width;
-        f32 normalizedY = (f32)(appConfig.height - screenY) / (f32)appConfig.height; // Flip Y
-        BIT_LOG_DEBUG("Screen: (%d, %d), Camera: (%.2f, %.2f), WorldDims: (%.2f, %.2f)", 
-                  screenX, screenY, cameraPos.x, cameraPos.y, m_WorldWidth, m_WorldHeight);
-        f32 worldX = cameraPos.x + normalizedX * m_WorldWidth; 
-        f32 worldY = cameraPos.y + normalizedY * m_WorldHeight; 
-        BIT_LOG_DEBUG("Screen: (%d, %d) -> Normalized: (%.2f, %.2f) -> World: (%.2f, %.2f)", 
-                  screenX, screenY, normalizedX, normalizedY, worldX, worldY);
-        BMath::Vec3 mousePos = {
-            worldX,
-            worldY,
-            -7.0f
-        };
+
+        BMath::Vec3 mousePos = ScreenToWorldCoords(screenX, screenY);
+        mousePos.z = -7.0f;
+
 
         auto circleEntity= Entities().CreateEntity();
         circleEntity.AddComponent<BitEngine::TransformComponent>(
@@ -98,11 +120,12 @@ void TestGame::Update(f32 deltaTime)
                 (0.0f),
                 (0.0f)
                 );
-        circleEntity.AddComponent<BitEngine::Circle2DComponent>(50.0f);
+        auto& circleSprite = circleEntity.AddComponent<BitEngine::Circle2DComponent>(50.0f);
+        circleSprite.Color = {1.0f, 0.4f, 0.0f, 1.0f};
         circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(50.0f);
         circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(100.0f);
-
     }
+
 
     f32 movementSpeed = 1150.0f * deltaTime;
     auto& playerPosition = m_Player.GetComponent<BitEngine::TransformComponent>().Position;

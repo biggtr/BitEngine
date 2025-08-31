@@ -7,7 +7,13 @@ class TestGame : public BitEngine::Game
 private:
         BitEngine::Entity m_Player;
         BitEngine::Entity m_Background;
-        std::vector<u32> m_Bodies;
+        BMath::Vec3 impulseLine;
+
+        b8 isDragging;
+        i32 initialMouseX;
+        i32 initialMouseY;
+        i32 currentMouseX;
+        i32 currentMouseY;
 public:
     TestGame()
     {

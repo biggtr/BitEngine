@@ -17,7 +17,6 @@ public:
     {
         RequireComponent<TransformComponent>();
         RequireComponent<Circle2DColliderComponent>();
-        RequireComponent<Rigid2DBodyComponent>();
     }
     SYSTEM_CLASS_TYPE(COLLISION);
 
@@ -42,7 +41,7 @@ public:
                     if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
                     {
                         BIT_LOG_DEBUG("Circle Colliding");
-                        BPhysics2D::ResolvePenetration(contact);
+                        BPhysics2D::ResolveCollision(contact);
                         transformA.Position = contact.a->Position;
                         transformB.Position = contact.b->Position;
                     }

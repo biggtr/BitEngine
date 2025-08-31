@@ -204,7 +204,9 @@ public:
     static void ProcessMouseWheel(i8 delta);
     
     b8 IsMouseButtonDown(MOUSE_BUTTONS button);
+    b8 IsMouseButtonPressed(MOUSE_BUTTONS button);
     b8 IsMouseButtonUp(MOUSE_BUTTONS button);
+    b8 IsMouseButtonReleased(MOUSE_BUTTONS button);
     b8 WasMouseButtonDown(MOUSE_BUTTONS button);
     b8 WasMouseButtonUp(MOUSE_BUTTONS button);
 

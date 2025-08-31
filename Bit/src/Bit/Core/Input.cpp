@@ -55,9 +55,25 @@ b8 Input::IsMouseButtonDown(MOUSE_BUTTONS button)
 {
     return m_InputState.MouseCurrentState.Buttons[(u8)button] == true;
 }
+b8 Input::IsMouseButtonPressed(MOUSE_BUTTONS button)
+{
+    b8 current = m_InputState.MouseCurrentState.Buttons[(u8)button];
+    b8 previous = m_InputState.MousePrevState.Buttons[(u8)button];
+    b8 result = current && !previous;
+    
+    return result;
+}
 b8 Input::IsMouseButtonUp(MOUSE_BUTTONS  button)
 {
     return m_InputState.MouseCurrentState.Buttons[(u8)button] == false;
+}
+b8 Input::IsMouseButtonReleased(MOUSE_BUTTONS button)
+{
+    b8 current = m_InputState.MouseCurrentState.Buttons[(u8)button];
+    b8 previous = m_InputState.MousePrevState.Buttons[(u8)button];
+    b8 result = !current && previous;
+
+    return result;
 }
 b8 Input::WasMouseButtonDown(MOUSE_BUTTONS  button)
 {
@@ -86,12 +102,14 @@ void Input::ProcessKey(KEYS key, b8 pressed)
 }
 void Input::ProcessMouseButton(MOUSE_BUTTONS button, b8 pressed)
 {
+    BIT_LOG_DEBUG("ProcessMouseButton: button=%d, pressed=%d", (int)button, pressed);
     EventContext context;
     context.U16[0] = button;
     context.U16[1] = m_InputState.MouseCurrentState.X;
     context.U16[2] = m_InputState.MouseCurrentState.Y;
     EventManager::EventFire(pressed ? EVENT_CODE_BUTTON_PRESSED : EVENT_CODE_BUTTON_RELEASED , 0, context);
     m_InputState.MouseCurrentState.Buttons[button] = pressed;
+    BIT_LOG_DEBUG("Mouse button state updated: button[%d] = %d", (int)button, pressed);
 }
 
 void Input::ProcessMouseMove(i16* x, i16* y)

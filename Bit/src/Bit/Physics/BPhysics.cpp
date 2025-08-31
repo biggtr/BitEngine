@@ -230,7 +230,7 @@ void LinearIntegrate(BBody& body, f32 deltaTime)
     body.Acceleration = body.SumForces * body.InvMass;
     body.Velocity += body.Acceleration * deltaTime;
     body.Position += body.Velocity * deltaTime;
-    BIT_LOG_DEBUG("position.x %f", body.Position.x);
+    // BIT_LOG_DEBUG("position.x %f", body.Position.x);
 
     // Clearing All Forces after Integration
     body.SumForces = (0.0f);

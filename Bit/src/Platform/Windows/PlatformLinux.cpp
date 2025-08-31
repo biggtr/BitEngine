@@ -174,7 +174,6 @@ void PlatformLinux::ProcessEvents()
             case ButtonRelease:
             {
                 MOUSE_BUTTONS button;
-                i8 middleButton = 0;
                 switch (event.xbutton.button) 
                 {
                     case Button1:
@@ -187,17 +186,17 @@ void PlatformLinux::ProcessEvents()
                         button = MOUSE_BUTTON_RIGHT;
                         break;
                     case Button4:
-                        middleButton += 1;
+                        button = MOUSE_BUTTON_MIDDLE;
                         Input::ProcessMouseWheel(1);
                         break;
-
                     case Button5:
-                        middleButton -= 1;
+                        button = MOUSE_BUTTON_MIDDLE;
                         Input::ProcessMouseWheel(-1);
                         break;
                 }
                 b8 pressed = event.type == ButtonPress ? true : false;
                 Input::ProcessMouseButton(button,  pressed);
+                break;
             }
             case MotionNotify:
             {

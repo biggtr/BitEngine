@@ -78,7 +78,6 @@ public:
     {
         m_CameraSystem->Update(deltaTime);
         m_Animation2DSystem->Update(deltaTime);
-        m_InputSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
         Update(deltaTime);
@@ -92,9 +91,9 @@ public:
 
         Renderer().BeginScene(Camera().GetActiveCamera()->ViewMatrix);
         m_RenderSystem->Update(Renderer());
+        Render();
         Renderer().EndScene();
 
-        Render();
 
     }
     void OnWindowResize(u16 width, u16 height)
@@ -106,6 +105,15 @@ public:
         m_WorldWidth = m_WorldHeight * aspectRatio;
     }
 
+    BMath::Vec3 ScreenToWorldCoords(i32 screenX, i32 screenY)
+    {
+        BMath::Vec3 cameraPos = Camera().GetActiveCamera()->Position;
+        f32 normalizedX = (f32)screenX / (f32)appConfig.width;
+        f32 normalizedY = (f32)(appConfig.height - screenY) / (f32)appConfig.height; // Flip Y
+        f32 worldX = cameraPos.x + normalizedX * m_WorldWidth; 
+        f32 worldY = cameraPos.y + normalizedY * m_WorldHeight; 
+        return BMath::Vec3(worldX, worldY, 0.0f);
+    }
 protected:
     virtual void Initialize() = 0;
     virtual void SetupInput(){} 
