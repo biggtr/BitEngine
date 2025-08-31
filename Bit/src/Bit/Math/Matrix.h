@@ -276,7 +276,7 @@ public:
         forwardVector.x = -mat.Data[8];
         forwardVector.y = -mat.Data[9];
         forwardVector.z = -mat.Data[10];
-        Vec3::Normalize(&forwardVector);
+        Vec3Normalize(&forwardVector);
         return forwardVector;
     }
     
@@ -286,7 +286,7 @@ public:
         backwardVector.x = mat.Data[8];
         backwardVector.y = mat.Data[9];
         backwardVector.z = mat.Data[10];
-        Vec3::Normalize(&backwardVector);
+        Vec3Normalize(&backwardVector);
         return backwardVector;
     }
     static Vec3 Right(const Mat4& mat)
@@ -295,7 +295,7 @@ public:
         rightVector.x = mat.Data[0];
         rightVector.y = mat.Data[1];
         rightVector.z = mat.Data[2];
-        Vec3::Normalize(&rightVector);
+        Vec3Normalize(&rightVector);
         return rightVector;
     }
     static Vec3 Left(const Mat4& mat)
@@ -304,7 +304,7 @@ public:
         leftVector.x = -mat.Data[0];
         leftVector.y = -mat.Data[1];
         leftVector.z = -mat.Data[2];
-        Vec3::Normalize(&leftVector);
+        Vec3Normalize(&leftVector);
         return leftVector;
     }
     static Vec3 Up(const Mat4& mat)
@@ -313,7 +313,7 @@ public:
         upVector.x = mat.Data[4];
         upVector.y = mat.Data[5];
         upVector.z = mat.Data[6];
-        Vec3::Normalize(&upVector);
+        Vec3Normalize(&upVector);
         return upVector;
     }
     static Vec3 Down(const Mat4& mat)
@@ -322,7 +322,7 @@ public:
         downVector.x = -mat.Data[4];
         downVector.y = -mat.Data[5];
         downVector.z = -mat.Data[6];
-        Vec3::Normalize(&downVector);
+        Vec3Normalize(&downVector);
         return downVector;
     }
 };

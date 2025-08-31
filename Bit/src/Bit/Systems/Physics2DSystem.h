@@ -1,6 +1,7 @@
 #pragma  once 
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Vector.h"
 #include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
@@ -62,6 +63,16 @@ public:
             transformA.Position = bodyA.Position;
             transformA.Rotation = bodyA.Rotation;
         }
+    }
+
+    void ApplyImpulse(const Entity& entity, const BMath::Vec3& impulse)
+    {
+        if(!m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
+            return;
+        auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
+        
+        BPhysics2D::BBody& body = BPhysics2D::GetBody(rigidBody.BodyIndex);
+        BPhysics2D::ApplyImpulse(body, impulse);
     }
 
 };

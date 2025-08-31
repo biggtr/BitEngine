@@ -1,7 +1,9 @@
 #pragma once
-
 #include "Bit/Math/Vector.h"
 #include <vector>
+
+
+#define MAX_POLYGON_VERTEX_COUNT 8 
 namespace BPhysics2D
 {
 struct BParticle
@@ -24,7 +26,8 @@ struct BParticle
 enum SHAPE_TYPE
 {
     SHAPE_CIRCLE,
-    SHAPE_BOX
+    SHAPE_BOX,
+    SHAPE_POLYGON
 };
 struct BCircleShape
 {
@@ -33,13 +36,9 @@ struct BCircleShape
 };
 struct BPolygonShape
 {
-    std::vector<BMath::Vec3> Vertices;
+    u32 VertexCount;
+    BMath::Vec3 Vertices[MAX_POLYGON_VERTEX_COUNT];
     f32 InertiaWithoutMass;
-    BPolygonShape(std::vector<BMath::Vec3> vertices)
-        : Vertices(vertices)
-    {
-        InertiaWithoutMass = 0.0f;
-    }
 };
 struct BBoxShape
 {
@@ -54,6 +53,7 @@ struct BShape
     {
         BCircleShape BCircle;
         BBoxShape BBox;
+        BPolygonShape BPolygon;
     };
 };
 struct BBody

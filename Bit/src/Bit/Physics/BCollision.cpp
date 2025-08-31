@@ -25,18 +25,62 @@ b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
     BShape shapeB = GetShape(b);
     BMath::Vec3 distanceAB = b->Position - a->Position;
     f32 sumRadius = shapeA.BCircle.Radius + shapeB.BCircle.Radius;
-    b8 isColliding = BMath::Vec3::LengthSquared(distanceAB) <= (sumRadius * sumRadius);
+    b8 isColliding = BMath::Vec3LengthSquared(distanceAB) <= (sumRadius * sumRadius);
     if(!isColliding)
         return false;
     contact.a = a;
     contact.b = b;
-    contact.Normal = BMath::Vec3::Normalize(distanceAB);
+    contact.Normal = BMath::Vec3Normalize(distanceAB);
     contact.Start = b->Position - (contact.Normal * shapeB.BCircle.Radius);
     contact.End = a->Position + (contact.Normal * shapeA.BCircle.Radius);
-    contact.Depth = BMath::Vec3::Length(contact.End - contact.Start);
+    contact.Depth = BMath::Vec3Length(contact.End - contact.Start);
     return true;
 }
 
+b8 IsAABBColliding(BBody* a, BBody* b)
+{
+    BShape shapeA = GetShape(a);
+    BShape shapeB = GetShape(b);
+
+    f32 aLeft = -shapeA.BBox.Width; 
+    f32 aRight = shapeA.BBox.Width;
+    f32 aTop = shapeA.BBox.Height; 
+    f32 aBot= -shapeA.BBox.Height;
+
+    f32 bLeft = -shapeB.BBox.Width; 
+    f32 bRight = shapeB.BBox.Width;
+    f32 bTop = shapeB.BBox.Height; 
+    f32 bBot= -shapeB.BBox.Height;
+
+    return aRight >= bLeft && aLeft <= bRight && aBot <= bTop && aTop >= bBot;
+}
+f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b)
+{
+    f32 seperation = -B_INFINITY;
+
+    for(u32 i = 0; i < a.VertexCount; ++i)
+    {
+        BMath::Vec3 va = EdgeAt(a, i);
+        BMath::Vec3 normal = Vec3Normal2D(va);
+        f32 minSeperation = B_INFINITY;
+        for(u32 j = 0; j < b.VertexCount; ++j)
+        {
+            BMath::Vec3 vb = b.Vertices[j];
+            minSeperation = fmin(minSeperation, BMath::Vec3Dot(vb - va, normal));
+        }
+        seperation = fmax(seperation, minSeperation);
+    }
+    return seperation;
+}
+b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b)
+{
+    if(FindMinSeperation(a, b) > 0.0f)
+        return false;
+    if(FindMinSeperation(b, a) > 0.0f)
+        return false;
+    
+    return true; // colliding 
+}
 void ResolvePenetration(Contact& contact)
 {
     if(NearlyEqual(contact.a->InvMass, 0.0f) && NearlyEqual(contact.b->InvMass, 0.0f)) 
@@ -56,7 +100,7 @@ void ResolveCollision(Contact& contact)
     BMath::Vec3 relativeVelocity = contact.a->Velocity - contact.b->Velocity;
 
     BMath::Vec3 impulseDirection = contact.Normal;
-    f32 impulseMagnitude = -(1 + e) * BMath::Vec3::Dot(relativeVelocity, contact.Normal) / (contact.a->InvMass + contact.b->InvMass);
+    f32 impulseMagnitude = -(1 + e) * BMath::Vec3Dot(relativeVelocity, contact.Normal) / (contact.a->InvMass + contact.b->InvMass);
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 

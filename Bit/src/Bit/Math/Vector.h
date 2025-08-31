@@ -83,140 +83,39 @@ public:
     }
 };
 
-class Vec3
+struct Vec3
 {
-public:
-    union {
-        struct {
-            union { float x, r, s, u; };
-            union { float y, g, t, v; };
-            union { float z, b, p, w; };
-        };
+    union 
+    {
+        struct { float x, y, z; };  
+        struct { float r, g, b; };
+        struct { float s, t, p; };  
         float elements[3];
     };
 
-public:
-    constexpr Vec3() : x(1.0f), y(1.0f), z(1.0f) {}
-    constexpr Vec3(float value) : x(value), y(value), z(value){}
-    constexpr Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
-    Vec3(const Vec3&) = default;
-    ~Vec3() = default;
-
-    Vec3& operator=(const Vec3& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        return *this;
-    }
-
-    Vec3& operator=(Vec3&& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        return *this;
-    }
-
-    Vec3 operator*(const Vec3& other)
-    {
-        return Vec3(x * other.x, y * other.y, z * other.z);
-    }
-    Vec3 operator/(const Vec3& other)
-    {
-        return Vec3(x / other.x, y / other.y, z / other.z);
-    }
-    Vec3 operator*(f32 scalar) 
-    {
-        return Vec3(x * scalar, y * scalar, z * scalar);
-    }
-    Vec3 operator*(f32 scalar) const 
-    {
-        return Vec3(x * scalar, y * scalar, z * scalar);
-    }
-    Vec3 operator/(f32 scalar)
-    {
-        return Vec3(x / scalar, y / scalar, z / scalar);
-    }
-    Vec3 operator+(const Vec3& other)
-    {
-        return Vec3(x + other.x, y + other.y, z + other.z);
-    }
-
-    Vec3& operator+=(const Vec3& other)
-    {
-        this->x += other.x;
-        this->y += other.y;
-        this->z += other.z;
-        
-        return *this;
-    }
-    Vec3 operator-(const Vec3& other)
-    {
-        return Vec3(x - other.x, y - other.y, z - other.z);
-    }
-
-    Vec3& operator-=(const Vec3& other)
-    {
-        this->x -= other.x;
-        this->y -= other.y;
-        this->z -= other.z;
-        
-        return *this;
-    }
-    static float Dot(const Vec3& a, const Vec3& b)
-    {
-        return a.x * b.x + a.y * b.y + a.z * b.z;
-    }
-
-    static const Vec3 Cross(const Vec3& vec1, const Vec3& vec2)
-    {
-        return {
-            vec1.y * vec2.z - vec1.z * vec2.y,
-            vec1.z * vec2.x - vec1.x * vec2.z,
-            vec1.x * vec2.y - vec1.y * vec2.x,
-        };
-    }
-    static f32 LengthSquared(const Vec3& vec)
-    {
-        return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
-    }
-    static f32 Length(const Vec3& vec) 
-    {
-        return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
-    }
-
-    Vec3 Normalize() 
-    {
-        float vecLength = Vec3::Length(*this);
-
-        if(vecLength > 0.000000f)
-            return Vec3(x /= vecLength, y /= vecLength, z /= vecLength);
-        return *this;
-    }
-    static void Normalize(Vec3* vec) 
-    {
-        float vecLength = Vec3::Length(*vec);
-        vec->x /= vecLength;
-        vec->y /= vecLength;
-        vec->z /= vecLength;
-    }
-    static Vec3 Normalize(Vec3 vector) 
-    {
-        Vec3::Normalize(&vector);
-        return vector;
-    }
-    static f32 Distance(const Vec3& vec1, const Vec3& vec2)
-    {
-        Vec3 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z};
-        return Vec3::Length(d);
-    }
-    static f32 DistanceSquared(const Vec3& vec1, const Vec3& vec2)
-    {
-        Vec3 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z};
-        return Vec3::LengthSquared(d);
-    }
+    constexpr Vec3() = default;
+    constexpr Vec3(float value) : x(value), y(value), z(value) {}
+    constexpr Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
+    constexpr Vec3(const float arr[3]) : x(arr[0]), y(arr[1]), z(arr[2]) {}
 };
+
+Vec3& operator*=(Vec3& v, f32 scalar); 
+Vec3 operator*(const Vec3& v, f32 scalar); 
+Vec3& operator/=(Vec3& v, f32 scalar); 
+Vec3 operator/(Vec3& v, f32 scalar);
+Vec3& operator+=(Vec3& v1, const Vec3& v2);
+Vec3 operator+(const Vec3& v1, const Vec3& v2);
+Vec3& operator-=(Vec3& v1, const Vec3& v2);
+Vec3 operator-(const Vec3& v1, const Vec3& v2);
+float Vec3Dot(const Vec3& a, const Vec3& b);
+f32 Vec3Length(const Vec3& vec); 
+void Vec3Normalize(Vec3* vec); 
+Vec3 Vec3Normalize(Vec3 vector); 
+Vec3 Vec3Normal2D(const Vec3& v);
+const Vec3 Vec3Cross(const Vec3& vec1, const Vec3& vec2);
+f32 Vec3LengthSquared(const Vec3& vec);
+f32 Vec3Distance(const Vec3& vec1, const Vec3& vec2);
+f32 Vec3DistanceSquared(const Vec3& vec1, const Vec3& vec2);
 
 class Vec4
 {

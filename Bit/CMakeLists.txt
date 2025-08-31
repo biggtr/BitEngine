@@ -30,6 +30,8 @@ target_sources(BitEngine
 
     src/Bit/Font/Font.cpp
 
+    src/Bit/Math/Vector.cpp
+
     src/Bit/Physics/BPhysics.cpp
     src/Bit/Physics/BCollision.cpp
 

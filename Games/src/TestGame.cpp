@@ -9,6 +9,7 @@
 #include "Bit/Scene/Entity.h"
 #include "Bit/Systems/InputSystem.h"
 #include "Bit/Font/Font.h"
+#include "Bit/Systems/System.h"
 
 void TestGame::Initialize()
 {
@@ -58,15 +59,15 @@ void TestGame::Initialize()
     m_Animation2DSystem->CreateAnimation(m_Player, "runBottom", frameCount, 12, 0.1f);
 
     isDragging = false;
-    auto whiteBall = Entities().CreateEntity();
+    whiteBall = Entities().CreateEntity();
     whiteBall.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(appConfig.width / 2.0f, appConfig.height / 2.0f, -5.0f),
             BMath::Vec3(0.0f),
             BMath::Vec3(1.0f)
             );
-    whiteBall.AddComponent<BitEngine::Circle2DComponent>(300.0f);
-    whiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(300.0f);
-    whiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(12.0f);
+    whiteBall.AddComponent<BitEngine::Circle2DComponent>(60.0f);
+    whiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(60.0f);
+    whiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(5.0f);
 
     //experimenting with fonts
 
@@ -102,7 +103,10 @@ void TestGame::Update(f32 deltaTime)
     }
     if(isDragging && Inputs().IsMouseButtonReleased(BitEngine::MOUSE_BUTTON_RIGHT))
     {
-        BMath::Vec3 impulse = {(f32)(currentMouseX - initialMouseX), (f32)(currentMouseY - initialMouseY), 0.0f};
+        BMath::Vec3 impulse = {(f32)(initialMouseX - currentMouseX), (f32)(currentMouseY - initialMouseY), 0.0f};
+        impulse = impulse * 20.0f;
+        m_Physics2DSystem->ApplyImpulse(whiteBall, impulse);
+
         isDragging = false;
     }
     if(Inputs().IsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
@@ -123,7 +127,7 @@ void TestGame::Update(f32 deltaTime)
         auto& circleSprite = circleEntity.AddComponent<BitEngine::Circle2DComponent>(50.0f);
         circleSprite.Color = {1.0f, 0.4f, 0.0f, 1.0f};
         circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(50.0f);
-        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(100.0f);
+        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(10.0f);
     }
 
 

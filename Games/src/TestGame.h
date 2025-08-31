@@ -5,15 +5,16 @@
 class TestGame : public BitEngine::Game
 {
 private:
-        BitEngine::Entity m_Player;
-        BitEngine::Entity m_Background;
-        BMath::Vec3 impulseLine;
+    BitEngine::Entity whiteBall;
+    BitEngine::Entity m_Player;
+    BitEngine::Entity m_Background;
+    BMath::Vec3 impulseLine;
 
-        b8 isDragging;
-        i32 initialMouseX;
-        i32 initialMouseY;
-        i32 currentMouseX;
-        i32 currentMouseY;
+    b8 isDragging;
+    i32 initialMouseX;
+    i32 initialMouseY;
+    i32 currentMouseX;
+    i32 currentMouseY;
 public:
     TestGame()
     {
