@@ -21,7 +21,7 @@ void Shutdown();
 
 u32 BCreateCircleShape(f32 radius);
 u32 BCreateBoxShape(f32 width, f32 height);
-u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count);
+u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWithoutMass);
 u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass);
 BShape& GetShape(BBody* body);
 BBody& GetBody(u32 bodyIndex);

@@ -32,16 +32,20 @@ u32 BCreateCircleShape(f32 radius)
 }
 u32 BCreateBoxShape(f32 width, f32 height)
 {
-    BShape shape;
-    shape.Type = SHAPE_BOX;
-    shape.BBox.Width = width; 
-    shape.BBox.Height= height; 
-    shape.BBox.InertiaWithoutMass = (1.0f/12.0f) * ((width * width) + (height * height));
-    u32 shapeIndex = physicsState->Shapes.size();
-    physicsState->Shapes.push_back(shape);
-    return shapeIndex;
+
+    BMath::Vec3 v1 = (-width * 0.5f, -height * 0.5f, 0.0f);
+    BMath::Vec3 v2 = ( width * 0.5f, -height * 0.5f, 0.0f);
+    BMath::Vec3 v3 = ( width * 0.5f,  height * 0.5f, 0.0f);
+    BMath::Vec3 v4 = (-width * 0.5f,  height * 0.5f, 0.0f);
+    BMath::Vec3 vertices[4] = 
+    {
+        v1, v2,
+        v3, v4
+    };
+    f32 inertiaWithoutMass = (1.0f/12.0f) * ((width * width) + (height * height));
+    return BCreatePolygonShape(vertices, 4, inertiaWithoutMass);
 }
-u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count)
+u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWithoutMass)
 {
     BShape shape;
     shape.Type = SHAPE_POLYGON;
@@ -52,7 +56,7 @@ u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count)
     {
         shape.BPolygon.Vertices[i] = vertices[i];
     }
-    shape.BPolygon.InertiaWithoutMass = 0.0f;
+    shape.BPolygon.InertiaWithoutMass = inertiaWithoutMass;
     u32 shapeIndex = physicsState->Shapes.size();
     physicsState->Shapes.push_back(shape);
     return shapeIndex;
