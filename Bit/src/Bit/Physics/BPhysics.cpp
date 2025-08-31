@@ -32,11 +32,10 @@ u32 BCreateCircleShape(f32 radius)
 }
 u32 BCreateBoxShape(f32 width, f32 height)
 {
-
-    BMath::Vec3 v1 = (-width * 0.5f, -height * 0.5f, 0.0f);
-    BMath::Vec3 v2 = ( width * 0.5f, -height * 0.5f, 0.0f);
-    BMath::Vec3 v3 = ( width * 0.5f,  height * 0.5f, 0.0f);
-    BMath::Vec3 v4 = (-width * 0.5f,  height * 0.5f, 0.0f);
+    BMath::Vec3 v1 = {-width * 0.5f, -height * 0.5f, 0.0f};
+    BMath::Vec3 v2 = { width * 0.5f, -height * 0.5f, 0.0f};
+    BMath::Vec3 v3 = { width * 0.5f,  height * 0.5f, 0.0f};
+    BMath::Vec3 v4 = {-width * 0.5f,  height * 0.5f, 0.0f};
     BMath::Vec3 vertices[4] = 
     {
         v1, v2,

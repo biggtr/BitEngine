@@ -81,9 +81,11 @@ void TestGame::Render()
     {
         BMath::Vec3 initialMousePos = ScreenToWorldCoords(initialMouseX, initialMouseY);
         BMath::Vec3 endMousePos = ScreenToWorldCoords(currentMouseX, currentMouseY);
-        BIT_LOG_DEBUG("initiamousepos %.2f, %.2f", initialMousePos.x, initialMousePos.y);
-        BIT_LOG_DEBUG("endMousePos %.2f, %.2f", endMousePos.x, endMousePos.y);
-        Renderer().DrawLine(initialMousePos, endMousePos, {1.0f,0.0f, 0.0f, 1.0f});
+        auto& whiteballTranform = whiteBall.GetComponent<BitEngine::TransformComponent>();
+        auto whitePos = whiteballTranform.Position; 
+        auto dragDir = endMousePos - initialMousePos;
+        auto startPos = whitePos + BMath::Vec3Normalize(dragDir) * 70.0f;
+        Renderer().DrawLine(startPos, startPos + dragDir * 4.0f, {1.0f,0.0f, 0.0f, 1.0f});
     }
 }
 void TestGame::Update(f32 deltaTime)
@@ -91,6 +93,7 @@ void TestGame::Update(f32 deltaTime)
     if(Inputs().IsMouseButtonPressed(BitEngine::MOUSE_BUTTON_RIGHT)) 
     {
         Inputs().GetMousePosition(&initialMouseX, &initialMouseY);
+
         isDragging = true;
         BIT_LOG_DEBUG("Mouse RIGHT pressed - started dragging at %d, %d", initialMouseX, initialMouseY);
     }
