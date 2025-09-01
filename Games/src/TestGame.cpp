@@ -32,7 +32,7 @@ void TestGame::Initialize()
 }
 void TestGame::UIRender()
 {
-    BitUI::BeginLayout(BitUI::HorizontalLayout(0.0f, 0.0f, 5.0f));
+    BitUI::BeginLayout(BitUI::HorizontalLayout(10.0f, 10.0f, 5.0f));
     BitUI::Button("blabla", 100.0f, 100.0f);
     BitUI::Button("blabla", 100.0f, 100.0f);
     BitUI::Button("blabla", 100.0f, 100.0f);
@@ -51,8 +51,11 @@ void TestGame::Render()
         auto& whiteballTranform = whiteBall.GetComponent<BitEngine::TransformComponent>();
         auto whitePos = whiteballTranform.Position; 
         auto dragDir = endMousePos - initialMousePos;
-        auto startPos = whitePos + BMath::Vec3Normalize(dragDir) * 70.0f;
-        Renderer().DrawLine(startPos, startPos + dragDir * 4.0f, {1.0f,0.0f, 0.0f, 1.0f});
+        f32 ballRadius = 4.0f;
+        f32 lineBallGap = 1.0f;
+        auto startPos = whitePos + BMath::Vec3Normalize(dragDir) * (ballRadius + lineBallGap);
+        f32 lineLength = BMath::Vec3Length(dragDir) * 2.0f;
+        Renderer().DrawLine(startPos, startPos + BMath::Vec3Normalize(dragDir) * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
     }
 }
 void TestGame::Update(f32 deltaTime)
@@ -85,7 +88,7 @@ void TestGame::Update(f32 deltaTime)
         i32 screenX, screenY;
         BitEngine::BInput::GetMousePosition(&screenX, &screenY);
 
-        BMath::Vec3 mousePos = ScreenToWorldCoords(screenX, screenY);
+        BMath::Vec3 mousePos = ScreenToWorldCoords((f32)screenX, (f32)screenY);
         mousePos.z = -7.0f;
 
         BIT_LOG_DEBUG("Mouse world pos: %f, %f", mousePos.x, mousePos.y);
