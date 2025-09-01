@@ -31,16 +31,23 @@ void Shutdown()
     delete bitUIState;
     initialized = false;
 }
-void BeginLayout()
+void BeginLayout(ElementLayout layoutConfig)
 {
+    bitUIState->CurrentElementLayout = layoutConfig;
     bitUIState->DrawCommands.clear();
 }
+
+
 
 //////////////////////////////////////////////////////////////////
 /// Widgets
 //////////////////////////////////////////////////////////////////
-b8 Button(const char* text, u32 x, u32 y, u32 width, u32 height, BMath::Vec4 color)
+b8 Button(const char* text, u32 width, u32 height, BMath::Vec4 color)
 {
+    ElementLayout& currentElementLayout = bitUIState->CurrentElementLayout;
+
+    f32 x = currentElementLayout.CurrentX;
+    f32 y = currentElementLayout.CurrentY;
     i32 mousex, mousey;
     BitEngine::Input::GetMousePosition(&mousex, &mousey);
     b8 isHovered = (u32)mousex >= x && (u32)mousex <= x + width && (u32)mousey >= y && (u32)mousey <= y + height;
@@ -55,8 +62,19 @@ b8 Button(const char* text, u32 x, u32 y, u32 width, u32 height, BMath::Vec4 col
         .Size = BMath::Vec3((f32)width, (f32)height, 0.0f),
         .Color = color
     };
-
     bitUIState->DrawCommands.push_back(drawCommand);
+
+    switch (currentElementLayout.LayoutDirection) 
+    {
+        case LAYOUT_DIRECTION::VERTICAL:
+            currentElementLayout.CurrentY+=  height + currentElementLayout.ItemGap;
+            currentElementLayout.MaxWidth = width > currentElementLayout.MaxWidth ? width : currentElementLayout.MaxWidth;
+            break;
+        case LAYOUT_DIRECTION::HORIZONTAL:
+            currentElementLayout.CurrentX+=  width + currentElementLayout.ItemGap;
+            currentElementLayout.MaxHeight = height > currentElementLayout.MaxHeight ? height: currentElementLayout.MaxHeight;
+            break;
+    }
 
     return isClicked;
 }

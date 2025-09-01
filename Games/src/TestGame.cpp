@@ -10,6 +10,7 @@
 #include "Bit/Systems/InputSystem.h"
 #include "Bit/Font/Font.h"
 #include "Bit/Systems/System.h"
+#include "Bit/UI/BitUI.h"
 
 void TestGame::Initialize()
 {
@@ -73,6 +74,10 @@ void TestGame::Initialize()
 
     BitEngine::Font::ParseFont("assets/fonts/dejavu.ttf");
     BitEngine::Font::Shutdown();
+
+    //experimenting with ui
+
+    BitUI::BeginLayout(BitUI::VerticalLayout(100.0f, 100.0, 5.0f));
 
 }
 void TestGame::Render()
