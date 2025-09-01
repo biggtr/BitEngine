@@ -6,8 +6,6 @@ class TestGame : public BitEngine::Game
 {
 private:
     BitEngine::Entity whiteBall;
-    BitEngine::Entity m_Player;
-    BitEngine::Entity m_Background;
     BMath::Vec3 impulseLine;
 
     b8 isDragging;
@@ -24,10 +22,10 @@ public:
     virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;
     virtual void Render() override; 
+    virtual void UIRender() override; 
 
 private:
-    // Fix Static Functions in future and pass this ptr to the functions to bind 
-    void OnJump(const BitEngine::Entity& entity);
+    // void OnJump(const BitEngine::Entity& entity);
 
 
 };

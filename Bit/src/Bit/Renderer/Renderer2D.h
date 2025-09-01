@@ -21,8 +21,7 @@ class Renderer2D
 private:
     RenderCommand* m_RenderCommand;
     Camera2DComponent* m_Camera2D;
-    BMath::Mat4 m_ProjectionMatrix;
-    f32 m_ZNear, m_ZFar;
+    BMath::Mat4 m_CurrentViewProjectionMatrix;
     
 public:
     Renderer2D(){}
@@ -34,7 +33,7 @@ public:
     void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const;
 
-    void BeginScene(const BMath::Mat4& viewMatrix);
+    void BeginScene(const BMath::Mat4& viewProjectionMatrix);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
     void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color);
@@ -50,7 +49,6 @@ public:
 
     void Shutdown();
 
-    void OnWindowResize(u16 width, u16 height);
 private:
     void StartBatch();
     void Flush();

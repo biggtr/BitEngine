@@ -18,7 +18,7 @@ namespace BitEngine
 
     void System::OnEntityAdded(const Entity& entity)
     {
-        BIT_LOG_DEBUG("OnEntityAdded fired for system=%p, entityID=%u", this, entity.GetID());
+        // BIT_LOG_DEBUG("OnEntityAdded fired for system=%p, entityID=%u", this, entity.GetID());
     }
     void System::SetEntityManager(EntityManager* entityManager)
     {

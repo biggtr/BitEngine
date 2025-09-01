@@ -87,16 +87,16 @@ struct Vec3
 {
     union 
     {
-        struct { float x, y, z; };  
-        struct { float r, g, b; };
-        struct { float s, t, p; };  
-        float elements[3];
+        struct { f32 x, y, z; };  
+        struct { f32 r, g, b; };
+        struct { f32 s, t, p; };  
+        f32 elements[3];
     };
 
     constexpr Vec3() = default;
-    constexpr Vec3(float value) : x(value), y(value), z(value) {}
-    constexpr Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
-    constexpr Vec3(const float arr[3]) : x(arr[0]), y(arr[1]), z(arr[2]) {}
+    constexpr Vec3(f32 value) : x(value), y(value), z(value) {}
+    constexpr Vec3(f32 x_, f32 y_, f32 z_) : x(x_), y(y_), z(z_) {}
+    constexpr Vec3(const f32 arr[3]) : x(arr[0]), y(arr[1]), z(arr[2]) {}
 };
 
 Vec3& operator*=(Vec3& v, f32 scalar); 
@@ -117,105 +117,42 @@ f32 Vec3LengthSquared(const Vec3& vec);
 f32 Vec3Distance(const Vec3& vec1, const Vec3& vec2);
 f32 Vec3DistanceSquared(const Vec3& vec1, const Vec3& vec2);
 
-class Vec4
+struct Vec4
 {
-public:
     union {
         struct {
-            union { float x, r, s; };
-            union { float y, g, t; };
-            union { float z, b, p; };
-            union { float w, a, q; };
+            union { f32 x, r, s; };
+            union { f32 y, g, t; };
+            union { f32 z, b, p; };
+            union { f32 w, a, q; };
         };
-        float elements[4];
+        f32 elements[4];
     };
 
-public:
-    constexpr Vec4(float value) : x(value), y(value), z(value), w(value) {}
-    constexpr Vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
-    constexpr Vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
-    Vec4(const Vec4&) = default;
-    ~Vec4() = default;
-
-    Vec4& operator=(const Vec4& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        w = vec.w;
-        return *this;
-    }
-
-    Vec4& operator=(Vec4&& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        z = vec.z;
-        w = vec.w;
-        return *this;
-    }
-
-    Vec4 operator+(Vec4& other)
-    {
-        return Vec4(x + other.x, y + other.y, z + other.z, w + other.w);
-    }
-
-    Vec4 operator-(Vec4& other)
-    {
-        return Vec4(x - other.x, y - other.y, z - other.z, w + other.w);
-    }
-    static float Dot(const Vec4& a, const Vec4& b)
-    {
-        return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-    }
-
-    static const Vec4 Cross(const Vec4& vec1, const Vec4& vec2)
-    {
-        return {
-            vec1.y * vec2.z - vec1.z * vec2.y,
-            vec1.z * vec2.x - vec1.x * vec2.z,
-            vec1.x * vec2.y - vec1.y * vec2.x,
-            0.0f 
-        };
-    }
+    constexpr Vec4() = default;
+    constexpr Vec4(f32 value) : x(value), y(value), z(value) {}
+    constexpr Vec4(f32 x_, f32 y_, f32 z_, f32 w_) : x(x_), y(y_), z(z_), w(w_) {}
+    constexpr Vec4(const f32 arr[4]) : x(arr[0]), y(arr[1]), z(arr[2]), w(arr[3]) {}
     
-    static f32 LengthSquared(const Vec4& vec)
-    {
-        return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w;
-    }
-    static f32 Length(const Vec4& vec) 
-    {
-        return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w);
-    }
-
-    static void Normalize(Vec4* vec) 
-    {
-        float vecLength = Vec4::Length(*vec);
-        vec->x /= vecLength;
-        vec->y /= vecLength;
-        vec->z /= vecLength;
-        vec->w /= vecLength;
-    }
-    static Vec4 Normalize(Vec4 vector) 
-    {
-        Vec4::Normalize(&vector);
-        return vector;
-    }
-    Vec3 ToVec3()
-    {
-        return Vec3(x, y, z);
-    }
-
-    static f32 Distance(const Vec4& vec1, const Vec4& vec2)
-    {
-        Vec4 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z, vec2.w - vec1.w};
-        return Vec4::Length(d);
-    }
-    static f32 DistanceSquared(const Vec4& vec1, const Vec4& vec2)
-    {
-        Vec4 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z, vec2.w - vec1.w};
-        return Vec4::LengthSquared(d);
-    }
 };
+
+Vec4& operator*=(Vec4& v, f32 scalar); 
+Vec4 operator*(const Vec4& v, f32 scalar); 
+Vec4& operator/=(Vec4& v, f32 scalar); 
+Vec4 operator/(Vec4& v, f32 scalar);
+Vec4& operator+=(Vec4& v1, const Vec4& v2);
+Vec4 operator+(const Vec4& v1, const Vec4& v2);
+Vec4& operator-=(Vec4& v1, const Vec4& v2);
+Vec4 operator-(const Vec4& v1, const Vec4& v2);
+float Vec4Dot(const Vec4& a, const Vec4& b);
+f32 Vec4Length(const Vec4& vec); 
+void Vec4Normalize(Vec4* vec); 
+Vec4 Vec4Normalize(Vec4 vector); 
+Vec3 Vec4ToVec3(const Vec4& v);
+const Vec4 Vec4Cross(const Vec4& vec1, const Vec4& vec2);
+f32 Vec4LengthSquared(const Vec4& vec);
+f32 Vec4Distance(const Vec4& vec1, const Vec4& vec2);
+f32 Vec4DistanceSquared(const Vec4& vec1, const Vec4& vec2);
+
 
 }

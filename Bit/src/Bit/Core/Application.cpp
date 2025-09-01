@@ -9,6 +9,7 @@
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Systems/RenderSystem.h"
 #include "Bit/Systems/MovementSystem.h"
+#include "Bit/UI/BitUI.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
 #include "Platform.h"
@@ -105,8 +106,12 @@ bool Application::Initialize(ApplicationConfig appCfg)
     m_EventManager->Register(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
     m_EventManager->Register(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
 
-    m_Input = new Input();
-    if(!m_Input->Initialize())
+    if(!BInput::Initialize())
+    {
+        BIT_LOG_ERROR("Failed to create Input System");
+        return false;
+    }
+    if(!BitUI::Initialize())
     {
         BIT_LOG_ERROR("Failed to create Input System");
         return false;
@@ -131,7 +136,7 @@ void Application::Run()
             s_Instance->m_EntityManager->Update();
         
             s_Instance->m_GameInstance->OnUpdate(deltaTime);
-            s_Instance->m_Input->Update();
+            BInput::Update();
         
 
             s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
@@ -149,7 +154,6 @@ Application::~Application()
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
-    delete m_Input;
     delete m_EventManager;
     
     m_CameraManager = nullptr;
@@ -157,7 +161,6 @@ Application::~Application()
     m_EntityManager = nullptr;
     m_Renderer2D = nullptr;
     m_Window = nullptr;
-    m_Input = nullptr;
     m_EventManager = nullptr;
 }
 
@@ -166,7 +169,8 @@ b8 Application::Shutdown()
     if(!s_Instance)
         return false;
 
-    s_Instance->m_Input->Shutdown();
+    BitUI::Shutdown();
+    BInput::Shutdown();
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_APPLICATION_QUIT, 0, ApplicationOnEvent);
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_WINDOW_RESIZED , 0, ApplicationOnEvent);
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
@@ -197,7 +201,6 @@ b8 Application::ApplicationOnEvent(u16 code, void* sender, void* listener, Event
                 u16 width = data.U16[0];
                 u16 height = data.U16[1];
                 BIT_LOG_INFO("Updated Window size -> Width : %d, Height: %d", width, height);
-                s_Instance->m_Renderer2D->OnWindowResize(width, height);
                 s_Instance->m_GameInstance->OnWindowResize(width, height);
             }
     }
@@ -212,7 +215,7 @@ b8 Application::ApplicationOnKey(u16 code, void* sender, void* listener, EventCo
                 u16 key = data.U16[0];
                 switch (key) 
                 {
-                    case KEY_ESCAPE:
+                    case BInput::KEY_ESCAPE:
                     {
                         EventContext zerodata = {};
                         EventManager::EventFire(EVENT_CODE_APPLICATION_QUIT, 0, zerodata);

@@ -26,7 +26,7 @@ public:
 
     void OnEntityAdded(const Entity& entity) override
     {
-        BIT_LOG_DEBUG("OnEntityAdded Is Called");
+        // BIT_LOG_DEBUG("OnEntityAdded Is Called");
         if(m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
         {
             Rigid2DBodyComponent& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
@@ -44,7 +44,7 @@ public:
                 shapeIndex = BPhysics2D::BCreateCircleShape(circleCollider.Radius);
             }
             rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass);
-            BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
+            // BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
     }
 

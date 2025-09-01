@@ -141,7 +141,7 @@ public:
         f32 d = 1.0f / (m[0] * o[0] + m[4] * o[1] + m[8] * o[2] + m[12] * o[3]);
 
         // if its singular matrix return Identity
-        if (babs(d) < 1e-6f) {
+        if (fabsf(d) < 1e-6f) {
             return Mat4();
         }
 

@@ -40,7 +40,6 @@ private:
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
     EventManager* m_EventManager;
-    Input* m_Input;
     static Application* s_Instance;
 public:
     Application(){}
@@ -55,8 +54,6 @@ public:
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
     inline CameraManager& GetCameraManager() { return *m_CameraManager; }
-    inline Input& GetInput() { return *m_Input; }
-
 private:
     static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);
     static b8 ApplicationOnKey(u16 code, void* sender, void* listener, EventContext data);

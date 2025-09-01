@@ -17,7 +17,7 @@
 
 namespace BitEngine
 {
-static KEYS TranslateKeysymToPlatformKey(KeySym key);
+static BInput::KEYS TranslateKeysymToPlatformKey(KeySym key);
     
 PlatformLinux::PlatformLinux(u32 width, u32 height, const char* name)
     : m_Width(width), m_Height(height), m_Name(name)
@@ -166,36 +166,36 @@ void PlatformLinux::ProcessEvents()
             {
                 KeySym keySym = XLookupKeysym(&event.xkey, 0);
                 b8 pressed = event.type == KeyPress ? true : false;
-                KEYS key = TranslateKeysymToPlatformKey(keySym);
-                Input::ProcessKey(key, pressed);
+                BInput::KEYS key = TranslateKeysymToPlatformKey(keySym);
+                BInput::ProcessKey(key, pressed);
                 break;
             }
             case ButtonPress:
             case ButtonRelease:
             {
-                MOUSE_BUTTONS button;
+                BInput::MOUSE_BUTTONS button;
                 switch (event.xbutton.button) 
                 {
                     case Button1:
-                        button = MOUSE_BUTTON_LEFT;
+                        button = BInput::MOUSE_BUTTON_LEFT;
                         break;
                     case Button2:
-                        button = MOUSE_BUTTON_MIDDLE;
+                        button = BInput::MOUSE_BUTTON_MIDDLE;
                         break;
                     case Button3:
-                        button = MOUSE_BUTTON_RIGHT;
+                        button = BInput::MOUSE_BUTTON_RIGHT;
                         break;
                     case Button4:
-                        button = MOUSE_BUTTON_MIDDLE;
-                        Input::ProcessMouseWheel(1);
+                        button = BInput::MOUSE_BUTTON_MIDDLE;
+                        BInput::ProcessMouseWheel(1);
                         break;
                     case Button5:
-                        button = MOUSE_BUTTON_MIDDLE;
-                        Input::ProcessMouseWheel(-1);
+                        button = BInput::MOUSE_BUTTON_MIDDLE;
+                        BInput::ProcessMouseWheel(-1);
                         break;
                 }
                 b8 pressed = event.type == ButtonPress ? true : false;
-                Input::ProcessMouseButton(button,  pressed);
+                BInput::ProcessMouseButton(button,  pressed);
                 break;
             }
             case MotionNotify:
@@ -203,7 +203,7 @@ void PlatformLinux::ProcessEvents()
                 i16 x, y;
                 x = event.xmotion.x;
                 y = event.xmotion.y;
-                Input::ProcessMouseMove(&x, &y);
+                BInput::ProcessMouseMove(&x, &y);
                 break;
             }
         }
@@ -234,285 +234,285 @@ PlatformLinux::~PlatformLinux()
 {
     delete m_PlatformWindow;
 }
-static KEYS TranslateKeysymToPlatformKey(KeySym key)
+static BInput::KEYS TranslateKeysymToPlatformKey(KeySym key)
 {
     switch(key) 
     {
         case XK_BackSpace:
-            return KEY_BACKSPACE;
+            return BInput::KEY_BACKSPACE;
         case XK_Return:
-            return KEY_ENTER;
+            return BInput::KEY_ENTER;
         case XK_Tab:
-            return KEY_TAB;
+            return BInput::KEY_TAB;
 
         case XK_Pause:
-            return KEY_PAUSE;
+            return BInput::KEY_PAUSE;
         case XK_Caps_Lock:
-            return KEY_CAPITAL;
+            return BInput::KEY_CAPITAL;
 
         case XK_Escape:
-            return KEY_ESCAPE;
+            return BInput::KEY_ESCAPE;
 
         case XK_Mode_switch:
-            return KEY_MODECHANGE;
+            return BInput::KEY_MODECHANGE;
 
         case XK_space:
-            return KEY_SPACE;
+            return BInput::KEY_SPACE;
         case XK_Prior:
-            return KEY_PAGEUP;
+            return BInput::KEY_PAGEUP;
         case XK_Next:
-            return KEY_PAGEDOWN;
+            return BInput::KEY_PAGEDOWN;
         case XK_End:
-            return KEY_END;
+            return BInput::KEY_END;
         case XK_Home:
-            return KEY_HOME;
+            return BInput::KEY_HOME;
         case XK_Left:
-            return KEY_LEFT;
+            return BInput::KEY_LEFT;
         case XK_Up:
-            return KEY_UP;
+            return BInput::KEY_UP;
         case XK_Right:
-            return KEY_RIGHT;
+            return BInput::KEY_RIGHT;
         case XK_Down:
-            return KEY_DOWN;
+            return BInput::KEY_DOWN;
         case XK_Select:
-            return KEY_SELECT;
+            return BInput::KEY_SELECT;
         case XK_Print:
-            return KEY_PRINT;
+            return BInput::KEY_PRINT;
         case XK_Execute:
-            return KEY_EXECUTE;
+            return BInput::KEY_EXECUTE;
         case XK_Insert:
-            return KEY_INSERT;
+            return BInput::KEY_INSERT;
         case XK_Delete:
-            return KEY_DELETE;
+            return BInput::KEY_DELETE;
         case XK_Help:
-            return KEY_HELP;
+            return BInput::KEY_HELP;
 
         case XK_Meta_L:
         case XK_Super_L:
-            return KEY_LSUPER;
+            return BInput::KEY_LSUPER;
         case XK_Meta_R:
         case XK_Super_R:
-            return KEY_RSUPER;
+            return BInput::KEY_RSUPER;
 
         case XK_KP_0:
-            return KEY_NUMPAD0;
+            return BInput::KEY_NUMPAD0;
         case XK_KP_1:
-            return KEY_NUMPAD1;
+            return BInput::KEY_NUMPAD1;
         case XK_KP_2:
-            return KEY_NUMPAD2;
+            return BInput::KEY_NUMPAD2;
         case XK_KP_3:
-            return KEY_NUMPAD3;
+            return BInput::KEY_NUMPAD3;
         case XK_KP_4:
-            return KEY_NUMPAD4;
+            return BInput::KEY_NUMPAD4;
         case XK_KP_5:
-            return KEY_NUMPAD5;
+            return BInput::KEY_NUMPAD5;
         case XK_KP_6:
-            return KEY_NUMPAD6;
+            return BInput::KEY_NUMPAD6;
         case XK_KP_7:
-            return KEY_NUMPAD7;
+            return BInput::KEY_NUMPAD7;
         case XK_KP_8:
-            return KEY_NUMPAD8;
+            return BInput::KEY_NUMPAD8;
         case XK_KP_9:
-            return KEY_NUMPAD9;
+            return BInput::KEY_NUMPAD9;
         case XK_multiply:
-            return KEY_MULTIPLY;
+            return BInput::KEY_MULTIPLY;
         case XK_KP_Add:
-            return KEY_ADD;
+            return BInput::KEY_ADD;
         case XK_KP_Separator:
-            return KEY_SEPARATOR;
+            return BInput::KEY_SEPARATOR;
         case XK_KP_Subtract:
-            return KEY_SUBTRACT;
+            return BInput::KEY_SUBTRACT;
         case XK_KP_Decimal:
-            return KEY_DECIMAL;
+            return BInput::KEY_DECIMAL;
         case XK_KP_Divide:
-            return KEY_DIVIDE;
+            return BInput::KEY_DIVIDE;
         case XK_F1:
-            return KEY_F1;
+            return BInput::KEY_F1;
         case XK_F2:
-            return KEY_F2;
+            return BInput::KEY_F2;
         case XK_F3:
-            return KEY_F3;
+            return BInput::KEY_F3;
         case XK_F4:
-            return KEY_F4;
+            return BInput::KEY_F4;
         case XK_F5:
-            return KEY_F5;
+            return BInput::KEY_F5;
         case XK_F6:
-            return KEY_F6;
+            return BInput::KEY_F6;
         case XK_F7:
-            return KEY_F7;
+            return BInput::KEY_F7;
         case XK_F8:
-            return KEY_F8;
+            return BInput::KEY_F8;
         case XK_F9:
-            return KEY_F9;
+            return BInput::KEY_F9;
         case XK_F10:
-            return KEY_F10;
+            return BInput::KEY_F10;
         case XK_F11:
-            return KEY_F11;
+            return BInput::KEY_F11;
         case XK_F12:
-            return KEY_F12;
+            return BInput::KEY_F12;
         case XK_F13:
-            return KEY_F13;
+            return BInput::KEY_F13;
         case XK_F14:
-            return KEY_F14;
+            return BInput::KEY_F14;
         case XK_F15:
-            return KEY_F15;
+            return BInput::KEY_F15;
         case XK_F16:
-            return KEY_F16;
+            return BInput::KEY_F16;
         case XK_F17:
-            return KEY_F17;
+            return BInput::KEY_F17;
         case XK_F18:
-            return KEY_F18;
+            return BInput::KEY_F18;
         case XK_F19:
-            return KEY_F19;
+            return BInput::KEY_F19;
         case XK_F20:
-            return KEY_F20;
+            return BInput::KEY_F20;
         case XK_F21:
-            return KEY_F21;
+            return BInput::KEY_F21;
         case XK_F22:
-            return KEY_F22;
+            return BInput::KEY_F22;
         case XK_F23:
-            return KEY_F23;
+            return BInput::KEY_F23;
         case XK_F24:
-            return KEY_F24;
+            return BInput::KEY_F24;
 
         case XK_Num_Lock:
-            return KEY_NUMLOCK;
+            return BInput::KEY_NUMLOCK;
         case XK_Scroll_Lock:
-            return KEY_SCROLL;
+            return BInput::KEY_SCROLL;
 
         case XK_KP_Equal:
-            return KEY_NUMPAD_EQUAL;
+            return BInput::KEY_NUMPAD_EQUAL;
 
         case XK_Shift_L:
-            return KEY_LSHIFT;
+            return BInput::KEY_LSHIFT;
         case XK_Shift_R:
-            return KEY_RSHIFT;
+            return BInput::KEY_RSHIFT;
         case XK_Control_L:
-            return KEY_LCONTROL;
+            return BInput::KEY_LCONTROL;
         case XK_Control_R:
-            return KEY_RCONTROL;
+            return BInput::KEY_RCONTROL;
         case XK_Alt_L:
-            return KEY_LALT;
+            return BInput::KEY_LALT;
         case XK_Alt_R:
-            return KEY_RALT;
+            return BInput::KEY_RALT;
 
         case XK_semicolon:
-            return KEY_SEMICOLON;
+            return BInput::KEY_SEMICOLON;
         case XK_plus:
-            return KEY_EQUAL;
+            return BInput::KEY_EQUAL;
         case XK_comma:
-            return KEY_COMMA;
+            return BInput::KEY_COMMA;
         case XK_minus:
-            return KEY_MINUS;
+            return BInput::KEY_MINUS;
         case XK_period:
-            return KEY_PERIOD;
+            return BInput::KEY_PERIOD;
         case XK_slash:
-            return KEY_SLASH;
+            return BInput::KEY_SLASH;
         case XK_grave:
-            return KEY_GRAVE;
+            return BInput::KEY_GRAVE;
 
         case XK_0:
-            return KEY_0;
+            return BInput::KEY_0;
         case XK_1:
-            return KEY_1;
+            return BInput::KEY_1;
         case XK_2:
-            return KEY_2;
+            return BInput::KEY_2;
         case XK_3:
-            return KEY_3;
+            return BInput::KEY_3;
         case XK_4:
-            return KEY_4;
+            return BInput::KEY_4;
         case XK_5:
-            return KEY_5;
+            return BInput::KEY_5;
         case XK_6:
-            return KEY_6;
+            return BInput::KEY_6;
         case XK_7:
-            return KEY_7;
+            return BInput::KEY_7;
         case XK_8:
-            return KEY_8;
+            return BInput::KEY_8;
         case XK_9:
-            return KEY_9;
+            return BInput::KEY_9;
 
         case XK_a:
         case XK_A:
-            return KEY_A;
+            return BInput::KEY_A;
         case XK_b:
         case XK_B:
-            return KEY_B;
+            return BInput::KEY_B;
         case XK_c:
         case XK_C:
-            return KEY_C;
+            return BInput::KEY_C;
         case XK_d:
         case XK_D:
-            return KEY_D;
+            return BInput::KEY_D;
         case XK_e:
         case XK_E:
-            return KEY_E;
+            return BInput::KEY_E;
         case XK_f:
         case XK_F:
-            return KEY_F;
+            return BInput::KEY_F;
         case XK_g:
         case XK_G:
-            return KEY_G;
+            return BInput::KEY_G;
         case XK_h:
         case XK_H:
-            return KEY_H;
+            return BInput::KEY_H;
         case XK_i:
         case XK_I:
-            return KEY_I;
+            return BInput::KEY_I;
         case XK_j:
         case XK_J:
-            return KEY_J;
+            return BInput::KEY_J;
         case XK_k:
         case XK_K:
-            return KEY_K;
+            return BInput::KEY_K;
         case XK_l:
         case XK_L:
-            return KEY_L;
+            return BInput::KEY_L;
         case XK_m:
         case XK_M:
-            return KEY_M;
+            return BInput::KEY_M;
         case XK_n:
         case XK_N:
-            return KEY_N;
+            return BInput::KEY_N;
         case XK_o:
         case XK_O:
-            return KEY_O;
+            return BInput::KEY_O;
         case XK_p:
         case XK_P:
-            return KEY_P;
+            return BInput::KEY_P;
         case XK_q:
         case XK_Q:
-            return KEY_Q;
+            return BInput::KEY_Q;
         case XK_r:
         case XK_R:
-            return KEY_R;
+            return BInput::KEY_R;
         case XK_s:
         case XK_S:
-            return KEY_S;
+            return BInput::KEY_S;
         case XK_t:
         case XK_T:
-            return KEY_T;
+            return BInput::KEY_T;
         case XK_u:
         case XK_U:
-            return KEY_U;
+            return BInput::KEY_U;
         case XK_v:
         case XK_V:
-            return KEY_V;
+            return BInput::KEY_V;
         case XK_w:
         case XK_W:
-            return KEY_W;
+            return BInput::KEY_W;
         case XK_x:
         case XK_X:
-            return KEY_X;
+            return BInput::KEY_X;
         case XK_y:
         case XK_Y:
-            return KEY_Y;
+            return BInput::KEY_Y;
         case XK_z:
         case XK_Z:
-            return KEY_Z;   
+            return BInput::KEY_Z;   
 
         default:
-            return MAX_KEYS;
+            return BInput::MAX_KEYS;
     }
 
 

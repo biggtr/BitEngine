@@ -42,25 +42,25 @@ void BeginLayout(ElementLayout layoutConfig)
 //////////////////////////////////////////////////////////////////
 /// Widgets
 //////////////////////////////////////////////////////////////////
-b8 Button(const char* text, u32 width, u32 height, BMath::Vec4 color)
+b8 Button(const char* text, f32 width, f32 height, BMath::Vec4 color)
 {
     ElementLayout& currentElementLayout = bitUIState->CurrentElementLayout;
 
     f32 x = currentElementLayout.CurrentX;
     f32 y = currentElementLayout.CurrentY;
     i32 mousex, mousey;
-    BitEngine::Input::GetMousePosition(&mousex, &mousey);
+    BitEngine::BInput::GetMousePosition(&mousex, &mousey);
     b8 isHovered = (u32)mousex >= x && (u32)mousex <= x + width && (u32)mousey >= y && (u32)mousey <= y + height;
 
-    b8 isPressed = BitEngine::Input::IsMouseButtonPressed(BitEngine::Input::MOUSE_BUTTON_LEFT);
+    b8 isPressed = BitEngine::BInput::IsMouseButtonPressed(BitEngine::BInput::MOUSE_BUTTON_LEFT);
     b8 isClicked = isHovered && isPressed; 
 
     DrawCommand drawCommand = 
     {
         .Type = DRAW_COMMAND_TYPE::RECT, 
-        .Position = BMath::Vec3((f32)x, (f32)y, 0.0f),
-        .Size = BMath::Vec3((f32)width, (f32)height, 0.0f),
-        .Color = color
+        .Position = BMath::Vec3(x, y, 0.0f),
+        .Size = BMath::Vec3(width, height, 0.0f),
+        .data= {.Color = color}
     };
     bitUIState->DrawCommands.push_back(drawCommand);
 

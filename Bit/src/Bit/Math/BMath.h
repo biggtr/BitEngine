@@ -32,4 +32,3 @@ inline f32 RadToDeg(f32 radians) { return radians * B_RAD2DEG_MULTIPLIER; }
 inline b8 NearlyEqual(f32 a, f32 b) { return fabs(a - b) < 1e-6f; }
 
 
-f32 babs(f32 x); 

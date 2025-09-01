@@ -1,9 +1,9 @@
 #pragma once
 #include "Defines.h"
+
 namespace BitEngine
 {
-
-namespace Input
+namespace BInput
 {
 
 enum MOUSE_BUTTONS 
@@ -211,5 +211,7 @@ b8 WasMouseButtonUp(MOUSE_BUTTONS button);
 
 void GetMousePosition(i32* x, i32* y);
 void GetPrevMousePosition(i32* x, i32* y);
+
 }
 }
+

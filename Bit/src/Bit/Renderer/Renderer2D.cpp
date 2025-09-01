@@ -113,9 +113,6 @@ b8 Renderer2D::Initialize()
         BIT_LOG_ERROR("failed to Initialize RenderCommand");
         return false;
     }
-    m_ZNear = -100.0f;
-    m_ZFar = 100.0f;
-    m_ProjectionMatrix = BMath::Mat4::Ortho(0.0f, 1920.0f, 0.0f, 1080.0f, m_ZNear, m_ZFar);
 
     s_RenderData.QuadVertexArray = VertexArray::Create();
     s_RenderData.QuadVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(QuadVertex));
@@ -206,18 +203,18 @@ void Renderer2D::Clear() const
     m_RenderCommand->Clear();
 }
 
-void Renderer2D::BeginScene(const BMath::Mat4& viewMatrix) 
+void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix)
 {
-    BMath::Mat4 viewProjectionMatrix = m_ProjectionMatrix * viewMatrix; 
+    m_CurrentViewProjectionMatrix = viewProjectionMatrix;
 
     s_RenderData.QuadShader->Bind();
-    s_RenderData.QuadShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+    s_RenderData.QuadShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
 
     s_RenderData.LineShader->Bind();
-    s_RenderData.LineShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+    s_RenderData.LineShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
 
     s_RenderData.CircleShader->Bind();
-    s_RenderData.CircleShader->SetMat4("u_ViewProjection", viewProjectionMatrix);
+    s_RenderData.CircleShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -346,7 +343,7 @@ void Renderer2D::DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f3
     for(u32 i = 0; i < 4; ++i)
     {
         s_RenderData.CircleVertexBufferPtr->WorldPosition = transform * s_RenderData.QuadVertexPositions[i];
-        s_RenderData.CircleVertexBufferPtr->NormalizedPosition = s_RenderData.QuadVertexPositions[i].ToVec3() * 2.0f;
+        s_RenderData.CircleVertexBufferPtr->NormalizedPosition = BMath::Vec4ToVec3(s_RenderData.QuadVertexPositions[i]) * 2.0f;
         s_RenderData.CircleVertexBufferPtr->Color = color;
         s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
         s_RenderData.CircleVertexBufferPtr->Fade = fade;
@@ -411,12 +408,5 @@ void Renderer2D::Shutdown()
 
     delete s_RenderData.QuadIndexBuffer;
     delete m_RenderCommand;
-}
-void Renderer2D::OnWindowResize(u16 width, u16 height)
-{
-    f32 aspectRatio = width / (f32)height;
-    f32 worldHeight = 1080.0f;
-    f32 worldWidth = worldHeight * aspectRatio;
-    m_ProjectionMatrix = BMath::Mat4::Ortho(0, worldWidth, 0, worldHeight, m_ZNear, m_ZFar);
 }
 } 

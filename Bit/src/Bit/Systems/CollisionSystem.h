@@ -40,7 +40,6 @@ public:
                     BPhysics2D::Contact contact;
                     if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
                     {
-                        BIT_LOG_DEBUG("Circle Colliding");
                         BPhysics2D::ResolveCollision(contact);
                         transformA.Position = contact.a->Position;
                         transformB.Position = contact.b->Position;
