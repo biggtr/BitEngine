@@ -28,7 +28,11 @@ public:
             {
                 const Entity& entityA = m_Entities[i];
                 const Entity& entityB = m_Entities[j];
-                if(m_EntityManager->HasComponent<Circle2DColliderComponent>(entityA))
+                if( m_EntityManager->HasComponent<Circle2DColliderComponent>(entityA) && 
+                        m_EntityManager->HasComponent<Circle2DColliderComponent>(entityB) &&
+                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityA) &&
+                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityB)
+                )
                 {
                     Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
                     TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(entityA);

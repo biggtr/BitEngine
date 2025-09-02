@@ -44,6 +44,7 @@ public:
                 shapeIndex = BPhysics2D::BCreateCircleShape(circleCollider.Radius);
             }
             rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass);
+            
             // BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
     }

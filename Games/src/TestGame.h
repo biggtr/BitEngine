@@ -25,6 +25,7 @@ public:
     virtual void UIRender() override; 
 
 private:
+    void CreateBalls(BitEngine::Entity* outEntities, u8 lastRow);
     // void OnJump(const BitEngine::Entity& entity);
 
 
