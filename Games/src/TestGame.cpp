@@ -29,6 +29,23 @@ BitEngine::Entity TestGame::CreateTable(f32 width, f32 height)
             );
     table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.2f, 0.6f, 1.0f} ;
 
+
+
+    // Create Table Pockets
+    for(i32 i = 0; i < 6; ++i)
+    {
+        f32 x = (i % 3 - 1) * (width / 2.0f);
+        f32 y = (i < 3 ? 1 : -1) * (height / 2.0f);
+
+        BMath::Vec3 pocketPos = {x, y, -4.0f};
+
+        auto pocket = Entities().CreateEntity();
+        pocket.AddComponent<BitEngine::TransformComponent>(pocketPos);
+        pocket.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS * 3);
+        pocket.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS * 3);
+        BIT_LOG_DEBUG("Pocket %d at (%.2f, %.2f)", i, x, y);
+    }
+
     return table;
 }
 void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)

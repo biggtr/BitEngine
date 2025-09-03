@@ -37,7 +37,7 @@ struct TransformComponent
     BMath::Vec3 Rotation;
 
     TransformComponent() = default;
-    TransformComponent(const BMath::Vec3& position, const BMath::Vec3& scale, const BMath::Vec3& rotation)
+    TransformComponent(const BMath::Vec3& position, const BMath::Vec3& scale = {1.0f, 1.0f, 0.0f}, const BMath::Vec3& rotation = {0.0f, 0.0f, 0.0f})
     {
         Position = position;
         Scale = scale;
