@@ -99,8 +99,8 @@ public:
     {
         m_CameraSystem->Update(deltaTime);
         m_Animation2DSystem->Update(deltaTime);
-        m_Physics2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
+        m_Physics2DSystem->Update(deltaTime);
         Update(deltaTime);
     }
     virtual void OnRender() 

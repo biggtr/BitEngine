@@ -97,15 +97,18 @@ void ResolveCollision(Contact& contact)
         
     f32 e = fmin(contact.a->Restitution, contact.b->Restitution);
 
-    BMath::Vec3 relativeVelocity = contact.a->Velocity - contact.b->Velocity;
+    BMath::Vec3 relativeVelocity = contact.b->Velocity - contact.a->Velocity;
+    f32 velocityAlongNormal = BMath::Vec3Dot(relativeVelocity, contact.Normal);
+    if(velocityAlongNormal > 0) // if velocity is positive its seperating going in same dir of normal
+        return;
 
     BMath::Vec3 impulseDirection = contact.Normal;
-    f32 impulseMagnitude = -(1 + e) * BMath::Vec3Dot(relativeVelocity, contact.Normal) / (contact.a->InvMass + contact.b->InvMass);
+    f32 impulseMagnitude = -(1 + e) * velocityAlongNormal / (contact.a->InvMass + contact.b->InvMass);
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 
-    ApplyImpulse(*contact.a, impulse);
-    ApplyImpulse(*contact.b, impulse * -1.0f);
+    ApplyImpulse(*contact.a, impulse * -1.0f);
+    ApplyImpulse(*contact.b, impulse); 
 
 }
 }

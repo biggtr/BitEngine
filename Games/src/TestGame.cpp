@@ -21,7 +21,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 {
     u32 i = 0;
     f32 ballRadius = BALL_RADIUS;
-    f32 horizontalGap = sqrt(3) * ballRadius;
+    f32 horizontalGap = 1.5f * ballRadius;
     f32 verticalGap = BALL_GAP;
     u32 totalNumBalls = (row * (row + 1)) / 2;
     BMath::Vec3 startPos = {20.0f, 0.0f, -5.0f}; 
@@ -54,7 +54,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 
         ball.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS, BMath::Vec4(1.0f, 0.2f, 0.0f, 1.0f));
         ball.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
-        ball.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_RADIUS * 3.0f);
+        ball.AddComponent<BitEngine::Rigid2DBodyComponent>(50.0f);
         outEntities[i] = ball;
 
         i++;
@@ -70,7 +70,7 @@ void TestGame::Initialize()
     isDragging = false;
     whiteBall = Entities().CreateEntity();
     whiteBall.AddComponent<BitEngine::TransformComponent>(
-            BMath::Vec3(47.0f, 0.0f, -5.0f),
+            BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f),
             BMath::Vec3(1.0f)
             );
@@ -152,7 +152,7 @@ void TestGame::Update(f32 deltaTime)
         auto& circleSprite = circleEntity.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS);
         circleSprite.Color = {1.0f, 0.4f, 0.0f, 1.0f};
         circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
-        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(50.0f);
+        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(90.0f);
     }
 
     auto cameraPos = Camera().GetActiveCamera()->Position;
