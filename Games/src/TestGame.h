@@ -7,7 +7,8 @@ class TestGame : public BitEngine::Game
 private:
     BitEngine::Entity m_WhiteBall;
     BitEngine::Entity m_Table;
-    BitEngine::Entity m_Entities[100];
+    BitEngine::Entity m_Pockets[6];
+    BitEngine::Entity m_Balls[100];
     BMath::Vec3 impulseLine;
 
     b8 isDragging;
@@ -21,14 +22,14 @@ public:
     }
     ~TestGame(){}
     virtual void Initialize() override;
-    virtual void SetupInput() override;
+    // virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;
     virtual void Render() override; 
     virtual void UIRender() override; 
 
 private:
     void CreateBalls(BitEngine::Entity* outEntities, u8 lastRow);
-    BitEngine::Entity CreateTable(f32 width, f32 height);
+    BitEngine::Entity CreateTable(BitEngine::Entity* outPockets, f32 width, f32 height);
     // void OnJump(const BitEngine::Entity& entity);
 
 

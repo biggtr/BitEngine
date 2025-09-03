@@ -3,6 +3,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
+#include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
 #include "Bit/Scene/Compontents.h"
@@ -19,7 +20,7 @@
 #define BALL_GAP 2.0f
 
 
-BitEngine::Entity TestGame::CreateTable(f32 width, f32 height)
+BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width, f32 height)
 {
     auto table = Entities().CreateEntity();
     table.AddComponent<BitEngine::TransformComponent>(
@@ -43,7 +44,8 @@ BitEngine::Entity TestGame::CreateTable(f32 width, f32 height)
         pocket.AddComponent<BitEngine::TransformComponent>(pocketPos);
         pocket.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS * 3);
         pocket.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS * 3);
-        BIT_LOG_DEBUG("Pocket %d at (%.2f, %.2f)", i, x, y);
+        pocket.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+        outPockets[i] = pocket;
     }
 
     return table;
@@ -92,9 +94,9 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 }
 void TestGame::Initialize()
 {
-    CreateBalls(m_Entities, 5);
+    CreateBalls(m_Balls, 5);
 
-    CreateTable(150.0f, 65.0f);
+    m_Table = CreateTable(m_Pockets, 150.0f, 65.0f);
 
     isDragging = false;
     m_WhiteBall = Entities().CreateEntity();
@@ -141,6 +143,32 @@ void TestGame::Render()
 }
 void TestGame::Update(f32 deltaTime)
 {
+    for(u32 i = 0; i < 6; ++i)
+    {
+        for(u32 j = 0; j < 15; ++j)
+        {
+            BitEngine::Entity ball = m_Balls[j];
+            BitEngine::Entity pocket = m_Pockets[i];
+
+            if(Entities().HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
+                    Entities().HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
+                    Entities().HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
+                    Entities().HasComponent<BitEngine::Rigid2DBodyComponent>(pocket)
+            )
+            {
+                BitEngine::Rigid2DBodyComponent& rigidBodyA = Entities().GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
+                BitEngine::Rigid2DBodyComponent& rigidBodyB = Entities().GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
+                BPhysics2D::BBody& ballBody = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
+                BPhysics2D::BBody& pocketBody = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
+
+                BPhysics2D::Contact contact;
+                if(BPhysics2D::IsColliding(&ballBody, &pocketBody, contact))
+                {
+                    BIT_LOG_DEBUG("Is colliding");
+                    ball.KillEntity();
+                }
+        }
+    }
     (void)deltaTime;
     if(BitEngine::BInput::IsMouseButtonPressed(BitEngine::BInput::MOUSE_BUTTON_RIGHT)) 
     {
@@ -171,8 +199,8 @@ void TestGame::Update(f32 deltaTime)
 //     BIT_LOG_DEBUG("Player JUMP..!");
 // }
 
-void TestGame::SetupInput()
-{
+// void TestGame::SetupInput()
+// {
     // BIT_LOG_DEBUG("CREATING ACTIONS AND INPUTS");
     // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_FORWARD, m_Player, BitEngine::BInput::KEY_W, 1.0f);
     // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_BACKWARD, m_Player, BitEngine::BInput::KEY_S, -1.0f);
