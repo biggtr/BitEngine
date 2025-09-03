@@ -12,7 +12,9 @@ namespace BitEngine
 
 class CollisionSystem : public System
 {
+        
 public:
+
     CollisionSystem()
     {
         RequireComponent<TransformComponent>();
@@ -35,9 +37,7 @@ public:
                 )
                 {
                     Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
-                    TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(entityA);
                     Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
-                    TransformComponent& transformB = m_EntityManager->GetComponent<TransformComponent>(entityB);
                     BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
                     BPhysics2D::BBody& bodyB = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
 

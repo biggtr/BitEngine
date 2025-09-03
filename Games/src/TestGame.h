@@ -5,7 +5,9 @@
 class TestGame : public BitEngine::Game
 {
 private:
-    BitEngine::Entity whiteBall;
+    BitEngine::Entity m_WhiteBall;
+    BitEngine::Entity m_Table;
+    BitEngine::Entity m_Entities[100];
     BMath::Vec3 impulseLine;
 
     b8 isDragging;
@@ -26,6 +28,7 @@ public:
 
 private:
     void CreateBalls(BitEngine::Entity* outEntities, u8 lastRow);
+    BitEngine::Entity CreateTable(f32 width, f32 height);
     // void OnJump(const BitEngine::Entity& entity);
 
 

@@ -2,6 +2,7 @@
 #include "Bit/Core/Defines.h"
 #include <cstdint>
 #include <strings.h>
+#include <vector>
 
 #define MAX_NUM_ENTITIES 1000000
 

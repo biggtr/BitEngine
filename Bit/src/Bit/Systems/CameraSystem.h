@@ -26,6 +26,7 @@ public:
     void Update(float deltaTime)
     {
 
+        (void)deltaTime;
         for(const Entity& entity : m_Entities)
         {
             Camera2DComponent& camera = m_EntityManager->GetComponent<Camera2DComponent>(entity);

@@ -15,13 +15,27 @@
 #include <cmath>
 
 #define BALL_RADIUS 2.0f
+#define BALL_MASS 40.0f
 #define BALL_GAP 2.0f
 
+
+BitEngine::Entity TestGame::CreateTable(f32 width, f32 height)
+{
+    auto table = Entities().CreateEntity();
+    table.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(0.0f, 0.0f, -5.0f),
+            BMath::Vec3(width, height, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
+    table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.2f, 0.6f, 1.0f} ;
+
+    return table;
+}
 void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 {
     u32 i = 0;
     f32 ballRadius = BALL_RADIUS;
-    f32 horizontalGap = 1.5f * ballRadius;
+    f32 horizontalGap = 1.75f * ballRadius;
     f32 verticalGap = BALL_GAP;
     u32 totalNumBalls = (row * (row + 1)) / 2;
     BMath::Vec3 startPos = {20.0f, 0.0f, -5.0f}; 
@@ -51,10 +65,9 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
                 0.0f,
                 0.0f
                 );
-
         ball.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS, BMath::Vec4(1.0f, 0.2f, 0.0f, 1.0f));
         ball.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
-        ball.AddComponent<BitEngine::Rigid2DBodyComponent>(50.0f);
+        ball.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_MASS);
         outEntities[i] = ball;
 
         i++;
@@ -62,23 +75,22 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 }
 void TestGame::Initialize()
 {
+    CreateBalls(m_Entities, 5);
 
-    BitEngine::Entity entities[100];
-    CreateBalls(entities, 5);
-
+    CreateTable(150.0f, 65.0f);
 
     isDragging = false;
-    whiteBall = Entities().CreateEntity();
-    whiteBall.AddComponent<BitEngine::TransformComponent>(
+    m_WhiteBall = Entities().CreateEntity();
+    m_WhiteBall.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f),
             BMath::Vec3(1.0f)
             );
 
-    whiteBall.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS);
-    whiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
-    whiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(50.0f);
 
+    m_WhiteBall.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS);
+    m_WhiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
+    m_WhiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_MASS);
 }
 void TestGame::UIRender()
 {
@@ -98,14 +110,16 @@ void TestGame::Render()
     {
         BMath::Vec3 initialMousePos = ScreenToWorldCoords(initialMouseX, initialMouseY);
         BMath::Vec3 endMousePos = ScreenToWorldCoords(currentMouseX, currentMouseY);
-        auto& whiteballTranform = whiteBall.GetComponent<BitEngine::TransformComponent>();
+        auto& whiteballTranform = m_WhiteBall.GetComponent<BitEngine::TransformComponent>();
         auto whitePos = whiteballTranform.Position; 
         auto dragDir = endMousePos - initialMousePos;
+        BMath::Vec3 dragDirNorm = BMath::Vec3Normalize(dragDir);
         f32 ballRadius = BALL_RADIUS;
         f32 lineBallGap = 1.0f;
-        auto startPos = whitePos + BMath::Vec3Normalize(dragDir) * (ballRadius + lineBallGap);
+
+        auto startPos = whitePos + dragDirNorm * (ballRadius + lineBallGap);
         f32 lineLength = BMath::Vec3Length(dragDir) * 2.0f;
-        Renderer().DrawLine(startPos, startPos + BMath::Vec3Normalize(dragDir) * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
+        Renderer().DrawLine(startPos, startPos + dragDirNorm * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
     }
 }
 void TestGame::Update(f32 deltaTime)
@@ -116,7 +130,6 @@ void TestGame::Update(f32 deltaTime)
         BitEngine::BInput::GetMousePosition(&initialMouseX, &initialMouseY);
 
         isDragging = true;
-        BIT_LOG_DEBUG("Mouse RIGHT pressed - started dragging at %d, %d", initialMouseX, initialMouseY);
     }
     if(isDragging && BitEngine::BInput::IsMouseButtonDown(BitEngine::BInput::MOUSE_BUTTON_RIGHT))
     {
@@ -129,36 +142,10 @@ void TestGame::Update(f32 deltaTime)
     {
         BMath::Vec3 impulse = {(f32)(initialMouseX - currentMouseX), (f32)(currentMouseY - initialMouseY), 0.0f};
         impulse = impulse * 20.0f;
-        m_Physics2DSystem->ApplyImpulse(whiteBall, impulse);
+        m_Physics2DSystem->ApplyImpulse(m_WhiteBall, impulse);
 
         isDragging = false;
     }
-    if(BitEngine::BInput::IsMouseButtonDown(BitEngine::BInput::MOUSE_BUTTON_LEFT))
-    {
-        i32 screenX, screenY;
-        BitEngine::BInput::GetMousePosition(&screenX, &screenY);
-
-        BMath::Vec3 mousePos = ScreenToWorldCoords((f32)screenX, (f32)screenY);
-        mousePos.z = -5.0f;
-
-        BIT_LOG_DEBUG("Mouse world pos: %f, %f", mousePos.x, mousePos.y);
-
-        auto circleEntity= Entities().CreateEntity();
-        circleEntity.AddComponent<BitEngine::TransformComponent>(
-                mousePos,
-                (0.0f),
-                (0.0f)
-                );
-        auto& circleSprite = circleEntity.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS);
-        circleSprite.Color = {1.0f, 0.4f, 0.0f, 1.0f};
-        circleEntity.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
-        circleEntity.AddComponent<BitEngine::Rigid2DBodyComponent>(90.0f);
-    }
-
-    auto cameraPos = Camera().GetActiveCamera()->Position;
-    BIT_LOG_DEBUG("Camera pos: %f, %f, %f", cameraPos.x, cameraPos.y, cameraPos.z);
-    BIT_LOG_DEBUG("World size: %f x %f", m_WorldWidth, m_WorldHeight);
-
 }
 
 // void TestGame::OnJump(const BitEngine::Entity& entity)

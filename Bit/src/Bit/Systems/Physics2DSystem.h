@@ -59,6 +59,8 @@ public:
 
             BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
             // BPhysics2D::EnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
+            BMath::Vec3 friction = BPhysics2D::GenerateFrictionForce(bodyA, 200.0f);
+            BPhysics2D::AddForce(bodyA, friction);
             BPhysics2D::LinearIntegrate(bodyA, deltaTime);
 
             transformA.Position = bodyA.Position;

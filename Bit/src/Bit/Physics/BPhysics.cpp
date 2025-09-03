@@ -68,8 +68,8 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     body.Position = position;
     // BIT_LOG_DEBUG("from physics pos is : %f, %f, %f", body.Position.x, body.Position.y, body.Position.z);
     body.Rotation = 0.0f;
-    body.Acceleration = 0.0f;
-    body.Velocity = 0.0f;
+    body.Acceleration = {0.0f, 0.0f, 0.0f};
+    body.Velocity = {0.0f, 0.0f, 0.0f};
     body.Mass = mass;
     body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
     body.Restitution = 1.0f;
@@ -212,6 +212,8 @@ BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue)
 BMath::Vec3 GenerateFrictionForce(BBody& body, f32 frictionValue)
 {
     //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the body
+    if(BMath::Vec3LengthSquared(body.Velocity) < 1e-8f)
+        return {0.0f, 0.0f, 0.0f};
     BMath::Vec3 frictionDirection = Vec3Normalize(body.Velocity) * -1.0f;
     BMath::Vec3 frictionForce = frictionDirection * frictionValue;
 

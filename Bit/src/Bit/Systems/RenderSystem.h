@@ -49,10 +49,19 @@ public:
             if(m_EntityManager->HasComponent<SpriteComponent>(entity))
             {
                 SpriteComponent& spriteComponent = m_EntityManager->GetComponent<SpriteComponent>(entity);
-                UpdateUVs(spriteComponent);
-                renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
-                        spriteComponent
-                        );
+                if(spriteComponent.STexture)
+                {
+                    UpdateUVs(spriteComponent);
+                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                            spriteComponent
+                            );
+                }
+                else
+                {
+                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                            spriteComponent.Color
+                            );
+                }
             }
             if(m_EntityManager->HasComponent<Circle2DComponent>(entity))
             {

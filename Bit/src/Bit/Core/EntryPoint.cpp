@@ -8,7 +8,6 @@
 int main()
 {
 
-    
     BitEngine::Game* game = BitEngine::CreateGame();
 
    

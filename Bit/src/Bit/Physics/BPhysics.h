@@ -7,7 +7,6 @@
 
 namespace BPhysics2D
 {
-
 struct BPhysics2DState 
 {
     std::vector<BParticle> Particles;
