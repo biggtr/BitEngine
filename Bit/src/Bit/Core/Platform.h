@@ -1,6 +1,5 @@
 #pragma once
 #include "Bit/Core/Defines.h"
-#include "Bitpch.h"
 #include <GL/glx.h>
 namespace BitEngine
 {

@@ -61,9 +61,6 @@ target_compile_definitions(BitEngine
     PRIVATE
     $<$<CONFIG:Debug>:BIT_DEBUG=1>
 )
-target_precompile_headers(BitEngine PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Bitpch.h
-)
 target_link_libraries(BitEngine glad X11 ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")

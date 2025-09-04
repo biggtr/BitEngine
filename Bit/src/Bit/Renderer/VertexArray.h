@@ -1,5 +1,6 @@
 #pragma once
 #include "Buffers.h"
+#include <vector>
 
 namespace BitEngine
 {

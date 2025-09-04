@@ -44,6 +44,8 @@ public:
                     BPhysics2D::Contact contact;
                     if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
                     {
+                        if(bodyA.InvMass == 0.0f || bodyB.InvMass == 0.0f)
+                            continue;
                         BPhysics2D::ResolveCollision(contact);
                         // transformA.Position = contact.a->Position;
                         // transformB.Position = contact.b->Position;

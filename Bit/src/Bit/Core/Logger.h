@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Bitpch.h"
-
+#include "Defines.h"
 namespace BitEngine 
 {
 
-enum class LOG_LEVEL : uint8_t
+enum class LOG_LEVEL : u8
 {
     FATAL = 0,
     ERROR = 1,

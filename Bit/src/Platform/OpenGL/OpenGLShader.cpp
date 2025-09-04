@@ -1,8 +1,11 @@
 #include "OpenGLShader.h"
 #include <glad/glad.h>
+#include <iostream>
 #include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
+#include <fstream>
+
 namespace BitEngine
 {
 

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Bitpch.h"
+#include <cstddef>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace BitEngine
 
