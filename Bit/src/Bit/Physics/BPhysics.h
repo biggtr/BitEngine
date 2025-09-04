@@ -24,7 +24,7 @@ u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWitho
 u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass);
 BShape& GetShape(BBody* body);
 BBody& GetBody(u32 bodyIndex);
-BMath::Vec3 EdgeAt(BPolygonShape& polygon, u32 index);
+BMath::Vec3 Vec3EdgeAt(BPolygonShape& polygon, u32 index);
 
 BParticle* CreateParticle();
 

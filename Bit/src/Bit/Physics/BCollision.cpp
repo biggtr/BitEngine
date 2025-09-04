@@ -54,31 +54,55 @@ b8 IsAABBColliding(BBody* a, BBody* b)
 
     return aRight >= bLeft && aLeft <= bRight && aBot <= bTop && aTop >= bBot;
 }
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b)
+f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3 bestPoint)
 {
     f32 seperation = -B_INFINITY;
 
     for(u32 i = 0; i < a.VertexCount; ++i)
     {
-        BMath::Vec3 va = EdgeAt(a, i);
+        BMath::Vec3 va = Vec3EdgeAt(a, i);
         BMath::Vec3 normal = Vec3Normal2D(va);
         f32 minSeperation = B_INFINITY;
+        BMath::Vec3 minVertex;
         for(u32 j = 0; j < b.VertexCount; ++j)
         {
             BMath::Vec3 vb = b.Vertices[j];
-            minSeperation = fmin(minSeperation, BMath::Vec3Dot(vb - va, normal));
+            f32 projection = BMath::Vec3Dot(vb - va, normal);
+            if(projection < minSeperation)
+            {
+                minSeperation = projection;
+                minVertex = vb;
+            }
         }
-        seperation = fmax(seperation, minSeperation);
+        if(seperation > minSeperation)
+        {
+            seperation = minSeperation;
+            bestAxis = va;
+            bestPoint = minVertex;
+        }
     }
     return seperation;
 }
-b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b)
+b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contact)
 {
-    if(FindMinSeperation(a, b) > 0.0f)
-        return false;
-    if(FindMinSeperation(b, a) > 0.0f)
-        return false;
-    
+    BMath::Vec3 axisA, axisB;
+    BMath::Vec3 pointA, pointB;
+    f32 seperationAB = FindMinSeperation(a, b, axisA, pointA);
+    f32 seperationBA = FindMinSeperation(b, a, axisB, pointB);
+    if(seperationAB > seperationBA)
+    {
+        contact.Depth = -seperationAB;
+        contact.Normal = Vec3Normalize(axisA);
+        contact.Start = pointA;
+        contact.End = pointA + contact.Normal * contact.Depth;
+    }
+    else
+    {
+        contact.Depth = -seperationBA;
+        contact.Normal = Vec3Normalize(axisB);
+        contact.Start = pointB;
+        contact.End = pointB - contact.Normal * contact.Depth;
+    }
     return true; // colliding 
 }
 void ResolvePenetration(Contact& contact)
@@ -101,7 +125,6 @@ void ResolveCollision(Contact& contact)
     f32 velocityAlongNormal = BMath::Vec3Dot(relativeVelocity, contact.Normal);
     if(velocityAlongNormal > 0) // if velocity is positive its seperating going in same dir of normal
         return;
-
     BMath::Vec3 impulseDirection = contact.Normal;
     f32 impulseMagnitude = -(1 + e) * velocityAlongNormal / (contact.a->InvMass + contact.b->InvMass);
 
@@ -109,6 +132,5 @@ void ResolveCollision(Contact& contact)
 
     ApplyImpulse(*contact.a, impulse * -1.0f);
     ApplyImpulse(*contact.b, impulse); 
-
 }
 }

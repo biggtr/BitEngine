@@ -21,8 +21,8 @@ struct Contact
 b8 IsColliding(BBody* a, BBody* b, Contact& contact);
 b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& constact);
 b8 IsAABBColliding(BBody* a, BBody* b);
-b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b);
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b);
+b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint);
+f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, Contact& contact);
 
 
 void ResolvePenetration(Contact& contact);

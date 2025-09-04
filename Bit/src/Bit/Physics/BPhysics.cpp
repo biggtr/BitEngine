@@ -101,7 +101,7 @@ BBody& GetBody(u32 bodyIndex)
     return physicsState->Bodies[bodyIndex];
 }
 
-BMath::Vec3 EdgeAt(BPolygonShape& polygon, u32 index)
+BMath::Vec3 Vec3EdgeAt(BPolygonShape& polygon, u32 index)
 {
     u32 currentVertex = index;
     u32 nextVertex = (index + 1) % polygon.VertexCount;
