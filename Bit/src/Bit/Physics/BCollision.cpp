@@ -88,13 +88,22 @@ b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contac
     BMath::Vec3 axisA, axisB;
     BMath::Vec3 pointA, pointB;
     f32 seperationAB = FindMinSeperation(a, b, axisA, pointA);
+    if(seperationAB >= 0)
+    {
+        return false; // no collision
+    }
     f32 seperationBA = FindMinSeperation(b, a, axisB, pointB);
+    if(seperationBA >= 0)
+    {
+        return false; // no collision
+    }
     if(seperationAB > seperationBA)
     {
         contact.Depth = -seperationAB;
         contact.Normal = Vec3Normalize(axisA);
         contact.Start = pointA;
         contact.End = pointA + contact.Normal * contact.Depth;
+        return true;
     }
     else
     {
@@ -102,8 +111,9 @@ b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contac
         contact.Normal = Vec3Normalize(axisB);
         contact.Start = pointB;
         contact.End = pointB - contact.Normal * contact.Depth;
+        return true;
     }
-    return true; // colliding 
+    return false;
 }
 void ResolvePenetration(Contact& contact)
 {
@@ -121,7 +131,10 @@ void ResolveCollision(Contact& contact)
         
     f32 e = fmin(contact.a->Restitution, contact.b->Restitution);
 
-    BMath::Vec3 relativeVelocity = contact.b->Velocity - contact.a->Velocity;
+    // normal isnt caluclated untill theres a collision so if a is inside b and a on the left and the start point is inside b on the right
+    // the normal is pointing from a to b which means from right to left == -1 -> so relativeVelocity -> .  n <-
+    // velocityAlongNormal if negative means they collide and we resolve it cuz they was going towards each other
+    BMath::Vec3 relativeVelocity = contact.a->Velocity - contact.b->Velocity;
     f32 velocityAlongNormal = BMath::Vec3Dot(relativeVelocity, contact.Normal);
     if(velocityAlongNormal > 0) // if velocity is positive its seperating going in same dir of normal
         return;
@@ -130,7 +143,7 @@ void ResolveCollision(Contact& contact)
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 
-    ApplyImpulse(*contact.a, impulse * -1.0f);
-    ApplyImpulse(*contact.b, impulse); 
+    ApplyImpulse(*contact.a, impulse);
+    ApplyImpulse(*contact.b, impulse * -1.0f); 
 }
 }

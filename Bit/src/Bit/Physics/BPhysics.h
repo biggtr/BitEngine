@@ -28,8 +28,6 @@ BMath::Vec3 Vec3EdgeAt(BPolygonShape& polygon, u32 index);
 
 BParticle* CreateParticle();
 
-
-
 void AddForce(BParticle& particle, BMath::Vec3& force);
 BMath::Vec3 GenerateDragForce(BParticle particle, f32 dragValue);
 BMath::Vec3 GenerateFrictionForce(BParticle particle, f32 frictionValue);

@@ -25,7 +25,6 @@ struct WindowsWindowData
 {
     void* hwnd;
     void* hdc;
-    
 };
 struct PlatformWindow
 {

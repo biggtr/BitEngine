@@ -124,12 +124,22 @@ void TestGame::Initialize()
 }
 void TestGame::UIRender()
 {
-    BitUI::BeginLayout(BitUI::HorizontalLayout(10.0f, 10.0f, 5.0f));
+    BitUI::BeginLayout(BitUI::HorizontalLayout(100.0f, 100.0f, 5.0f));
     BitUI::Button("blabla", 100.0f, 100.0f);
     BitUI::Button("blabla", 100.0f, 100.0f);
     BitUI::Button("blabla", 100.0f, 100.0f);
-    std::vector<BitUI::DrawCommand> drawCommands =  BitUI::EndLayout();
-    for(auto& command : drawCommands)
+    std::vector<BitUI::DrawCommand> horizontalDrawCommands =  BitUI::EndLayout();
+
+    BitUI::BeginLayout(BitUI::VerticalLayout(100.0f, 300.0f, 5.0f));
+    BitUI::Button("blabla", 100.0f, 100.0f);
+    BitUI::Button("blabla", 100.0f, 100.0f);
+    BitUI::Button("blabla", 100.0f, 100.0f);
+    std::vector<BitUI::DrawCommand> verticalDrawCommands =  BitUI::EndLayout();
+    for(auto& command : horizontalDrawCommands)
+    {
+        Renderer().DrawQuad(command.Position, command.Size, command.data.Color);
+    }
+    for(auto& command : verticalDrawCommands)
     {
         Renderer().DrawQuad(command.Position, command.Size, command.data.Color);
     }
