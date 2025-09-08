@@ -22,8 +22,8 @@ b8 IsColliding(BBody* a, BBody* b, Contact& contact);
 b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& constact);
 b8 IsPolygonCircleColliding(BBody* a, BBody* b, Contact& constact);
 b8 IsAABBColliding(BBody* a, BBody* b);
-b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contact);
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3 bestPoint);
+b8 IsPolygonPolygonColliding(BBody* a, BBody* b, Contact& contact);
+f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint);
 
 
 void ResolvePenetration(Contact& contact);

@@ -18,7 +18,7 @@ public:
     CollisionSystem()
     {
         RequireComponent<TransformComponent>();
-        RequireComponent<Circle2DColliderComponent>();
+        RequireComponent<Rigid2DBodyComponent>();
     }
     SYSTEM_CLASS_TYPE(COLLISION);
 
@@ -30,27 +30,27 @@ public:
             {
                 const Entity& entityA = m_Entities[i];
                 const Entity& entityB = m_Entities[j];
-                if( m_EntityManager->HasComponent<Circle2DColliderComponent>(entityA) && 
-                        m_EntityManager->HasComponent<Circle2DColliderComponent>(entityB) &&
+                b8 aHasCircle = m_EntityManager->HasComponent<Circle2DColliderComponent>(entityA); 
+                b8 bHasCircle = m_EntityManager->HasComponent<Circle2DColliderComponent>(entityB); 
+                b8 aHasBox= m_EntityManager->HasComponent<Box2DColliderComponent>(entityA); 
+                b8 bHasBox= m_EntityManager->HasComponent<Box2DColliderComponent>(entityB); 
+                if( 
                         m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityA) &&
-                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityB)
+                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityB) && aHasCircle && bHasCircle
                 )
                 {
                     Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
                     Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
                     BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
                     BPhysics2D::BBody& bodyB = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
-
                     BPhysics2D::Contact contact;
                     if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
                     {
-                        if(bodyA.InvMass == 0.0f || bodyB.InvMass == 0.0f)
-                            continue;
                         BPhysics2D::ResolveCollision(contact);
-                        // transformA.Position = contact.a->Position;
-                        // transformB.Position = contact.b->Position;
                     }
                 }
+                
+                
             }
         }
         

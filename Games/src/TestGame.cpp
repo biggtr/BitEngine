@@ -40,6 +40,15 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.2f, 0.6f, 1.0f} ;
 
 
+    // auto tableEdge = Entities().CreateEntity();
+    // tableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+    // tableEdge.AddComponent<BitEngine::Box2DColliderComponent>(30);
+    // tableEdge.AddComponent<BitEngine::TransformComponent>(
+    //         BMath::Vec3(0.0f, 0.0f, -5.0f),
+    //         BMath::Vec3(30.0f, 30.0f, 0.0f),
+    //         BMath::Vec3(0.0f, 0.0f, 0.0f)
+    //         );
+    // tableEdge.AddComponent<BitEngine::SpriteComponent>();
 
     // Create Table Pockets
     for(i32 i = 0; i < 6; ++i)
@@ -63,7 +72,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 {
     u32 i = 0;
     f32 ballRadius = BALL_RADIUS;
-    f32 horizontalGap = 1.75f * ballRadius;
+    f32 horizontalGap = 2.2f * ballRadius;
     f32 verticalGap = BALL_GAP;
     u32 totalNumBalls = (row * (row + 1)) / 2;
     BMath::Vec3 startPos = {20.0f, 0.0f, -5.0f}; 

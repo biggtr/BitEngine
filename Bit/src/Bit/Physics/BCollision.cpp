@@ -17,13 +17,26 @@ b8 IsColliding(BBody* a, BBody* b, Contact& contact)
     {
         return IsCircleCircleColliding(a, b, contact);
     }
-    if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_POLYGON)
+    else if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_POLYGON)
     {
-        return IsPolygonPolygonColliding(shapeA.BPolygon, shapeB.BPolygon, contact);
+        return IsPolygonPolygonColliding(a, b, contact);
     }
-    if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_CIRCLE)
+    else if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_CIRCLE)
     {
         return IsPolygonCircleColliding(a, b, contact);
+    }
+    else if(shapeA.Type == SHAPE_CIRCLE && shapeB.Type == SHAPE_POLYGON)
+    {
+        b8 result = IsPolygonCircleColliding(b, a, contact);
+        if(result)
+        {
+            BBody* temp = contact.a;
+            contact.a = contact.b;
+            contact.b = temp;
+            contact.Normal *= -1.0f;
+
+        }
+        return result;
     }
     return false;
 }
@@ -32,16 +45,23 @@ b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
     BShape shapeA = GetShape(a);
     BShape shapeB = GetShape(b);
     BMath::Vec3 distanceAB = b->Position - a->Position;
+    f32 distance = BMath::Vec3Length(distanceAB);
     f32 sumRadius = shapeA.BCircle.Radius + shapeB.BCircle.Radius;
-    b8 isColliding = BMath::Vec3LengthSquared(distanceAB) <= (sumRadius * sumRadius);
-    if(!isColliding)
+    if(distance > sumRadius)
         return false;
     contact.a = a;
     contact.b = b;
-    contact.Normal = BMath::Vec3Normalize(distanceAB);
-    contact.Start = b->Position - (contact.Normal * shapeB.BCircle.Radius);
-    contact.End = a->Position + (contact.Normal * shapeA.BCircle.Radius);
-    contact.Depth = BMath::Vec3Length(contact.End - contact.Start);
+    if(distance < 0.001f) 
+    {
+        contact.Normal = BMath::Vec3(1.0f, 0.0f, 0.0f);
+    }
+    else 
+    {
+        contact.Normal = BMath::Vec3Normalize(distanceAB);
+    }
+    contact.Depth = sumRadius - distance;
+    contact.Start = a->Position + (contact.Normal * shapeA.BCircle.Radius);
+    contact.End = b->Position - (contact.Normal * shapeB.BCircle.Radius);
     return true;
 }
 
@@ -165,7 +185,6 @@ b8 IsPolygonCircleColliding(BBody* polygon, BBody* circle, Contact& contact)
 
 
 
-
     return true; 
 }
 b8 IsAABBColliding(BBody* a, BBody* b)
@@ -185,51 +204,60 @@ b8 IsAABBColliding(BBody* a, BBody* b)
 
     return aRight >= bLeft && aLeft <= bRight && aBot <= bTop && aTop >= bBot;
 }
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3 bestPoint)
+f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint)
 {
-    f32 seperation = -B_INFINITY;
+    f32 minSeperation = -B_INFINITY;
 
     for(u32 i = 0; i < a.VertexCount; ++i)
     {
-        BMath::Vec3 va = Vec3EdgeAt(a, i);
-        BMath::Vec3 normal = Vec3Normal2D(va);
-        f32 minSeperation = B_INFINITY;
+        BMath::Vec3 vertex1 = a.Vertices[i];
+        BMath::Vec3 vertex2 = a.Vertices[(i + 1) % a.VertexCount];
+        BMath::Vec3 edge = vertex2 - vertex1;
+        BMath::Vec3 normal = Vec3Normal2D(edge);
+        f32 minProjection = B_INFINITY;
         BMath::Vec3 minVertex;
         for(u32 j = 0; j < b.VertexCount; ++j)
         {
             BMath::Vec3 vb = b.Vertices[j];
-            f32 projection = BMath::Vec3Dot(vb - va, normal);
-            if(projection < minSeperation)
+            f32 projection = BMath::Vec3Dot(vb - vertex1, normal);
+            if(projection < minProjection)
             {
-                minSeperation = projection;
+                minProjection = projection;
                 minVertex = vb;
             }
         }
-        if(seperation > minSeperation)
+        if(minProjection > minSeperation)
         {
-            seperation = minSeperation;
-            bestAxis = va;
+            minSeperation = minProjection;
+            bestAxis = normal;
             bestPoint = minVertex;
         }
+        if(minProjection > 0.0f)
+            return minProjection;
     }
-    return seperation;
+    return minSeperation;
 }
-b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contact)
+b8 IsPolygonPolygonColliding(BBody* a, BBody* b, Contact& contact)
 {
+    BPolygonShape& shapeA = GetShape(a).BPolygon;
+    BPolygonShape& shapeB = GetShape(b).BPolygon;
+
     BMath::Vec3 axisA, axisB;
     BMath::Vec3 pointA, pointB;
-    f32 seperationAB = FindMinSeperation(a, b, axisA, pointA);
+    f32 seperationAB = FindMinSeperation(shapeA, shapeB, axisA, pointA);
     if(seperationAB >= 0)
     {
         return false; // no collision
     }
-    f32 seperationBA = FindMinSeperation(b, a, axisB, pointB);
+    f32 seperationBA = FindMinSeperation(shapeB, shapeA, axisB, pointB);
     if(seperationBA >= 0)
     {
         return false; // no collision
     }
     if(seperationAB > seperationBA)
     {
+        contact.a = a;
+        contact.b = b;
         contact.Depth = -seperationAB;
         contact.Normal = Vec3Normalize(axisA);
         contact.Start = pointA;
@@ -238,6 +266,8 @@ b8 IsPolygonPolygonColliding(BPolygonShape& a, BPolygonShape& b, Contact& contac
     }
     else
     {
+        contact.a = b;
+        contact.b = a;
         contact.Depth = -seperationBA;
         contact.Normal = Vec3Normalize(axisB);
         contact.Start = pointB;
@@ -251,13 +281,20 @@ void ResolvePenetration(Contact& contact)
     if(NearlyEqual(contact.a->InvMass, 0.0f) && NearlyEqual(contact.b->InvMass, 0.0f)) 
         return;
 
-    f32 displacementA = contact.Depth / (contact.a->InvMass + contact.b->InvMass) * contact.a->InvMass; // the bigger the mass of a the bigger the displacement in b
-    f32 displacementB = contact.Depth / (contact.a->InvMass + contact.b->InvMass) * contact.b->InvMass; 
+    f32 totalInvMass = contact.a->InvMass + contact.b->InvMass;
+    if(totalInvMass < 0.001f)
+        return;
+
+    
+    f32 displacementA = contact.Depth * (contact.a->InvMass / totalInvMass);
+    f32 displacementB = contact.Depth * (contact.b->InvMass / totalInvMass); 
     contact.a->Position -= contact.Normal * displacementA;
     contact.b->Position += contact.Normal * displacementB;
 }
 void ResolveCollision(Contact& contact)
 {
+    if(contact.Depth < 0.01f)
+        return;
     ResolvePenetration(contact);
         
     f32 e = fmin(contact.a->Restitution, contact.b->Restitution);
@@ -265,16 +302,20 @@ void ResolveCollision(Contact& contact)
     // normal isnt caluclated untill theres a collision so if a is inside b and a on the left and the start point is inside b on the right
     // the normal is pointing from a to b which means from right to left == -1 -> so relativeVelocity -> .  n <-
     // velocityAlongNormal if negative means they collide and we resolve it cuz they was going towards each other
-    BMath::Vec3 relativeVelocity = contact.a->Velocity - contact.b->Velocity;
+    BMath::Vec3 relativeVelocity = contact.b->Velocity - contact.a->Velocity;
     f32 velocityAlongNormal = BMath::Vec3Dot(relativeVelocity, contact.Normal);
-    if(velocityAlongNormal > 0) // if velocity is positive its seperating going in same dir of normal
+    if(velocityAlongNormal > -0.01f) // if velocity is positive its seperating going in same dir of normal
+        return;
+
+    f32 totalInvMass = contact.a->InvMass + contact.b->InvMass;
+    if(totalInvMass < 0.001f)
         return;
     BMath::Vec3 impulseDirection = contact.Normal;
-    f32 impulseMagnitude = -(1 + e) * velocityAlongNormal / (contact.a->InvMass + contact.b->InvMass);
+    f32 impulseMagnitude = -(1 + e) * velocityAlongNormal / totalInvMass; 
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 
-    ApplyImpulse(*contact.a, impulse);
-    ApplyImpulse(*contact.b, impulse * -1.0f); 
+    ApplyImpulse(*contact.a, impulse * -1.0f);
+    ApplyImpulse(*contact.b, impulse); 
 }
 }

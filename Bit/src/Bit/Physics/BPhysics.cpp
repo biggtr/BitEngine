@@ -56,6 +56,7 @@ u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWitho
         shape.BPolygon.Vertices[i] = vertices[i];
     }
     shape.BPolygon.InertiaWithoutMass = inertiaWithoutMass;
+    shape.BPolygon.VertexCount = count;
     u32 shapeIndex = physicsState->Shapes.size();
     physicsState->Shapes.push_back(shape);
     return shapeIndex;
@@ -72,7 +73,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     body.Velocity = {0.0f, 0.0f, 0.0f};
     body.Mass = mass;
     body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
-    body.Restitution = 1.0f;
+    body.Restitution = 0.6f;
     switch (shape.Type) 
     {
         case SHAPE_CIRCLE:
