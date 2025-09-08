@@ -17,6 +17,14 @@ b8 IsColliding(BBody* a, BBody* b, Contact& contact)
     {
         return IsCircleCircleColliding(a, b, contact);
     }
+    if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_POLYGON)
+    {
+        return IsPolygonPolygonColliding(shapeA.BPolygon, shapeB.BPolygon, contact);
+    }
+    if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_CIRCLE)
+    {
+        return IsPolygonCircleColliding(a, b, contact);
+    }
     return false;
 }
 b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
@@ -37,6 +45,129 @@ b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
     return true;
 }
 
+b8 IsPolygonCircleColliding(BBody* polygon, BBody* circle, Contact& contact)
+{
+    BCircleShape circleShape = GetShape(circle).BCircle;
+    BPolygonShape polygonShape = GetShape(polygon).BPolygon;
+    BMath::Vec3* polygonVertices = polygonShape.Vertices;
+    BMath::Vec3 minCurrentVertex;
+    BMath::Vec3 minNextVertex;
+    f32 distanceCircleEdge = -B_INFINITY;
+    b8 isOutside = false;
+    for(u32 i = 0; i < polygonShape.VertexCount; ++i)
+    {
+        i32 currentVertex = i;
+        i32 nextVertex = (i + 1) % polygonShape.VertexCount;
+        BMath::Vec3 polygonEdge = Vec3EdgeAt(polygonShape, currentVertex);
+        BMath::Vec3 edgeNormal = BMath::Vec3Normal2D(polygonEdge);
+        BMath::Vec3 vertexCircleCenter = circle->Position - polygonVertices[currentVertex];
+        f32 projection = BMath::Vec3Dot(vertexCircleCenter, edgeNormal);
+        if(projection > 0)
+        {
+            // circle center is outside the polygon
+            
+            distanceCircleEdge = projection;
+            minCurrentVertex = polygonVertices[currentVertex];
+            minNextVertex = polygonVertices[nextVertex];
+            isOutside = true;
+            break;
+        }
+        else 
+        {
+            // we inside and we need to find the min edge (least negative which means the closest edge to the circle)
+            if(projection > distanceCircleEdge)
+            {
+                distanceCircleEdge = projection;
+                minCurrentVertex = polygonVertices[currentVertex];
+                minNextVertex = polygonVertices[nextVertex];
+            }
+        }
+    }
+    if(isOutside)
+    {
+        BMath::Vec3 v1 = circle->Position - minCurrentVertex;
+        BMath::Vec3 v2 = minNextVertex - minCurrentVertex;
+        f32 v1Magnitude = BMath::Vec3Length(v1);
+        if(BMath::Vec3Dot(v1, v2) < 0) // we iside the a region
+        {
+            if( v1Magnitude > circleShape.Radius)
+            {
+                // we're not colliding
+                return false;
+            }
+            else
+            {
+                contact.a = polygon;
+                contact.b = circle;
+                contact.Depth = circleShape.Radius - v1Magnitude;
+                contact.Normal = BMath::Vec3Normalize(v1);
+                contact.Start = circle->Position + (contact.Normal * -circleShape.Radius);
+                contact.End = contact.Start + (contact.Normal * contact.Depth);
+            }
+        }
+        else
+        {
+            // check if we're inside the b region
+            v1 = circle->Position - minNextVertex;
+            v2 = minCurrentVertex - minNextVertex;
+            f32 v1Magnitude = BMath::Vec3Length(v1);
+            if(BMath::Vec3Dot(v1, v2) < 0) // we're inside the b region
+            {
+                if( v1Magnitude > circleShape.Radius)
+                {
+                    // we're not colliding
+                    return false;
+                }
+                else
+                {
+                    contact.a = polygon;
+                    contact.b = circle;
+                    contact.Depth = circleShape.Radius - v1Magnitude;
+                    contact.Normal = BMath::Vec3Normalize(v1);
+                    contact.Start = circle->Position + (contact.Normal * -circleShape.Radius);
+                    contact.End = contact.Start + (contact.Normal * contact.Depth);
+                }
+
+            }
+            else
+            {
+                // we're inside the c region
+                if(distanceCircleEdge > circleShape.Radius)
+                {
+                    // we're not colliding 
+                    return false;
+                }
+                else 
+                {
+                    contact.a = polygon;
+                    contact.b = circle;
+                    contact.Depth = circleShape.Radius - distanceCircleEdge;
+                    contact.Normal = BMath::Vec3Normal2D(minNextVertex - minCurrentVertex);
+                    contact.Start = circle->Position - (contact.Normal * circleShape.Radius);
+                    contact.End = contact.Start + (contact.Normal * contact.Depth);
+                }
+
+            }
+
+        }
+    }
+    else
+    {
+        // circle center is inside the rectangle itself
+        contact.a = polygon;
+        contact.b = circle;
+        contact.Depth = circleShape.Radius - distanceCircleEdge;
+        contact.Normal = BMath::Vec3Normal2D(minNextVertex - minCurrentVertex);
+        contact.Start = circle->Position - (contact.Normal * circleShape.Radius);
+        contact.End = contact.Start + (contact.Normal * contact.Depth);
+
+    }
+
+
+
+
+    return true; 
+}
 b8 IsAABBColliding(BBody* a, BBody* b)
 {
     BShape shapeA = GetShape(a);
