@@ -40,15 +40,45 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.4f, 0.0f, 1.0f};
 
 
-    auto tableEdge = Entities().CreateEntity();
-    tableEdge.AddComponent<BitEngine::TransformComponent>(
-            BMath::Vec3(10.0f, 0.0f, -5.0f),
+    auto uptableEdge = Entities().CreateEntity();
+    uptableEdge.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(0.0f, height / 2.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
-        tableEdge.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 1.0f, 1.0f, 1.0f};
-    tableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
-    tableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(10.0f, 10.0f, 0.0f));
+        uptableEdge.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 1.0f, 1.0f, 1.0f};
+    uptableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+    uptableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width, 5.0f, 0.0f));
+
+    auto downtableEdge = Entities().CreateEntity();
+    downtableEdge.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(0.0f, -height / 2.0f, -5.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
+        downtableEdge.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 1.0f, 1.0f, 1.0f};
+    downtableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+    downtableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width, 5.0f, 0.0f));
+
+    auto lefttableEdge = Entities().CreateEntity();
+    lefttableEdge.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(-width/ 2.0f, 0.0f, -5.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
+        lefttableEdge.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 1.0f, 1.0f, 1.0f};
+    lefttableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+    lefttableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(5.0f, height, 0.0f));
+
+    auto righttableEdge = Entities().CreateEntity();
+    righttableEdge.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(width/ 2.0f, 0.0f, -5.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f),
+            BMath::Vec3(0.0f, 0.0f, 0.0f)
+            );
+        righttableEdge.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 1.0f, 1.0f, 1.0f};
+    righttableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
+    righttableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(5.0f, height, 0.0f));
 
     // Create Table Pockets
     for(i32 i = 0; i < 6; ++i)
