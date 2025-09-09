@@ -373,6 +373,10 @@ void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, 
     BMath::Vec3 p2(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
     BMath::Vec3 p3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
 
+    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 1, p0.x, p0.y);
+    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 2, p1.x, p1.y);
+    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 3, p2.x, p2.y);
+    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 4, p3.x, p3.y);
     DrawLine(p0, p1, color);
     DrawLine(p1, p2, color);
     DrawLine(p2, p3, color);

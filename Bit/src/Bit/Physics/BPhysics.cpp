@@ -41,6 +41,10 @@ u32 BCreateBoxShape(f32 width, f32 height)
         v1, v2,
         v3, v4
     };
+    for(u32 i = 0; i < 4; ++i)
+    {
+        BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", i, vertices[i].x, vertices[i].y);
+    }
     f32 inertiaWithoutMass = (1.0f/12.0f) * ((width * width) + (height * height));
     return BCreatePolygonShape(vertices, 4, inertiaWithoutMass);
 }

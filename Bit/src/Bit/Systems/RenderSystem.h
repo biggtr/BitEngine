@@ -30,7 +30,9 @@ public:
         std::vector<Entity> RenderableEntities;
         for(const Entity& entity : GetEntities())
         {
-            if(m_EntityManager->HasComponent<SpriteComponent>(entity) || m_EntityManager->HasComponent<Circle2DComponent>(entity))
+            if(m_EntityManager->HasComponent<SpriteComponent>(entity) || 
+                m_EntityManager->HasComponent<Circle2DComponent>(entity) ||
+                m_EntityManager->HasComponent<Box2DColliderComponent>(entity)) 
             {
                 RenderableEntities.push_back(entity);
             }
@@ -73,6 +75,8 @@ public:
             {
 
                 Box2DColliderComponent& boxColliderComponent= m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
+                BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxColliderComponent.Size.x, boxColliderComponent.Size.y);
+                BIT_LOG_DEBUG("transformComponent.Position.x : %.2f, pos.y : %.2f", transformComponent.Position.x, transformComponent.Position.y);
                 renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
                         {1.0f, 0.0f, 0.0f, 1.0f}
                         );

@@ -36,17 +36,20 @@ public:
                 b8 bHasBox= m_EntityManager->HasComponent<Box2DColliderComponent>(entityB); 
                 if( 
                         m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityA) &&
-                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityB) && aHasCircle && bHasCircle
+                        m_EntityManager->HasComponent<Rigid2DBodyComponent>(entityB) 
                 )
                 {
-                    Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
-                    Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
-                    BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
-                    BPhysics2D::BBody& bodyB = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
-                    BPhysics2D::Contact contact;
-                    if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
+                    if((aHasCircle || bHasCircle) || (aHasBox || bHasBox))
                     {
-                        BPhysics2D::ResolveCollision(contact);
+                        Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
+                        Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
+                        BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
+                        BPhysics2D::BBody& bodyB = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
+                        BPhysics2D::Contact contact;
+                        if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
+                        {
+                            BPhysics2D::ResolveCollision(contact);
+                        }
                     }
                 }
                 

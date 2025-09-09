@@ -37,6 +37,7 @@ public:
             {
                 Box2DColliderComponent& boxCollider = m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
                 shapeIndex = BPhysics2D::BCreateBoxShape(boxCollider.Size.x, boxCollider.Size.y);
+                BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxCollider.Size.x, boxCollider.Size.y);
             }
             else if(m_EntityManager->HasComponent<Circle2DColliderComponent>(entity))
             {

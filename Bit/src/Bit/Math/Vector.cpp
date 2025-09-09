@@ -82,7 +82,7 @@ Vec3 Vec3Normalize(Vec3 vector)
 }
 Vec3 Vec3Normal2D(const Vec3& v)
 {
-    return Vec3Normalize(v);
+    return {v.y, -v.x, v.z};
 }
 const Vec3 Vec3Cross(const Vec3& vec1, const Vec3& vec2)
 {
