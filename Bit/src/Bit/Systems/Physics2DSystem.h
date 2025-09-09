@@ -44,7 +44,7 @@ public:
                 Circle2DColliderComponent& circleCollider = m_EntityManager->GetComponent<Circle2DColliderComponent>(entity);
                 shapeIndex = BPhysics2D::BCreateCircleShape(circleCollider.Radius);
             }
-            rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass);
+            rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass, rigidBody.Restitution);
             
             // BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
@@ -60,7 +60,7 @@ public:
 
             BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
             // BPhysics2D::EnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
-            BMath::Vec3 friction = BPhysics2D::GenerateFrictionForce(bodyA, 200.0f);
+            BMath::Vec3 friction = BPhysics2D::GenerateFrictionForce(bodyA, 300.0f);
             BPhysics2D::AddForce(bodyA, friction);
             BPhysics2D::LinearIntegrate(bodyA, deltaTime);
 

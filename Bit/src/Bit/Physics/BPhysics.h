@@ -21,7 +21,7 @@ void Shutdown();
 u32 BCreateCircleShape(f32 radius);
 u32 BCreateBoxShape(f32 width, f32 height);
 u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWithoutMass);
-u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass);
+u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass, f32 restitution = 0.5f);
 BShape& GetShape(BBody* body);
 BBody& GetBody(u32 bodyIndex);
 BMath::Vec3 Vec3EdgeAt(BPolygonShape& polygon, u32 index);

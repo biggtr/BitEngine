@@ -187,9 +187,10 @@ struct Rigid2DBodyComponent
 
     u32 BodyIndex;
     f32 Mass;
+    f32 Restitution;
     Rigid2DBodyComponent(){}
-    Rigid2DBodyComponent(f32 mass)
-        : Mass(mass) 
+    Rigid2DBodyComponent(f32 mass, f32 restitution = 0.9f)
+        : Mass(mass), Restitution(restitution) 
     {
     }
 

@@ -267,9 +267,12 @@ void ResolvePenetration(Contact& contact)
     if(totalInvMass < 0.001f)
         return;
 
+    // to prevent objects from getting to close 
+    f32 correction = 0.01f + contact.Depth;
+
     
-    f32 displacementA = contact.Depth * (contact.a->InvMass / totalInvMass);
-    f32 displacementB = contact.Depth * (contact.b->InvMass / totalInvMass); 
+    f32 displacementA = correction * (contact.a->InvMass / totalInvMass);
+    f32 displacementB = correction * (contact.b->InvMass / totalInvMass); 
     contact.a->Position -= contact.Normal * displacementA;
     contact.b->Position += contact.Normal * displacementB;
 }

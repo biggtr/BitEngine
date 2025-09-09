@@ -41,10 +41,6 @@ u32 BCreateBoxShape(f32 width, f32 height)
         v1, v2,
         v3, v4
     };
-    for(u32 i = 0; i < 4; ++i)
-    {
-        BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", i, vertices[i].x, vertices[i].y);
-    }
     f32 inertiaWithoutMass = (1.0f/12.0f) * ((width * width) + (height * height));
     return BCreatePolygonShape(vertices, 4, inertiaWithoutMass);
 }
@@ -65,7 +61,7 @@ u32 BCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 inertiaWitho
     physicsState->Shapes.push_back(shape);
     return shapeIndex;
 }
-u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
+u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass, f32 restitution)
 {
     const BShape& shape = physicsState->Shapes[ShapeIndex];
     BBody body; 
@@ -77,7 +73,7 @@ u32 CreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass)
     body.Velocity = {0.0f, 0.0f, 0.0f};
     body.Mass = mass;
     body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
-    body.Restitution = 0.8f;
+    body.Restitution = restitution;
     switch (shape.Type) 
     {
         case SHAPE_CIRCLE:
