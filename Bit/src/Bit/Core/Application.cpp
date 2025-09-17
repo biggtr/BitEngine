@@ -2,6 +2,8 @@
 #include "Bit/Font/Font.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Profiler/Profiler.h"
+#include "Bit/Renderer/Camera3DManager.h"
+#include "Bit/Renderer/Renderer.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/Camera.h"
@@ -69,10 +71,15 @@ bool Application::Initialize(ApplicationConfig appCfg)
     }
     m_Window->Initialize();
     
+    if(!RendererInitialize())
+    {
+        BIT_LOG_ERROR("Failed to create renderer");
+        return false;
+    }
     m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D->Initialize())
     {
-        BIT_LOG_ERROR("Failed to create renderer");
+        BIT_LOG_ERROR("Failed to create 2drenderer");
         return false;
     }
 
@@ -90,8 +97,15 @@ bool Application::Initialize(ApplicationConfig appCfg)
         return false;
     }
 
-    m_CameraManager = new CameraManager();
-    if(!m_CameraManager)
+    m_Camera3DManager = new Camera3DManager();
+    if(!m_Camera3DManager)
+    {
+        BIT_LOG_ERROR("Failed to create Camera3DManager");
+        return false;
+    }
+
+    m_Camera2DManager = new Camera2DManager();
+    if(!m_Camera2DManager)
     {
         BIT_LOG_ERROR("Failed to create CameraManager");
         return false;
@@ -149,14 +163,16 @@ void Application::Run()
 }
 Application::~Application()
 {
-    delete m_CameraManager;
+    delete m_Camera3DManager;
+    delete m_Camera2DManager;
     delete m_AssetManager;
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Window;
     delete m_EventManager;
     
-    m_CameraManager = nullptr;
+    m_Camera3DManager = nullptr;
+    m_Camera2DManager = nullptr;
     m_AssetManager = nullptr;
     m_EntityManager = nullptr;
     m_Renderer2D = nullptr;

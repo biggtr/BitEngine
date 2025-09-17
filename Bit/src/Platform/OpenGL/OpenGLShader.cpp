@@ -5,9 +5,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
 #include <fstream>
-
-namespace BitEngine
-{
+namespace BitEngine {
 
 enum class SHADER_TYPE
 {
@@ -77,6 +75,19 @@ int OpenGLShader::GetUniformLocation(const std::string& uniformName)
     return uniformLocation; 
 }
 
+const char* OpenGLShader::GetName()
+{
+    return m_Name;
+}
+
+void OpenGLShader::SetName(const char* name) 
+{
+    m_Name = name;
+}
+u32 OpenGLShader::GetID() 
+{
+    return m_ID;
+}
 unsigned int OpenGLShader::CompileShader(unsigned int shaderType,const std::string& shaderSource)
 {
     GLCall(unsigned int shader = glCreateShader(shaderType));
@@ -159,7 +170,4 @@ void OpenGLShader::CreateProgram()
 
 }
 
-
-}
-
-
+} // namespace BitEngine

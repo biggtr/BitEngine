@@ -106,7 +106,6 @@ static Renderer2DData s_RenderData;
 
 b8 Renderer2D::Initialize()
 {
-    RendererAPI::SetAPI(RENDERER_API::OPENGL);
     m_RenderCommand = new RenderCommand();
     if(!m_RenderCommand->Init())
     {

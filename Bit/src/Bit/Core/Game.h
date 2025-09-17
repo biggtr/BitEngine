@@ -1,6 +1,8 @@
 #pragma once 
 #include "Application.h"
 #include "Bit/Core/Input.h"
+#include "Bit/Math/BMath.h"
+#include "Bit/Renderer/Camera3DManager.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
@@ -9,6 +11,7 @@
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Scene/EntityManager.h"
 #include "Bit/Renderer/Renderer2D.h"
+#include "Bit/Renderer/Renderer.h"
 #include "Bit/Systems/Animation2DSystem.h"
 #include "Bit/Systems/CameraSystem.h"
 #include "Bit/Systems/CollisionSystem.h"
@@ -29,7 +32,8 @@ protected:
     Renderer2D& Renderer() { return App().GetRenderer(); }
     EntityManager& Entities() { return App().GetEntityManager(); }
     AssetManager& Assets() { return App().GetAssetManager(); }
-    CameraManager& Camera() { return App().GetCameraManager(); }
+    Camera2DManager& Camera() { return App().GetCameraManager(); }
+    Camera3DManager& Camera3D() { return App().GetCamera3DManager(); }
 
     RenderSystem* m_RenderSystem;
     UIRenderSystem* m_UIRenderSystem;
@@ -39,8 +43,10 @@ protected:
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
 
-    BMath::Mat4 m_ProjectionMatrix;
-    BMath::Mat4 m_UIProjectionMatrix;
+    struct Camera3D* m_ActiveWorld3DCamera;
+    BMath::Mat4 m_PerspectiveProjection;
+    BMath::Mat4 m_OrthoProjection;
+    BMath::Mat4 m_UIProjection;
                                        
     const f32 VIEWPORT_HEIGHT = 100.0f;
     f32 m_WorldHeight;
@@ -54,12 +60,14 @@ public:
         f32 aspectRatio = appConfig.width / (f32)appConfig.height;
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
-        m_ProjectionMatrix = BMath::Mat4::Ortho(
+        m_OrthoProjection = BMath::Mat4::Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
-        m_UIProjectionMatrix = BMath::Mat4::Ortho(
+        m_PerspectiveProjection = BMath::Mat4::Perspective(
+                DegToRad(45.0f), appConfig.width / (f32)appConfig.height, 0.1f, 100.0f);
+        m_UIProjection = BMath::Mat4::Ortho(
             0.0f,  appConfig.width, 
             appConfig.height, 0.0f,
             -1.0f, 1.0f         
@@ -84,6 +92,8 @@ public:
         m_CameraSystem = Entities().GetSystem<CameraSystem>();
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
         m_InputSystem = Entities().GetSystem<InputSystem>();
+
+        m_ActiveWorld3DCamera = Camera3D().GetDefaultCamera();
         auto camera = Entities().CreateEntity();
         Camera2DComponent cameraComponent = Entities().AddComponent<Camera2DComponent>(camera, 
                 BMath::Vec3(0.0f, 0.0f, 10.0f),
@@ -105,13 +115,17 @@ public:
     }
     virtual void OnRender() 
     {
+        BMath::Mat4 view3dMat = m_PerspectiveProjection * Camera3DGetViewMatrix(m_ActiveWorld3DCamera);
+        RendererBeginFrame(view3dMat);
+        Render();
+        RendererEndFrame();
 
-        Renderer().BeginScene(m_UIProjectionMatrix);
+        Renderer().BeginScene(m_UIProjection);
         m_UIRenderSystem->Update(Renderer());
         UIRender();
         Renderer().EndScene();
 
-        BMath::Mat4 viewProjection = m_ProjectionMatrix * Camera().GetActiveCamera()->ViewMatrix;
+        BMath::Mat4 viewProjection = m_OrthoProjection * Camera().GetActiveCamera()->ViewMatrix;
         Renderer().BeginScene(viewProjection);
         m_RenderSystem->Update(Renderer());
         Render();
@@ -125,14 +139,14 @@ public:
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
 
-        m_ProjectionMatrix = BMath::Mat4::Ortho(
+        m_OrthoProjection = BMath::Mat4::Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
         
         
-        m_UIProjectionMatrix = BMath::Mat4::Ortho(
+        m_UIProjection = BMath::Mat4::Ortho(
             0, width,
             height, 0,
             -1.0f, 1.0f
@@ -146,7 +160,7 @@ public:
         f32 ndcX = (2.0f * screenX) / appConfig.width - 1.0f;
         f32 ndcY = 1.0f - (2.0f * screenY) / appConfig.height; 
         
-        BMath::Mat4 viewProjection = m_ProjectionMatrix * Camera().GetActiveCamera()->ViewMatrix;
+        BMath::Mat4 viewProjection = m_OrthoProjection * Camera().GetActiveCamera()->ViewMatrix;
         BMath::Mat4 invViewProjection = BMath::Mat4::Inverse(viewProjection);
 
         BMath::Vec4 worldPos =  invViewProjection * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);

@@ -11,10 +11,10 @@ namespace BitEngine
 class CameraSystem: public System
 {
 private: 
-    CameraManager* m_CameraManager;
+    Camera2DManager* m_CameraManager;
 
 public:
-    CameraSystem(CameraManager* cameraManager)
+    CameraSystem(Camera2DManager* cameraManager)
     {
         m_CameraManager = cameraManager;
         RequireComponent<Camera2DComponent>();

@@ -28,6 +28,10 @@ public:
     virtual void SetFloat3(const char* uniformName, const BMath::Vec3& vec3) override;
     virtual void SetFloat4(const char* uniformName, const BMath::Vec4& vec4) override;
     virtual void SetMat4(const char* uniformName, const BMath::Mat4& mat) override;
+    virtual const char* GetName() override;
+    virtual u32 GetID() override;
+    virtual void SetName(const char* name) override;
+
 private: 
     unsigned int CompileShader(unsigned int shaderType,const std::string& shaderSource);
     ShaderSources ParseShader(const std::string& path);
@@ -38,6 +42,7 @@ private:
 
 private:
     unsigned int m_ID;
+    const char* m_Name;
 };
 
 }

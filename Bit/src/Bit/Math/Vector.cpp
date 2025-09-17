@@ -59,6 +59,10 @@ Vec3 operator-(const Vec3& v1, const Vec3& v2)
     return tmp;
 }
 
+Vec3 Vec3Zero()
+{
+    return Vec3(0, 0, 0);
+}
 float Vec3Dot(const Vec3& a, const Vec3& b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
