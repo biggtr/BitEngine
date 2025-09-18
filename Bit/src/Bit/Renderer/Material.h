@@ -50,11 +50,17 @@ private:
     Shader* m_Shader;
     std::unordered_map<std::string, MaterialProperty> m_Properties;
     std::unordered_map<std::string, Texture*> m_Textures;
+    std::string m_Name;
 
     bool m_PropertiesDirty = true;
     bool m_TexturesDirty = true;
 public:
-    void Bind() const;
+    Material(const std::string& name, Shader* shader);
+    ~Material();
+    
+    void SetShader(Shader* shader);
+    Shader* GetShader() const { return m_Shader; }
+
     
     void SetFloat(const std::string& name, f32 value);
     void SetInt(const std::string& name, i32 value);
@@ -65,7 +71,27 @@ public:
     // void SetMat3(const std::string& name, const BMath::Mat3& value);
     void SetMat4(const std::string& name, const BMath::Mat4& value);
 
+    void SetTexture(const std::string& name, Texture* texture);
+    Texture* GetTexture(const std::string& name) const;
+    bool HasTexture(const std::string& name) const;
+    void RemoveTexture(const std::string& name);
+    void ClearTextures();
+
+    void Bind() const;
+    void Unbind() const;
+    void ApplyProperties() const;
+    void ApplyTextures() const;
+    void ApplyRenderState() const;
+    
+    const std::string& GetName() const { return m_Name; }
+    void SetName(const std::string& name) { m_Name = name; }
+
+    bool HasProperty(const std::string& name) const;
+    MATERIAL_VALUE_TYPE GetPropertyType(const std::string& name) const;
+    std::vector<std::string> GetPropertyNames() const;
+    std::vector<std::string> GetTextureNames() const;
 };
+
 
 }
 
