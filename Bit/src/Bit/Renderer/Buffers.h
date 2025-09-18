@@ -112,8 +112,7 @@ public:
     virtual void SetData(void* data, uint32_t size) = 0;
     virtual void SetBufferLayout(const BufferLayout& bufferLayout) = 0; 
     virtual const BufferLayout& GetBufferLayout() const = 0;
-    virtual u32 GetVertexCount() = 0;
-    virtual u32 GetVertexStride() = 0;
+    virtual u32 GetVertexCount() const = 0;
 
     static VertexBuffer* Create(uint32_t size);
     static VertexBuffer* Create(float* vertices, unsigned int size);

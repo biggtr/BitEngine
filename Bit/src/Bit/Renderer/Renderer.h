@@ -8,7 +8,6 @@
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Resources/GeometryManager.h"
 #include "Bit/Resources/MaterialManager.h"
-#include "Bit/Resources/ResourceTypes.h"
 #include "Bit/Resources/ShaderManager.h"
 
 namespace BitEngine

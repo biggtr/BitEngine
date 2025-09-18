@@ -3,7 +3,6 @@
 #include "Bit/Renderer/Buffers.h"
 #include "Bit/Renderer/Material.h"
 #include "Bit/Renderer/VertexArray.h"
-#include "Bit/Resources/ResourceTypes.h"
 #include <vector>
 
 namespace BitEngine
@@ -52,6 +51,9 @@ public:
     void SetMaterial(Material* material);
     Material* GetMaterial();
 
+    void SetTransform(const BMath::Mat4& transform) { m_Transform = transform; }
+    BMath::Mat4 GetTransform() const { return m_Transform; }
+
     void Translate(const BMath::Vec3& translation);
     void Rotate(f32 angle, const BMath::Vec3& axis);
     void SetScale(f32 scale);
@@ -69,9 +71,13 @@ public:
     u32 GetIndexCount() const { return static_cast<u32>(m_Indices.size()); }
     u32 GetTriangleCount() const { return GetIndexCount() / 3; }
 
+    void UploadToGPU();
+    void MakeDirty() { m_IsUploaded = false; }
+    void SetDynamic() { m_IsDynamic = true; }
 private:
     void CreateBuffers();
     void UpdateBuffers();
     BufferLayout CreateVertexLayout() const;
+
 };
 }

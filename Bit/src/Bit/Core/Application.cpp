@@ -71,11 +71,6 @@ bool Application::Initialize(ApplicationConfig appCfg)
     }
     m_Window->Initialize();
     
-    if(!RendererInitialize())
-    {
-        BIT_LOG_ERROR("Failed to create renderer");
-        return false;
-    }
     m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D->Initialize())
     {

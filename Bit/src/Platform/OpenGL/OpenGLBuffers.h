@@ -16,7 +16,7 @@ public:
     virtual void SetData(void* data, uint32_t size) override;
     virtual void SetBufferLayout(const BufferLayout& bufferLayout) override { m_Layout = bufferLayout; }
     virtual const BufferLayout& GetBufferLayout() const override { return m_Layout; };
-    virtual u32 GetVertexCount() override { return m_VertexCount; }
+    virtual u32 GetVertexCount() const override { return m_VertexCount; }
 private:
     unsigned int m_ID;
     BufferLayout m_Layout;

@@ -116,9 +116,6 @@ public:
     virtual void OnRender() 
     {
         BMath::Mat4 view3dMat = m_PerspectiveProjection * Camera3DGetViewMatrix(m_ActiveWorld3DCamera);
-        RendererBeginFrame(view3dMat);
-        Render();
-        RendererEndFrame();
 
         Renderer().BeginScene(m_UIProjection);
         m_UIRenderSystem->Update(Renderer());

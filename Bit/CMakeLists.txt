@@ -26,7 +26,12 @@ target_sources(BitEngine
     src/Bit/Scene/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp
+
     src/Bit/Resources/AssetManager.cpp
+    src/Bit/Resources/ShaderManager.cpp
+    src/Bit/Resources/MaterialManager.cpp
+    src/Bit/Resources/GeometryManager.cpp
+    
 
     src/Bit/Font/Font.cpp
 
