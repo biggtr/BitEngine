@@ -2,6 +2,7 @@
 #include "Bit/Resources/ResourceTypes.h"
 #include "Bit/Math/Vector.h"
 #include <cstdlib>
+#include <cstring>
 #include <vector>
 
 #define MAX_MATERIALS_NUMBER 4096
@@ -36,11 +37,12 @@ Material* CreateMaterial(u32 shaderID, const char* materialName)
     Material material
     {
         .ID = count,
-        .ShaderID = shaderID, 
-        .Name = materialName, 
+        .InternalID = shaderID, 
+        .Name = "",
         .Properties = {},
         .TextureSlots = {}
     };
+    strcpy(material.Name, materialName);
     state->RegisteredMaterials.push_back(material);
 
     return &state->RegisteredMaterials[count];

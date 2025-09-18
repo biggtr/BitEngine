@@ -10,12 +10,14 @@ namespace BitEngine
 ///////////////////////////////////////////////////////////////////////
 OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
 {
+    m_VertexCount = size;
     GLCall(glGenBuffers(1, &m_ID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
     GLCall(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
 }
 OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, unsigned int size)
 {
+    m_VertexCount = size;
     GLCall(glGenBuffers(1, &m_ID));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
     GLCall(glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW));
