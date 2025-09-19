@@ -9,8 +9,8 @@ namespace BitEngine
 class Camera3DManager
 {
 public:
-    Camera3DManager();
-    ~Camera3DManager();
+    Camera3DManager(){};
+    ~Camera3DManager(){};
 
     Camera3D* CreateCamera(const char* cameraName);
     Camera3D* GetDefaultCamera();

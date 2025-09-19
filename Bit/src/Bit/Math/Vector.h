@@ -4,85 +4,81 @@
 
 namespace BMath 
 {
-
-class Vec2
+struct Vec2
 {
-public:
-    union {
-        struct {
-            union { float x, r, s, u; };
-            union { float y, g, t, v; };
-        };
-        float elements[2];
+    union 
+    {
+        struct { f32 x, y; };  
+        struct { f32 r, g; };
+        struct { f32 s, t; };  
+        f32 elements[2];
     };
 
-public:
-    constexpr Vec2() : x(1.0f), y(1.0f) {}
-    constexpr Vec2(float x, float y) : x(x), y(y) {}
-    Vec2(const Vec2&) = default;
-    ~Vec2() = default;
+    constexpr Vec2() = default;
+    constexpr Vec2(f32 value) : x(value), y(value) {}
+    constexpr Vec2(f32 x_, f32 y_) : x(x_), y(y_) {}
+    constexpr Vec2(const f32 arr[2]) : x(arr[0]), y(arr[1]){};
 
-
-    Vec2& operator=(const Vec2& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        return *this;
-    }
-
-    Vec2& operator=(Vec2&& vec)
-    {
-        x = vec.x;
-        y = vec.y;
-        return *this;
-    }
-    Vec2 operator+(Vec2& other)
-    {
-        return Vec2(x + other.x, y + other.y);
-    }
-    Vec2 operator-(Vec2& other)
-    {
-        return Vec2(x - other.x, y - other.y);
-    }
-    static float Dot(const Vec2& a, const Vec2& b)
-    {
-        return a.x * b.x + a.y * b.y;
-    }
-
-    
-    
-    static f32 LengthSquared(const Vec2& vec)
-    {
-        return vec.x * vec.x + vec.y * vec.y;
-    }
-    static f32 Length(const Vec2& vec) 
-    {
-        return std::sqrt(vec.x * vec.x + vec.y * vec.y);
-    }
-
-    static void Normalize(Vec2* vec) 
-    {
-        float vecLength = Vec2::Length(*vec);
-        vec->x /= vecLength;
-        vec->y /= vecLength;
-    }
-    static Vec2 Normalize(Vec2 vector) 
-    {
-        Vec2::Normalize(&vector);
-        return vector;
-    }
-    static f32 Distance(const Vec2& vector1, const Vec2& vector2)
-    {
-        Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
-        return Vec2::Length(d);
-    }
-    static f32 DistanceSquared(const Vec2& vector1, const Vec2& vector2)
-    {
-        Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
-        return Vec2::LengthSquared(d);
-    }
 };
 
+// Vec2& operator=(const Vec2& vec)
+// {
+//     x = vec.x;
+//     y = vec.y;
+//     return *this;
+// }
+//
+// Vec2& operator=(Vec2&& vec)
+// {
+//     x = vec.x;
+//     y = vec.y;
+//     return *this;
+// }
+// Vec2 operator+(Vec2& other)
+// {
+//     return Vec2(x + other.x, y + other.y);
+// }
+// Vec2 operator-(Vec2& other)
+// {
+//     return Vec2(x - other.x, y - other.y);
+// }
+// static float Dot(const Vec2& a, const Vec2& b)
+// {
+//     return a.x * b.x + a.y * b.y;
+// }
+//
+//
+//
+// static f32 LengthSquared(const Vec2& vec)
+// {
+//     return vec.x * vec.x + vec.y * vec.y;
+// }
+// static f32 Length(const Vec2& vec) 
+// {
+//     return std::sqrt(vec.x * vec.x + vec.y * vec.y);
+// }
+//
+// static void Normalize(Vec2* vec) 
+// {
+//     float vecLength = Vec2::Length(*vec);
+//     vec->x /= vecLength;
+//     vec->y /= vecLength;
+// }
+// static Vec2 Normalize(Vec2 vector) 
+// {
+//     Vec2::Normalize(&vector);
+//     return vector;
+// }
+// static f32 Distance(const Vec2& vector1, const Vec2& vector2)
+// {
+//     Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
+//     return Vec2::Length(d);
+// }
+// static f32 DistanceSquared(const Vec2& vector1, const Vec2& vector2)
+// {
+//     Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
+//     return Vec2::LengthSquared(d);
+// }
 struct Vec3
 {
     union 

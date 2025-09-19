@@ -46,13 +46,6 @@ private:
         u32 GeometriesSubmitted = 0;
     };
     RenderStats m_RenderStats;
-    void Reset()
-    {
-        m_RenderStats.DrawCalls = m_RenderStats.Triangles = m_RenderStats.Vertices = m_RenderStats.GeometriesSubmitted = 0;
-    }
-
-    const RenderStats& GetStats() const { return m_RenderStats; }
-    void ResetStats() { Reset(); }
 public:
     Renderer();
     ~Renderer();
@@ -72,6 +65,21 @@ public:
     void SetClearColor(f32 r, f32 g, f32 b, f32 a = 1.0f);
     void SetViewport(u32 width, u32 height);
     
+    const RenderStats& GetStats() const { return m_RenderStats; }
+    void Reset()
+    {
+        m_RenderStats.DrawCalls = m_RenderStats.Triangles = m_RenderStats.Vertices = m_RenderStats.GeometriesSubmitted = 0;
+    }
+    void ResetStats() { Reset(); }
+private:
+
+
+    void ProcessRenderQueue();
+    void SortRenderQueue();
+    void RenderItem(const RenderItem& item);
+    f32 CalculateDistanceToCamera(const BMath::Vec3& position) const;
+    bool ValidateRenderState() const;
+    void UpdateViewProjectionMatrix();
 };
 
 }

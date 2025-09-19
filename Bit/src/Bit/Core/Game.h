@@ -43,7 +43,6 @@ protected:
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
 
-    struct Camera3D* m_ActiveWorld3DCamera;
     BMath::Mat4 m_PerspectiveProjection;
     BMath::Mat4 m_OrthoProjection;
     BMath::Mat4 m_UIProjection;
@@ -93,7 +92,6 @@ public:
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
         m_InputSystem = Entities().GetSystem<InputSystem>();
 
-        m_ActiveWorld3DCamera = Camera3D().GetDefaultCamera();
         auto camera = Entities().CreateEntity();
         Camera2DComponent cameraComponent = Entities().AddComponent<Camera2DComponent>(camera, 
                 BMath::Vec3(0.0f, 0.0f, 10.0f),
@@ -115,7 +113,6 @@ public:
     }
     virtual void OnRender() 
     {
-        BMath::Mat4 view3dMat = m_PerspectiveProjection * Camera3DGetViewMatrix(m_ActiveWorld3DCamera);
 
         Renderer().BeginScene(m_UIProjection);
         m_UIRenderSystem->Update(Renderer());

@@ -4,6 +4,7 @@
 #include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
+#include "Bit/Resources/ShaderManager.h"
 #include <fstream>
 namespace BitEngine {
 
@@ -28,37 +29,37 @@ void OpenGLShader::Unbind() const
     GLCall(glUseProgram(0));
 }
 
-void OpenGLShader::SetInt(const char* uniformName, int uniformValue)
+void OpenGLShader::SetInt(const std::string& uniformName, int uniformValue)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform1i(uniformLocation, uniformValue));
 }
-void OpenGLShader::SetIntArray(const char* uniformName, int* uniformValue, u32 count)
+void OpenGLShader::SetIntArray(const std::string& uniformName, int* uniformValue, u32 count)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform1iv(uniformLocation, count, uniformValue));
 }
-void OpenGLShader::SetFloat(const char* uniformName, float v1)
+void OpenGLShader::SetFloat(const std::string& uniformName, float v1)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform1f(uniformLocation, v1));
 }
-void OpenGLShader::SetFloat2(const char* uniformName, const BMath::Vec2& vec2)
+void OpenGLShader::SetFloat2(const std::string& uniformName, const BMath::Vec2& vec2)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform2f(uniformLocation, vec2.x, vec2.y));
 }
-void OpenGLShader::SetFloat3(const char* uniformName, const BMath::Vec3& vec3)
+void OpenGLShader::SetFloat3(const std::string& uniformName, const BMath::Vec3& vec3)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform3f(uniformLocation, vec3.x, vec3.y, vec3.z));
 }
-void OpenGLShader::SetFloat4(const char* uniformName, const BMath::Vec4& vec4)
+void OpenGLShader::SetFloat4(const std::string& uniformName, const BMath::Vec4& vec4)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniform4f(uniformLocation, vec4.x, vec4.y, vec4.z, vec4.w));
 }
-void OpenGLShader::SetMat4(const char* uniformName, const BMath::Mat4& mat)
+void OpenGLShader::SetMat4(const std::string& uniformName, const BMath::Mat4& mat)
 {
     int uniformLocation = GetUniformLocation(uniformName);
     GLCall(glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat.Data));
@@ -75,12 +76,12 @@ int OpenGLShader::GetUniformLocation(const std::string& uniformName)
     return uniformLocation; 
 }
 
-const char* OpenGLShader::GetName()
+const std::string& OpenGLShader::GetName()
 {
     return m_Name;
 }
 
-void OpenGLShader::SetName(const char* name) 
+void OpenGLShader::SetName(const std::string& name) 
 {
     m_Name = name;
 }
@@ -106,10 +107,10 @@ unsigned int OpenGLShader::CompileShader(unsigned int shaderType,const std::stri
     }
     return shader;
 }
-ShaderSources OpenGLShader::ParseShader(const std::string& path)
+ShaderSource OpenGLShader::ParseShader(const std::string& path)
 {
     SHADER_TYPE currentShader = SHADER_TYPE::NONE;
-    ShaderSources shaderSources;
+    ShaderSource shaderSources;
     std::ifstream shaderFile(path);
     if(!shaderFile.is_open())
     {
