@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Renderer/RenderCommand.h"
 #include "Bit/Renderer/RendererAPI.h"
+#include "Bit/Resources/ShaderManager.h"
 #include "Bit/Scene/Compontents.h"
 
 namespace BitEngine
@@ -20,6 +21,7 @@ class Renderer2D
 {
 private:
     RenderCommand* m_RenderCommand;
+    ShaderManager* m_ShaderManager;
     Camera2DComponent* m_Camera2D;
     BMath::Mat4 m_CurrentViewProjectionMatrix;
     

@@ -30,7 +30,7 @@ struct MaterialProperty
     MATERIAL_VALUE_TYPE Type;
     union
     {
-        b8 Bool;
+        b8 value;
         f32 Float; 
         i32 Int1;
         BMath::Vec2 Float2;
@@ -84,7 +84,7 @@ public:
     const std::string& GetName() const { return m_Name; }
     void SetName(const std::string& name) { m_Name = name; }
 
-    bool HasProperty(const std::string& name) const;
+    b8 HasProperty(const std::string& name) const;
     MATERIAL_VALUE_TYPE GetPropertyType(const std::string& name) const;
     std::vector<std::string> GetPropertyNames() const;
     std::vector<std::string> GetTextureNames() const;

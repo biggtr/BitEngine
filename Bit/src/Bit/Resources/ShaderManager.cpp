@@ -139,7 +139,7 @@ std::string ShaderManager::LoadFileContent(const std::string& filepath)
     std::string line;
     while(std::getline(file, line))
     {
-        buffer.append(line);
+        buffer.append(line + '\n');
     }
     file.close();
     return buffer;

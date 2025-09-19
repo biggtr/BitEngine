@@ -40,7 +40,7 @@ Material* MaterialManager::CreateMaterial(const std::string& name, Shader* shade
     }
     if(!shader)
     {
-        BIT_LOG_ERROR("Failed To Create Material %s Shader %s not found", name.c_str(), shaderName.c_str());
+        BIT_LOG_ERROR("Failed To Create Material %s Shader %s not found", name.c_str(), shader->GetName().c_str());
         return m_DefaultMaterial;
     }
     Material* material = new Material(name, shader);

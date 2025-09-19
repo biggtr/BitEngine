@@ -45,7 +45,7 @@ void Material::SetInt(const std::string& name, i32 value)
 }
 void Material::SetBool(const std::string& name, b8 value)
 {
-    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::BOOL, .Bool = value };
+    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::BOOL, .value = value };
 }
 void Material::SetVec2(const std::string& name, const BMath::Vec2& value)
 {
@@ -137,7 +137,7 @@ void Material::ApplyProperties() const
             m_Shader->SetInt(property.first, property.second.Int1);
             break;
         case MATERIAL_VALUE_TYPE::BOOL:
-            m_Shader->SetInt(property.first, property.second.Int1);
+            m_Shader->SetInt(property.first, property.second.value);
             break;
         case MATERIAL_VALUE_TYPE::FLOAT2:
             m_Shader->SetFloat2(property.first, property.second.Float2);

@@ -1,6 +1,7 @@
 #include "Renderer2D.h"
 #include <array>
 #include "Bit/Core/Logger.h"
+#include "Bit/Resources/ShaderManager.h"
 #include "glad/glad.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
@@ -112,6 +113,14 @@ b8 Renderer2D::Initialize()
         BIT_LOG_ERROR("failed to Initialize RenderCommand");
         return false;
     }
+    // TODO: Move this to application one manager per app to manage all shaders 
+    // HACK
+    m_ShaderManager = new ShaderManager();
+    if(!m_ShaderManager)
+    {
+        BIT_LOG_ERROR("failed to Initialize ShaderManager");
+        return false;
+    }
 
     s_RenderData.QuadVertexArray = VertexArray::Create();
     s_RenderData.QuadVertexBuffer = VertexBuffer::Create(s_RenderData.MaxVertices * sizeof(QuadVertex));
@@ -169,9 +178,9 @@ b8 Renderer2D::Initialize()
     s_RenderData.LineVertexArray->AddVertexBuffer(s_RenderData.LineVertexBuffer);
     s_RenderData.LineVertexBufferBase = new LineVertex[s_RenderData.MaxVertices];
 
-    s_RenderData.QuadShader = Shader::Create("assets/shaders/QuadShader.glsl");
-    s_RenderData.LineShader = Shader::Create("assets/shaders/LineShader.glsl");
-    s_RenderData.CircleShader = Shader::Create("assets/shaders/CircleShader.glsl");
+    s_RenderData.QuadShader = m_ShaderManager->LoadShader("QuadShader", "assets/shaders/QuadShader.glsl");
+    s_RenderData.LineShader = m_ShaderManager->LoadShader("LineShader", "assets/shaders/LineShader.glsl");
+    s_RenderData.CircleShader = m_ShaderManager->LoadShader("CircleShader", "assets/shaders/CircleShader.glsl");
 
     i32 samplers[s_RenderData.MaxTextureSlots];
     for(u32 i = 0; i < s_RenderData.MaxTextureSlots; ++i)
