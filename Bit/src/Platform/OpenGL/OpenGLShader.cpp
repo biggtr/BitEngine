@@ -8,14 +8,11 @@
 #include <fstream>
 namespace BitEngine {
 
-enum class SHADER_TYPE
-{
-    NONE, VERTEX, FRAGMENT 
-};
 
-OpenGLShader::OpenGLShader(const std::string& path)
+OpenGLShader::OpenGLShader(const std::string& name, const ShaderSource& sources)
 {
-    m_ShaderSources = ParseShader(path);
+    m_Name = name;
+    m_ShaderSources = sources;
     CreateProgram();
 }
 
@@ -107,45 +104,6 @@ unsigned int OpenGLShader::CompileShader(unsigned int shaderType,const std::stri
     }
     return shader;
 }
-ShaderSource OpenGLShader::ParseShader(const std::string& path)
-{
-    SHADER_TYPE currentShader = SHADER_TYPE::NONE;
-    ShaderSource shaderSources;
-    std::ifstream shaderFile(path);
-    if(!shaderFile.is_open())
-    {
-        std::cerr << "Failed To Open The Shader File!.. ";
-    }
-    std::string currentLine;
-    while (std::getline(shaderFile, currentLine)) 
-    {
-        if(currentLine.find("Vertex") != std::string::npos) 
-        {
-            currentShader = SHADER_TYPE::VERTEX;
-            shaderSources.VertexShaderSource.append("#version 330 core\n");
-            continue;
-        }
-        else if(currentLine.find("Fragment") != std::string::npos)
-        {
-            currentShader = SHADER_TYPE::FRAGMENT;
-            shaderSources.FragmentShaderSource.append("#version 330 core\n");
-            continue;
-        }
-        switch (currentShader) 
-        {
-            case SHADER_TYPE::VERTEX:
-                shaderSources.VertexShaderSource += currentLine + '\n';
-                break;
-            case SHADER_TYPE::FRAGMENT:
-                shaderSources.FragmentShaderSource += currentLine + '\n';
-                break;
-            case SHADER_TYPE::NONE:
-                //Ignoring Lines before the shader tag
-                break;
-        }
-    }
-    return  shaderSources;
-}
 
 void OpenGLShader::CreateProgram()
 {
@@ -171,4 +129,4 @@ void OpenGLShader::CreateProgram()
 
 }
 
-} // namespace BitEngine
+} 

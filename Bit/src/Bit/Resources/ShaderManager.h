@@ -5,45 +5,29 @@
 namespace BitEngine
 {
 
-struct ShaderSource
-{
-    std::string VertexShaderSource;
-    std::string FragmentShaderSource;
-};
 class ShaderManager 
 {
 private:
     std::unordered_map<std::string, Shader*> m_Shaders;
-
+    Shader* m_FallBackShader;
 public:
-    ShaderManager(ShaderManager* shaderManager);
+    ShaderManager();
     ~ShaderManager();
-    
-    Shader* CreateShader(const std::string& name, const std::string& shaderName);
-    Shader* CreateShader(const std::string& name, Shader* shader);
-    
-    
-    
 
     Shader* LoadShader(const std::string& name, const std::string& filepath);
     Shader* LoadShaderFromSource(const std::string& name, 
                                                   const std::string& vertexSrc, 
                                                   const std::string& fragmentSrc);
     
-    
     Shader* GetShader(const std::string& name);
     b8 RemoveShader(const std::string& name);
     bool HasShader(const std::string& name) const;
     void Clear();
     
-    
     void LoadBuiltinShaders();
-    
     
     std::vector<std::string> GetShaderNames() const;
     u32 GetShaderCount() const { return static_cast<u32>(m_Shaders.size()); }
-    
-    
     
     void PrintAllShaders() const;
     void PrintShaderInfo(const std::string& name) const;
@@ -60,7 +44,6 @@ private:
     b8 FileExists(const std::string& filepath) const;
     
     void CreateDefaultShaders();
-    
 };
 }
 

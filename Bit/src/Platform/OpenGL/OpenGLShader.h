@@ -12,7 +12,7 @@ class OpenGLShader : public Shader
 {
     
 public:
-    OpenGLShader(const std::string& path);
+    OpenGLShader(const std::string& name, const ShaderSource& sources);
 
     virtual void Bind() const override;
     virtual void Unbind() const override;

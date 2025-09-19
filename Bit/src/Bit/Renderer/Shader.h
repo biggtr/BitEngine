@@ -6,6 +6,16 @@
 namespace BitEngine
 {
 
+enum class SHADER_TYPE
+{
+    NONE, VERTEX, FRAGMENT 
+};
+struct ShaderSource
+{
+    std::string VertexShaderSource;
+    std::string FragmentShaderSource;
+};
+
 class Shader
 {
     
@@ -28,7 +38,7 @@ public:
     virtual void SetName(const std::string& name) = 0;
 
     virtual u32 GetID() = 0;
-    static Shader* Create(const std::string& path);
+    static Shader* Create(const std::string& name, const ShaderSource& sources);
 };
 
 }

@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-Shader* Shader::Create(const std::string& path)
+Shader* Shader::Create(const std::string& name, const ShaderSource& sources)
 {
 
     switch (RendererAPI::GetAPI()) 
@@ -14,7 +14,7 @@ Shader* Shader::Create(const std::string& path)
     case RENDERER_API::NONE:
         return nullptr;
     case RENDERER_API::OPENGL:
-            return new OpenGLShader(path);
+            return new OpenGLShader(name, sources);
       break;
     }
     return nullptr;
