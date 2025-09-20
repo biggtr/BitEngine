@@ -16,6 +16,12 @@ class VertexBuffer;
 class IndexBuffer;
 class VertexArray;
 
+struct RenderItem
+{
+    Geometry* GeometryPtr;
+    Material* MaterialPtr;
+    BMath::Mat4 Transform;
+};
 class Renderer
 {
 private:
@@ -29,12 +35,6 @@ private:
     BMath::Mat4 m_ProjectionMatrix;
     BMath::Mat4 m_ViewProjectionMatrix;
 
-    struct RenderItem
-    {
-        Geometry* GeometryPtr;
-        Material* MaterialPtr;
-        BMath::Mat4 Transform;
-    };
     std::vector<RenderItem> m_RenderQueue;
 
     // === STATISTICS ===
@@ -57,29 +57,27 @@ public:
     b8 EndFrame();
 
     void Submit(Geometry* geometry);
-    void Submit(Geometry* geometry, const BMath::Mat4& transform);
     void Submit(Geometry* geometry, Material* material);
+    void Submit(Geometry* geometry, const BMath::Mat4& transform);
     void Submit(Geometry* geometry, Material* material, const BMath::Mat4& transform);
 
     void SetClearColor(const BMath::Vec4& color);
     void SetClearColor(f32 r, f32 g, f32 b, f32 a = 1.0f);
-    void SetViewport(u32 width, u32 height);
+    void Clear();
+    void SetViewport(u32 x, u32 y, u32 width, u32 height);
     
     const RenderStats& GetStats() const { return m_RenderStats; }
-    void Reset()
+    void ResetStats()
     {
         m_RenderStats.DrawCalls = m_RenderStats.Triangles = m_RenderStats.Vertices = m_RenderStats.GeometriesSubmitted = 0;
     }
-    void ResetStats() { Reset(); }
 private:
 
 
     void ProcessRenderQueue();
     void SortRenderQueue();
     void RenderItem(const RenderItem& item);
-    f32 CalculateDistanceToCamera(const BMath::Vec3& position) const;
     bool ValidateRenderState() const;
-    void UpdateViewProjectionMatrix();
 };
 
 }

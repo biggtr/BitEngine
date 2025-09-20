@@ -66,8 +66,8 @@ public:
     const std::vector<u32>& GetIndices() const { return m_Indices; }
     VertexArray* GetVertexArray() const { return m_VAO; }
     
-    u32 GetVertexCount() const { return static_cast<u32>(m_Vertices.size()); }
-    u32 GetIndexCount() const { return static_cast<u32>(m_Indices.size()); }
+    u32 GetVertexCount() const { return (u32)(m_Vertices.size()); }
+    u32 GetIndexCount() const { return (u32)(m_Indices.size()); }
     u32 GetTriangleCount() const { return GetIndexCount() / 3; }
 
     b8 UploadToGPU();

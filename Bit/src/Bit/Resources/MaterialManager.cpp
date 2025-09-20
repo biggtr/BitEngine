@@ -89,10 +89,10 @@ void MaterialManager::Clear()
     
 // std::vector<std::string> MaterialManager::GetMaterialNames() const;
 
-// void MaterialManager::LoadBuiltinMaterials()
-// {
-//
-// }
+void MaterialManager::LoadBuiltinMaterials()
+{
+
+}
 
 void MaterialManager::CreateDefaultMaterial()
 {

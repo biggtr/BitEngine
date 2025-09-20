@@ -8,7 +8,7 @@ namespace BitEngine
 {
 
 
-b8 RenderCommand::Init()
+b8 RenderCommand::Initialize()
 {
     m_API = RendererAPI::Create();
     if(!m_API->Init())

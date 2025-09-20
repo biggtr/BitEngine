@@ -108,7 +108,7 @@ static Renderer2DData s_RenderData;
 b8 Renderer2D::Initialize()
 {
     m_RenderCommand = new RenderCommand();
-    if(!m_RenderCommand->Init())
+    if(!m_RenderCommand->Initialize())
     {
         BIT_LOG_ERROR("failed to Initialize RenderCommand");
         return false;

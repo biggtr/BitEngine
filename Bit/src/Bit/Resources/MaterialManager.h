@@ -37,7 +37,7 @@ public:
     // std::vector<std::string> GetMaterialNames() const;
     u32 GetMaterialCount() const { return (u32)(m_Materials.size()); }
     
-    // void LoadBuiltinMaterials();
+    void LoadBuiltinMaterials();
     
 private:
     void CreateDefaultMaterial();
