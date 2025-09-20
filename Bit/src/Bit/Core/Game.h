@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Math/BMath.h"
-#include "Bit/Renderer/Camera3DManager.h"
+#include "Bit/Renderer/CameraManager.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
@@ -13,7 +13,6 @@
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Renderer/Renderer.h"
 #include "Bit/Systems/Animation2DSystem.h"
-#include "Bit/Systems/CameraSystem.h"
 #include "Bit/Systems/CollisionSystem.h"
 #include "Bit/Systems/InputSystem.h"
 #include "Bit/Systems/MovementSystem.h"
@@ -32,16 +31,16 @@ protected:
     Renderer2D& Renderer() { return App().GetRenderer(); }
     EntityManager& Entities() { return App().GetEntityManager(); }
     AssetManager& Assets() { return App().GetAssetManager(); }
-    Camera2DManager& Camera() { return App().GetCameraManager(); }
-    Camera3DManager& Camera3D() { return App().GetCamera3DManager(); }
+    CameraManager& Camera() { return App().GetCameraManager(); }
 
     RenderSystem* m_RenderSystem;
     UIRenderSystem* m_UIRenderSystem;
     Physics2DSystem* m_Physics2DSystem;
     CollisionSystem* m_CollisionSystem;
-    CameraSystem* m_CameraSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
+
+    class Camera* ActiveWorldCamera;
 
     BMath::Mat4 m_PerspectiveProjection;
     BMath::Mat4 m_OrthoProjection;
@@ -80,7 +79,6 @@ public:
         Entities().AddSystem<UIRenderSystem>();
         Entities().AddSystem<Physics2DSystem>();
         Entities().AddSystem<CollisionSystem>();
-        Entities().AddSystem<CameraSystem>(&Camera());
         Entities().AddSystem<Animation2DSystem>();
         Entities().AddSystem<InputSystem>();
 
@@ -88,24 +86,17 @@ public:
         m_UIRenderSystem = Entities().GetSystem<UIRenderSystem>();
         m_Physics2DSystem = Entities().GetSystem<Physics2DSystem>();
         m_CollisionSystem = Entities().GetSystem<CollisionSystem>();
-        m_CameraSystem = Entities().GetSystem<CameraSystem>();
         m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
         m_InputSystem = Entities().GetSystem<InputSystem>();
 
-        auto camera = Entities().CreateEntity();
-        Camera2DComponent cameraComponent = Entities().AddComponent<Camera2DComponent>(camera, 
-                BMath::Vec3(0.0f, 0.0f, 10.0f),
-                DegToRad(0.0f)
-                );
+        ActiveWorldCamera = Camera().GetDefaultCamera();
 
-        Camera().SetActiveCamera(&cameraComponent);
         Initialize();
         SetupInput();
         return true;
     }
     virtual void OnUpdate(f64 deltaTime)
     {
-        m_CameraSystem->Update(deltaTime);
         m_Animation2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
@@ -119,7 +110,7 @@ public:
         UIRender();
         Renderer().EndScene();
 
-        BMath::Mat4 viewProjection = m_OrthoProjection * Camera().GetActiveCamera()->ViewMatrix;
+        BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
         Renderer().BeginScene(viewProjection);
         m_RenderSystem->Update(Renderer());
         Render();
@@ -154,7 +145,7 @@ public:
         f32 ndcX = (2.0f * screenX) / appConfig.width - 1.0f;
         f32 ndcY = 1.0f - (2.0f * screenY) / appConfig.height; 
         
-        BMath::Mat4 viewProjection = m_OrthoProjection * Camera().GetActiveCamera()->ViewMatrix;
+        BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
         BMath::Mat4 invViewProjection = BMath::Mat4::Inverse(viewProjection);
 
         BMath::Vec4 worldPos =  invViewProjection * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);

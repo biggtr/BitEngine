@@ -14,6 +14,7 @@ target_sources(BitEngine
     src/Bit/Core/Platform.cpp
     src/Bit/Core/Event.cpp
     src/Bit/Core/Input.cpp
+
     src/Bit/Renderer/RendererAPI.cpp
     src/Bit/Renderer/RenderCommand.cpp
     src/Bit/Renderer/Renderer2D.cpp
@@ -22,7 +23,10 @@ target_sources(BitEngine
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
+
     src/Bit/Renderer/Camera.cpp
+    src/Bit/Renderer/CameraManager.cpp
+
     src/Bit/Scene/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp

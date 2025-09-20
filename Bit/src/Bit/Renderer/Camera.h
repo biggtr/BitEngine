@@ -4,51 +4,48 @@
 namespace BitEngine
 {
 
-class Camera2DComponent;
-class Camera2DManager
+
+enum class CAMERA_TYPE 
+{
+    ORTHO,
+    PRESPECTIVE,
+    NONE
+};
+class Camera
 {
 private:
-    Camera2DComponent* m_ActiveCamera;
+    std::string m_Name;
+    CAMERA_TYPE m_Type;
+    BMath::Mat4 m_ViewMatrix;
+    BMath::Vec3 m_Position;
+    BMath::Vec3 m_EulerRotation;
+    b8 IsDirty;
 
 public:
-    Camera2DManager();
-    ~Camera2DManager();
+    Camera(const std::string& name);
+    ~Camera() = default;
+    void Reset();
+    BMath::Mat4 GetViewMatrix();
 
-    void SetActiveCamera(Camera2DComponent* camera);
-    Camera2DComponent* GetActiveCamera();
-    
+    void SetType(CAMERA_TYPE type);
+    CAMERA_TYPE GetType() const;
 
-    void CalculateViewMatrix();
-    void SetViewMatrix();
+    void SetPosition(const BMath::Vec3& position);
+    BMath::Vec3 GetPosition();
 
-    void SetPosition(BMath::Vec3& position);
-    void SetRotation(f32 rotation);
+    void SetRotation(const BMath::Vec3& rotation);
+    BMath::Vec3 GetRotation();
+
+    void MoveForward(f32 amount);
+    void MoveBackward(f32 amount);
+    void MoveLeft(f32 amount);
+    void MoveRight(f32 amount);
+    void MoveUp(f32 amount);
+    void MoveDown(f32 amount);
+
+    void AdjustYaw(f32 amount);
+    void AdjustPitch(f32 amount);
 };
-
-struct Camera3D
-{
-    BMath::Mat4 ViewMatrix;
-    BMath::Vec3 Position;
-    BMath::Vec3 EulerRotation;
-    b8 IsDirty;
-};
-Camera3D Camera3DCreate();
-void Camera3DReset(Camera3D* c);
-BMath::Mat4 Camera3DGetViewMatrix(Camera3D* c);
-
-void Camera3DSetPosition(Camera3D* c, const BMath::Vec3& position);
-BMath::Vec3 Camera3DGetPosition(Camera3D* c);
-
-void Camera3DSetRotation(Camera3D* c, const BMath::Vec3& rotation);
-BMath::Vec3 Camera3DGetRotation(Camera3D* c);
-
-void Camera3DMoveForward(Camera3D* c, f32 amount);
-void Camera3DMoveBackward(Camera3D* c, f32 amount);
-void Camera3DMoveLeft(Camera3D* c, f32 amount);
-void Camera3DMoveRight(Camera3D* c, f32 amount);
-void Camera3DMoveUp(Camera3D* c, f32 amount);
-void Camera3DMoveDown(Camera3D* c, f32 amount);
-
-void Camera3DAdjustYaw(Camera3D* c, f32 amount);
-void Camera3DAdjustPitch(Camera3D* c, f32 amount);
 }
+
+

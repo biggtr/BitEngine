@@ -9,7 +9,7 @@ class Renderer2D;
 class EntityManager;        
 class AssetManager;
 class Camera2DManager;
-class Camera3DManager;
+class CameraManager;
 class EventManager;
 class Input;
 class EventContext;
@@ -39,8 +39,7 @@ private:
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
-    Camera2DManager* m_Camera2DManager;
-    Camera3DManager* m_Camera3DManager;
+    CameraManager* m_CameraManager;
     EventManager* m_EventManager;
     static Application* s_Instance;
 public:
@@ -55,8 +54,7 @@ public:
     inline Renderer2D& GetRenderer() { return *m_Renderer2D; }
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
-    inline Camera2DManager& GetCameraManager() { return *m_Camera2DManager; }
-    inline Camera3DManager& GetCamera3DManager() { return *m_Camera3DManager; }
+    inline CameraManager& GetCameraManager() { return *m_CameraManager; }
 private:
     static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);
     static b8 ApplicationOnKey(u16 code, void* sender, void* listener, EventContext data);
