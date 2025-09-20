@@ -115,7 +115,7 @@ public:
     virtual u32 GetVertexCount() const = 0;
 
     static VertexBuffer* Create(uint32_t size);
-    static VertexBuffer* Create(float* vertices, unsigned int size);
+    static VertexBuffer* Create(f32* vertices, unsigned int size);
 };
 
 class IndexBuffer
@@ -125,8 +125,10 @@ public:
     virtual ~IndexBuffer() = default;
     virtual void Bind() const = 0;
     virtual void UnBind() const = 0;
+    virtual void SetData(u32* data, u32 count);
     virtual unsigned int GetCount() const = 0; 
 
-    static IndexBuffer* Create(unsigned int * indices, unsigned int count);
+    static IndexBuffer* Create(u32 count);
+    static IndexBuffer* Create(u32* indices, u32 count);
 };
 }

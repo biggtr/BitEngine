@@ -34,6 +34,20 @@ VertexBuffer* VertexBuffer::Create(float *vertices, unsigned int size)
     }
     return nullptr;
 }
+
+IndexBuffer* IndexBuffer::Create(u32 count)
+{
+    switch (RendererAPI::GetAPI()) 
+    {
+
+    case RENDERER_API::NONE:
+        return nullptr;
+    case RENDERER_API::OPENGL:
+            return new OpenGLIndexBuffer(count);
+      break;
+    }
+    return nullptr;
+}
 IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t count)
 {
     switch (RendererAPI::GetAPI()) 

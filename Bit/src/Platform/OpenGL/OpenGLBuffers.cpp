@@ -42,6 +42,14 @@ void OpenGLVertexBuffer::SetData(void* data, uint32_t size)
 ///////////////////////////////////////////////////////////////////////
 /// IndexBuffer 
 ///////////////////////////////////////////////////////////////////////
+
+OpenGLIndexBuffer::OpenGLIndexBuffer(u32 count)
+{
+    m_Count = count;
+    GLCall(glGenBuffers(1, &m_ID));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID));
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(u32), nullptr,  GL_DYNAMIC_DRAW));
+}
 OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 {
     m_Count = count;
@@ -57,5 +65,11 @@ void OpenGLIndexBuffer::Bind() const
 void OpenGLIndexBuffer::UnBind() const 
 {
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+void OpenGLIndexBuffer::SetData(u32* data, u32 count)
+{
+    u32 size = count * sizeof(u32);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 }

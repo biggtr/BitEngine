@@ -29,7 +29,7 @@ public:
 protected:
     Application& App() { return Application::GetApplication(); }
     Renderer2D& Renderer() { return App().GetRenderer(); }
-    EntityManager& Entities() { return App().GetEntityManager(); }
+    EntityManager& ECS() { return App().GetEntityManager(); }
     AssetManager& Assets() { return App().GetAssetManager(); }
     CameraManager& Camera() { return App().GetCameraManager(); }
 
@@ -75,19 +75,19 @@ public:
     {
         SetupGameSize();
 
-        Entities().AddSystem<RenderSystem>();
-        Entities().AddSystem<UIRenderSystem>();
-        Entities().AddSystem<Physics2DSystem>();
-        Entities().AddSystem<CollisionSystem>();
-        Entities().AddSystem<Animation2DSystem>();
-        Entities().AddSystem<InputSystem>();
+        ECS().AddSystem<RenderSystem>();
+        ECS().AddSystem<UIRenderSystem>();
+        ECS().AddSystem<Physics2DSystem>();
+        ECS().AddSystem<CollisionSystem>();
+        ECS().AddSystem<Animation2DSystem>();
+        ECS().AddSystem<InputSystem>();
 
-        m_RenderSystem = Entities().GetSystem<RenderSystem>();
-        m_UIRenderSystem = Entities().GetSystem<UIRenderSystem>();
-        m_Physics2DSystem = Entities().GetSystem<Physics2DSystem>();
-        m_CollisionSystem = Entities().GetSystem<CollisionSystem>();
-        m_Animation2DSystem = Entities().GetSystem<Animation2DSystem>();
-        m_InputSystem = Entities().GetSystem<InputSystem>();
+        m_RenderSystem = ECS().GetSystem<RenderSystem>();
+        m_UIRenderSystem = ECS().GetSystem<UIRenderSystem>();
+        m_Physics2DSystem = ECS().GetSystem<Physics2DSystem>();
+        m_CollisionSystem = ECS().GetSystem<CollisionSystem>();
+        m_Animation2DSystem = ECS().GetSystem<Animation2DSystem>();
+        m_InputSystem = ECS().GetSystem<InputSystem>();
 
         ActiveWorldCamera = Camera().GetDefaultCamera();
 

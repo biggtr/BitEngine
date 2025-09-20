@@ -31,7 +31,7 @@ void RespawnWhiteBall(BitEngine::Entity whiteBall)
 }
 BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width, f32 height)
 {
-    auto table = Entities().CreateEntity();
+    auto table = ECS().CreateEntity();
     table.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(width, height, 0.0f),
@@ -40,7 +40,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.4f, 0.0f, 1.0f};
 
 
-    auto uptableEdge = Entities().CreateEntity();
+    auto uptableEdge = ECS().CreateEntity();
     uptableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, height / 2.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -50,7 +50,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     uptableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     uptableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width - 10.0f , 5.0f, 0.0f));
 
-    auto downtableEdge = Entities().CreateEntity();
+    auto downtableEdge = ECS().CreateEntity();
     downtableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, -height / 2.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -60,7 +60,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     downtableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     downtableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width - 10.0f, 5.0f, 0.0f));
 
-    auto lefttableEdge = Entities().CreateEntity();
+    auto lefttableEdge = ECS().CreateEntity();
     lefttableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(-width/ 2.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -70,7 +70,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     lefttableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     lefttableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(5.0f, height - 10.0f, 0.0f));
 
-    auto righttableEdge = Entities().CreateEntity();
+    auto righttableEdge = ECS().CreateEntity();
     righttableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(width/ 2.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -88,7 +88,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
 
         BMath::Vec3 pocketPos = {x, y, -5.0f};
 
-        auto pocket = Entities().CreateEntity();
+        auto pocket = ECS().CreateEntity();
         pocket.AddComponent<BitEngine::TransformComponent>(pocketPos);
         pocket.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS * 3);
         pocket.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS * 3);
@@ -126,7 +126,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
             ballPos.y += (ballRadius * 2 + verticalGap);
         }
         ballsInCurrentRow++;
-        auto ball = Entities().CreateEntity();
+        auto ball = ECS().CreateEntity();
         ball.AddComponent<BitEngine::TransformComponent>(
                 ballPos,
                 0.0f,
@@ -140,7 +140,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
         i++;
     }
 
-    m_WhiteBall = Entities().CreateEntity();
+    m_WhiteBall = ECS().CreateEntity();
     m_WhiteBall.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f),
@@ -210,14 +210,14 @@ void TestGame::Update(f32 deltaTime)
             BitEngine::Entity ball = m_Balls[j];
             BitEngine::Entity pocket = m_Pockets[i];
 
-            if(Entities().HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
-                    Entities().HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
-                    Entities().HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
-                    Entities().HasComponent<BitEngine::Rigid2DBodyComponent>(pocket) 
+            if(ECS().HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
+                    ECS().HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
+                    ECS().HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
+                    ECS().HasComponent<BitEngine::Rigid2DBodyComponent>(pocket) 
             )
             {
-                BitEngine::Rigid2DBodyComponent& rigidBodyA = Entities().GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
-                BitEngine::Rigid2DBodyComponent& rigidBodyB = Entities().GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
+                BitEngine::Rigid2DBodyComponent& rigidBodyA = ECS().GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
+                BitEngine::Rigid2DBodyComponent& rigidBodyB = ECS().GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
                 BPhysics2D::BBody& ballBody = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
                 BPhysics2D::BBody& pocketBody = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
 

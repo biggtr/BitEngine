@@ -27,11 +27,13 @@ private:
 class OpenGLIndexBuffer : public IndexBuffer
 {
 public:
+    OpenGLIndexBuffer(u32 count);
     OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
 
     virtual ~OpenGLIndexBuffer() = default;
     virtual void Bind() const override;
     virtual void UnBind() const override;
+    virtual void SetData(u32* data, u32 count) override;
     virtual unsigned int GetCount() const override { return m_Count; };
 private:
     unsigned int m_ID;

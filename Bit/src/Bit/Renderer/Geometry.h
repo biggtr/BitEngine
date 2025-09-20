@@ -9,10 +9,9 @@ namespace BitEngine
 {
 struct Vertex3D
 {
-    BMath::Vec3 Position;
-    BMath::Vec3 Normal;
-    BMath::Vec2 TextureCoords;
+    BMath::Vec4 Position;
     BMath::Vec4 Color;
+    BMath::Vec2 TextureCoords;
 };
 
 #define MAX_GEOMETRY_NAME_LENGTH 256
@@ -56,8 +55,8 @@ public:
 
     void Translate(const BMath::Vec3& translation);
     void Rotate(f32 angle, const BMath::Vec3& axis);
-    void SetScale(f32 scale);
-    void SetScale(const BMath::Vec3& scale);
+    void Scale(f32 scale);
+    void Scale(const BMath::Vec3& scale);
 
     bool IsUploaded() const { return m_IsUploaded; }
     bool IsDynamic() const { return m_IsDynamic; }
@@ -71,7 +70,7 @@ public:
     u32 GetIndexCount() const { return static_cast<u32>(m_Indices.size()); }
     u32 GetTriangleCount() const { return GetIndexCount() / 3; }
 
-    void UploadToGPU();
+    b8 UploadToGPU();
     void MakeDirty() { m_IsUploaded = false; }
     void SetDynamic() { m_IsDynamic = true; }
 private:

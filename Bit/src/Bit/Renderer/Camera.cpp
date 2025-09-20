@@ -8,8 +8,6 @@
 namespace BitEngine
 {
 
-
-
 Camera::Camera(const std::string& name)
     : m_Name(name)
 {
