@@ -117,7 +117,7 @@ void Renderer::Submit(Geometry* geometry, Material* material, const BMath::Mat4&
         geometry->UploadToGPU();
     }
     
-    struct RenderItem item;
+    struct RenderingItem item;
     item.GeometryPtr = geometry;
     item.MaterialPtr = material;
     item.Transform = transform;
@@ -156,13 +156,13 @@ void Renderer::ProcessRenderQueue()
 void Renderer::SortRenderQueue()
 {
     std::sort(m_RenderQueue.begin(), m_RenderQueue.end(),
-            [](const struct RenderItem& a, const struct RenderItem& b)
+            [](const struct RenderingItem& a, const struct RenderingItem& b)
                 {
                     return a.MaterialPtr < b.MaterialPtr;
                 }
             );
 }
-void Renderer::RenderItem(const struct RenderItem& item)
+void Renderer::RenderItem(const struct RenderingItem& item)
 {
     Geometry* geometry = item.GeometryPtr;
     Material* material = item.MaterialPtr;

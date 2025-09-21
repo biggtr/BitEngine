@@ -16,7 +16,7 @@ class VertexBuffer;
 class IndexBuffer;
 class VertexArray;
 
-struct RenderItem
+struct RenderingItem
 {
     Geometry* GeometryPtr;
     Material* MaterialPtr;
@@ -35,7 +35,7 @@ private:
     BMath::Mat4 m_ProjectionMatrix;
     BMath::Mat4 m_ViewProjectionMatrix;
 
-    std::vector<RenderItem> m_RenderQueue;
+    std::vector<RenderingItem> m_RenderQueue;
 
     // === STATISTICS ===
     struct RenderStats
@@ -76,7 +76,7 @@ private:
 
     void ProcessRenderQueue();
     void SortRenderQueue();
-    void RenderItem(const RenderItem& item);
+    void RenderItem(const RenderingItem& item);
     bool ValidateRenderState() const;
 };
 

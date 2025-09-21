@@ -173,16 +173,10 @@ void Material::ApplyTextures() const
         if (texture && textureCount < 32) 
         { 
             texture->Bind(textureCount);
-            std::string arrayUniformName = "u_Textures[" + std::to_string(textureCount) + "]";
-            m_Shader->SetInt(arrayUniformName, textureCount);
-
             m_Shader->SetInt(name, textureCount);
             textureCount++;
         }
     }
-    m_Shader->SetInt("textureCount", textureCount);
-    m_Shader->SetInt("blendMode", (i32)m_BlendMode);
-    m_Shader->SetFloat("blendStrength", m_BlendStrength);
 }
 
 b8 Material::HasProperty(const std::string& name) const

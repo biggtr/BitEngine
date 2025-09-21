@@ -109,8 +109,9 @@ public:
         m_UIRenderSystem->Update(Renderer());
         UIRender();
         Renderer().EndScene();
-
-        BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
+        BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
+        
+        BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
         Renderer().BeginScene(viewProjection);
         m_RenderSystem->Update(Renderer());
         Render();
