@@ -33,10 +33,10 @@ BMath::Mat4 Camera::GetViewMatrix()
 {
     if(IsDirty)
     {
-        BMath::Mat4 rotation = BMath::Mat4::Rotate(m_EulerRotation.x, m_EulerRotation.y, m_EulerRotation.z);
-        BMath::Mat4 translation = BMath::Mat4::Translate(m_Position.x, m_Position.y, m_Position.z);
+        BMath::Mat4 rotation = BMath::Rotate(m_EulerRotation.x, m_EulerRotation.y, m_EulerRotation.z);
+        BMath::Mat4 translation = BMath::Translate(m_Position.x, m_Position.y, m_Position.z);
         BMath::Mat4 viewmatrix = rotation * translation;
-        m_ViewMatrix = BMath::Mat4::Inverse(viewmatrix);
+        m_ViewMatrix = BMath::Inverse(viewmatrix);
         IsDirty = false;
     }
     return m_ViewMatrix;
@@ -64,42 +64,42 @@ BMath::Vec3 Camera::GetRotation()
 
 void Camera::MoveForward(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Forward(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Forward(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;
 }
 void Camera::MoveBackward(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Backward(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Backward(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;
 }
 void Camera::MoveLeft(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Left(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Left(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;
 }
 void Camera::MoveRight(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Right(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Right(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;
 }
 void Camera::MoveUp(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Right(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Right(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;
 }
 void Camera::MoveDown(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4::Down(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Down(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;

@@ -1,10 +1,10 @@
-#pragma once 
 #include "Geometry.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Buffers.h"
 
-namespace BitEngine
-{
+namespace BitEngine {
+using BMath::Mat4;
+
 Geometry::Geometry(const std::string& name)
     : m_VAO(), m_VBO(), m_IBO(), 
         m_Material(), m_Transform(), m_IsUploaded(false), m_IsDynamic(false)
@@ -19,7 +19,7 @@ Geometry::~Geometry()
     delete m_Material;
 }
 
-void Geometry::SetVertices(const std::vector<Vertex3D>& vertices)
+void Geometry::SetVertices(const std::vector<Vertex>& vertices)
 {
     m_Vertices = vertices;
     MakeDirty();
@@ -29,12 +29,12 @@ void Geometry::SetIndices(const std::vector<u32> indices)
     m_Indices = indices;
     MakeDirty();
 }
-void Geometry::UploadVertices(const std::vector<Vertex3D>& m_Vertices) // dynamic meshes
+void Geometry::UploadVertices(const std::vector<Vertex>& m_Vertices) // dynamic meshes
 {
 
 }
 
-void Geometry::AddVertex(const Vertex3D& vertex)
+void Geometry::AddVertex(const Vertex& vertex)
 {
     m_Vertices.push_back(vertex);
     MakeDirty();
@@ -89,18 +89,18 @@ Material* Geometry::GetMaterial()
 
 void Geometry::Translate(const BMath::Vec3& translation)
 {
-    BMath::Mat4 t = BMath::Mat4::Translate(translation.x, translation.y, translation.z);
-    m_Transform = m_Transform * t;
+  Mat4 t = BMath::Translate(translation.x, translation.y, translation.z);
+  m_Transform = m_Transform * t;
 }
 void Geometry::Rotate(f32 angle, const BMath::Vec3& axis)
 {
     BMath::Vec3 scaledAxis = axis * angle;
-    BMath::Mat4 r = BMath::Mat4::Rotate(scaledAxis.x, scaledAxis.y, scaledAxis.z);
+    Mat4 r = BMath::Rotate(scaledAxis.x, scaledAxis.y, scaledAxis.z);
     m_Transform = m_Transform * r;
 }
 void Geometry::Scale(const BMath::Vec3& scale)
 {
-    BMath::Mat4 s = BMath::Mat4::Scale(scale.x, scale.y, scale.z);
+    Mat4 s = BMath::Scale(scale.x, scale.y, scale.z);
     m_Transform = m_Transform * s;
 }
 void Geometry::Scale(f32 scale)
@@ -132,7 +132,7 @@ void Geometry::CreateBuffers()
 
     m_VAO = VertexArray::Create();
 
-    u32 vbosize = sizeof(Vertex3D) * m_Vertices.size();
+    u32 vbosize = sizeof(Vertex) * m_Vertices.size();
 
 
     if(m_IsDynamic)
@@ -160,7 +160,7 @@ void Geometry::UpdateBuffers()
     if(!m_VBO || !m_IBO)
         return;
 
-    u32 vbosize = sizeof(Vertex3D) * m_Vertices.size();
+    u32 vbosize = sizeof(Vertex) * m_Vertices.size();
     m_VBO->SetData(m_Vertices.data(), vbosize);
 
     m_IBO->SetData(m_Indices.data(), m_Indices.size());
@@ -173,4 +173,4 @@ BufferLayout Geometry::CreateVertexLayout() const
         { SHADER_DATA_TYPE::FLOAT2, "a_TexCoords"}, 
         });
 }
-}
+} 

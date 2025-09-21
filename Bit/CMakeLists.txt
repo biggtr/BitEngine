@@ -17,12 +17,15 @@ target_sources(BitEngine
 
     src/Bit/Renderer/RendererAPI.cpp
     src/Bit/Renderer/RenderCommand.cpp
+    src/Bit/Renderer/Renderer.cpp
     src/Bit/Renderer/Renderer2D.cpp
     src/Bit/Renderer/GraphicsContext.cpp
     src/Bit/Renderer/Texture.cpp
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
     src/Bit/Renderer/Buffers.cpp
+    src/Bit/Renderer/Material.cpp
+    src/Bit/Renderer/Geometry.cpp
 
     src/Bit/Renderer/Camera.cpp
     src/Bit/Renderer/CameraManager.cpp
@@ -30,6 +33,7 @@ target_sources(BitEngine
     src/Bit/Scene/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
     src/Bit/Systems/System.cpp
+
 
     src/Bit/Resources/AssetManager.cpp
     src/Bit/Resources/ShaderManager.cpp
@@ -40,6 +44,7 @@ target_sources(BitEngine
     src/Bit/Font/Font.cpp
 
     src/Bit/Math/Vector.cpp
+    src/Bit/Math/Matrix.cpp
 
     src/Bit/UI/BitUI.cpp
 

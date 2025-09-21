@@ -18,9 +18,9 @@ public:
     Geometry* CreateGeometry(const std::string& name);
     Geometry* LoadGeometry(const std::string& name, std::string filePath);
 
-    Geometry* CreateCube(const std::string& name, f32 size = 1.0f);
+    Geometry* CreateCube(const std::string& name, f32 size = 1.0f, const BMath::Vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f});
     Geometry* CreateSphere(const std::string& name, f32 radius = 1.5f, u32 segments = 32);
-    Geometry* CreatePlane(const std::string& name, f32 width = 1.0f, f32 height = 1.0f);
+    Geometry* CreatePlane(const std::string& name, f32 width = 1.0f, f32 height = 1.0f, const BMath::Vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f});
     Geometry* CreateCylinder(const std::string& name, f32 height = 3.0f, u32 segments = 32);
     Geometry* CreateQuad(const std::string& name, f32 size = 1.0f);
 

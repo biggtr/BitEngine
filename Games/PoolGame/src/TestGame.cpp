@@ -176,11 +176,11 @@ void TestGame::UIRender()
     std::vector<BitUI::DrawCommand> verticalDrawCommands =  BitUI::EndLayout();
     for(auto& command : horizontalDrawCommands)
     {
-        Renderer().DrawQuad(command.Position, command.Size, command.data.Color);
+        Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
     }
     for(auto& command : verticalDrawCommands)
     {
-        Renderer().DrawQuad(command.Position, command.Size, command.data.Color);
+        Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
     }
 }
 void TestGame::Render()
@@ -198,7 +198,7 @@ void TestGame::Render()
 
         auto startPos = whitePos + dragDirNorm * (ballRadius + lineBallGap);
         f32 lineLength = BMath::Vec3Length(dragDir) * 2.0f;
-        Renderer().DrawLine(startPos, startPos + dragDirNorm * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
+        Render2D().DrawLine(startPos, startPos + dragDirNorm * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
     }
 }
 void TestGame::Update(f32 deltaTime)

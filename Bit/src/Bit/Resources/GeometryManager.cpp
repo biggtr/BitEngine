@@ -46,7 +46,7 @@ Geometry* GeometryManager::LoadGeometry(const std::string& name, std::string fil
     return m_Geometries.at(name);
 }
 
-Geometry* GeometryManager::CreateCube(const std::string& name, f32 size)
+Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const BMath::Vec4& color)
 {
     if(HasGeometry(name))
     {
@@ -54,7 +54,7 @@ Geometry* GeometryManager::CreateCube(const std::string& name, f32 size)
     }
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    GenerateCubeData(vertices, indices, size);
+    GenerateCubeData(vertices, indices, size, color);
     Geometry* geometry = new Geometry(name);
     geometry->SetVertices(vertices);
     geometry->SetIndices(indices);
@@ -78,7 +78,7 @@ Geometry* GeometryManager::CreateSphere(const std::string& name, f32 radius, u32
     m_Geometries[name] = geometry;
     return m_Geometries.at(name);
 }
-Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 height)
+Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 height, const BMath::Vec4& color)
 {
 
     if(HasGeometry(name))
@@ -87,7 +87,7 @@ Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 h
     }
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    GeneratePlaneData(vertices, indices, width, height);
+    GeneratePlaneData(vertices, indices, width, height, color);
     Geometry* geometry = new Geometry(name);
     geometry->SetVertices(vertices);
     geometry->SetIndices(indices);

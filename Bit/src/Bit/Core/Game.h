@@ -28,7 +28,8 @@ public:
     ApplicationConfig appConfig;
 protected:
     Application& App() { return Application::GetApplication(); }
-    Renderer2D& Renderer() { return App().GetRenderer(); }
+    Renderer2D& Render2D() { return App().GetRenderer2D(); }
+    Renderer& Renderer3D() { return App().GetRenderer(); }
     EntityManager& ECS() { return App().GetEntityManager(); }
     AssetManager& Assets() { return App().GetAssetManager(); }
     CameraManager& Camera() { return App().GetCameraManager(); }
@@ -58,14 +59,14 @@ public:
         f32 aspectRatio = appConfig.width / (f32)appConfig.height;
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
-        m_OrthoProjection = BMath::Mat4::Ortho(
+        m_OrthoProjection = BMath::Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
-        m_PerspectiveProjection = BMath::Mat4::Perspective(
+        m_PerspectiveProjection = BMath::Perspective(
                 DegToRad(45.0f), appConfig.width / (f32)appConfig.height, 0.1f, 100.0f);
-        m_UIProjection = BMath::Mat4::Ortho(
+        m_UIProjection = BMath::Ortho(
             0.0f,  appConfig.width, 
             appConfig.height, 0.0f,
             -1.0f, 1.0f         
@@ -105,17 +106,17 @@ public:
     virtual void OnRender() 
     {
 
-        Renderer().BeginScene(m_UIProjection);
-        m_UIRenderSystem->Update(Renderer());
+        Render2D().BeginScene(m_UIProjection);
+        m_UIRenderSystem->Update(Render2D());
         UIRender();
-        Renderer().EndScene();
+        Render2D().EndScene();
         BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
         
         BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
-        Renderer().BeginScene(viewProjection);
-        m_RenderSystem->Update(Renderer());
+        Render2D().BeginScene(viewProjection);
+        m_RenderSystem->Update(Render2D());
         Render();
-        Renderer().EndScene();
+        Render2D().EndScene();
 
 
     }
@@ -125,20 +126,20 @@ public:
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
 
-        m_OrthoProjection = BMath::Mat4::Ortho(
+        m_OrthoProjection = BMath::Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
         
         
-        m_UIProjection = BMath::Mat4::Ortho(
+        m_UIProjection = BMath::Ortho(
             0, width,
             height, 0,
             -1.0f, 1.0f
         );
         
-        Renderer().SetViewport(0, 0, width, height);
+        Render2D().SetViewport(0, 0, width, height);
     }
 
     BMath::Vec3 ScreenToWorldCoords(f32 screenX, f32 screenY) 
@@ -147,7 +148,7 @@ public:
         f32 ndcY = 1.0f - (2.0f * screenY) / appConfig.height; 
         
         BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
-        BMath::Mat4 invViewProjection = BMath::Mat4::Inverse(viewProjection);
+        BMath::Mat4 invViewProjection = BMath::Inverse(viewProjection);
 
         BMath::Vec4 worldPos =  invViewProjection * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);
         

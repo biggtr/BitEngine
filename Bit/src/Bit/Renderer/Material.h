@@ -42,7 +42,7 @@ struct MaterialProperty
         BMath::Vec2 Float2;
         BMath::Vec3 Float3;
         BMath::Vec4 Float4;
-        BMath::Mat4 Mat4;
+        BMath::Mat4 Matrix4;
     };
 };
 namespace BitEngine

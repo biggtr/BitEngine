@@ -71,6 +71,12 @@ bool Application::Initialize(ApplicationConfig appCfg)
     }
     m_Window->Initialize();
     
+    m_Renderer = new Renderer();
+    if(!m_Renderer->Initialize())
+    {
+        BIT_LOG_ERROR("Failed to create renderer");
+        return false;
+    }
     m_Renderer2D = new Renderer2D();
     if(!m_Renderer2D->Initialize())
     {
@@ -155,6 +161,7 @@ Application::~Application()
     delete m_CameraManager;
     delete m_AssetManager;
     delete m_EntityManager;
+    delete m_Renderer;
     delete m_Renderer2D;
     delete m_Window;
     delete m_EventManager;
@@ -162,6 +169,7 @@ Application::~Application()
     m_CameraManager = nullptr;
     m_AssetManager = nullptr;
     m_EntityManager = nullptr;
+    m_Renderer = nullptr;
     m_Renderer2D = nullptr;
     m_Window = nullptr;
     m_EventManager = nullptr;
@@ -179,6 +187,7 @@ b8 Application::Shutdown()
     s_Instance->m_EventManager->UnRegister(EVENT_CODE_KEY_PRESSED, 0, ApplicationOnKey);
     s_Instance->m_EventManager->Shutdown();
     s_Instance->m_AssetManager->ClearTextures();
+    s_Instance->m_Renderer->Shutdown();
     s_Instance->m_Renderer2D->Shutdown();
     s_Instance->m_Window->Shutdown();
     s_Instance->m_IsRunning = false;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Core/TimeStamp.h"
+#include "Bit/Renderer/Renderer.h"
 #include <cstdint>
 namespace BitEngine
 {
@@ -36,6 +37,7 @@ public:
     
 private:
     BitEngine::Platform* m_Window;
+    Renderer* m_Renderer;
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
@@ -51,7 +53,8 @@ public:
     bool Initialize(ApplicationConfig appCfg);
 
     inline static Application& GetApplication() { return *s_Instance; }
-    inline Renderer2D& GetRenderer() { return *m_Renderer2D; }
+    inline Renderer& GetRenderer() { return *m_Renderer; }
+    inline Renderer2D& GetRenderer2D() { return *m_Renderer2D; }
     inline EntityManager& GetEntityManager() { return *m_EntityManager; }
     inline AssetManager& GetAssetManager() { return *m_AssetManager; }
     inline CameraManager& GetCameraManager() { return *m_CameraManager; }

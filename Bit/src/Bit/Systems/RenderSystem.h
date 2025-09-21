@@ -68,7 +68,7 @@ public:
             if(m_EntityManager->HasComponent<Circle2DComponent>(entity))
             {
                 Circle2DComponent& circleComponent = m_EntityManager->GetComponent<Circle2DComponent>(entity);
-                BMath::Mat4 transform = BMath::Mat4::CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleComponent.Radius);
+                BMath::Mat4 transform = BMath::CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleComponent.Radius);
                 renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
             }
             if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))

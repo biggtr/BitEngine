@@ -286,7 +286,7 @@ void Renderer2D::Flush()
 
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
 {
-    BMath::Mat4 transform = BMath::Mat4::CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::CreateTransform(position, size);
     DrawQuad(transform, color);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
@@ -309,7 +309,7 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
 
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite)
 {
-    BMath::Mat4 transform = BMath::Mat4::CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::CreateTransform(position, size);
     DrawQuad(transform, sprite);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)

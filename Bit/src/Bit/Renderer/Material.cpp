@@ -63,7 +63,7 @@ void Material::SetVec4(const std::string& name, const BMath::Vec4& value)
 }
 void Material::SetMat4(const std::string& name, const BMath::Mat4& value)
 {
-    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT4, .Mat4 = value };
+    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT4, .Matrix4 = value };
 }
 
 void Material::SetTexture(const std::string& name, Texture* texture)
@@ -152,7 +152,7 @@ void Material::ApplyProperties() const
         case MATERIAL_VALUE_TYPE::MAT3:
             break;
         case MATERIAL_VALUE_TYPE::MAT4:
-            m_Shader->SetMat4(property.first, property.second.Mat4);
+            m_Shader->SetMat4(property.first, property.second.Matrix4);
             break;
         case MATERIAL_VALUE_TYPE::TEXTURE_2D:
             break;

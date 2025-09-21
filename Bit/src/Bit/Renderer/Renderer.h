@@ -71,6 +71,10 @@ public:
     {
         m_RenderStats.DrawCalls = m_RenderStats.Triangles = m_RenderStats.Vertices = m_RenderStats.GeometriesSubmitted = 0;
     }
+
+    GeometryManager* GetGeometryManager() { return m_GeometryManager; }
+    MaterialManager* GetMaterialManager() { return m_MaterialManager; }
+    ShaderManager* GetShaderManager() { return m_ShaderManager; }
 private:
 
 
