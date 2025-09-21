@@ -7,9 +7,10 @@
 
 namespace BitEngine
 {
-struct Vertex3D
+struct Vertex
 {
-    BMath::Vec4 Position;
+    BMath::Vec3 Position;
+    BMath::Vec3 Normal;
     BMath::Vec4 Color;
     BMath::Vec2 TextureCoords;
 };
@@ -19,7 +20,7 @@ class Geometry
 {
 private:
     std::string m_Name;
-    std::vector<Vertex3D> m_Vertices;
+    std::vector<Vertex> m_Vertices;
     std::vector<u32> m_Indices;
     VertexArray*  m_VAO;
     VertexBuffer* m_VBO;
@@ -32,11 +33,11 @@ public:
     Geometry(const std::string& name);
     ~Geometry();
 
-    void SetVertices(const std::vector<Vertex3D>& m_Vertices);
+    void SetVertices(const std::vector<Vertex>& m_Vertices);
     void SetIndices(const std::vector<u32> indices);
-    void UploadVertices(const std::vector<Vertex3D>& m_Vertices); // dynamic meshes
+    void UploadVertices(const std::vector<Vertex>& m_Vertices); // dynamic meshes
 
-    void AddVertex(const Vertex3D& vertex);
+    void AddVertex(const Vertex& vertex);
     void AddTriangle(u32 a, u32 b, u32 c);
     void AddQuad(u32 a, u32 b, u32 c, u32 d);
 
@@ -62,7 +63,7 @@ public:
     bool IsDynamic() const { return m_IsDynamic; }
 
     const std::string& GetName() const { return m_Name; }
-    const std::vector<Vertex3D>& GetVertices() const { return m_Vertices; }
+    const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
     const std::vector<u32>& GetIndices() const { return m_Indices; }
     VertexArray* GetVertexArray() const { return m_VAO; }
     

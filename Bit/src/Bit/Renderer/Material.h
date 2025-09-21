@@ -25,6 +25,12 @@ enum class MATERIAL_VALUE_TYPE
     TEXTURE_2D,
     TEXTURE_CUBE
 };
+enum class BLEND_MODE
+{
+    ALPHA,
+    ADDITIVE,
+    MULTIPLY
+};
 struct MaterialProperty
 {
     MATERIAL_VALUE_TYPE Type;
@@ -49,6 +55,8 @@ private:
     std::unordered_map<std::string, MaterialProperty> m_Properties;
     std::unordered_map<std::string, Texture*> m_Textures;
     std::string m_Name;
+    BLEND_MODE m_BlendMode;
+    f32 m_BlendStrength;
 
     b8 m_PropertiesDirty;
     b8 m_TexturesDirty;
@@ -68,6 +76,9 @@ public:
     void SetVec4(const std::string& name, const BMath::Vec4& value);
     // void SetMat3(const std::string& name, const BMath::Mat3& value);
     void SetMat4(const std::string& name, const BMath::Mat4& value);
+
+    void SetBlendMode(BLEND_MODE mode) { m_BlendMode = mode; }
+    void SetBlendStrength(f32 strength) { m_BlendStrength = strength; }
 
     void SetTexture(const std::string& name, Texture* texture);
     Texture* GetTexture(const std::string& name) const;

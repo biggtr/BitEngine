@@ -37,9 +37,11 @@ public:
     void LoadBuiltinPrimitives();
     
 private:
-    void GenerateCubeData(std::vector<Vertex3D>& vertices, std::vector<u32>& indices, f32 size);
-    void GenerateSphereData(std::vector<Vertex3D>& vertices, std::vector<u32>& indices, f32 radius, u32 segments);
-    void GeneratePlaneData(std::vector<Vertex3D>& vertices, std::vector<u32>& indices, f32 width, f32 height);
+    void GenerateCubeData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 size);
+    void GenerateSphereData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 radius, u32 segments);
+    void GeneratePlaneData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 width, f32 height);
+
+    b8 LoadFromFile(Geometry* geometry, std::string filepath);
 };
 
 }

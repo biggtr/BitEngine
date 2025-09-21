@@ -3,6 +3,7 @@
 #include "Bit/Math/Vector.h"
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <vector>
 
 namespace BitEngine
@@ -166,16 +167,22 @@ void Material::ApplyProperties() const
 }
 void Material::ApplyTextures() const
 {
-    i32 textureSlot = 0;
+    i32 textureCount = 0;
     for (const auto& [name, texture] : m_Textures) 
     {
-        if (texture && textureSlot < 32) 
+        if (texture && textureCount < 32) 
         { 
-            texture->Bind(textureSlot);
-            m_Shader->SetInt(name, textureSlot);
-            textureSlot++;
+            texture->Bind(textureCount);
+            std::string arrayUniformName = "u_Textures[" + std::to_string(textureCount) + "]";
+            m_Shader->SetInt(arrayUniformName, textureCount);
+
+            m_Shader->SetInt(name, textureCount);
+            textureCount++;
         }
     }
+    m_Shader->SetInt("textureCount", textureCount);
+    m_Shader->SetInt("blendMode", (i32)m_BlendMode);
+    m_Shader->SetFloat("blendStrength", m_BlendStrength);
 }
 
 b8 Material::HasProperty(const std::string& name) const
