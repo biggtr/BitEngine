@@ -34,7 +34,7 @@ BMath::Mat4 Camera::GetViewMatrix()
     if(IsDirty)
     {
         BMath::Mat4 rotation = BMath::Mat4Rotate(m_EulerRotation.x, m_EulerRotation.y, m_EulerRotation.z);
-        BMath::Mat4 translation = BMath::Mat4Scale(m_Position.x, m_Position.y, m_Position.z);
+        BMath::Mat4 translation = BMath::Mat4Translate(m_Position.x, m_Position.y, m_Position.z);
         BMath::Mat4 viewmatrix = rotation * translation;
         m_ViewMatrix = BMath::Mat4Inverse(viewmatrix);
         IsDirty = false;
@@ -92,7 +92,7 @@ void Camera::MoveRight(f32 amount)
 }
 void Camera::MoveUp(f32 amount)
 {
-    BMath::Vec3 direction = BMath::Mat4Right(m_ViewMatrix);
+    BMath::Vec3 direction = BMath::Mat4Up(m_ViewMatrix);
     direction = direction * amount;
     m_Position = m_Position + direction;
     IsDirty = true;

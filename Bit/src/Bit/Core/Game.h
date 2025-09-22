@@ -64,6 +64,11 @@ public:
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
+
+        for(u32 i = 0; i < 16; ++i)
+        {
+            BIT_LOG_DEBUG("ProjectionMatrix[%d] = %.5f", i, m_OrthoProjection.Data[i]);
+        }
         m_PerspectiveProjection = BMath::Mat4Perspective(
                 DegToRad(45.0f), appConfig.width / (f32)appConfig.height, 0.1f, 100.0f);
         m_UIProjection = BMath::Mat4Ortho(
@@ -71,6 +76,10 @@ public:
             appConfig.height, 0.0f,
             -1.0f, 1.0f         
         );
+        for(u32 i = 0; i < 16; ++i)
+        {
+            BIT_LOG_DEBUG("UIProjectionMatrix[%d] = %.5f", i, m_UIProjection.Data[i]);
+        }
     }
     virtual b8 OnInitialize() 
     {

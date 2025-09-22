@@ -13,7 +13,6 @@
 #include "Bit/Systems/System.h"
 #include "Bit/UI/BitUI.h"
 #include "Bit/UI/Widgets.h"
-#include <cmath>
 
 #define BALL_RADIUS 2.0f
 #define BALL_MASS 40.0f
@@ -163,25 +162,25 @@ void TestGame::Initialize()
 }
 void TestGame::UIRender()
 {
-    BitUI::BeginLayout(BitUI::HorizontalLayout(100.0f, 100.0f, 5.0f));
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    std::vector<BitUI::DrawCommand> horizontalDrawCommands =  BitUI::EndLayout();
-
-    BitUI::BeginLayout(BitUI::VerticalLayout(100.0f, 300.0f, 5.0f));
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    BitUI::Button("blabla", 100.0f, 100.0f);
-    std::vector<BitUI::DrawCommand> verticalDrawCommands =  BitUI::EndLayout();
-    for(auto& command : horizontalDrawCommands)
-    {
-        Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
-    }
-    for(auto& command : verticalDrawCommands)
-    {
-        Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
-    }
+    // BitUI::BeginLayout(BitUI::HorizontalLayout(100.0f, 100.0f, 5.0f));
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // std::vector<BitUI::DrawCommand> horizontalDrawCommands =  BitUI::EndLayout();
+    //
+    // BitUI::BeginLayout(BitUI::VerticalLayout(100.0f, 300.0f, 5.0f));
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // BitUI::Button("blabla", 100.0f, 100.0f);
+    // std::vector<BitUI::DrawCommand> verticalDrawCommands =  BitUI::EndLayout();
+    // for(auto& command : horizontalDrawCommands)
+    // {
+    //     Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
+    // }
+    // for(auto& command : verticalDrawCommands)
+    // {
+    //     Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
+    // }
 }
 void TestGame::Render()
 {

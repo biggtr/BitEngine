@@ -26,7 +26,7 @@ Vec4 Mat4Multiply(const Mat4& mat, const Vec4& vec)
 
 Mat4 Mat4Multiply(const Mat4& mat1, const Mat4& mat2)
 {
-    Mat4 result;
+    Mat4 result = Mat4Identity();
 
     const float* a = mat1.Data;
     const float* b = mat2.Data;
@@ -60,7 +60,7 @@ Vec4 operator*(const Mat4& mat, const Vec4& vec)
 
 Mat4 Mat4Transpose(Mat4 mat)
 {
-    Mat4 transposedMat;
+    Mat4 transposedMat = Mat4Identity();
 
     transposedMat.Data[0] =  mat.Data[0];
     transposedMat.Data[1] =  mat.Data[4];
@@ -109,7 +109,7 @@ Mat4 Mat4Inverse(Mat4 matrix) {
     f32 t22 = m[0] * m[5];
     f32 t23 = m[4] * m[1];
 
-    Mat4 outMatrix;
+    Mat4 outMatrix = Mat4Identity();
     f32* o = outMatrix.Data;
 
     //calculate cofactors for first row 
@@ -127,7 +127,7 @@ Mat4 Mat4Inverse(Mat4 matrix) {
 
     // if its singular matrix return Identity
     if (fabsf(d) < 1e-6f) {
-        return Mat4();
+        return Mat4Identity();
     }
 
     // calculate inverse for all components of the matrix
@@ -240,7 +240,6 @@ Mat4 Mat4Ortho(float left, float right, float bot, float top, float zNear, float
    orthoMatrix.Data[14] = -(zFar + zNear) * nf;
    orthoMatrix.Data[15] = 1.0f;
    return orthoMatrix;
-
 }
 Mat4 Mat4Perspective(f32 fovRadians, f32 aspectRatio, f32 nearClip, f32 farClip)
 {

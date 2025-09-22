@@ -223,6 +223,10 @@ void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix)
 {
     m_CurrentViewProjectionMatrix = viewProjectionMatrix;
 
+    for(u32 i = 0; i < 16; ++i)
+    {
+        BIT_LOG_DEBUG("from renderer2d viewProjectionMatrix[%d] = %.5f", i, viewProjectionMatrix.Data[i]);
+    }
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
 
@@ -369,7 +373,6 @@ void Renderer2D::DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f3
     s_RenderData.CircleIndexCount += 6;
 
     Stats.QuadCount++;
-    BIT_LOG_DEBUG("drawing circle Renderer2D");
 }
 void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color)
 {
