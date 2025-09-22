@@ -38,8 +38,7 @@ Shader* ShaderManager::LoadShader(const std::string& name, const std::string& fi
 
     ShaderSource sources = ParseShaderFile(filepath);
     Shader* shader = CompileShader(name, sources);
-    m_Shaders[name] = shader;
-    return m_Shaders[name];
+    return shader;
 }
 Shader* ShaderManager::LoadShaderFromSource(const std::string& name, 
         const std::string& vertexSrc, 
@@ -83,11 +82,9 @@ b8 ShaderManager::HasShader(const std::string& name) const
 }
 void ShaderManager::Clear()
 {
-    for(auto& shader : m_Shaders)
-    {
-        delete shader.second;
-    }
-    delete m_FallBackShader;
+    for (auto& [name, shader] : m_Shaders)
+        delete shader;
+    m_Shaders.clear();
 }
 
 

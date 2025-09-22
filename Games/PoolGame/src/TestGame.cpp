@@ -187,6 +187,7 @@ void TestGame::Render()
 {
     if(isDragging)
     {
+        BIT_LOG_DEBUG("its dragging");
         BMath::Vec3 initialMousePos = ScreenToWorldCoords(initialMouseX, initialMouseY);
         BMath::Vec3 endMousePos = ScreenToWorldCoords(currentMouseX, currentMouseY);
         auto& whiteballTranform = m_WhiteBall.GetComponent<BitEngine::TransformComponent>();
@@ -226,7 +227,7 @@ void TestGame::Update(f32 deltaTime)
                 {
                     if(ball == m_WhiteBall)
                     {
-                        BIT_LOG_DEBUG("RespawnWhiteBall");
+                        // BIT_LOG_DEBUG("RespawnWhiteBall");
                         RespawnWhiteBall(m_WhiteBall);
                     }
                     else 

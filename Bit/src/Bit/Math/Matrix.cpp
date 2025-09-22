@@ -3,8 +3,18 @@
 namespace BMath
 {
 
+Mat4 Mat4Identity()
+{
+    Mat4 result{};
+    memset(result.Data, 0, sizeof(float) * 16);
+    result.Data[0] = 1.0f;
+    result.Data[5] = 1.0f;
+    result.Data[10] = 1.0f;
+    result.Data[15] = 1.0f;
+    return result;
+}
 
-Vec4 Multiply(const Mat4& mat, const Vec4& vec)
+Vec4 Mat4Multiply(const Mat4& mat, const Vec4& vec)
 {
     Vec4 result{0.0f, 0.0f, 0.0f, 0.0f};
     result.x = mat.Data[0] * vec.x + mat.Data[4] * vec.y + mat.Data[8]  * vec.z + mat.Data[12] * vec.w;
@@ -14,7 +24,7 @@ Vec4 Multiply(const Mat4& mat, const Vec4& vec)
     return result;
 }
 
-Mat4 Multiply(const Mat4& mat1, const Mat4& mat2)
+Mat4 Mat4Multiply(const Mat4& mat1, const Mat4& mat2)
 {
     Mat4 result;
 
@@ -39,20 +49,16 @@ Mat4 Multiply(const Mat4& mat1, const Mat4& mat2)
 }
 Mat4 operator*(const Mat4& mat1, const Mat4& mat2)
 {
-    return Multiply(mat1, mat2);
+    return Mat4Multiply(mat1, mat2);
 }
 
 Vec4 operator*(const Mat4& mat, const Vec4& vec)
 {
-    return Multiply(mat, vec);
+    return Mat4Multiply(mat, vec);
 }
 
 
-Mat4 Identity()
-{
-    return Mat4();
-}
-Mat4 Transpose(Mat4 mat)
+Mat4 Mat4Transpose(Mat4 mat)
 {
     Mat4 transposedMat;
 
@@ -74,7 +80,7 @@ Mat4 Transpose(Mat4 mat)
     transposedMat.Data[15] = mat.Data[15];
     return transposedMat;
 }
-Mat4 Inverse(Mat4 matrix) {
+Mat4 Mat4Inverse(Mat4 matrix) {
     const f32* m = matrix.Data;
 
     //Calculate all the minors with det of 3x3 mat
@@ -156,73 +162,73 @@ Mat4 Inverse(Mat4 matrix) {
 
     return outMatrix;
 }
-Mat4 EulerX(f32 angleRadians)
+Mat4 Mat4EulerX(f32 angleRadians)
 {
     f32 c = cosf(angleRadians);
     f32 s = sinf(angleRadians);
-    Mat4 outMatrix{}; 
+    Mat4 outMatrix = Mat4Identity();
     outMatrix.Data[5]  =  c;
     outMatrix.Data[6]  =  s;
     outMatrix.Data[9]  = -s;
     outMatrix.Data[10] =  c; 
     return outMatrix;
 }
-Mat4 EulerY(f32 angleRadians)
+Mat4 Mat4EulerY(f32 angleRadians)
 {
     f32 c = cosf(angleRadians);
     f32 s = sinf(angleRadians);
-    Mat4 outMatrix{}; 
+    Mat4 outMatrix = Mat4Identity();
     outMatrix.Data[0]  =  c;
     outMatrix.Data[2]  = -s;
     outMatrix.Data[8]  =  s;
     outMatrix.Data[10] =  c;
     return outMatrix;
 }
-Mat4 EulerZ(f32 angleRadians)
+Mat4 Mat4EulerZ(f32 angleRadians)
 {
     f32 c = cosf(angleRadians);
     f32 s = sinf(angleRadians);
-    Mat4 outMatrix{};
+    Mat4 outMatrix = Mat4Identity();
     outMatrix.Data[0] =  c;
     outMatrix.Data[1] =  s;
     outMatrix.Data[4] = -s;
     outMatrix.Data[5] =  c;
     return outMatrix;
 }
-Mat4 Rotate(f32 xAngleRadians, f32 yAngleRadians, f32 zAngleRadians) 
+Mat4 Mat4Rotate(f32 xAngleRadians, f32 yAngleRadians, f32 zAngleRadians) 
 {
-    Mat4 rotationMatrix = EulerZ(zAngleRadians) * EulerY(yAngleRadians) * EulerX(xAngleRadians);
+    Mat4 rotationMatrix = Mat4EulerZ(zAngleRadians) * Mat4EulerY(yAngleRadians) * Mat4EulerX(xAngleRadians);
     return rotationMatrix;
 }
-Mat4 Scale(float sx, float sy, float sz) 
+Mat4 Mat4Scale(float sx, float sy, float sz) 
 {
-    Mat4 scaleMatrix;
+    Mat4 scaleMatrix = Mat4Identity();
     scaleMatrix.Data[0] = sx;
     scaleMatrix.Data[5] = sy;
     scaleMatrix.Data[10] = sz;
     return scaleMatrix;
 }
-Mat4 Translate(float tx, float ty, float tz)
+Mat4 Mat4Translate(float tx, float ty, float tz)
 {
-    Mat4 translationMatrix; 
+    Mat4 translationMatrix = Mat4Identity(); 
     translationMatrix.Data[12] = tx;
     translationMatrix.Data[13] = ty;
     translationMatrix.Data[14] = tz;
     return translationMatrix;
 }
-Mat4 CreateTransform(const Vec3& position, 
+Mat4 Mat4CreateTransform(const Vec3& position, 
                                  const Vec3& scale, 
                                  const Vec3& rotation)
 {
-    Mat4 t = Translate(position.x, position.y, position.z);
-    Mat4 r = Rotate(rotation.x, rotation.y, rotation.z);
-    Mat4 s = Scale(scale.x, scale.y, scale.z);
+    Mat4 t = Mat4Translate(position.x, position.y, position.z);
+    Mat4 r = Mat4Rotate(rotation.x, rotation.y, rotation.z);
+    Mat4 s = Mat4Scale(scale.x, scale.y, scale.z);
     Mat4 transformationMatrix = t * r * s;
     return transformationMatrix;
 }
-Mat4 Ortho(float left, float right, float bot, float top, float zNear, float zFar) 
+Mat4 Mat4Ortho(float left, float right, float bot, float top, float zNear, float zFar) 
 {
-   Mat4 orthoMatrix; 
+   Mat4 orthoMatrix = Mat4Identity(); 
    f32 lr = 1.0f / (right - left);
    f32 bt = 1.0f / (top - bot);  
    f32 nf = 1.0f / (zFar - zNear);
@@ -236,7 +242,7 @@ Mat4 Ortho(float left, float right, float bot, float top, float zNear, float zFa
    return orthoMatrix;
 
 }
-Mat4 Perspective(f32 fovRadians, f32 aspectRatio, f32 nearClip, f32 farClip)
+Mat4 Mat4Perspective(f32 fovRadians, f32 aspectRatio, f32 nearClip, f32 farClip)
 {
     f32 halfTanFov = tan(fovRadians * 0.5f);
     Mat4 outMatrix{};
@@ -249,7 +255,7 @@ Mat4 Perspective(f32 fovRadians, f32 aspectRatio, f32 nearClip, f32 farClip)
     return outMatrix; 
 }
 
-Vec3 Forward(const Mat4& mat)
+Vec3 Mat4Forward(const Mat4& mat)
 {
     Vec3 forwardVector{};
     forwardVector.x = -mat.Data[8];
@@ -259,7 +265,7 @@ Vec3 Forward(const Mat4& mat)
     return forwardVector;
 }
 
-Vec3 Backward(const Mat4& mat)
+Vec3 Mat4Backward(const Mat4& mat)
 {
     Vec3 backwardVector{};
     backwardVector.x = mat.Data[8];
@@ -268,7 +274,7 @@ Vec3 Backward(const Mat4& mat)
     Vec3Normalize(&backwardVector);
     return backwardVector;
 }
-Vec3 Right(const Mat4& mat)
+Vec3 Mat4Right(const Mat4& mat)
 {
     Vec3 rightVector{};
     rightVector.x = mat.Data[0];
@@ -277,7 +283,7 @@ Vec3 Right(const Mat4& mat)
     Vec3Normalize(&rightVector);
     return rightVector;
 }
-Vec3 Left(const Mat4& mat)
+Vec3 Mat4Left(const Mat4& mat)
 {
     Vec3 leftVector{};
     leftVector.x = -mat.Data[0];
@@ -286,7 +292,7 @@ Vec3 Left(const Mat4& mat)
     Vec3Normalize(&leftVector);
     return leftVector;
 }
-Vec3 Up(const Mat4& mat)
+Vec3 Mat4Up(const Mat4& mat)
 {
     Vec3 upVector{};
     upVector.x = mat.Data[4];
@@ -295,7 +301,7 @@ Vec3 Up(const Mat4& mat)
     Vec3Normalize(&upVector);
     return upVector;
 }
-Vec3 Down(const Mat4& mat)
+Vec3 Mat4Down(const Mat4& mat)
 {
     Vec3 downVector{};
     downVector.x = -mat.Data[4];

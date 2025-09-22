@@ -19,7 +19,8 @@ Material::~Material()
 {
     for(auto& texture : m_Textures)
     {
-        delete texture.second;
+        if(texture.second)
+            delete texture.second;
     }
     delete m_Shader;
 }

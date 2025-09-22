@@ -207,8 +207,8 @@ struct Camera2DComponent
         :   
             Position(position), Rotation(rotation)
           {
-                  ViewMatrix = BMath::Rotate(0.0f, 0.0f, -rotation) *
-                     BMath::Translate(-Position.x, -Position.y, -Position.z);
+                  ViewMatrix = BMath::Mat4Rotate(0.0f, 0.0f, -rotation) *
+                     BMath::Mat4Scale(-Position.x, -Position.y, -Position.z);
                   ViewDirty = true;
           }
 };

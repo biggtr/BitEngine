@@ -7,18 +7,18 @@ BMath::Vec3 cubeRotation;
 BMath::Mat4 cubeTransform;
 void Game3D::Initialize()
 {
-    cubePosition = {0,0,0};
-
-    
-    cubeGeometry = Renderer3D().GetGeometryManager()->CreateCube("cube");
-    Renderer3D().GetShaderManager()->LoadShader("PhongShader.glsl", "assets/shaders/PhongShader.glsl");
-    BitEngine::Material* cubeMaterial = Renderer3D().GetMaterialManager()->CreateMaterial("cubeMaterial", "PhongShader.glsl");
-    cubeGeometry->SetMaterial(cubeMaterial);
+    // cubePosition = {-10,0,0};
+    //
+    //
+    // cubeGeometry = Renderer3D().GetGeometryManager()->CreateCube("cube");
+    // Renderer3D().GetShaderManager()->LoadShader("PhongShader.glsl", "assets/shaders/PhongShader.glsl");
+    // BitEngine::Material* cubeMaterial = Renderer3D().GetMaterialManager()->CreateMaterial("cubeMaterial", "PhongShader.glsl");
+    // cubeGeometry->SetMaterial(cubeMaterial);
 }
 void Game3D::Update(f32 deltaTime)
 {
     cubeRotation.x *= deltaTime;
-    cubeTransform = BMath::Mat4::CreateTransform(cubePosition, {1,1,1}, cubeRotation);
+    cubeTransform = BMath::Mat4CreateTransform(cubePosition, {1,1,1}, cubeRotation);
 }
 void Game3D::Render()
 {

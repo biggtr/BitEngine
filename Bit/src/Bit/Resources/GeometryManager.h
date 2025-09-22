@@ -41,7 +41,7 @@ private:
     void GenerateSphereData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 radius, u32 segments);
     void GeneratePlaneData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 width, f32 height, const BMath::Vec4& color);
 
-    b8 LoadFromFile(Geometry* geometry, std::string filepath);
+    b8 LoadFromFile(Geometry* geometry, std::string filepath){ return false;}
 };
 
 }

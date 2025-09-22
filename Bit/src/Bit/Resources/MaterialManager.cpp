@@ -82,9 +82,9 @@ void MaterialManager::Clear()
 {
     for(auto& material : m_Materials)
     {
-        delete material.second;
+        if(material.second)
+            delete material.second;
     }
-    delete m_DefaultMaterial;
 }
     
 // std::vector<std::string> MaterialManager::GetMaterialNames() const;

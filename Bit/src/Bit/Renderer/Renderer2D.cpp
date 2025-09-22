@@ -181,7 +181,15 @@ b8 Renderer2D::Initialize()
     s_RenderData.QuadShader = m_ShaderManager->LoadShader("QuadShader", "assets/shaders/QuadShader.glsl");
     s_RenderData.LineShader = m_ShaderManager->LoadShader("LineShader", "assets/shaders/LineShader.glsl");
     s_RenderData.CircleShader = m_ShaderManager->LoadShader("CircleShader", "assets/shaders/CircleShader.glsl");
-
+    if(!s_RenderData.QuadShader) {
+        BIT_LOG_ERROR("Failed to load QuadShader!");
+    }
+    if(!s_RenderData.LineShader) {
+        BIT_LOG_ERROR("Failed to load LineShader!");
+    }
+    if(!s_RenderData.CircleShader) {
+        BIT_LOG_ERROR("Failed to load CircleShader!");
+    }
     i32 samplers[s_RenderData.MaxTextureSlots];
     for(u32 i = 0; i < s_RenderData.MaxTextureSlots; ++i)
     {
@@ -286,7 +294,7 @@ void Renderer2D::Flush()
 
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
 {
-    BMath::Mat4 transform = BMath::CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size);
     DrawQuad(transform, color);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
@@ -309,7 +317,7 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
 
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite)
 {
-    BMath::Mat4 transform = BMath::CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size);
     DrawQuad(transform, sprite);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)
@@ -361,6 +369,7 @@ void Renderer2D::DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f3
     s_RenderData.CircleIndexCount += 6;
 
     Stats.QuadCount++;
+    BIT_LOG_DEBUG("drawing circle Renderer2D");
 }
 void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color)
 {
@@ -381,10 +390,10 @@ void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, 
     BMath::Vec3 p2(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
     BMath::Vec3 p3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
 
-    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 1, p0.x, p0.y);
-    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 2, p1.x, p1.y);
-    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 3, p2.x, p2.y);
-    BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 4, p3.x, p3.y);
+    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 1, p0.x, p0.y);
+    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 2, p1.x, p1.y);
+    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 3, p2.x, p2.y);
+    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 4, p3.x, p3.y);
     DrawLine(p0, p1, color);
     DrawLine(p1, p2, color);
     DrawLine(p2, p3, color);
@@ -404,17 +413,16 @@ void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, 
 // }
 void Renderer2D::Shutdown()
 {
+    delete m_ShaderManager;
+
     delete s_RenderData.QuadVertexArray;
-    delete s_RenderData.QuadShader;
     delete s_RenderData.WhiteTexture;
     delete[] s_RenderData.QuadVertexBufferBase;
 
     delete s_RenderData.CircleVertexArray;
-    delete s_RenderData.CircleShader;
     delete[] s_RenderData.CircleVertexBufferBase;
 
     delete s_RenderData.LineVertexArray;
-    delete s_RenderData.LineShader;
     delete[] s_RenderData.LineVertexBufferBase;
 
 

@@ -125,7 +125,7 @@ public:
     virtual ~IndexBuffer() = default;
     virtual void Bind() const = 0;
     virtual void UnBind() const = 0;
-    virtual void SetData(u32* data, u32 count);
+    virtual void SetData(u32* data, u32 count) = 0;
     virtual unsigned int GetCount() const = 0; 
 
     static IndexBuffer* Create(u32 count);

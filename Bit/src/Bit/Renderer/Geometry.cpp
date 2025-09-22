@@ -13,7 +13,6 @@ Geometry::Geometry(const std::string& name)
 }
 Geometry::~Geometry()
 {
-    delete m_VBO;
     delete m_IBO;
     delete m_VAO;
     delete m_Material;
@@ -89,18 +88,18 @@ Material* Geometry::GetMaterial()
 
 void Geometry::Translate(const BMath::Vec3& translation)
 {
-  Mat4 t = BMath::Translate(translation.x, translation.y, translation.z);
+  Mat4 t = BMath::Mat4Scale(translation.x, translation.y, translation.z);
   m_Transform = m_Transform * t;
 }
 void Geometry::Rotate(f32 angle, const BMath::Vec3& axis)
 {
     BMath::Vec3 scaledAxis = axis * angle;
-    Mat4 r = BMath::Rotate(scaledAxis.x, scaledAxis.y, scaledAxis.z);
+    Mat4 r = BMath::Mat4Rotate(scaledAxis.x, scaledAxis.y, scaledAxis.z);
     m_Transform = m_Transform * r;
 }
 void Geometry::Scale(const BMath::Vec3& scale)
 {
-    Mat4 s = BMath::Scale(scale.x, scale.y, scale.z);
+    Mat4 s = BMath::Mat4Scale(scale.x, scale.y, scale.z);
     m_Transform = m_Transform * s;
 }
 void Geometry::Scale(f32 scale)

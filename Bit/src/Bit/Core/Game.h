@@ -59,14 +59,14 @@ public:
         f32 aspectRatio = appConfig.width / (f32)appConfig.height;
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
-        m_OrthoProjection = BMath::Ortho(
+        m_OrthoProjection = BMath::Mat4Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
-        m_PerspectiveProjection = BMath::Perspective(
+        m_PerspectiveProjection = BMath::Mat4Perspective(
                 DegToRad(45.0f), appConfig.width / (f32)appConfig.height, 0.1f, 100.0f);
-        m_UIProjection = BMath::Ortho(
+        m_UIProjection = BMath::Mat4Ortho(
             0.0f,  appConfig.width, 
             appConfig.height, 0.0f,
             -1.0f, 1.0f         
@@ -91,6 +91,7 @@ public:
         m_InputSystem = ECS().GetSystem<InputSystem>();
 
         ActiveWorldCamera = Camera().GetDefaultCamera();
+        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
         Initialize();
         SetupInput();
@@ -110,9 +111,9 @@ public:
         m_UIRenderSystem->Update(Render2D());
         UIRender();
         Render2D().EndScene();
-        BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
+        // BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
         
-        BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
+        BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
         Render2D().BeginScene(viewProjection);
         m_RenderSystem->Update(Render2D());
         Render();
@@ -126,14 +127,14 @@ public:
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
 
-        m_OrthoProjection = BMath::Ortho(
+        m_OrthoProjection = BMath::Mat4Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
         
         
-        m_UIProjection = BMath::Ortho(
+        m_UIProjection = BMath::Mat4Ortho(
             0, width,
             height, 0,
             -1.0f, 1.0f
@@ -148,7 +149,7 @@ public:
         f32 ndcY = 1.0f - (2.0f * screenY) / appConfig.height; 
         
         BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
-        BMath::Mat4 invViewProjection = BMath::Inverse(viewProjection);
+        BMath::Mat4 invViewProjection = BMath::Mat4Inverse(viewProjection);
 
         BMath::Vec4 worldPos =  invViewProjection * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);
         
