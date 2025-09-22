@@ -223,10 +223,6 @@ void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix)
 {
     m_CurrentViewProjectionMatrix = viewProjectionMatrix;
 
-    for(u32 i = 0; i < 16; ++i)
-    {
-        BIT_LOG_DEBUG("from renderer2d viewProjectionMatrix[%d] = %.5f", i, viewProjectionMatrix.Data[i]);
-    }
     s_RenderData.QuadShader->Bind();
     s_RenderData.QuadShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
 

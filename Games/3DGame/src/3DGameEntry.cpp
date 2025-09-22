@@ -9,6 +9,6 @@ BitEngine::Game* BitEngine::CreateGame()
     newGame->appConfig.y = 0;
     newGame->appConfig.width = 1366;
     newGame->appConfig.height = 768;
-    newGame->appConfig.name = "TestGame";
+    newGame->appConfig.name = "3dGame";
     return newGame;
 }

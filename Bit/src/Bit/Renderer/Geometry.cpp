@@ -167,7 +167,8 @@ void Geometry::UpdateBuffers()
 BufferLayout Geometry::CreateVertexLayout() const
 {
     return BufferLayout({
-        { SHADER_DATA_TYPE::FLOAT4, "a_Position"}, 
+        { SHADER_DATA_TYPE::FLOAT3, "a_Position"}, 
+        { SHADER_DATA_TYPE::FLOAT3, "a_Normals"}, 
         { SHADER_DATA_TYPE::FLOAT4, "a_Color"}, 
         { SHADER_DATA_TYPE::FLOAT2, "a_TexCoords"}, 
         });

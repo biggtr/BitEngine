@@ -55,6 +55,11 @@ Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const B
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
     GenerateCubeData(vertices, indices, size, color);
+    for(u32 i = 0; i < vertices.size(); ++i)
+    {
+
+        BIT_LOG_DEBUG("Create Cube with vertices x : %.2f, y : %.2f, z : %.2f", vertices[i].Position.x, vertices[i].Position.y, vertices[i].Position.z)
+    }
     Geometry* geometry = new Geometry(name);
     geometry->SetVertices(vertices);
     geometry->SetIndices(indices);

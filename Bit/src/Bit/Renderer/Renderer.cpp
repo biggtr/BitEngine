@@ -45,7 +45,7 @@ b8 Renderer::Initialize()
     m_MaterialManager->LoadBuiltinMaterials();
 
     // Set Default clear color 
-    SetClearColor(0.2f, 0.4f, 0.0f, 1.0f);
+    SetClearColor(0.23f, 0.0f, 1.0, 1.0);
     return true;
 }
 void Renderer::Shutdown()
@@ -62,7 +62,7 @@ void Renderer::Shutdown()
     m_RenderCommand = nullptr;
 }
 
-b8 Renderer::BeginFrame(const BMath::Vec4& clearColor, BMath::Mat4& ViewProjection)
+b8 Renderer::BeginFrame(BMath::Mat4& ViewProjection, const BMath::Vec4& clearColor)
 {
     if(!ValidateRenderState())
     {

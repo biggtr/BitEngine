@@ -53,7 +53,7 @@ public:
     b8 Initialize();
     void Shutdown();
 
-    b8 BeginFrame(const BMath::Vec4& clearColor, BMath::Mat4& ViewProjection);
+    b8 BeginFrame(BMath::Mat4& ViewProjection, const BMath::Vec4& clearColor = { 0.23f, 0.0f, 1.0, 1.0});
     b8 EndFrame();
 
     void Submit(Geometry* geometry);
