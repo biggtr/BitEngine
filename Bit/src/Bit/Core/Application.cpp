@@ -148,8 +148,6 @@ void Application::Run()
             BInput::Update();
         
 
-            s_Instance->m_Renderer2D->SetClearColor(BMath::Vec4(0.23f, 0.0f, 1.0, 1.0));
-            s_Instance->m_Renderer2D->Clear();
             s_Instance->m_GameInstance->OnRender();
 
             s_Instance->m_Window->OnUpdate();

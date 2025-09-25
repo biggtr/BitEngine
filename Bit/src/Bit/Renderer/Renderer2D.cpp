@@ -219,8 +219,11 @@ void Renderer2D::Clear() const
     m_RenderCommand->Clear();
 }
 
-void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix)
+void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath::Vec4& color)
 {
+
+    SetClearColor(color);
+    Clear();
     m_CurrentViewProjectionMatrix = viewProjectionMatrix;
 
     s_RenderData.QuadShader->Bind();

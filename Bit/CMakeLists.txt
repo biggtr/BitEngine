@@ -3,6 +3,18 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "Disable Wayland support")
 
 add_subdirectory(vendor/glad)
 
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
+add_subdirectory(vendor/assimp)
+
 
 add_library(BitEngine STATIC)
 target_sources(BitEngine
@@ -69,13 +81,14 @@ target_include_directories(BitEngine
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     vendor/glad/include        
+    vendor/assimp/include        
     vendor/stb_image
 )
 target_compile_definitions(BitEngine
     PRIVATE
     $<$<CONFIG:Debug>:BIT_DEBUG=1>
 )
-target_link_libraries(BitEngine glad X11 ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+target_link_libraries(BitEngine glad X11 assimp ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

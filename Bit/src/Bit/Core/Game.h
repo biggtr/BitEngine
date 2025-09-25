@@ -115,14 +115,15 @@ public:
         BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
         
         BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
+        Renderer3D().BeginFrame(viewProjection);
+        Render();
+        Renderer3D().EndFrame();
+
         Render2D().BeginScene(viewProjection);
         m_RenderSystem->Update(Render2D());
         Render();
         Render2D().EndScene();
 
-        Renderer3D().BeginFrame(viewProjection);
-        Render();
-        Renderer3D().EndFrame();
 
 
     }

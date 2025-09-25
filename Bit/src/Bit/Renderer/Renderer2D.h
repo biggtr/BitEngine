@@ -35,7 +35,7 @@ public:
     void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const;
 
-    void BeginScene(const BMath::Mat4& viewProjectionMatrix);
+    void BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath::Vec4& color = {0.23f, 0.0f, 1.0, 1.0});
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite);
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
     void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color);
