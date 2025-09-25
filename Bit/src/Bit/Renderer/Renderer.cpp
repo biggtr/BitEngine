@@ -1,7 +1,9 @@
 #include "Renderer.h"
+#include "Bit/Math/Transform.h"
 #include "Bit/Renderer/Buffers.h"
 #include "Bit/Renderer/RenderCommand.h"
 #include "Bit/Renderer/VertexArray.h"
+#include "Bit/Renderer/Mesh.h"
 #include "Bit/Resources/GeometryManager.h"
 #include "Bit/Resources/MaterialManager.h"
 #include "Bit/Resources/ShaderManager.h"
@@ -83,6 +85,17 @@ b8 Renderer::EndFrame()
     return true;
 }
 
+void Renderer::Submit(Mesh* mesh)
+{
+    std::vector<Geometry*> geometries = mesh->GetGeometries();
+    BMath::Transform meshTransform = mesh->GetTransform();
+    BMath::Mat4 t = meshTransform.Parent ? BMath::TransformGetWorld(&meshTransform) : BMath::TransformGetLocal(&meshTransform);
+
+    for(auto& geometry : geometries)
+    {
+        Submit(geometry, t);
+    }
+}
 void Renderer::Submit(Geometry* geometry)
 {
     Submit(geometry, geometry->GetMaterial(), geometry->GetTransform());

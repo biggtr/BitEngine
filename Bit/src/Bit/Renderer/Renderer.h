@@ -15,6 +15,7 @@ namespace BitEngine
 class VertexBuffer;
 class IndexBuffer;
 class VertexArray;
+class Mesh;
 
 struct RenderingItem
 {
@@ -56,6 +57,7 @@ public:
     b8 BeginFrame(BMath::Mat4& ViewProjection, const BMath::Vec4& clearColor = { 0.23f, 0.0f, 1.0, 1.0});
     b8 EndFrame();
 
+    void Submit(Mesh* mesh);
     void Submit(Geometry* geometry);
     void Submit(Geometry* geometry, Material* material);
     void Submit(Geometry* geometry, const BMath::Mat4& transform);

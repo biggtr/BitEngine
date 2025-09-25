@@ -2,6 +2,7 @@
 
 #include "Bit/Core/Defines.h"
 #include "Bit/Math/Transform.h"
+#include "assimp/scene.h"
 #include <string>
 #include <vector>
 namespace BitEngine
@@ -17,12 +18,18 @@ public:
     Mesh();
     ~Mesh();
 
-    void AddGeometry(Geometry* geometry);
     u32 GetGeometryCount();
+    const std::vector<Geometry*>& GetGeometries() const;
 
     void SetName(const std::string& name);
     std::string GetName();
 
+    void SetTransform(const BMath::Transform& t);
+    BMath::Transform GetTransform();
     
+    void LoadModelFromFile(const std::string& filepath);
+    void ProcessNode(aiNode* node, const aiScene* scene);
+    Geometry* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+
 };
 }
