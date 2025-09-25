@@ -63,6 +63,10 @@ Vec3 Vec3Zero()
 {
     return Vec3(0, 0, 0);
 }
+Vec3 Vec3One()
+{
+    return Vec3(1, 1, 1);
+}
 float Vec3Dot(const Vec3& a, const Vec3& b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;

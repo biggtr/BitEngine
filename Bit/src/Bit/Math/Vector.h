@@ -105,6 +105,7 @@ Vec3& operator-=(Vec3& v1, const Vec3& v2);
 Vec3 operator-(const Vec3& v1, const Vec3& v2);
 float Vec3Dot(const Vec3& a, const Vec3& b);
 Vec3 Vec3Zero();
+Vec3 Vec3One();
 f32 Vec3Length(const Vec3& vec); 
 void Vec3Normalize(Vec3* vec); 
 Vec3 Vec3Normalize(Vec3 vector); 
