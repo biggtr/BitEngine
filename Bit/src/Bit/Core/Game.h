@@ -112,9 +112,9 @@ public:
         m_UIRenderSystem->Update(Render2D());
         UIRender();
         Render2D().EndScene();
-        // BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
+        BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
         
-        BMath::Mat4 viewProjection = m_PerspectiveProjection * ActiveWorldCamera->GetViewMatrix();
+        BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
         Render2D().BeginScene(viewProjection);
         m_RenderSystem->Update(Render2D());
         Render();

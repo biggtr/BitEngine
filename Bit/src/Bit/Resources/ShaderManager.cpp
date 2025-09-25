@@ -153,7 +153,7 @@ void ShaderManager::CreateDefaultShaders()
     
 void ShaderManager::LoadBuiltinShaders()
 {
-
+    LoadShader("PhongShader.glsl", "assets/shaders/PhongShader.glsl");
 }
 //TODO: Refactor this and make it more robust and support other shader types
 ShaderSource ShaderManager::ParseShaderFile(const std::string& filepath)

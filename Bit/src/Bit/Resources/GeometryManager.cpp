@@ -67,6 +67,66 @@ Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const B
     m_Geometries[name] = geometry;
     return m_Geometries.at(name);
 }
+void GeometryManager::GenerateCubeData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 size, const BMath::Vec4& color)
+{
+    f32 halfsize = size * 0.5f;
+    BMath::Vec3 positions[8] = {
+        { -halfsize, -halfsize, -halfsize},   // left  bot back 
+        {  halfsize, -halfsize, -halfsize},   // right bot back 
+        {  halfsize,  halfsize, -halfsize},   // right top back
+        { -halfsize,  halfsize, -halfsize},   // left  top back 
+
+        { -halfsize, -halfsize, halfsize},       // left  bot front 
+        {  halfsize, -halfsize, halfsize},       // right bot front 
+        {  halfsize,  halfsize, halfsize},       // right top front
+        { -halfsize,  halfsize, halfsize},       // left  top front 
+    };
+    BMath::Vec3 normals[6] = {
+        { 0.0f,  0.0f, -1.0f}, // back face
+        { 0.0f,  0.0f,  1.0f}, // front face
+        {-1.0f,  0.0f,  0.0f}, // left face
+        { 1.0f,  0.0f,  0.0f}, // right face
+        { 0.0f, -1.0f,  0.0f}, // bot face
+        { 0.0f,  1.0f,  0.0f} // top face
+    };
+    BMath::Vec2 uvs[4] = {
+        { 0.0f, 0.0f }, 
+        { 1.0f, 0.0f },
+        { 1.0f, 1.0f },
+        { 0.0f, 1.0f }
+    };
+
+    vertices.clear();
+    indices.clear();
+
+    u32 faceIndices[6][4] = {
+        {0, 1, 2, 3}, // back face
+        {4, 5, 6, 7}, // front face
+        {0, 3, 7, 4}, // left face
+        {1, 5, 6, 2}, // right face
+        {0, 4, 5, 1}, // bot face
+        {3, 2, 6, 7} // top face
+    };
+    for(i32 face = 0; face < 6; ++face)
+    {
+        for(i32 vert = 0; vert < 4; ++vert)
+        {
+            Vertex vertex;
+            vertex.Position = positions[faceIndices[face][vert]];
+            vertex.Color = color;
+            vertex.Normal = normals[face];
+            vertex.TextureCoords = uvs[vert];
+            vertices.push_back(vertex);
+        }
+        u32 baseIndex = face * 4;
+        indices.insert(indices.end(),{
+                baseIndex, baseIndex + 1, baseIndex + 2,
+                baseIndex, baseIndex + 2, baseIndex + 3
+                });
+    }
+
+    
+}
 Geometry* GeometryManager::CreateSphere(const std::string& name, f32 radius, u32 segments)
 {
     if(HasGeometry(name))
@@ -82,6 +142,10 @@ Geometry* GeometryManager::CreateSphere(const std::string& name, f32 radius, u32
     geometry->UploadToGPU();
     m_Geometries[name] = geometry;
     return m_Geometries.at(name);
+}
+void GeometryManager::GenerateSphereData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 radius, u32 segments)
+{
+
 }
 Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 height, const BMath::Vec4& color)
 {
@@ -101,6 +165,22 @@ Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 h
     return m_Geometries.at(name);
 }
 
+void GeometryManager::GeneratePlaneData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 width, f32 height, const BMath::Vec4& color)
+{
+    f32 halfWidth = width * 0.5f;
+    f32 halfHeight = height * 0.5f;
+
+    vertices = {
+        { { -halfWidth, 0.0f, -halfHeight }, {0, 1, 0}, color, {0, 0} },
+        { {  halfWidth, 0.0f, -halfHeight }, {0, 1, 0}, color, {0, 1} },
+        { {  halfWidth, 0.0f,  halfHeight }, {0, 1, 0}, color, {1, 1} },
+        { { -halfWidth, 0.0f,  halfHeight }, {0, 1, 0}, color, {0, 1} }
+    };
+    indices = {
+        0, 1, 2,
+        0, 2, 3
+    };
+}
 Geometry* GeometryManager::GetGeometry(const std::string& name)
 {
     if(HasGeometry(name))
@@ -166,85 +246,5 @@ void GeometryManager::LoadBuiltinPrimitives()
     CreatePlane("plane", 1.0f, 1.0f);
 }
 
-void GeometryManager::GenerateCubeData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 size, const BMath::Vec4& color)
-{
-    f32 halfsize = size * 0.5f;
-    BMath::Vec3 positions[8] = {
-        { -halfsize, -halfsize, -halfsize},   // left  bot back 
-        {  halfsize, -halfsize, -halfsize},   // right bot back 
-        {  halfsize,  halfsize, -halfsize},   // right top back
-        { -halfsize,  halfsize, -halfsize},   // left  top back 
-
-        { -halfsize, -halfsize, halfsize},       // left  bot front 
-        {  halfsize, -halfsize, halfsize},       // right bot front 
-        {  halfsize,  halfsize, halfsize},       // right top front
-        { -halfsize,  halfsize, halfsize},       // left  top front 
-    };
-    BMath::Vec3 normals[6] = {
-        { 0.0f,  0.0f, -1.0f}, // back face
-        { 0.0f,  0.0f,  1.0f}, // front face
-        {-1.0f,  0.0f,  0.0f}, // left face
-        { 1.0f,  0.0f,  0.0f}, // right face
-        { 0.0f, -1.0f,  0.0f}, // bot face
-        { 0.0f,  1.0f,  0.0f} // top face
-    };
-    BMath::Vec2 uvs[4] = {
-        { 0.0f, 0.0f }, 
-        { 1.0f, 0.0f },
-        { 1.0f, 1.0f },
-        { 0.0f, 1.0f }
-    };
-
-    vertices.clear();
-    indices.clear();
-
-    u32 faceIndices[6][4] = {
-        {0, 1, 2, 3}, // back face
-        {4, 5, 6, 7}, // front face
-        {0, 3, 7, 4}, // left face
-        {1, 5, 6, 2}, // right face
-        {0, 4, 5, 1}, // bot face
-        {3, 2, 6, 7} // top face
-    };
-    for(i32 face = 0; face < 6; ++face)
-    {
-        for(i32 vert = 0; vert < 4; ++vert)
-        {
-            Vertex vertex;
-            vertex.Position = positions[faceIndices[face][vert]];
-            vertex.Color = color;
-            vertex.Normal = normals[face];
-            vertex.TextureCoords = uvs[vert];
-            vertices.push_back(vertex);
-        }
-        u32 baseIndex = face * 4;
-        indices.insert(indices.end(),{
-                baseIndex, baseIndex + 1, baseIndex + 2,
-                baseIndex, baseIndex + 2, baseIndex + 3
-                });
-    }
-
-    
-}
-void GeometryManager::GenerateSphereData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 radius, u32 segments)
-{
-
-}
-void GeometryManager::GeneratePlaneData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 width, f32 height, const BMath::Vec4& color)
-{
-    f32 halfWidth = width * 0.5f;
-    f32 halfHeight = height * 0.5f;
-
-    vertices = {
-        { { -halfWidth, 0.0f, -halfHeight }, {0, 1, 0}, color, {0, 0} },
-        { {  halfWidth, 0.0f, -halfHeight }, {0, 1, 0}, color, {0, 1} },
-        { {  halfWidth, 0.0f,  halfHeight }, {0, 1, 0}, color, {1, 1} },
-        { { -halfWidth, 0.0f,  halfHeight }, {0, 1, 0}, color, {0, 1} }
-    };
-    indices = {
-        0, 1, 2,
-        0, 2, 3
-    };
-}
 
 }

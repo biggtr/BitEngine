@@ -21,6 +21,7 @@
 #define B_FLOAT_EPSILON 1.192092896e-07f
 #define B_FLOAT_MIN -3.40282e+38F
 #define B_FLOAT_MAX 3.40282e+38F
+#define B_EPSILON 1e-6f
 
 inline bool IsPowerOf2(u64 value)
 {
@@ -29,6 +30,6 @@ inline bool IsPowerOf2(u64 value)
 inline f32 DegToRad(f32 degrees) { return degrees * B_DEG2RAD_MULTIPLIER; }
 inline f32 RadToDeg(f32 radians) { return radians * B_RAD2DEG_MULTIPLIER; }
 
-inline b8 NearlyEqual(f32 a, f32 b) { return fabs(a - b) < 1e-6f; }
+inline b8 NearlyEqual(f32 a, f32 b) { return fabs(a - b) < B_EPSILON; }
 
 

@@ -19,10 +19,10 @@ void main()
 #Fragment
 in vec4 v_Color;
 in vec2 v_TexCoords;
+uniform sampler2D u_texture;
 out vec4 color;
 void main()
 {
-    vec4 result = vec4(1.0);
+    color = texture(u_texture, v_TexCoords);
 
-    color =  result * v_Color;
 }

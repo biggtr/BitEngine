@@ -2,3 +2,4 @@ build/
 .cache/
 *.json*
 Bit/assets/textures/
+Bit/assets/models/

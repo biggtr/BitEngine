@@ -164,8 +164,8 @@ b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
         contact.Normal = BMath::Vec3Normalize(distanceAB);
     }
     contact.Depth = sumRadius - distance;
-    contact.Start = a->Position + (contact.Normal * shapeA.BCircle.Radius);
-    contact.End = b->Position - (contact.Normal * shapeB.BCircle.Radius);
+    contact.Start = b->Position - (contact.Normal * shapeB.BCircle.Radius);
+    contact.End= a->Position + (contact.Normal * shapeA.BCircle.Radius);
     return true;
 }
 
@@ -267,7 +267,6 @@ void ResolvePenetration(Contact& contact)
     if(totalInvMass < 0.001f)
         return;
 
-    // to prevent objects from getting to close 
     f32 correction = 0.01f + contact.Depth;
 
     

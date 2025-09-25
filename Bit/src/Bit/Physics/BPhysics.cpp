@@ -200,7 +200,7 @@ void ApplyImpulse(BBody& body, const BMath::Vec3& impulse)
 BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue)
 {
     //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
-    if(BMath::Vec3LengthSquared(body.Velocity) < 0.0f)
+    if(NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
     {
         return BMath::Vec3(0.0f);
     }
@@ -213,7 +213,7 @@ BMath::Vec3 GenerateDragForce(BBody& body, f32 dragValue)
 BMath::Vec3 GenerateFrictionForce(BBody& body, f32 frictionValue)
 {
     //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the body
-    if(BMath::Vec3LengthSquared(body.Velocity) < 1e-8f)
+    if(NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
         return {0.0f, 0.0f, 0.0f};
     BMath::Vec3 frictionDirection = Vec3Normalize(body.Velocity) * -1.0f;
     BMath::Vec3 frictionForce = frictionDirection * frictionValue;
@@ -224,7 +224,7 @@ BMath::Vec3 GenerateGravitationalForce(BBody& a, BBody b, f32 G)
 {
     BMath::Vec3 d = b.Position - a.Position;
     f32 distanceSquared = BMath::Vec3LengthSquared(d);
-    if(distanceSquared < 0.0f)
+    if(NearlyEqual(distanceSquared, 0.0f))
     {
         return BMath::Vec3(0.0f);
     }
@@ -263,7 +263,6 @@ void LinearIntegrate(BBody& body, f32 deltaTime)
     body.Acceleration = body.SumForces * body.InvMass;
     body.Velocity += body.Acceleration * deltaTime;
     body.Position += body.Velocity * deltaTime;
-    // BIT_LOG_DEBUG("position.x %f", body.Position.x);
 
     // Clearing All Forces after Integration
     body.SumForces = (0.0f);
