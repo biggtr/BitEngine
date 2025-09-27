@@ -4,142 +4,91 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Platform.h"
 #include "Bit/Renderer/GraphicsContext.h"
-#include <GL/gl.h>
-#include <GL/glx.h>
 #include <X11/X.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <algorithm>
 #include <cstring>
-#include <unordered_set>
 
 
 namespace BitEngine
 {
 static BInput::KEYS TranslateKeysymToPlatformKey(KeySym key);
     
-PlatformLinux::PlatformLinux(u32 width, u32 height, const char* name)
-    : m_Width(width), m_Height(height), m_Name(name)
+PlatformLinux::PlatformLinux(u32 width, u32 height, const std::string& name)
+    : m_Name(name), m_Context(nullptr), m_Width(width), m_Height(height)
 {
-    m_PlatformWindow = new PlatformWindow();
 }
 b8 PlatformLinux::Initialize()
 {
 
-    Display* display = XOpenDisplay(NULL);
-    m_PlatformWindow->Platform = PLATFORM_LINUX;
-    m_PlatformWindow->Width = m_Width;
-    m_PlatformWindow->Height = m_Height;
-    m_PlatformWindow->Linux.Display = display;
-    if(!m_PlatformWindow->Linux.Display)
+    m_Display = XOpenDisplay(NULL);
+    if(!m_Display)
     {
         BIT_LOG_ERROR("Couldn't Create a Display on linux..!");
         return false;
     }
-    i32 screen = XDefaultScreen(display);
-    m_PlatformWindow->Linux.Screen = screen;
-    GLint attributes[] = {
-        GLX_RENDER_TYPE, GLX_RGBA_BIT,
-        GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-        GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+    m_Screen = XDefaultScreen(m_Display);
 
-        GLX_RED_SIZE, 8,
-        GLX_GREEN_SIZE, 8,
-        GLX_BLUE_SIZE, 8,
-        GLX_ALPHA_SIZE, 8,
-
-        GLX_DEPTH_SIZE, 24,
-        GLX_STENCIL_SIZE, 8,
-
-        GLX_DOUBLEBUFFER, True,
-        None
-    };
-
-    i32 frameBuffersCount;
-    GLXFBConfig* fbConfig= glXChooseFBConfig(display, screen, attributes, &frameBuffersCount);
-
-    GLXFBConfig cfgChoosen;
-    i32 indexBestConfig = 0;
-    i32 bestSamples = 0;
-    for(i32 i = 0; i < frameBuffersCount; ++i)
+    m_WindowRoot = RootWindow(m_Display, m_Screen);
+    m_Context = GraphicsContext::Create();
+    if (!m_Context)
     {
-        XVisualInfo* vi = glXGetVisualFromFBConfig(display, fbConfig[i]);
-        if(vi)
-        {
-            i32 sampleBuffers = 0;
-            i32 samples = 0;
-            glXGetFBConfigAttrib(display, fbConfig[i], GLX_SAMPLE_BUFFERS, &sampleBuffers);
-            glXGetFBConfigAttrib(display, fbConfig[i], GLX_SAMPLES, &samples);
-            BIT_LOG_INFO("\t%02lx, Sample buffers: %d, Samples: %d\n", vi->visualid, sampleBuffers, samples);
-            if((bestSamples < samples) && (sampleBuffers > 0))
-            {
-                bestSamples = samples;
-                indexBestConfig = i;
-            }
-        }
-        XFree(vi);
+        BIT_LOG_ERROR("Failed to create graphics context");
+        XCloseDisplay(m_Display);
+        return false;
     }
-    cfgChoosen = fbConfig[indexBestConfig];
-
-    XVisualInfo* vi = glXGetVisualFromFBConfig(display, cfgChoosen);
-    XFree(fbConfig);
-    m_PlatformWindow->Linux.VisualInfo = vi;
-    m_PlatformWindow->Linux.FBConfig = cfgChoosen;
-
-    m_WindowRoot = RootWindow(display, screen);
-    u32 colormap = XCreateColormap(display, m_WindowRoot, vi->visual, AllocNone); 
-    m_PlatformWindow->Linux.ColorMap = colormap;
+    auto winReq = m_Context->GetWindowRequirements(m_Display, m_Screen);
 
     XSetWindowAttributes attr;
     memset(&attr, 0, sizeof(XSetWindowAttributes));
-    attr.colormap = colormap;
     attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | 
                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                       StructureNotifyMask | FocusChangeMask;
+    attr.colormap = winReq.colormap;
     attr.background_pixmap = None;
     attr.border_pixel = 0;
+    XVisualInfo* vi = (XVisualInfo*)winReq.visualInfo;
 
-    u64 valueMask = CWEventMask | CWBackPixel | CWColormap;
-
-    Window window = XCreateWindow(display, m_WindowRoot, 0, 0,
+    m_Window = XCreateWindow(m_Display, m_WindowRoot, 0, 0,
                 m_Width, m_Height, 0,
-                vi->depth, InputOutput, vi->visual, valueMask, &attr);
-    if(!window)
+                winReq.depth, InputOutput, vi->visual,
+                winReq.valueMask, &attr);
+    if(!m_Window)
     {
         BIT_LOG_ERROR("Failed To Create A Window");
-        XCloseDisplay(display);
-        XFree(vi);
+        delete m_Context;
+        XCloseDisplay(m_Display);
         return false;
     }
-    m_PlatformWindow->Linux.Window = window;
 
-    XStoreName(display, window, m_Name);
-    XMapWindow(display, window);
-    XFlush(display);
+    XStoreName(m_Display, m_Window, m_Name.c_str());
+    XMapWindow(m_Display, m_Window);
+    XFlush(m_Display);
 
-    m_Context = GraphicsContext::Create(m_PlatformWindow);
-    m_Context->Initialize();
-
+    if (!m_Context->Initialize(m_Display, &m_Window, m_Screen))
+    {
+        BIT_LOG_ERROR("Failed to initialize graphics context");
+        return false;
+    }
     return true;
 }
 void PlatformLinux::Shutdown()
 {
     delete m_Context;
-    XFree(m_PlatformWindow->Linux.VisualInfo);
-    XUnmapWindow((Display*)m_PlatformWindow->Linux.Display, m_PlatformWindow->Linux.Window);
-    XDestroyWindow((Display*)m_PlatformWindow->Linux.Display, m_PlatformWindow->Linux.Window);
-    XCloseDisplay((Display *)m_PlatformWindow->Linux.Display);
-    
+    XUnmapWindow(m_Display, m_Window);
+    XDestroyWindow(m_Display, m_Window);
+    XCloseDisplay(m_Display);
 }
 void PlatformLinux::ProcessEvents()
 {
-    Display* display = (Display*)m_PlatformWindow->Linux.Display;
     // Window window = m_PlatformWindow->Linux.Window;
     XEvent event;
-    while(XPending(display))
+    while(XPending(m_Display))
     {
-        XNextEvent(display, &event);
+        XNextEvent(m_Display, &event);
         switch (event.type) 
         {
 
@@ -148,10 +97,10 @@ void PlatformLinux::ProcessEvents()
                     XConfigureEvent* configureEvent = (XConfigureEvent*)&event;
                     u16 width = configureEvent->width;
                     u16 height = configureEvent->height;
-                    if(width != m_PlatformWindow->Width || height != m_PlatformWindow->Height)
+                    if(width != m_Width || height != m_Height)
                     {
-                        m_PlatformWindow->Width = width;
-                        m_PlatformWindow->Height = height;
+                        m_Width = width;
+                        m_Height = height;
                         BIT_LOG_DEBUG("Width: %d, Height: %d", width, height);
                         glViewport(0, 0, width, height);
                         EventContext context{};
@@ -226,13 +175,8 @@ u32 PlatformLinux::GetHeight() const
     return m_Height;
 }
 
-void* PlatformLinux::GetWindow() const
-{
-    return nullptr;
-}
 PlatformLinux::~PlatformLinux()
 {
-    delete m_PlatformWindow;
 }
 static BInput::KEYS TranslateKeysymToPlatformKey(KeySym key)
 {

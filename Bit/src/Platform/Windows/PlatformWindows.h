@@ -1,0 +1,9 @@
+
+namespace BitEngine 
+{
+class PlatformWindows
+{
+
+};
+
+}

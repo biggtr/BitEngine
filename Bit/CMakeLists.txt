@@ -38,6 +38,7 @@ target_sources(BitEngine
     src/Bit/Renderer/Buffers.cpp
     src/Bit/Renderer/Material.cpp
     src/Bit/Renderer/Geometry.cpp
+    src/Bit/Renderer/Mesh.cpp
 
     src/Bit/Renderer/Camera.cpp
     src/Bit/Renderer/CameraManager.cpp
@@ -57,6 +58,8 @@ target_sources(BitEngine
 
     src/Bit/Math/Vector.cpp
     src/Bit/Math/Matrix.cpp
+    src/Bit/Math/Transform.cpp
+
 
     src/Bit/UI/BitUI.cpp
 
@@ -70,7 +73,7 @@ target_sources(BitEngine
     src/Platform/OpenGL/OpenGLBuffers.cpp
     src/Platform/OpenGL/OpenGLRendererAPI.cpp
     src/Platform/OpenGL/OpenGLVertexArray.cpp
-    src/Platform/OpenGL/OpenGLContext.cpp
+    src/Platform/OpenGL/OpenGLContextLinux.cpp
     src/Platform/OpenGL/OpenGLShader.cpp
     src/Platform/OpenGL/OpenGLTexture.cpp
     src/Platform/Windows/PlatformLinux.cpp

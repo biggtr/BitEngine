@@ -1,11 +1,11 @@
 #include "GraphicsContext.h"
 #include "Bit/Core/Platform.h"
-#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/OpenGL/OpenGLContextLinux.h"
 #include "RendererAPI.h"
 namespace BitEngine
 {
 
-GraphicsContext* GraphicsContext::Create(void* window)
+GraphicsContext* GraphicsContext::Create()
 {
     switch (RendererAPI::GetAPI()) 
     {
@@ -13,7 +13,7 @@ GraphicsContext* GraphicsContext::Create(void* window)
     case RENDERER_API::NONE:
         return nullptr;
     case RENDERER_API::OPENGL:
-            return new OpenGLContext((PlatformWindow*)window);
+            return new OpenGLContextLinux();
       break;
     }
     return nullptr;

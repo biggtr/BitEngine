@@ -12,7 +12,7 @@ class Mesh
 {
 private:
     std::vector<Geometry*> m_Geometries;
-    BMath::Transform Transform;
+    BMath::Transform m_Transform;
     std::string m_Name;
 public:
     Mesh();
@@ -24,8 +24,8 @@ public:
     void SetName(const std::string& name);
     std::string GetName();
 
-    void SetTransform(const BMath::Transform& t);
-    BMath::Transform GetTransform();
+    void SetTransform(const BMath::Transform& t) { m_Transform = t; };
+    BMath::Transform GetTransform() { return m_Transform; }
     
     void LoadModelFromFile(const std::string& filepath);
     void ProcessNode(aiNode* node, const aiScene* scene);
