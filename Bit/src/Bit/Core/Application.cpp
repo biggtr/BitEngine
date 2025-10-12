@@ -14,7 +14,7 @@
 #include "Bit/UI/BitUI.h"
 #include "Game.h"
 #include "Bit/Core/Logger.h"
-#include "Platform.h"
+#include "Platform/Windows/Platform.h"
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Scene/Compontents.h"
 #include "Bit/Core/Event.h"

@@ -1,7 +1,7 @@
 #pragma once 
 
 
-#include <cstdint>
+#include <stdint.h>
 
 typedef uint32_t Signature;
 const unsigned int MAX_COMPONENTS = 32;
@@ -44,16 +44,14 @@ STATIC_ASSERT(sizeof(u64) == 8, "Size of uint64 should be 8 byte");
 
 STATIC_ASSERT(sizeof(f32) == 4, "Size of float32 should be 4 byte");
 STATIC_ASSERT(sizeof(f64) == 8, "Size of float64 should be 8 byte");
-
 #define TRUE 1
 #define FALSE 0 
 
 
-// Platform (C --> for Cruise)
 
 // Windows
 #if defined(WIN32) || defined(__WIN32) || defined(__WIN32__)
-#define BPLATFORM_WINDOW 1
+#define BPLATFORM_WINDOWS 1
 #ifndef _WIN64
 #error "The system is not 64-bit windows "
 #endif

@@ -1,6 +1,7 @@
 #pragma once
+#ifdef BPLATFORM_LINUX
 #include "Bit/Core/Defines.h"
-#include "Bit/Core/Platform.h"
+#include "Platform.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include <string>
 #include <X11/Xlib.h>
@@ -34,3 +35,4 @@ public:
     virtual GraphicsContext* GetGraphicsContext() const override { return m_Context; };
 };
 }
+#endif

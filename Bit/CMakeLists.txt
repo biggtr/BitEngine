@@ -23,7 +23,7 @@ target_sources(BitEngine
     src/Bit/Core/Application.cpp
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
-    src/Bit/Core/Platform.cpp
+    src/Platform/Windows/Platform.cpp
     src/Bit/Core/Event.cpp
     src/Bit/Core/Input.cpp
 

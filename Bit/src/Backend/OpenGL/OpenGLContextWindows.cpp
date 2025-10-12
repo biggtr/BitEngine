@@ -1,3 +1,4 @@
+#ifdef BPLATFORM_LINUX
 #include <cstring>
 #include <glad/glad.h>
 #include "OpenGLContextLinux.h"
@@ -270,3 +271,4 @@ OpenGLContextLinux::~OpenGLContextLinux()
     }
 }
 }
+#endif

@@ -5,9 +5,8 @@
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Texture.h"
-#include <X11/Xlib.h>
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 #include <unordered_map>
 #include <vector>
 namespace BitEngine 

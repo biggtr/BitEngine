@@ -1,9 +1,11 @@
+#ifdef BPLATFORM_LINUX
 #include "PlatformLinux.h"
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Core/Platform.h"
 #include "Bit/Renderer/GraphicsContext.h"
+#include "Backend/OpenGL/OpenGLContextLinux.h"
 #include <X11/X.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
@@ -40,7 +42,13 @@ b8 PlatformLinux::Initialize()
         XCloseDisplay(m_Display);
         return false;
     }
-    auto winReq = m_Context->GetWindowRequirements(m_Display, m_Screen);
+    auto winReq = OpenGLContextLinux::GetWindowRequirements(m_Display, m_Screen);
+    if (!winReq.visualInfo)
+        {
+            BIT_LOG_ERROR("Failed to get window requirements");
+            XCloseDisplay(m_Display);
+            return false;
+        }
 
     XSetWindowAttributes attr;
     memset(&attr, 0, sizeof(XSetWindowAttributes));
@@ -50,7 +58,7 @@ b8 PlatformLinux::Initialize()
     attr.colormap = winReq.colormap;
     attr.background_pixmap = None;
     attr.border_pixel = 0;
-    XVisualInfo* vi = (XVisualInfo*)winReq.visualInfo;
+    XVisualInfo* vi = winReq.visualInfo;
 
     m_Window = XCreateWindow(m_Display, m_WindowRoot, 0, 0,
                 m_Width, m_Height, 0,
@@ -67,6 +75,7 @@ b8 PlatformLinux::Initialize()
     XStoreName(m_Display, m_Window, m_Name.c_str());
     XMapWindow(m_Display, m_Window);
     XFlush(m_Display);
+    OpenGLContextLinux::FreeWindowRequirements(m_Display, winReq);
 
     if (!m_Context->Initialize(m_Display, &m_Window, m_Screen))
     {
@@ -462,3 +471,4 @@ static BInput::KEYS TranslateKeysymToPlatformKey(KeySym key)
 
 }
 }
+#endif

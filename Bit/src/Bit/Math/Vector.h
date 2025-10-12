@@ -1,6 +1,6 @@
 #pragma once
 #include "Bit/Core/Defines.h"
-#include <cmath>
+#include <math.h>
 
 namespace BMath 
 {
