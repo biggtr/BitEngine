@@ -122,24 +122,56 @@ public:
     }
     virtual b8 OnRender() 
     {
-
+        // First render pass - UI (working?)
         m_Renderer2D->BeginScene(m_UIProjection);
         m_UIRenderSystem->Update(*m_Renderer2D);
         UIRender();
         m_Renderer2D->EndScene();
 
-        BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
-        BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
+        // Second render pass - World (has NaN?)
+        BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 
+                                        ? m_OrthoProjection : m_PerspectiveProjection;
+        
+        // ✅ DEBUG: Check projection matrix
+        BIT_LOG_DEBUG("OrthoProj[0] = %.4f, [5] = %.4f", m_OrthoProjection.Data[0], m_OrthoProjection.Data[5]);
+        for(int i = 0; i < 16; i++) {
+            if(std::isnan(m_OrthoProjection.Data[i])) {
+                BIT_LOG_ERROR("OrthoProjection has NaN at index %d!", i);
+            }
+        }
+        
+        BMath::Mat4 viewMatrix = ActiveWorldCamera->GetViewMatrix();
+        
+        // ✅ DEBUG: Check view matrix
+        BIT_LOG_DEBUG("ViewMatrix[0] = %.4f", viewMatrix.Data[0]);
+        for(int i = 0; i < 16; i++) {
+            if(std::isnan(viewMatrix.Data[i])) {
+                BIT_LOG_ERROR("ViewMatrix has NaN at index %d!", i);
+            }
+        }
+        
+        BMath::Mat4 viewProjection = ProjectionMatrix * viewMatrix;
+        
+        // ✅ DEBUG: Check final result
+        BIT_LOG_DEBUG("ViewProjection[0] = %.4f, [4] = %.4f, [8] = %.4f, [12] = %.4f", 
+                      viewProjection.Data[0], viewProjection.Data[4], viewProjection.Data[8], viewProjection.Data[12]);
+        for(int i = 0; i < 16; i++) {
+            if(std::isnan(viewProjection.Data[i])) {
+                BIT_LOG_ERROR("ViewProjection has NaN at index %d!", i);
+                // Print what went into the calculation
+                BIT_LOG_ERROR("  Projection[%d] = %.4f", i, ProjectionMatrix.Data[i]);
+                BIT_LOG_ERROR("  View[%d] = %.4f", i, viewMatrix.Data[i]);
+            }
+        }
 
         m_Renderer3D->BeginFrame(viewProjection);
         Render();
         m_Renderer3D->EndFrame();
 
-        m_Renderer2D->BeginScene(viewProjection);
+        m_Renderer2D->BeginScene(viewProjection);  // ← This is where NaN comes from
         m_RenderSystem->Update(*m_Renderer2D);
         Render();
         m_Renderer2D->EndScene();
-
 
         return true;
     }

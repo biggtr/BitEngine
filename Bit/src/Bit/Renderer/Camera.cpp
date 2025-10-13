@@ -33,10 +33,21 @@ BMath::Mat4 Camera::GetViewMatrix()
 {
     if(IsDirty)
     {
+        BIT_LOG_DEBUG("Camera Pos: (%.2f, %.2f, %.2f)", m_Position.x, m_Position.y, m_Position.z);
+        BIT_LOG_DEBUG("Camera Rot: (%.2f, %.2f, %.2f)", m_EulerRotation.x, m_EulerRotation.y, m_EulerRotation.z);
+        
         BMath::Mat4 rotation = BMath::Mat4Rotate(m_EulerRotation.x, m_EulerRotation.y, m_EulerRotation.z);
+        BIT_LOG_DEBUG("Rotation[0] = %.2f", rotation.Data[0]);
+        
         BMath::Mat4 translation = BMath::Mat4Translate(m_Position.x, m_Position.y, m_Position.z);
+        BIT_LOG_DEBUG("Translation[0] = %.2f", translation.Data[0]);
+        
         BMath::Mat4 viewmatrix = rotation * translation;
+        BIT_LOG_DEBUG("Combined[0] = %.2f", viewmatrix.Data[0]);
+        
         m_ViewMatrix = BMath::Mat4Inverse(viewmatrix);
+        BIT_LOG_DEBUG("Inverted[0] = %.2f", m_ViewMatrix.Data[0]);
+        
         IsDirty = false;
     }
     return m_ViewMatrix;

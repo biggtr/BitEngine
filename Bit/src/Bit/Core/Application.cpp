@@ -62,6 +62,9 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
     m_GameInstance = gameInstance;
+
+    m_Width = m_GameInstance->m_AppConfig.width;
+    m_Height = m_GameInstance->m_AppConfig.height;
     if(!PlatformStartup(&m_Platform,
                 m_GameInstance->m_AppConfig.name,
                 m_GameInstance->m_AppConfig.x,
@@ -96,7 +99,7 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
     }
-    m_GameInstance->OnWindowResize( m_Width, m_Height);
+    m_GameInstance->OnWindowResize(m_Width, m_Height);
 
     m_IsRunning = true;
     m_IsSuspended = false;

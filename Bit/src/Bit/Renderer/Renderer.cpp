@@ -47,7 +47,7 @@ b8 Renderer::Initialize()
     m_MaterialManager->LoadBuiltinMaterials();
 
     // Set Default clear color 
-    SetClearColor(0.23f, 0.0f, 1.0, 1.0);
+    SetClearColor(1.0, 0.0f, 1.0, 1.0);
     return true;
 }
 void Renderer::Shutdown()

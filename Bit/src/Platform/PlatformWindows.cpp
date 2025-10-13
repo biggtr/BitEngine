@@ -137,7 +137,7 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
     if (!platformState->Context->Initialize())
     {
         BIT_LOG_FATAL("Failed to initialize graphics context!");
-        DestroyWindow(internalState->WindowHandle); // Clean up the window we just made
+        DestroyWindow(internalState->WindowHandle); 
         return false;
     }
     ShowWindow(internalState->WindowHandle, SW_SHOW);
