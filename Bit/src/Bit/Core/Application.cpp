@@ -42,6 +42,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
     EventRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
+    EventRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
 
     u64 m_InputSystemMemReq;
@@ -142,6 +143,7 @@ void Application::Run()
 
     }
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
+    EventUnRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
 
@@ -158,6 +160,18 @@ b8 Application::OnEvent(u16 code, EventContext data)
         {
             BIT_LOG_DEBUG("App Is Quitting");
             m_IsRunning = false; 
+            break;
+        }
+        case EVENT_CODE_WINDOW_RESIZED:
+        {
+            if(!m_IsRunning)
+            {
+                break;
+            }
+            u16 width = data.U16[0];
+            u16 height = data.U16[1];
+            BIT_LOG_DEBUG("Windows Resize -> width : %d, height : %d", width, height);
+            m_GameInstance->OnWindowResize(width, height);
             break;
         }
     }

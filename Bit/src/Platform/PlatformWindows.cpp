@@ -4,6 +4,7 @@
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Backend/OpenGL/OpenGLContextWindows.h" 
 #include "Platform/Platform.h"
+#include <minwindef.h>
 #include <stdlib.h>
 #ifdef BPLATFORM_WINDOWS
 #include <windowsx.h>
@@ -32,8 +33,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_SIZE:
         {
-            // EventContext data = {};
-            // EventManager::EventFire(EVENT_CODE_WINDOW_RESIZED, 0, data);
+            EventContext data = {};
+            u16 width = LOWORD(lParam);
+            u16 height = HIWORD(lParam);
+            data.U16[0] = width;
+            data.U16[1] = height;
+            BIT_LOG_INFO("new size from platform %d %d", width, height);
+            EventFire(EVENT_CODE_WINDOW_RESIZED, 0, data);
             break;
         }
         case WM_KEYDOWN:
