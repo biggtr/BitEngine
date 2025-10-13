@@ -1,4 +1,5 @@
 #include "Bit/Core/Event.h"
+#include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Backend/OpenGL/OpenGLContextWindows.h" 
@@ -11,9 +12,9 @@
 namespace BitEngine
 {
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg)
+    switch (msg)
     {
         case WM_ERASEBKGND:
             //prevent the os from clearing the screen to prevent flickering app is gonna handle clearing
@@ -40,14 +41,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
-            //TODO: handle keyboard input in here
-
+            b8 pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
+            KEYS key = (KEYS)wParam;
+            InputProcessKey(key, pressed);
             break;
         }
         case WM_MOUSEMOVE:
             {
                 i32 xPosition = GET_X_LPARAM(lParam);
                 i32 yPosition = GET_Y_LPARAM(lParam);
+                i16 x = (i16)xPosition;
+                i16 y = (i16)yPosition;
+                InputProcessMouseMove(&x, &y);
                 break;
             }
         case WM_MOUSEWHEEL:
@@ -56,6 +61,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if(zDelta != 0)
                 {
                     zDelta = (zDelta < 0) ? -1 : 1;
+                    InputProcessMouseWheel(zDelta);
                 }
                 break;
             }
@@ -66,11 +72,32 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
             {
+                b8 pressed = msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN;
+                MOUSE_BUTTONS mouseButton = MOUSE_BUTTON_MAX;
+                switch (msg) 
+                {
+                    case WM_LBUTTONDOWN:
+                    case WM_LBUTTONUP:
+                        mouseButton = MOUSE_BUTTON_LEFT;
+                        break;
 
+                    case WM_MBUTTONDOWN:
+                    case WM_MBUTTONUP:
+                        mouseButton = MOUSE_BUTTON_MIDDLE;
+                        break;
+                    case WM_RBUTTONDOWN:
+                    case WM_RBUTTONUP:
+                        mouseButton = MOUSE_BUTTON_RIGHT;
+                        break;
+                }
+                if(mouseButton != MOUSE_BUTTON_MAX)
+                {
+                    InputProcessMouseButton(mouseButton, pressed);
+                }
                 break;
             }
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 

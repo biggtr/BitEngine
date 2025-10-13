@@ -36,7 +36,7 @@ BitEngine::Entity PoolGame::CreateTable(BitEngine::Entity* outPockets, f32 width
             BMath::Vec3(width, height, 0.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f)
             );
-    table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.4f, 0.0f, 1.0f};
+    table.AddComponent<BitEngine::SpriteComponent>().Color = {0.0f, 0.4f, 0.0f, 1.0f};
 
     auto uptableEdge = m_ECS->CreateEntity();
     uptableEdge.AddComponent<BitEngine::TransformComponent>(
@@ -243,6 +243,7 @@ void PoolGame::Update(f32 deltaTime)
         }
     }
     (void)deltaTime;
+
     if(BitEngine::InputIsMouseButtonPressed(BitEngine::MOUSE_BUTTON_RIGHT)) 
     {
         BitEngine::InputGetMousePosition(&initialMouseX, &initialMouseY);
