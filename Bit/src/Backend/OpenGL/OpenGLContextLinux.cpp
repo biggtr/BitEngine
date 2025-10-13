@@ -54,11 +54,11 @@ static bool glCheckExtensionSupported(const char* lpExtensionString, const char*
     return false;
 }
     
-OpenGLContextLinux::OpenGLContextLinux()
-    : m_Display(0),
-      m_Window(),
-      m_Screen(),
-      m_FBConfig(),
+OpenGLContextLinux::OpenGLContextLinux(Display* display, Window window, int screen, const LinuxWindowRequirements& req)
+    : m_Display(display),
+      m_Window(window),
+      m_Screen(screen),
+      m_Req(req),
       m_GLContext()
 {
 }
@@ -75,9 +75,6 @@ OpenGLContextLinux::~OpenGLContextLinux()
 b8 OpenGLContextLinux::Initialize()
 {
 
-    m_Display = (Display*)display;
-    m_Window= *(Window*)window;
-    m_Screen = screen; 
     int glxMajor, glxMinor;
     if (!glXQueryVersion(m_Display, &glxMajor, &glxMinor)) 
     {
@@ -107,13 +104,17 @@ b8 OpenGLContextLinux::Initialize()
         return false;
     }
 
-    m_FBConfig = SelectBestFBConfig(m_Display, m_Screen);
-    if (!m_FBConfig)
+    if (!m_Req.fbconfig)
     {
         BIT_LOG_ERROR("Failed to select framebuffer config");
         return false;
     }
-
+    if (!m_Req.visualInfo)
+    {
+        BIT_LOG_ERROR("Failed to get visual info from framebuffer config");
+        return {};
+    }
+    Window root = RootWindow(m_Display, m_Screen);
 
     int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&glInitErrorHandler);
         
@@ -145,7 +146,7 @@ b8 OpenGLContextLinux::Initialize()
     {
         bGLInitErrorRaised = false;
         
-        context = glXCreateContextAttribsARB(m_Display, m_FBConfig, 0, True, context_attribs[i]);
+        context = glXCreateContextAttribsARB(m_Display, m_Req.fbconfig, 0, True, context_attribs[i]);
         XSync(m_Display, False);
         
         if (!bGLInitErrorRaised && context)
@@ -200,29 +201,22 @@ b8 OpenGLContextLinux::Initialize()
     return true;
 }
 
-LinuxWindowRequirements OpenGLContextLinux::GetWindowRequirements(void* display, i32 screen) 
+LinuxWindowRequirements OpenGLContextLinux::GetWindowRequirements(Display* display, int screen) 
 {
-    GLXFBConfig fbConfig= SelectBestFBConfig((Display*)display, screen);
-    if (!fbConfig)
+    LinuxWindowRequirements req;
+    req.fbconfig = SelectBestFBConfig((Display*)display, screen);
+    if (!req.fbconfig)
     {
         BIT_LOG_ERROR("Failed to select framebuffer config");
         return {};
     }
-    XVisualInfo* vi = glXGetVisualFromFBConfig((Display*)display, fbConfig);
-    if (!vi)
-    {
-        BIT_LOG_ERROR("Failed to get visual info from framebuffer config");
-        return {};
-    }
 
-    Window root = RootWindow((Display*)display, screen);
-    Colormap cmap = XCreateColormap((Display*)display, root, vi->visual, AllocNone);
-    
-    LinuxWindowRequirements req;
-    req.visualInfo = vi;
-    req.colormap = cmap;
+    req.visualInfo = glXGetVisualFromFBConfig(display, req.fbconfig);
+
+    Window root = RootWindow(display, screen);
+    req.colormap = XCreateColormap(display, root, req.visualInfo->visual, AllocNone);
     req.valueMask = CWEventMask | CWBackPixel | CWColormap;
-    req.depth = vi->depth;
+    req.depth = req.visualInfo->depth;
 
     return req;
 }
