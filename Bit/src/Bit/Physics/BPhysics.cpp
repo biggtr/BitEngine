@@ -13,26 +13,22 @@ struct BPhysics2DState
     std::vector<BParticle> Particles;
     std::vector<BBody> Bodies;
     std::vector<BShape> Shapes;
+
+    u64 NextBodyId = 1;
 };
 static BPhysics2DState* physics2DState = 0;
 
-b8 BPhysics2DInitialize(u64* memoryRequirement, void* state)
+b8 BPhysics2DInitialize()
 {
-    *memoryRequirement = sizeof(BPhysics2DState);
-    if(!state)
-    {
-        return true;
-    }
-    physics2DState = (BPhysics2DState*)state;
-    memset((void*)physics2DState, 0, sizeof(BPhysics2DState));
+    physics2DState = new BPhysics2DState();
     return true;
 }
 
-void BPhysics2DShutdown(void* state)
+void BPhysics2DShutdown()
 {
-    if(state)
+    if(physics2DState)
     {
-        physics2DState = 0;
+        delete physics2DState;
     }
     BIT_LOG_INFO("Event System Is shutting down..!");
 }

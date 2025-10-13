@@ -3,7 +3,7 @@
 
 namespace BitEngine
 {
-
+class GraphicsContext;
 
 struct PlatformState
 {
@@ -11,6 +11,7 @@ struct PlatformState
     u32 Width;
     u32 Height;
     const char* Name;
+    GraphicsContext* Context;
 };
 
 

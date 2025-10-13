@@ -66,7 +66,6 @@ private:
     u64 m_EventSystemMemReq;
     void* m_EventSystem;
 
-    u64 m_Physics2DSystemMemReq;
     void* m_Physics2DSystem;
 };
 

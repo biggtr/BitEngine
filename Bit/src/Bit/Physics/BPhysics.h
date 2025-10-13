@@ -9,8 +9,8 @@ namespace BitEngine
 {
 
 
-b8 BPhysics2DInitialize(u64* memoryRequirement, void* state);
-void BPhysics2DShutdown(void* state);
+b8 BPhysics2DInitialize();
+void BPhysics2DShutdown();
 
 u32 BPhysics2DCreateCircleShape(f32 radius);
 u32 BPhysics2DCreateBoxShape(f32 width, f32 height);

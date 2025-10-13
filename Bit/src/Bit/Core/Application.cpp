@@ -3,6 +3,7 @@
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Physics/BPhysics.h"
+#include "Bit/Renderer/GraphicsContext.h"
 #include "Game.h"
 #include "Platform/Platform.h"
 #include <cstdlib>
@@ -60,10 +61,17 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Failed To Initialze Logger System");
         return false;
     }
-
-    if(!m_Renderer2D->Initialize())
+    m_GameInstance = gameInstance;
+    if(!PlatformStartup(&m_Platform,
+                m_GameInstance->m_AppConfig.name,
+                m_GameInstance->m_AppConfig.x,
+                m_GameInstance->m_AppConfig.y,
+                m_GameInstance->m_AppConfig.width,
+                m_GameInstance->m_AppConfig.height
+                ))
     {
-        BIT_LOG_ERROR("Failed To Initialze Renderer2D");
+
+        BIT_LOG_ERROR("Failed To Startup the platform");
         return false;
     }
     if(!m_Renderer3D->Initialize())
@@ -71,11 +79,13 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Failed To Initialze Renderer3D");
         return false;
     }
+    if(!m_Renderer2D->Initialize())
+    {
+        BIT_LOG_ERROR("Failed To Initialze Renderer2D");
+        return false;
+    }
 
-    u64 m_Physics2DSystemMemReq;
-    BPhysics2DInitialize(&m_Physics2DSystemMemReq, 0);
-    m_Physics2DSystem = malloc(m_Physics2DSystemMemReq);
-    if(!BPhysics2DInitialize(&m_Physics2DSystemMemReq, m_Physics2DSystem))
+    if(!BPhysics2DInitialize())
     {
         BIT_LOG_ERROR("Failed To Initialze BPhysics2D System");
         return false;
@@ -95,22 +105,21 @@ b8 Application::Create(Game* gameInstance)
 
 void Application::Run()
 {
-
     m_Time.Reset();
     while (m_IsRunning)
     {
-        // if(!PlatformPumpMessages(&m_Platform))
-        // {
-        //     BIT_LOG_FATAL("Something Went Wrong with PlatformEventLoop");
-        //     m_IsRunning = false;
-        //     m_IsSuspended = true;
-        // }
-        PlatformPumpMessages(&m_Platform);
+        if(!PlatformPumpMessages(&m_Platform))
+        {
+            BIT_LOG_FATAL("Something Went Wrong with PlatformEventLoop");
+            m_IsRunning = false;
+            m_IsSuspended = true;
+        }
         if(!m_IsSuspended)
         {
             m_Time.Update();
             float deltaTime = m_Time.GetDeltaTime();
 
+            m_EntityManager->Update();
             if(!m_GameInstance->OnUpdate(deltaTime))
             {
                 BIT_LOG_FATAL("Something Went Wrong with Game Update");
@@ -123,7 +132,7 @@ void Application::Run()
                 m_IsRunning = false;
                 break;
             }
-            m_EntityManager->Update();
+            m_Platform.Context->SwapBuffers();
 
             InputUpdate(deltaTime);
         }
@@ -133,7 +142,7 @@ void Application::Run()
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
 
-    BPhysics2DShutdown(m_Physics2DSystem);
+    BPhysics2DShutdown();
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
 }

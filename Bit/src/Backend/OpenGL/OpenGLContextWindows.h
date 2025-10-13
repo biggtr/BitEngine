@@ -1,18 +1,26 @@
 #pragma once
 #ifdef BPLATFORM_WINDOWS
-#include "Platform/Platform.h"
+
 #include "Bit/Renderer/GraphicsContext.h"
-namespace BitEngine
-{
+#include <windows.h> 
 
-class OpenGLContextWindows : public GraphicsContext
-{
-public:
-    OpenGLContextWindows();
-    ~OpenGLContextWindows();    
-    virtual b8 Initialize(void* display, void* window, i32 screen) override;
-    virtual void SwapBuffers() override;
+namespace BitEngine {
 
-};
+    class OpenGLContextWindows : public GraphicsContext
+    {
+    public:
+        OpenGLContextWindows(HWND windowHandle);
+
+        virtual b8 Initialize() override;
+        virtual void SwapBuffers() override;
+
+    private:
+        HWND m_WindowHandle;
+        HDC m_DeviceContext;
+        HGLRC m_RenderingContext;
+    };
 }
+
 #endif
+
+

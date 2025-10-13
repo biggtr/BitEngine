@@ -47,7 +47,7 @@ public:
             }
             rigidBody.BodyIndex = BPhysics2DCreateBody(shapeIndex, transform.Position, rigidBody.Mass, rigidBody.Restitution);
             
-            // BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
+            BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
     }
 

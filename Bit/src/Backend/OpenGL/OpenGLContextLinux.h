@@ -25,13 +25,14 @@ private:
     GLXFBConfig m_FBConfig;
     GLXContext m_GLContext;
 public:
-    OpenGLContextLinux();
-    ~OpenGLContextLinux();    
-    static LinuxWindowRequirements GetWindowRequirements(void* display, int screen);
-    static void FreeWindowRequirements(Display* display, const LinuxWindowRequirements& req);
-    virtual b8 Initialize(void* display, void* window, i32 screen) override;
+    OpenGLContextLinux(Display* display, Window window, int screen);
+    ~OpenGLContextLinux();
+    virtual b8 Initialize() override;
     virtual void SwapBuffers() override;
 
+    static LinuxWindowRequirements GetWindowRequirements(Display* display, int screen);
+    static void FreeWindowRequirements(Display* display, const LinuxWindowRequirements& req);
+    
 private:
     static GLXFBConfig SelectBestFBConfig(Display* display, i32 screen);
 };

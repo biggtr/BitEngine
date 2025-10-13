@@ -10,6 +10,7 @@ private:
     BitEngine::Entity m_Table;
     BitEngine::Entity m_Pockets[6];
     BitEngine::Entity m_Balls[100];
+    u32 m_ActiveBallCount;
     BMath::Vec3 impulseLine;
 
     b8 isDragging;

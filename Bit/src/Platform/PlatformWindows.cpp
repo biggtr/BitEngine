@@ -90,7 +90,7 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
 
     HICON icon = LoadIcon(internalState->InstanceHandle, IDI_APPLICATION);
     WNDCLASSA wc = {};
-    wc.style = CS_DBLCLKS;
+    wc.style = CS_DBLCLKS | CS_OWNDC;
     wc.lpfnWndProc   = WindowProc; 
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
@@ -107,8 +107,8 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
     u32 windowStyle = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
     u32 windowsExStyle = WS_EX_APPWINDOW;
 
-    windowStyle |= WS_MAXIMIZE;
-    windowStyle |= WS_MINIMIZE;
+    windowStyle |= WS_MAXIMIZEBOX;
+    windowStyle |= WS_MINIMIZEBOX;
     windowStyle |= WS_THICKFRAME;
 
 
@@ -132,13 +132,14 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
         return false;
     }
 
-    // m_Context = GraphicsContext::Create(); 
-    // if (!m_Context || !m_Context->Initialize(m_WindowHandle, nullptr, 0)) // WGL init
-    // {
-    //     BIT_LOG_ERROR("Failed to initialize graphics context on Windows!");
-    //     return false;
-    // }
-
+    platformState->Context = new OpenGLContextWindows(internalState->WindowHandle);
+    
+    if (!platformState->Context->Initialize())
+    {
+        BIT_LOG_FATAL("Failed to initialize graphics context!");
+        DestroyWindow(internalState->WindowHandle); // Clean up the window we just made
+        return false;
+    }
     ShowWindow(internalState->WindowHandle, SW_SHOW);
 
     return true; 
@@ -158,6 +159,10 @@ b8 PlatformPumpMessages(PlatformState* platformState)
     MSG msg;
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
+        if (msg.message == WM_QUIT)
+        {
+            return false; 
+        }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }

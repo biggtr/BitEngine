@@ -64,24 +64,24 @@ struct Renderer2DData
     static const u32 MaxIndices = MaxQuads * 6;
     static const u32 MaxTextureSlots = 16;
 
-    IndexBuffer* QuadIndexBuffer;
+    IndexBuffer* QuadIndexBuffer = nullptr;
 
-    VertexArray* QuadVertexArray;
-    VertexBuffer* QuadVertexBuffer;
-    Shader* QuadShader;
-    Texture* WhiteTexture; 
+    VertexArray* QuadVertexArray = nullptr;
+    VertexBuffer* QuadVertexBuffer = nullptr;
+    Shader* QuadShader = nullptr;
+    Texture* WhiteTexture = nullptr; 
 
-    VertexArray* CircleVertexArray;
-    VertexBuffer* CircleVertexBuffer;
-    Shader* CircleShader;
+    VertexArray* CircleVertexArray = nullptr;
+    VertexBuffer* CircleVertexBuffer = nullptr;
+    Shader* CircleShader = nullptr;
 
-    VertexArray* LineVertexArray;
-    VertexBuffer* LineVertexBuffer;
-    Shader* LineShader;
+    VertexArray* LineVertexArray = nullptr;
+    VertexBuffer* LineVertexBuffer = nullptr;
+    Shader* LineShader = nullptr;
 
-    VertexArray* RectVertexArray;
-    VertexBuffer* RectVertexBuffer;
-    Shader* RectShader;
+    VertexArray* RectVertexArray = nullptr;
+    VertexBuffer* RectVertexBuffer = nullptr;
+    Shader* RectShader = nullptr;
 
     uint32_t QuadIndexCount = 0;
     QuadVertex* QuadVertexBufferBase = nullptr;
@@ -97,10 +97,10 @@ struct Renderer2DData
 
     float LineWidth = 2.0f;
     
-    std::array<Texture*, MaxTextureSlots> TextureSlots;
+    std::array<Texture*, MaxTextureSlots> TextureSlots{};
     u32 TextureSlotIndex = 1; // starts from 1 because 0 is reserved for WhiteTexture
                             
-    BMath::Vec4 QuadVertexPositions[4];
+    BMath::Vec4 QuadVertexPositions[4]{};
 };
 
 static Renderer2DData s_RenderData;

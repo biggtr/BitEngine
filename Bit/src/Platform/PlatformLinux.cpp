@@ -25,7 +25,7 @@ struct InternalState
 {
     Display* Dpy;
     i32 Screen;
-    u32 Window;
+    Window Window;
 };
 
 b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i32 x, i32 y, u32 width, u32 height)
@@ -41,6 +41,11 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
     internalState->Screen = XDefaultScreen(internalState->Dpy);
 
 
+    LinuxWindowRequirements req = LinuxContext::GetWindowRequirements(internalState->Dpy, internalState->Screen);
+    if (!req.visualInfo) {
+        XCloseDisplay(internalState->Dpy);
+        return false;
+    }
 
     XVisualInfo visualInfo;
     if(!XMatchVisualInfo(internalState->Dpy, internalState->Screen, 24, TrueColor, &visualInfo))
@@ -75,10 +80,18 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
         XCloseDisplay(internalState->Dpy);
         return false;
     }
+
+    platformState->Context = new LinuxContext(internalState->Dpy, internalState->Window, internalState->Screen);
+    if (!platformState->Context->initialize()) {
+        BIT_LOG_FATAL("Failed to initialize graphics context!");
+        XDestroyWindow(internalState->Dpy, internalState->Window);
+        XCloseDisplay(internalState->Dpy);
+        return false;
+    }
     // register event for handling the xlib window closing 
     Atom wmDelete = XInternAtom(internalState->Dpy, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(internalState->Dpy, internalState->Window, &wmDelete, 1);
-    
+
     XAutoRepeatOff(internalState->Dpy);
 
     XStoreName(internalState->Dpy, internalState->Window, applicationName);

@@ -150,6 +150,8 @@ void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
     m_WhiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
     m_WhiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_MASS);
     outEntities[i] = m_WhiteBall;
+    m_ActiveBallCount = totalNumBalls + 1;  
+    BIT_LOG_INFO("Created %u balls total (%u colored + 1 white)", m_ActiveBallCount, totalNumBalls);
 }
 void PoolGame::Initialize()
 {
@@ -202,18 +204,16 @@ void PoolGame::Render()
 }
 void PoolGame::Update(f32 deltaTime)
 {
-    for(u32 i = 0; i < 6; ++i)
+    for (int j = m_ActiveBallCount - 1; j >= 0; --j)
     {
-        for(u32 j = 0; j < 16; ++j)
+        BitEngine::Entity ball = m_Balls[j];
+        b8 ballPocketed = false;
+
+        for (u32 i = 0; i < 6; ++i)
         {
-            BitEngine::Entity ball = m_Balls[j];
             BitEngine::Entity pocket = m_Pockets[i];
 
-            if(m_ECS->HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
-                    m_ECS->HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
-                    m_ECS->HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
-                    m_ECS->HasComponent<BitEngine::Rigid2DBodyComponent>(pocket) 
-            )
+            if (m_ECS->HasComponent<BitEngine::Rigid2DBodyComponent>(ball))
             {
                 BitEngine::Rigid2DBodyComponent& rigidBodyA = m_ECS->GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
                 BitEngine::Rigid2DBodyComponent& rigidBodyB = m_ECS->GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
@@ -221,18 +221,25 @@ void PoolGame::Update(f32 deltaTime)
                 BitEngine::BBody& pocketBody = BitEngine::BPhysics2DGetBody(rigidBodyB.BodyIndex);
 
                 BitEngine::BPhysics2DContact contact;
-                if(BitEngine::BPhysics2DIsColliding(&ballBody, &pocketBody, contact))
+                if (BitEngine::BPhysics2DIsColliding(&ballBody, &pocketBody, contact))
                 {
-                    if(ball == m_WhiteBall)
+                    if (ball == m_WhiteBall)
                     {
-                        // BIT_LOG_DEBUG("RespawnWhiteBall");
                         RespawnWhiteBall(m_WhiteBall);
                     }
-                    else 
+                    else
                     {
                         ball.KillEntity();
+
+                        m_Balls[j] = m_Balls[m_ActiveBallCount - 1];
+
+                        m_ActiveBallCount--;
                     }
+                    
+                    ballPocketed = true;
+                    break; 
                 }
+            }
         }
     }
     (void)deltaTime;
@@ -277,4 +284,3 @@ void PoolGame::Update(f32 deltaTime)
     // m_BitEngine::InputSystem->CreateAction(BitEngine::ACTION_ATTACK, m_Player, BitEngine::InputKEY_X); 
     
     // m_BitEngine::InputSystem->BindAction(BitEngine::ACTION_JUMP, m_Player, this, &TestGame::OnJump);
-}

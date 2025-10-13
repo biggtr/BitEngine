@@ -72,7 +72,7 @@ OpenGLContextLinux::~OpenGLContextLinux()
         m_GLContext = nullptr;
     }
 }
-b8 OpenGLContextLinux::Initialize(void* display, void* window, i32 screen)
+b8 OpenGLContextLinux::Initialize()
 {
 
     m_Display = (Display*)display;

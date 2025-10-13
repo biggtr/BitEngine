@@ -32,7 +32,6 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Renderer/RenderCommand.cpp
     src/Bit/Renderer/Renderer.cpp
     src/Bit/Renderer/Renderer2D.cpp
-    src/Bit/Renderer/GraphicsContext.cpp
     src/Bit/Renderer/Texture.cpp
     src/Bit/Renderer/Shader.cpp
     src/Bit/Renderer/VertexArray.cpp
@@ -75,7 +74,6 @@ set(BITENGINE_COMMON_SOURCES
     src/Backend/OpenGL/OpenGLBuffers.cpp
     src/Backend/OpenGL/OpenGLRendererAPI.cpp
     src/Backend/OpenGL/OpenGLVertexArray.cpp
-    src/Backend/OpenGL/OpenGLContextLinux.cpp
     src/Backend/OpenGL/OpenGLShader.cpp
     src/Backend/OpenGL/OpenGLTexture.cpp
     
