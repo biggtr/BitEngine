@@ -6,29 +6,31 @@
 #include "Bit/Physics/BPhysicsTypes.h"
 #include <iterator>
 
-namespace BPhysics2D
+namespace BitEngine
 {
+
+
     
 
-b8 IsColliding(BBody* a, BBody* b, Contact& contact)
+b8 BPhysics2DIsColliding(BBody* a, BBody* b, BPhysics2DContact& contact)
 {
-    BShape shapeA = GetShape(a);
-    BShape shapeB = GetShape(b);
+    BShape shapeA = BPhysics2DGetShape(a);
+    BShape shapeB = BPhysics2DGetShape(b);
     if(shapeA.Type == SHAPE_CIRCLE && shapeB.Type == SHAPE_CIRCLE)
     {
-        return IsCircleCircleColliding(a, b, contact);
+        return BPhysics2DIsCircleCircleColliding(a, b, contact);
     }
     else if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_POLYGON)
     {
-        return IsPolygonPolygonColliding(a, b, contact);
+        return BPhysics2DIsPolygonPolygonColliding(a, b, contact);
     }
     else if(shapeA.Type == SHAPE_POLYGON && shapeB.Type == SHAPE_CIRCLE)
     {
-        return IsPolygonCircleColliding(a, b, contact);
+        return BPhysics2DIsPolygonCircleColliding(a, b, contact);
     }
     else if(shapeA.Type == SHAPE_CIRCLE && shapeB.Type == SHAPE_POLYGON)
     {
-        b8 result = IsPolygonCircleColliding(b, a, contact);
+        b8 result = BPhysics2DIsPolygonCircleColliding(b, a, contact);
         if(result)
         {
             BBody* temp = contact.a;
@@ -41,10 +43,10 @@ b8 IsColliding(BBody* a, BBody* b, Contact& contact)
     return false;
 
 }
-b8 IsPolygonCircleColliding(BBody* polygon, BBody* circle, Contact& contact)
+b8 BPhysics2DIsPolygonCircleColliding(BBody* polygon, BBody* circle, BPhysics2DContact& contact)
 {
-    BCircleShape circleShape = GetShape(circle).BCircle;
-    BPolygonShape polygonShape = GetShape(polygon).BPolygon;
+    BCircleShape circleShape = BPhysics2DGetShape(circle).BCircle;
+    BPolygonShape polygonShape = BPhysics2DGetShape(polygon).BPolygon;
     BMath::Vec3* polygonVertices = polygonShape.Vertices;
     
     f32 minSeparation = -B_INFINITY;
@@ -144,10 +146,10 @@ b8 IsPolygonCircleColliding(BBody* polygon, BBody* circle, Contact& contact)
     
     return true;
 }
-b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
+b8 BPhysics2DIsCircleCircleColliding(BBody* a, BBody* b, BPhysics2DContact& contact)
 {
-    BShape shapeA = GetShape(a);
-    BShape shapeB = GetShape(b);
+    BShape shapeA = BPhysics2DGetShape(a);
+    BShape shapeB = BPhysics2DGetShape(b);
     BMath::Vec3 distanceAB = b->Position - a->Position;
     f32 distance = BMath::Vec3Length(distanceAB);
     f32 sumRadius = shapeA.BCircle.Radius + shapeB.BCircle.Radius;
@@ -169,10 +171,10 @@ b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& contact)
     return true;
 }
 
-b8 IsAABBColliding(BBody* a, BBody* b)
+b8 BPhysics2DIsAABBColliding(BBody* a, BBody* b)
 {
-    BShape shapeA = GetShape(a);
-    BShape shapeB = GetShape(b);
+    BShape shapeA = BPhysics2DGetShape(a);
+    BShape shapeB = BPhysics2DGetShape(b);
 
     f32 aLeft = -shapeA.BBox.Width; 
     f32 aRight = shapeA.BBox.Width;
@@ -186,7 +188,7 @@ b8 IsAABBColliding(BBody* a, BBody* b)
 
     return aRight >= bLeft && aLeft <= bRight && aBot <= bTop && aTop >= bBot;
 }
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint)
+f32 BPhysics2DFindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint)
 {
     f32 minSeperation = -B_INFINITY;
 
@@ -219,19 +221,19 @@ f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis,
     }
     return minSeperation;
 }
-b8 IsPolygonPolygonColliding(BBody* a, BBody* b, Contact& contact)
+b8 BPhysics2DIsPolygonPolygonColliding(BBody* a, BBody* b, BPhysics2DContact& contact)
 {
-    BPolygonShape& shapeA = GetShape(a).BPolygon;
-    BPolygonShape& shapeB = GetShape(b).BPolygon;
+    BPolygonShape& shapeA = BPhysics2DGetShape(a).BPolygon;
+    BPolygonShape& shapeB = BPhysics2DGetShape(b).BPolygon;
 
     BMath::Vec3 axisA, axisB;
     BMath::Vec3 pointA, pointB;
-    f32 seperationAB = FindMinSeperation(shapeA, shapeB, axisA, pointA);
+    f32 seperationAB = BPhysics2DFindMinSeperation(shapeA, shapeB, axisA, pointA);
     if(seperationAB >= 0)
     {
         return false; // no collision
     }
-    f32 seperationBA = FindMinSeperation(shapeB, shapeA, axisB, pointB);
+    f32 seperationBA = BPhysics2DFindMinSeperation(shapeB, shapeA, axisB, pointB);
     if(seperationBA >= 0)
     {
         return false; // no collision
@@ -258,7 +260,7 @@ b8 IsPolygonPolygonColliding(BBody* a, BBody* b, Contact& contact)
     }
     return false;
 }
-void ResolvePenetration(Contact& contact)
+void BPhysics2DResolvePenetration(BPhysics2DContact& contact)
 {
     if(NearlyEqual(contact.a->InvMass, 0.0f) && NearlyEqual(contact.b->InvMass, 0.0f)) 
         return;
@@ -275,11 +277,11 @@ void ResolvePenetration(Contact& contact)
     contact.a->Position -= contact.Normal * displacementA;
     contact.b->Position += contact.Normal * displacementB;
 }
-void ResolveCollision(Contact& contact)
+void BPhysics2DResolveCollision(BPhysics2DContact& contact)
 {
     if(contact.Depth < 0.01f)
         return;
-    ResolvePenetration(contact);
+    BPhysics2DResolvePenetration(contact);
         
     f32 e = fmin(contact.a->Restitution, contact.b->Restitution);
 
@@ -299,7 +301,7 @@ void ResolveCollision(Contact& contact)
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 
-    ApplyImpulse(*contact.a, impulse * -1.0f);
-    ApplyImpulse(*contact.b, impulse); 
+    BPhysics2DApplyImpulse(*contact.a, impulse * -1.0f);
+    BPhysics2DApplyImpulse(*contact.b, impulse); 
 }
 }

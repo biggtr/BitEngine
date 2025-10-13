@@ -43,12 +43,12 @@ public:
                     {
                         Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
                         Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
-                        BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
-                        BPhysics2D::BBody& bodyB = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
-                        BPhysics2D::Contact contact;
-                        if(BPhysics2D::IsColliding(&bodyA, &bodyB, contact))
+                        BBody& bodyA = BPhysics2DGetBody(rigidBodyA.BodyIndex);
+                        BBody& bodyB = BPhysics2DGetBody(rigidBodyB.BodyIndex);
+                        BPhysics2DContact contact;
+                        if(BPhysics2DIsColliding(&bodyA, &bodyB, contact))
                         {
-                            BPhysics2D::ResolveCollision(contact);
+                            BPhysics2DResolveCollision(contact);
                         }
                     }
                 }

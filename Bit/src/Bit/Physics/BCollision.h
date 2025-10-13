@@ -3,10 +3,11 @@
 #include "Bit/Math/Vector.h"
 #include "Bit/Physics/BPhysicsTypes.h"
 
-namespace BPhysics2D
+namespace BitEngine
 {
 
-struct Contact
+
+struct BPhysics2DContact
 {
     BBody* a;
     BBody* b;
@@ -18,15 +19,15 @@ struct Contact
     f32 Depth;
 };
 
-b8 IsColliding(BBody* a, BBody* b, Contact& contact);
-b8 IsCircleCircleColliding(BBody* a, BBody* b, Contact& constact);
-b8 IsPolygonCircleColliding(BBody* a, BBody* b, Contact& constact);
-b8 IsAABBColliding(BBody* a, BBody* b);
-b8 IsPolygonPolygonColliding(BBody* a, BBody* b, Contact& contact);
-f32 FindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint);
+b8 BPhysics2DIsColliding(BBody* a, BBody* b, BPhysics2DContact& contact);
+b8 BPhysics2DIsCircleCircleColliding(BBody* a, BBody* b, BPhysics2DContact& constact);
+b8 BPhysics2DIsPolygonCircleColliding(BBody* a, BBody* b, BPhysics2DContact& constact);
+b8 BPhysics2DIsAABBColliding(BBody* a, BBody* b);
+b8 BPhysics2DIsPolygonPolygonColliding(BBody* a, BBody* b, BPhysics2DContact& contact);
+f32 BPhysics2DFindMinSeperation(BPolygonShape& a, BPolygonShape& b, BMath::Vec3& bestAxis, BMath::Vec3& bestPoint);
 
 
-void ResolvePenetration(Contact& contact);
-void ResolveCollision(Contact& contact);
+void BPhysics2DResolvePenetration(BPhysics2DContact& contact);
+void BPhysics2DResolveCollision(BPhysics2DContact& contact);
     
 }

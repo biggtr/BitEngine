@@ -1,4 +1,5 @@
 #pragma once
+#ifdef BPLATFORM_WINDOWS
 #include "Platform/Platform.h"
 #include "Bit/Renderer/GraphicsContext.h"
 namespace BitEngine
@@ -14,3 +15,4 @@ public:
 
 };
 }
+#endif

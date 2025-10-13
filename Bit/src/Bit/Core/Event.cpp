@@ -1,30 +1,55 @@
 #include "Event.h"
+#include "Bit/Containers/darray.h"
+#include "Bit/Core/Logger.h"
+#include "Bit/Containers/darray.h"
 #include "Bit/Core/Defines.h"
 #include "Bit/Core/Logger.h"
+#include <cstring>
 
-namespace BitEngine
+struct RegisteredEvent
 {
+    void* Listener;    
+    PFN_ON_EVENT Callback;
+};
+#define MAX_MESSAGE_CODE 4096
 
-static std::array<RegisteredEvents, MAX_MESSAGE_CODE> m_Registered;
-b8 EventManager::Initialize()
+struct ListenersForSpecCode
 {
-    if(m_Initialized)
+    RegisteredEvent* Events;
+};
+struct EventState
+{
+    ListenersForSpecCode m_Registered[MAX_MESSAGE_CODE];
+};
+static EventState* statePtr = 0;
+b8 EventInitialize(u64* memoryRequirement, void* state)
+{
+    *memoryRequirement = sizeof(EventState);
+    if(!state)
     {
-        BIT_LOG_ERROR("Input Already Initialized");
-        return false;
+        return true;
     }
-    m_Initialized = true;
+    statePtr = (EventState*)state;
+    memset(statePtr, 0, sizeof(EventState));
     return true;
 }
-void EventManager::Shutdown()
+void EventShutdown(void* state)
 {
-    for(auto& registered : m_Registered)
+    for(u16 i = 0; i < MAX_MESSAGE_CODE; ++i)
     {
-        registered.events.clear();
+        if(statePtr->m_Registered[i].Events != 0)
+        {
+            DArrayDestroy(statePtr->m_Registered[i].Events);
+            statePtr->m_Registered[i].Events = 0;
+        }
+    }
+    if(state)
+    {
+        statePtr = 0;
     }
     BIT_LOG_INFO("Event System Is shutting down..!");
 }
-b8 EventManager::Register(u16 code, void* listener, PFN_ON_EVENT callback)
+b8 EventRegister(u16 code, void* listener, PFN_ON_EVENT callback)
 {
     if(code >= MAX_MESSAGE_CODE)
     {
@@ -32,26 +57,27 @@ b8 EventManager::Register(u16 code, void* listener, PFN_ON_EVENT callback)
         return false;
     }
     
-    if(!m_Registered[code].events.empty())
+    if(!statePtr->m_Registered[code].Events)
     {
-        u64 registeredCount = m_Registered[code].events.size();
-        for(u64 i = 0; i < registeredCount; ++i)
+        statePtr->m_Registered[code].Events = (RegisteredEvent*)DArrayCreate(RegisteredEvent);
+    }
+    u64 registeredCount = DArrayLength(statePtr->m_Registered[code].Events);
+    for(u64 i = 0; i < registeredCount; ++i)
+    {
+        if(statePtr->m_Registered[code].Events->Listener == listener && statePtr->m_Registered[code].Events->Callback == callback)
         {
-            const RegisteredEvent& event = m_Registered[code].events[i];
-            if(event.Listener == listener && event.Callback == callback)
-            {
-                BIT_LOG_ERROR("This Event with code %u and with address %p is already registered..!", code, callback);
-                return false;
-            }
+            BIT_LOG_ERROR("This Event with code %u and with address %p is already registered..!", code, callback);
+            return false;
         }
     }
+    
     RegisteredEvent newEvent;
     newEvent.Listener = listener;
     newEvent.Callback = callback;
-    m_Registered[code].events.push_back(newEvent);
+    DArrayPush(statePtr->m_Registered[code].Events, newEvent);
     return true;
 }
-b8 EventManager::UnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
+b8 EventUnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
 {
 
     if(code >= MAX_MESSAGE_CODE)
@@ -59,31 +85,35 @@ b8 EventManager::UnRegister(u16 code, void* listener, PFN_ON_EVENT callback)
         BIT_LOG_ERROR("Event Code Is Bigger than the size %d that the engine have", MAX_MESSAGE_CODE);
         return false;
     }
-    u64 registeredCount = m_Registered[code].events.size();
+    u64 registeredCount = DArrayLength(statePtr->m_Registered[code].Events);
     for(u64 i = 0; i < registeredCount; ++i)
     {
-        const RegisteredEvent& event = m_Registered[code].events[i];
-        if(event.Listener == listener && event.Callback == callback)
+        RegisteredEvent e = statePtr->m_Registered[code].Events[i];
+        if(e.Listener == listener && e.Callback == callback)
         {
-            m_Registered[code].events[i] = m_Registered[code].events.back();
-            m_Registered[code].events.pop_back();
+            RegisteredEvent poppedEvent;
+            DArrayPopAt(statePtr->m_Registered[code].Events, i, &poppedEvent);
             return true;
         }
     }
     return false;
 
 }
-b8 EventManager::EventFire(u16 code, void* sender, EventContext data)
+b8 EventFire(u16 code, void* sender, EventContext data)
 {
     if(code >= MAX_MESSAGE_CODE)
     {
         BIT_LOG_ERROR("Event Code Is Bigger than the size %d that the engine have", MAX_MESSAGE_CODE);
         return false;
     }
-    u64 registeredCount = m_Registered[code].events.size();
+    if(statePtr->m_Registered[code].Events == 0)
+    {
+        return false;
+    }
+    u64 registeredCount = DArrayLength(statePtr->m_Registered[code].Events);
     for(u64 i = 0; i < registeredCount; ++i)
     {
-        const RegisteredEvent& event = m_Registered[code].events[i];
+        RegisteredEvent event = statePtr->m_Registered[code].Events[i];
         if(event.Callback(code, sender, event.Listener, data))
         {
             //event has been handled for all listeners
@@ -92,4 +122,4 @@ b8 EventManager::EventFire(u16 code, void* sender, EventContext data)
     }
     return false;
 }
-}
+

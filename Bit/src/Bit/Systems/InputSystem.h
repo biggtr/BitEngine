@@ -21,12 +21,12 @@ enum ACTION_TYPE
 };
 struct Action
 {
-    std::vector<BInput::KEYS> keys;
+    std::vector<KEYS> keys;
     f32 value = 0.0f;
     Action()
     {
         //HACK:: use something else in future 
-        keys.resize(BInput::KEYS::MAX_KEYS);
+        keys.resize(KEYS::MAX_KEYS);
     }
 };
 struct CInput
@@ -45,7 +45,7 @@ public:
     // doesnt support mouse for now 
     // TODO:: Add Mouse Support
     // TODO : Change this Entity Part to Take A Pointer rather that the entity
-    void CreateAction(ACTION_TYPE actionType, const Entity& entity, BInput::KEYS key)
+    void CreateAction(ACTION_TYPE actionType, const Entity& entity, KEYS key)
     {
         if(!m_EntityManager->HasComponent<CInput>(entity)) return;
         
@@ -57,7 +57,7 @@ public:
         }
         inputComponent.Actions[actionType].keys.push_back(key);
     }
-    void CreateAxis(ACTION_TYPE actionType, const Entity& entity, BInput::KEYS key, f32 value)
+    void CreateAxis(ACTION_TYPE actionType, const Entity& entity, KEYS key, f32 value)
     {
         if(!m_EntityManager->HasComponent<CInput>(entity)) return;
         
@@ -109,9 +109,9 @@ public:
             auto& inputComponent = m_EntityManager->GetComponent<CInput>(entity);
             for(auto& [type, action] : inputComponent.Actions)
             {
-                for(BInput::KEYS key : action.keys)
+                for(KEYS key : action.keys)
                 {
-                    if(BInput::IsKeyDown(key))
+                    if(InputIsKeyDown(key))
                     {
                         //HACK: Change actions to use event system not everyframe 
                         if(inputComponent.ActionBindings.contains(type))

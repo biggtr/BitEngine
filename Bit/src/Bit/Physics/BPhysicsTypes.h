@@ -3,9 +3,10 @@
 #include <vector>
 
 
-#define MAX_POLYGON_VERTEX_COUNT 8 
-namespace BPhysics2D
+namespace BitEngine
 {
+
+#define MAX_POLYGON_VERTEX_COUNT 8 
 struct BParticle
 {
     BMath::Vec3 SumForces;

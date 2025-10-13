@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include "Bit/Core/Core.h"
 #include "Bit/Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLBuffers.h"
+#include "Backend/OpenGL/OpenGLBuffers.h"
 
 namespace BitEngine
 {

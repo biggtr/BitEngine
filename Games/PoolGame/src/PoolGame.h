@@ -1,8 +1,9 @@
 #pragma once 
+#include "Bit/Core/Application.h"
 #include "Bit/Scene/Entity.h"
 #include <Bit/Core/Game.h>
 
-class TestGame : public BitEngine::Game
+class PoolGame : public BitEngine::Game
 {
 private:
     BitEngine::Entity m_WhiteBall;
@@ -17,10 +18,10 @@ private:
     i32 currentMouseX;
     i32 currentMouseY;
 public:
-    TestGame()
+    PoolGame()
     {
     }
-    ~TestGame(){}
+    ~PoolGame(){}
     virtual void Initialize() override;
     // virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;

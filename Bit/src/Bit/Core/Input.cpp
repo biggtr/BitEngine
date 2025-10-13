@@ -5,135 +5,128 @@
 
 namespace BitEngine 
 {
-namespace BInput
-{
-static InputState* m_InputState;
 
-b8 m_Initialized = false;
-
-b8 Initialize()
+static InputState* inputState = 0;
+b8 InputInitialize(u64* memoryRequirement, void* state)
 {
-    if(m_Initialized)
+    *memoryRequirement = sizeof(InputState);
+    if(!state)
     {
-        BIT_LOG_ERROR("Input Already Initialized");
-        return false;
+        return true;
     }
-    m_InputState = new InputState();
-    m_Initialized = true;
-    return m_Initialized;
+    inputState = (InputState*)state;
+    memset(inputState, 0, sizeof(InputState));
+    return true;
 }
-void Shutdown()
+void InputShutdown(void* state)
 {
-    if(!m_Initialized)
+    if(state)
     {
-        BIT_LOG_ERROR("Input Is Not Initialized Already");
-        return;
+        inputState = 0;
     }
-    delete m_InputState;
-    m_Initialized = false;
-    BIT_LOG_INFO("Input Is Shutting down..");
+    BIT_LOG_INFO("Event System Is shutting down..!");
 }
-void Update()
+void InputUpdate(f32 deltaTime)
 {
-    memcpy(&m_InputState->KeyboardPrevState, &m_InputState->KeyboardCurrentState, sizeof(KeyboardState));
-    memcpy(&m_InputState->MousePrevState, &m_InputState->MouseCurrentState, sizeof(MouseState));
+    memcpy(&inputState->KeyboardPrevState, &inputState->KeyboardCurrentState, sizeof(KeyboardState));
+    memcpy(&inputState->MousePrevState, &inputState->MouseCurrentState, sizeof(MouseState));
 }
-b8 IsKeyDown(KEYS key)
+b8 InputIsKeyDown(KEYS key)
 {
-    return m_InputState->KeyboardCurrentState.Keys[(u16)key] == true;
+    return inputState->KeyboardCurrentState.Keys[(u16)key] == true;
 }
-b8 IsKeyUp(KEYS key)
+b8 InputIsKeyUp(KEYS key)
 {
-    return m_InputState->KeyboardCurrentState.Keys[(u16)key] == false;
+    return inputState->KeyboardCurrentState.Keys[(u16)key] == false;
 }
-b8 WasKeyDown(KEYS key)
+b8 InputWasKeyDown(KEYS key)
 {
-    return m_InputState->KeyboardPrevState.Keys[(u16)key] == true;
+    return inputState->KeyboardPrevState.Keys[(u16)key] == true;
 }
-b8 WasKeyUp(KEYS key)
+b8 InputWasKeyUp(KEYS key)
 {
-    return m_InputState->KeyboardPrevState.Keys[(u16)key] == false;
+    return inputState->KeyboardPrevState.Keys[(u16)key] == false;
 }
 
-b8 IsMouseButtonDown(MOUSE_BUTTONS button)
+b8 InputIsMouseButtonDown(MOUSE_BUTTONS button)
 {
-    return m_InputState->MouseCurrentState.Buttons[(u8)button] == true;
+    return inputState->MouseCurrentState.Buttons[(u8)button] == true;
 }
-b8 IsMouseButtonPressed(MOUSE_BUTTONS button)
+b8 InputIsMouseButtonPressed(MOUSE_BUTTONS button)
 {
-    b8 current = m_InputState->MouseCurrentState.Buttons[(u8)button];
-    b8 previous = m_InputState->MousePrevState.Buttons[(u8)button];
+    b8 current = inputState->MouseCurrentState.Buttons[(u8)button];
+    b8 previous = inputState->MousePrevState.Buttons[(u8)button];
     b8 result = current && !previous;
     
     return result;
 }
-b8 IsMouseButtonUp(MOUSE_BUTTONS  button)
+b8 InputIsMouseButtonUp(MOUSE_BUTTONS  button)
 {
-    return m_InputState->MouseCurrentState.Buttons[(u8)button] == false;
+    return inputState->MouseCurrentState.Buttons[(u8)button] == false;
 }
-b8 IsMouseButtonReleased(MOUSE_BUTTONS button)
+b8 InputIsMouseButtonReleased(MOUSE_BUTTONS button)
 {
-    b8 current = m_InputState->MouseCurrentState.Buttons[(u8)button];
-    b8 previous = m_InputState->MousePrevState.Buttons[(u8)button];
+    b8 current = inputState->MouseCurrentState.Buttons[(u8)button];
+    b8 previous = inputState->MousePrevState.Buttons[(u8)button];
     b8 result = !current && previous;
 
     return result;
 }
-b8 WasMouseButtonDown(MOUSE_BUTTONS  button)
+b8 InputWasMouseButtonDown(MOUSE_BUTTONS  button)
 {
-    return m_InputState->MousePrevState.Buttons[(u8)button] == true;
+    return inputState->MousePrevState.Buttons[(u8)button] == true;
 }
-b8 WasMouseButtonUp(MOUSE_BUTTONS  button)
+b8 InputWasMouseButtonUp(MOUSE_BUTTONS  button)
 {
-    return m_InputState->MousePrevState.Buttons[(u8)button] == false;
+    return inputState->MousePrevState.Buttons[(u8)button] == false;
 }
-void GetMousePosition(i32* x, i32* y)
+void InputGetMousePosition(i32* x, i32* y)
 {
-    *x = m_InputState->MouseCurrentState.X;
-    *y = m_InputState->MouseCurrentState.Y;
+    *x = inputState->MouseCurrentState.X;
+    *y = inputState->MouseCurrentState.Y;
 }
-void GetPrevMousePosition(i32* x, i32* y)
+void InputGetPrevMousePosition(i32* x, i32* y)
 {
-    *x = m_InputState->MousePrevState.X;
-    *y = m_InputState->MousePrevState.Y;
+    *x = inputState->MousePrevState.X;
+    *y = inputState->MousePrevState.Y;
 }
-void ProcessKey(KEYS key, b8 pressed)
+void InputProcessKey(KEYS key, b8 pressed)
 {
     EventContext context;
     context.U16[0] = key;
-    EventManager::EventFire(pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context);
-    m_InputState->KeyboardCurrentState.Keys[key] = pressed;
+    EventFire(pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context);
+    inputState->KeyboardCurrentState.Keys[key] = pressed;
 }
-void ProcessMouseButton(MOUSE_BUTTONS button, b8 pressed)
+void InputProcessMouseButton(MOUSE_BUTTONS button, b8 pressed)
 {
-    // BIT_LOG_DEBUG("ProcessMouseButton: button=%d, pressed=%d", (int)button, pressed);
+    // BIT_LOG_DEBUG("InputProcessMouseButton: button=%d, pressed=%d", (int)button, pressed);
     EventContext context;
     context.U16[0] = button;
-    context.U16[1] = m_InputState->MouseCurrentState.X;
-    context.U16[2] = m_InputState->MouseCurrentState.Y;
-    EventManager::EventFire(pressed ? EVENT_CODE_BUTTON_PRESSED : EVENT_CODE_BUTTON_RELEASED , 0, context);
-    m_InputState->MouseCurrentState.Buttons[button] = pressed;
+    context.U16[1] = inputState->MouseCurrentState.X;
+    context.U16[2] = inputState->MouseCurrentState.Y;
+    EventFire(pressed ? EVENT_CODE_BUTTON_PRESSED : EVENT_CODE_BUTTON_RELEASED , 0, context);
+    inputState->MouseCurrentState.Buttons[button] = pressed;
     // BIT_LOG_DEBUG("Mouse button state updated: button[%d] = %d", (int)button, pressed);
 }
 
-void ProcessMouseMove(i16* x, i16* y)
+void InputProcessMouseMove(i16* x, i16* y)
 {
     EventContext context;
     context.I16[0] = *x;
     context.I16[1] = *y;
-    EventManager::EventFire(EVENT_CODE_MOUSE_MOVE, 0, context);
-    m_InputState->MouseCurrentState.X = *x;
-    m_InputState->MouseCurrentState.Y = *y;
+    EventFire(EVENT_CODE_MOUSE_MOVE, 0, context);
+    inputState->MouseCurrentState.X = *x;
+    inputState->MouseCurrentState.Y = *y;
 }
-void ProcessMouseWheel(i8 delta)
+void InputProcessMouseWheel(i8 delta)
 {
     EventContext context;
     context.I8[0] = delta;
-    EventManager::EventFire(EVENT_CODE_MOUSE_WHEEL, 0, context);
+    EventFire(EVENT_CODE_MOUSE_WHEEL, 0, context);
 }
 
 }   
 
-}
+
 
 

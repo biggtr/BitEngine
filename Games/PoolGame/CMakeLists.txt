@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.30)
-add_executable(TestGame)
-target_sources(TestGame
+add_executable(PoolGame)
+target_sources(PoolGame
     PRIVATE
-   src/GameEntry.cpp
-   src/TestGame.cpp
+   src/PoolGameEntry.cpp
+   src/PoolGame.cpp
 )
-target_include_directories(TestGame
+target_include_directories(PoolGame
    PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-set_target_properties(TestGame PROPERTIES
+set_target_properties(PoolGame PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>/${PLATFORM_NAME}"
-    OUTPUT_NAME "TestGame"  
+    OUTPUT_NAME "PoolGame"  
 )
 
-target_link_libraries(TestGame PRIVATE BitEngine)
+target_link_libraries(PoolGame PRIVATE BitEngine)

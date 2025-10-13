@@ -1,4 +1,4 @@
-#include "TestGame.h"
+#include "PoolGame.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
@@ -24,13 +24,13 @@ void RespawnWhiteBall(BitEngine::Entity whiteBall)
     transform.Position = BMath::Vec3(0.0f, 0.0f, -5.0f);
 
     auto& rigid = whiteBall.GetComponent<BitEngine::Rigid2DBodyComponent>();
-    BPhysics2D::BBody& body = BPhysics2D::GetBody(rigid.BodyIndex);
+    BitEngine::BBody& body = BitEngine::BPhysics2DGetBody(rigid.BodyIndex);
     body.Position = BMath::Vec3( 0.0f, 0.0f, -5.0f);
     body.Velocity = BMath::Vec3( 0.0f, 0.0f, 0.0f );
 }
-BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width, f32 height)
+BitEngine::Entity PoolGame::CreateTable(BitEngine::Entity* outPockets, f32 width, f32 height)
 {
-    auto table = ECS().CreateEntity();
+    auto table = m_ECS->CreateEntity();
     table.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(width, height, 0.0f),
@@ -38,8 +38,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
             );
     table.AddComponent<BitEngine::SpriteComponent>().Color = {1.0f, 0.4f, 0.0f, 1.0f};
 
-
-    auto uptableEdge = ECS().CreateEntity();
+    auto uptableEdge = m_ECS->CreateEntity();
     uptableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, height / 2.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -49,7 +48,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     uptableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     uptableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width - 10.0f , 5.0f, 0.0f));
 
-    auto downtableEdge = ECS().CreateEntity();
+    auto downtableEdge = m_ECS->CreateEntity();
     downtableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, -height / 2.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -59,7 +58,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     downtableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     downtableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(width - 10.0f, 5.0f, 0.0f));
 
-    auto lefttableEdge = ECS().CreateEntity();
+    auto lefttableEdge = m_ECS->CreateEntity();
     lefttableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(-width/ 2.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -69,7 +68,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     lefttableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     lefttableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(5.0f, height - 10.0f, 0.0f));
 
-    auto righttableEdge = ECS().CreateEntity();
+    auto righttableEdge = m_ECS->CreateEntity();
     righttableEdge.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(width/ 2.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f, 0.0f, 0.0f),
@@ -87,7 +86,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
 
         BMath::Vec3 pocketPos = {x, y, -5.0f};
 
-        auto pocket = ECS().CreateEntity();
+        auto pocket = m_ECS->CreateEntity();
         pocket.AddComponent<BitEngine::TransformComponent>(pocketPos);
         pocket.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS * 3);
         pocket.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS * 3);
@@ -97,7 +96,7 @@ BitEngine::Entity TestGame::CreateTable(BitEngine::Entity* outPockets, f32 width
 
     return table;
 }
-void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
+void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 {
     u32 i = 0;
     f32 ballRadius = BALL_RADIUS;
@@ -125,7 +124,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
             ballPos.y += (ballRadius * 2 + verticalGap);
         }
         ballsInCurrentRow++;
-        auto ball = ECS().CreateEntity();
+        auto ball = m_ECS->CreateEntity();
         ball.AddComponent<BitEngine::TransformComponent>(
                 ballPos,
                 0.0f,
@@ -139,7 +138,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
         i++;
     }
 
-    m_WhiteBall = ECS().CreateEntity();
+    m_WhiteBall = m_ECS->CreateEntity();
     m_WhiteBall.AddComponent<BitEngine::TransformComponent>(
             BMath::Vec3(0.0f, 0.0f, -5.0f),
             BMath::Vec3(0.0f),
@@ -152,7 +151,7 @@ void TestGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
     m_WhiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_MASS);
     outEntities[i] = m_WhiteBall;
 }
-void TestGame::Initialize()
+void PoolGame::Initialize()
 {
     CreateBalls(m_Balls, 5);
 
@@ -160,7 +159,7 @@ void TestGame::Initialize()
 
     isDragging = false;
 }
-void TestGame::UIRender()
+void PoolGame::UIRender()
 {
     // BitUI::BeginLayout(BitUI::HorizontalLayout(100.0f, 100.0f, 5.0f));
     // BitUI::Button("blabla", 100.0f, 100.0f);
@@ -175,14 +174,14 @@ void TestGame::UIRender()
     // std::vector<BitUI::DrawCommand> verticalDrawCommands =  BitUI::EndLayout();
     // for(auto& command : horizontalDrawCommands)
     // {
-    //     Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
+    //     m_Renderer2D->.DrawQuad(command.Position, command.Size, command.data.Color);
     // }
     // for(auto& command : verticalDrawCommands)
     // {
-    //     Render2D().DrawQuad(command.Position, command.Size, command.data.Color);
+    //     m_Renderer2D->.DrawQuad(command.Position, command.Size, command.data.Color);
     // }
 }
-void TestGame::Render()
+void PoolGame::Render()
 {
     if(isDragging)
     {
@@ -198,10 +197,10 @@ void TestGame::Render()
 
         auto startPos = whitePos + dragDirNorm * (ballRadius + lineBallGap);
         f32 lineLength = BMath::Vec3Length(dragDir) * 2.0f;
-        Render2D().DrawLine(startPos, startPos + dragDirNorm * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
+        m_Renderer2D->DrawLine(startPos, startPos + dragDirNorm * lineLength, {1.0f,0.0f, 0.0f, 1.0f});
     }
 }
-void TestGame::Update(f32 deltaTime)
+void PoolGame::Update(f32 deltaTime)
 {
     for(u32 i = 0; i < 6; ++i)
     {
@@ -210,19 +209,19 @@ void TestGame::Update(f32 deltaTime)
             BitEngine::Entity ball = m_Balls[j];
             BitEngine::Entity pocket = m_Pockets[i];
 
-            if(ECS().HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
-                    ECS().HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
-                    ECS().HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
-                    ECS().HasComponent<BitEngine::Rigid2DBodyComponent>(pocket) 
+            if(m_ECS->HasComponent<BitEngine::Circle2DColliderComponent>(ball) && 
+                    m_ECS->HasComponent<BitEngine::Circle2DColliderComponent>(pocket) &&
+                    m_ECS->HasComponent<BitEngine::Rigid2DBodyComponent>(ball) &&
+                    m_ECS->HasComponent<BitEngine::Rigid2DBodyComponent>(pocket) 
             )
             {
-                BitEngine::Rigid2DBodyComponent& rigidBodyA = ECS().GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
-                BitEngine::Rigid2DBodyComponent& rigidBodyB = ECS().GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
-                BPhysics2D::BBody& ballBody = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
-                BPhysics2D::BBody& pocketBody = BPhysics2D::GetBody(rigidBodyB.BodyIndex);
+                BitEngine::Rigid2DBodyComponent& rigidBodyA = m_ECS->GetComponent<BitEngine::Rigid2DBodyComponent>(ball);
+                BitEngine::Rigid2DBodyComponent& rigidBodyB = m_ECS->GetComponent<BitEngine::Rigid2DBodyComponent>(pocket);
+                BitEngine::BBody& ballBody = BitEngine::BPhysics2DGetBody(rigidBodyA.BodyIndex);
+                BitEngine::BBody& pocketBody = BitEngine::BPhysics2DGetBody(rigidBodyB.BodyIndex);
 
-                BPhysics2D::Contact contact;
-                if(BPhysics2D::IsColliding(&ballBody, &pocketBody, contact))
+                BitEngine::BPhysics2DContact contact;
+                if(BitEngine::BPhysics2DIsColliding(&ballBody, &pocketBody, contact))
                 {
                     if(ball == m_WhiteBall)
                     {
@@ -237,20 +236,20 @@ void TestGame::Update(f32 deltaTime)
         }
     }
     (void)deltaTime;
-    if(BitEngine::BInput::IsMouseButtonPressed(BitEngine::BInput::MOUSE_BUTTON_RIGHT)) 
+    if(BitEngine::InputIsMouseButtonPressed(BitEngine::MOUSE_BUTTON_RIGHT)) 
     {
-        BitEngine::BInput::GetMousePosition(&initialMouseX, &initialMouseY);
+        BitEngine::InputGetMousePosition(&initialMouseX, &initialMouseY);
 
         isDragging = true;
     }
-    if(isDragging && BitEngine::BInput::IsMouseButtonDown(BitEngine::BInput::MOUSE_BUTTON_RIGHT))
+    if(isDragging && BitEngine::InputIsMouseButtonDown(BitEngine::MOUSE_BUTTON_RIGHT))
     {
-        if(BitEngine::BInput::IsMouseButtonDown(BitEngine::BInput::MOUSE_BUTTON_RIGHT))
+        if(BitEngine::InputIsMouseButtonDown(BitEngine::MOUSE_BUTTON_RIGHT))
         {
-            BitEngine::BInput::GetMousePosition(&currentMouseX, &currentMouseY);
+            BitEngine::InputGetMousePosition(&currentMouseX, &currentMouseY);
         }
     }
-    if(isDragging && BitEngine::BInput::IsMouseButtonReleased(BitEngine::BInput::MOUSE_BUTTON_RIGHT))
+    if(isDragging && BitEngine::InputIsMouseButtonReleased(BitEngine::MOUSE_BUTTON_RIGHT))
     {
         BMath::Vec3 impulse = {(f32)(initialMouseX - currentMouseX), (f32)(currentMouseY - initialMouseY), 0.0f};
         impulse = impulse * 20.0f;
@@ -266,16 +265,16 @@ void TestGame::Update(f32 deltaTime)
 //     BIT_LOG_DEBUG("Player JUMP..!");
 // }
 
-// void TestGame::SetupInput()
+// void TestGame::SetupBitEngine::Input()
 // {
     // BIT_LOG_DEBUG("CREATING ACTIONS AND INPUTS");
-    // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_FORWARD, m_Player, BitEngine::BInput::KEY_W, 1.0f);
-    // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_BACKWARD, m_Player, BitEngine::BInput::KEY_S, -1.0f);
-    // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_LEFT, m_Player, BitEngine::BInput::KEY_D, 1.0f);
-    // m_InputSystem->CreateAxis(BitEngine::ACTION_MOVE_RIGHT, m_Player, BitEngine::BInput::KEY_A, -1.0f);
+    // m_BitEngine::InputSystem->CreateAxis(BitEngine::ACTION_MOVE_FORWARD, m_Player, BitEngine::InputKEY_W, 1.0f);
+    // m_BitEngine::InputSystem->CreateAxis(BitEngine::ACTION_MOVE_BACKWARD, m_Player, BitEngine::InputKEY_S, -1.0f);
+    // m_BitEngine::InputSystem->CreateAxis(BitEngine::ACTION_MOVE_LEFT, m_Player, BitEngine::InputKEY_D, 1.0f);
+    // m_BitEngine::InputSystem->CreateAxis(BitEngine::ACTION_MOVE_RIGHT, m_Player, BitEngine::InputKEY_A, -1.0f);
     //
-    // m_InputSystem->CreateAction(BitEngine::ACTION_JUMP, m_Player, BitEngine::BInput::KEY_SPACE);
-    // m_InputSystem->CreateAction(BitEngine::ACTION_ATTACK, m_Player, BitEngine::BInput::KEY_X); 
+    // m_BitEngine::InputSystem->CreateAction(BitEngine::ACTION_JUMP, m_Player, BitEngine::InputKEY_SPACE);
+    // m_BitEngine::InputSystem->CreateAction(BitEngine::ACTION_ATTACK, m_Player, BitEngine::InputKEY_X); 
     
-    // m_InputSystem->BindAction(BitEngine::ACTION_JUMP, m_Player, this, &TestGame::OnJump);
+    // m_BitEngine::InputSystem->BindAction(BitEngine::ACTION_JUMP, m_Player, this, &TestGame::OnJump);
 }

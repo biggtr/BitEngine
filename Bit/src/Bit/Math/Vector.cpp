@@ -74,7 +74,7 @@ float Vec3Dot(const Vec3& a, const Vec3& b)
 
 f32 Vec3Length(const Vec3& vec) 
 {
-    return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+    return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 }
 void Vec3Normalize(Vec3* vec) 
 {
@@ -196,7 +196,7 @@ f32 Vec4LengthSquared(const Vec4& vec)
 }
 f32 Vec4Length(const Vec4& vec) 
 {
-    return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w);
+    return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w);
 }
 
 void Vec4Normalize(Vec4* vec) 

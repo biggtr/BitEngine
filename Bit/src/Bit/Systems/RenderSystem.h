@@ -9,7 +9,7 @@
 #include "Bit/Systems/System.h"
 #include <vector>
 #include <algorithm>
-#include <strings.h>
+#include <string>
 namespace BitEngine
 {
 

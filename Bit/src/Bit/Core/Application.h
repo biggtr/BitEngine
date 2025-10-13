@@ -1,65 +1,73 @@
 #pragma once
+#include "Bit/Core/Event.h"
 #include "Bit/Core/TimeStamp.h"
-#include "Bit/Renderer/Renderer.h"
+#include "Platform/Platform.h"
 #include <cstdint>
+
 namespace BitEngine
 {
 class Game;
 class Platform;
+class Renderer;
 class Renderer2D;
-class EntityManager;        
+class EntityManager;
 class AssetManager;
-class Camera2DManager;
 class CameraManager;
 class EventManager;
-class Input;
-class EventContext;
+
 struct ApplicationConfig
 {
-    uint32_t x;
-    uint32_t y;
-    uint32_t width;
-    uint32_t height;
-    const char* name;
+    uint32_t x = 100;
+    uint32_t y = 100;
+    uint32_t width = 1280;
+    uint32_t height = 720;
+    const char* name = "BitEngine";
 };
 
 class Application
 {
-
 public:
-    bool m_IsRunning;
-    bool m_IsSuspended;
-    Time m_Time;
-    uint32_t m_Width;
-    uint32_t m_Height;
-    bool m_Initialized = false;
-    Game* m_GameInstance; // stack owns the game so dont delete it 
-    
+    Application();
+    ~Application();
+
+    b8 Create(Game* gameInstance);
+    void Run();
 private:
-    BitEngine::Platform* m_Window;
-    Renderer* m_Renderer;
+    b8 OnEvent(u16 code, EventContext data);
+    b8 OnKey(u16 code, EventContext data);
+    static b8 OnApplicationEventWrapper(u16 code, void* sender, void* listener, EventContext data);
+    static b8 ApplicationOnKeyWrapper(u16 code, void* sender, void* listener, EventContext data);
+private:
+    Game* m_GameInstance;
+    Time m_Time;
+    b8 m_IsRunning = false;
+    b8 m_IsSuspended;
+    PlatformState m_Platform;
+    u16 m_Width;
+    u16 m_Height;
+
+
+    Renderer* m_Renderer3D;
     Renderer2D* m_Renderer2D;
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
-    EventManager* m_EventManager;
-    static Application* s_Instance;
-public:
-    Application(){}
-    virtual ~Application();
-    static bool Create(Game* gameInstance);
-    static void Run();
-    static bool Shutdown();
-    bool Initialize(ApplicationConfig appCfg);
 
-    inline static Application& GetApplication() { return *s_Instance; }
-    inline Renderer& GetRenderer() { return *m_Renderer; }
-    inline Renderer2D& GetRenderer2D() { return *m_Renderer2D; }
-    inline EntityManager& GetEntityManager() { return *m_EntityManager; }
-    inline AssetManager& GetAssetManager() { return *m_AssetManager; }
-    inline CameraManager& GetCameraManager() { return *m_CameraManager; }
-private:
-    static b8 ApplicationOnEvent(u16 code, void* sender, void* listener, EventContext data);
-    static b8 ApplicationOnKey(u16 code, void* sender, void* listener, EventContext data);
+
+    u64 m_LoggerSystemMemReq;
+    void* m_LoggerSystem;
+
+    u64 m_MemorySystemMemReq;
+    void* m_MemorySystem;
+
+    u64 m_InputSystemMemReq;
+    void* m_InputSystem;
+
+    u64 m_EventSystemMemReq;
+    void* m_EventSystem;
+
+    u64 m_Physics2DSystemMemReq;
+    void* m_Physics2DSystem;
 };
+
 }

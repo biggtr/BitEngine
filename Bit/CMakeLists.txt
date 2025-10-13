@@ -1,5 +1,4 @@
 find_package(OpenGL REQUIRED)
-set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "Disable Wayland support")
 
 add_subdirectory(vendor/glad)
 
@@ -17,15 +16,17 @@ add_subdirectory(vendor/assimp)
 
 
 add_library(BitEngine STATIC)
-target_sources(BitEngine
-    PRIVATE
+set(BITENGINE_COMMON_SOURCES
 
     src/Bit/Core/Application.cpp
     src/Bit/Core/Logger.cpp
     src/Bit/Core/EntryPoint.cpp
-    src/Platform/Windows/Platform.cpp
     src/Bit/Core/Event.cpp
     src/Bit/Core/Input.cpp
+    src/Bit/Core/Clock.cpp
+    src/Bit/Core/BMemory.cpp
+
+    src/Bit/Containers/darray.cpp
 
     src/Bit/Renderer/RendererAPI.cpp
     src/Bit/Renderer/RenderCommand.cpp
@@ -56,6 +57,7 @@ target_sources(BitEngine
 
     src/Bit/Font/Font.cpp
 
+    src/Bit/Math/BMath.cpp
     src/Bit/Math/Vector.cpp
     src/Bit/Math/Matrix.cpp
     src/Bit/Math/Transform.cpp
@@ -70,28 +72,46 @@ target_sources(BitEngine
     vendor/stb_image/stb_image.cpp
     
 
-    src/Platform/OpenGL/OpenGLBuffers.cpp
-    src/Platform/OpenGL/OpenGLRendererAPI.cpp
-    src/Platform/OpenGL/OpenGLVertexArray.cpp
-    src/Platform/OpenGL/OpenGLContextLinux.cpp
-    src/Platform/OpenGL/OpenGLShader.cpp
-    src/Platform/OpenGL/OpenGLTexture.cpp
-    src/Platform/Windows/PlatformLinux.cpp
+    src/Backend/OpenGL/OpenGLBuffers.cpp
+    src/Backend/OpenGL/OpenGLRendererAPI.cpp
+    src/Backend/OpenGL/OpenGLVertexArray.cpp
+    src/Backend/OpenGL/OpenGLContextLinux.cpp
+    src/Backend/OpenGL/OpenGLShader.cpp
+    src/Backend/OpenGL/OpenGLTexture.cpp
     
 )
 
+if(WIN32)
+    set(PLATFORM_NAME "Win")
+    target_compile_definitions(BitEngine PRIVATE BPLATFORM_WINDOWS)
+    
+    list(APPEND BITENGINE_COMMON_SOURCES
+        src/Platform/PlatformWindows.cpp
+        src/Backend/OpenGL/OpenGLContextWindows.cpp
+    )
+
+    target_link_libraries(BitEngine PRIVATE gdi32 user32 shell32)
+elseif(UNIX AND NOT APPLE)
+    set(PLATFORM_NAME "LINUX")
+    target_compile_definitions(BitEngine PRIVATE BPLATFORM_LINUX)
+    list(APPEND BITENGINE_COMMON_SOURCES
+    src/Platform/PlatformLinux.cpp
+    src/Backend/OpenGL/OpenGLContextLinux.cpp
+    )
+    find_package(X11 REQUIRED)
+    target_link_libraries(BitEngine PRIVATE X11::X11 ${CMAKE_THREAD_LIBS_INIT})
+endif()
+target_sources(BitEngine PRIVATE ${BITENGINE_COMMON_SOURCES})
+
 target_include_directories(BitEngine
-    PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    vendor/glad/include        
-    vendor/assimp/include        
-    vendor/stb_image
+PUBLIC 
+${CMAKE_CURRENT_SOURCE_DIR}/src
+vendor/glad/include        
+vendor/assimp/include        
+vendor/stb_image
 )
-target_compile_definitions(BitEngine
-    PRIVATE
-    $<$<CONFIG:Debug>:BIT_DEBUG=1>
-)
-target_link_libraries(BitEngine glad X11 assimp ${CMAKE_THREAD_LIBS_INIT} OpenGL::GL)
+
+target_link_libraries(BitEngine PRIVATE glad assimp OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 
@@ -99,6 +119,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         -Wno-unused-function -Wno-unused-parameter -Wno-pedantic 
     ) 
 endif()
+
 set_target_properties(BitEngine PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin-int/$<CONFIG>/${PLATFORM_NAME}"
     OUTPUT_NAME "BitEngine"  

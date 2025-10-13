@@ -3,18 +3,17 @@
 
 namespace BitEngine
 {
-namespace BInput
-{
 
-enum MOUSE_BUTTONS 
+
+typedef enum 
 {
     MOUSE_BUTTON_LEFT,
     MOUSE_BUTTON_RIGHT,
     MOUSE_BUTTON_MIDDLE,
     MOUSE_BUTTON_MAX
-};
+}MOUSE_BUTTONS;
 
-enum KEYS 
+typedef enum 
 {
     KEY_BACKSPACE = 0x08,
     KEY_ENTER = 0x0D,
@@ -166,7 +165,7 @@ enum KEYS
     KEY_RBRACKET = 0xDD,
 
     MAX_KEYS = 0xFF
-};
+}KEYS;
 
 struct KeyboardState
 {
@@ -187,31 +186,28 @@ struct InputState
 };
 
 
-b8 Initialize();
-void Shutdown();
-void Update();
-b8 IsKeyDown(KEYS key);
-b8 IsKeyUp(KEYS key);
-b8 WasKeyDown(KEYS key);
-b8 WasKeyUp(KEYS key);
+b8 InputInitialize(u64* memoryRequirement, void* state);
+void InputShutdown(void* state);
+void InputUpdate(f32 deltaTime);
+b8 InputIsKeyDown(KEYS key);
+b8 InputIsKeyUp(KEYS key);
+b8 InputWasKeyDown(KEYS key);
+b8 InputWasKeyUp(KEYS key);
 
-void ProcessKey(KEYS key, b8 pressed);
-void ProcessMouseButton(MOUSE_BUTTONS button, b8 pressed);
-void ProcessMouseMove(i16* x, i16* y);
-void ProcessMouseWheel(i8 delta);
+void InputProcessKey(KEYS key, b8 pressed);
+void InputProcessMouseButton(MOUSE_BUTTONS button, b8 pressed);
+void InputProcessMouseMove(i16* x, i16* y);
+void InputProcessMouseWheel(i8 delta);
     
-b8 IsMouseButtonPressed(MOUSE_BUTTONS button);
-b8 IsMouseButtonReleased(MOUSE_BUTTONS button);
+b8 InputIsMouseButtonPressed(MOUSE_BUTTONS button);
+b8 InputIsMouseButtonReleased(MOUSE_BUTTONS button);
 
-b8 IsMouseButtonDown(MOUSE_BUTTONS button);
-b8 IsMouseButtonUp(MOUSE_BUTTONS button);
+b8 InputIsMouseButtonDown(MOUSE_BUTTONS button);
+b8 InputIsMouseButtonUp(MOUSE_BUTTONS button);
 
-b8 WasMouseButtonDown(MOUSE_BUTTONS button);
-b8 WasMouseButtonUp(MOUSE_BUTTONS button);
+b8 InputWasMouseButtonDown(MOUSE_BUTTONS button);
+b8 InputWasMouseButtonUp(MOUSE_BUTTONS button);
 
-void GetMousePosition(i32* x, i32* y);
-void GetPrevMousePosition(i32* x, i32* y);
-
+void InputGetMousePosition(i32* x, i32* y);
+void InputGetPrevMousePosition(i32* x, i32* y);
 }
-}
-

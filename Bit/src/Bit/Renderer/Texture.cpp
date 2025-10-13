@@ -1,6 +1,6 @@
 #include "Texture.h"
 #include "Bit/Renderer/RendererAPI.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Backend/OpenGL/OpenGLTexture.h"
 
 namespace BitEngine
 {

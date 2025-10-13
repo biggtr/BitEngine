@@ -21,18 +21,29 @@
 #include "Bit/Systems/UIRenderSystem.h"
 namespace BitEngine 
 {
+struct GameSystems
+{
+    Renderer2D* renderer2D;
+    Renderer* renderer3D;
+    EntityManager* entityManager;
+    AssetManager* assetManager;
+    CameraManager* cameraManager;
+};
+
 extern Game* CreateGame();
 class Game
 {
 public:
-    ApplicationConfig appConfig;
+    Game(){};
+    virtual ~Game() = default;
+    ApplicationConfig m_AppConfig;
 protected:
-    Application& App() { return Application::GetApplication(); }
-    Renderer2D& Render2D() { return App().GetRenderer2D(); }
-    Renderer& Renderer3D() { return App().GetRenderer(); }
-    EntityManager& ECS() { return App().GetEntityManager(); }
-    AssetManager& Assets() { return App().GetAssetManager(); }
-    CameraManager& Camera() { return App().GetCameraManager(); }
+    Renderer2D* m_Renderer2D = nullptr;
+    Renderer* m_Renderer3D = nullptr;
+    EntityManager* m_ECS = nullptr;
+    AssetManager* m_AssetManager = nullptr;
+    CameraManager* m_CameraManager = nullptr;
+    
 
     RenderSystem* m_RenderSystem;
     UIRenderSystem* m_UIRenderSystem;
@@ -51,12 +62,10 @@ protected:
     f32 m_WorldHeight;
     f32 m_WorldWidth;
 public:
-    Game(){}
-    virtual ~Game(){}
 
     void SetupGameSize()
     {
-        f32 aspectRatio = appConfig.width / (f32)appConfig.height;
+        f32 aspectRatio = m_AppConfig.width / (f32)m_AppConfig.height;
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
         m_OrthoProjection = BMath::Mat4Ortho(
@@ -66,66 +75,73 @@ public:
         );
 
         m_PerspectiveProjection = BMath::Mat4Perspective(
-                DegToRad(45.0f), appConfig.width / (f32)appConfig.height, 0.1f, 100.0f);
+                DegToRad(45.0f), m_AppConfig.width / (f32)m_AppConfig.height, 0.1f, 100.0f);
         m_UIProjection = BMath::Mat4Ortho(
-            0.0f,  appConfig.width, 
-            appConfig.height, 0.0f,
+            0.0f,  m_AppConfig.width, 
+            m_AppConfig.height, 0.0f,
             -1.0f, 1.0f         
         );
     }
-    virtual b8 OnInitialize() 
+    virtual b8 OnInitialize(GameSystems services) 
     {
         SetupGameSize();
 
-        ECS().AddSystem<RenderSystem>();
-        ECS().AddSystem<UIRenderSystem>();
-        ECS().AddSystem<Physics2DSystem>();
-        ECS().AddSystem<CollisionSystem>();
-        ECS().AddSystem<Animation2DSystem>();
-        ECS().AddSystem<InputSystem>();
+        m_Renderer2D = services.renderer2D;
+        m_Renderer3D = services.renderer3D;
+        m_ECS = services.entityManager;
+        m_AssetManager = services.assetManager;
+        m_CameraManager = services.cameraManager;
+        services.entityManager->AddSystem<RenderSystem>();
+        services.entityManager->AddSystem<UIRenderSystem>();
+        services.entityManager->AddSystem<Physics2DSystem>();
+        services.entityManager->AddSystem<CollisionSystem>();
+        services.entityManager->AddSystem<Animation2DSystem>();
+        services.entityManager->AddSystem<InputSystem>();
 
-        m_RenderSystem = ECS().GetSystem<RenderSystem>();
-        m_UIRenderSystem = ECS().GetSystem<UIRenderSystem>();
-        m_Physics2DSystem = ECS().GetSystem<Physics2DSystem>();
-        m_CollisionSystem = ECS().GetSystem<CollisionSystem>();
-        m_Animation2DSystem = ECS().GetSystem<Animation2DSystem>();
-        m_InputSystem = ECS().GetSystem<InputSystem>();
+        m_RenderSystem      = services.entityManager->GetSystem<RenderSystem>();
+        m_UIRenderSystem    = services.entityManager->GetSystem<UIRenderSystem>();
+        m_Physics2DSystem   = services.entityManager->GetSystem<Physics2DSystem>();
+        m_CollisionSystem   = services.entityManager->GetSystem<CollisionSystem>();
+        m_Animation2DSystem = services.entityManager->GetSystem<Animation2DSystem>();
+        m_InputSystem       = services.entityManager->GetSystem<InputSystem>();
 
-        ActiveWorldCamera = Camera().GetDefaultCamera();
+        ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
         Initialize();
         SetupInput();
         return true;
     }
-    virtual void OnUpdate(f64 deltaTime)
+    virtual b8 OnUpdate(f64 deltaTime)
     {
         m_Animation2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
         Update(deltaTime);
+        return true;
     }
-    virtual void OnRender() 
+    virtual b8 OnRender() 
     {
 
-        Render2D().BeginScene(m_UIProjection);
-        m_UIRenderSystem->Update(Render2D());
+        m_Renderer2D->BeginScene(m_UIProjection);
+        m_UIRenderSystem->Update(*m_Renderer2D);
         UIRender();
-        Render2D().EndScene();
+        m_Renderer2D->EndScene();
+
         BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO ? m_OrthoProjection : m_PerspectiveProjection;
-        
         BMath::Mat4 viewProjection = ProjectionMatrix * ActiveWorldCamera->GetViewMatrix();
-        Renderer3D().BeginFrame(viewProjection);
+
+        m_Renderer3D->BeginFrame(viewProjection);
         Render();
-        Renderer3D().EndFrame();
+        m_Renderer3D->EndFrame();
 
-        Render2D().BeginScene(viewProjection);
-        m_RenderSystem->Update(Render2D());
+        m_Renderer2D->BeginScene(viewProjection);
+        m_RenderSystem->Update(*m_Renderer2D);
         Render();
-        Render2D().EndScene();
+        m_Renderer2D->EndScene();
 
 
-
+        return true;
     }
     void OnWindowResize(u16 width, u16 height)
     {
@@ -146,13 +162,13 @@ public:
             -1.0f, 1.0f
         );
         
-        Render2D().SetViewport(0, 0, width, height);
+        m_Renderer2D->SetViewport(0, 0, width, height);
     }
 
     BMath::Vec3 ScreenToWorldCoords(f32 screenX, f32 screenY) 
     {
-        f32 ndcX = (2.0f * screenX) / appConfig.width - 1.0f;
-        f32 ndcY = 1.0f - (2.0f * screenY) / appConfig.height; 
+        f32 ndcX = (2.0f * screenX) / m_AppConfig.width - 1.0f;
+        f32 ndcY = 1.0f - (2.0f * screenY) / m_AppConfig.height; 
         
         BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
         BMath::Mat4 invViewProjection = BMath::Mat4Inverse(viewProjection);

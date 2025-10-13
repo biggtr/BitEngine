@@ -49,10 +49,10 @@ b8 Button(const char* text, f32 width, f32 height, BMath::Vec4 color)
     f32 x = currentElementLayout.CurrentX;
     f32 y = currentElementLayout.CurrentY;
     i32 mousex, mousey;
-    BitEngine::BInput::GetMousePosition(&mousex, &mousey);
+    BitEngine::InputGetMousePosition(&mousex, &mousey);
     b8 isHovered = (u32)mousex >= x && (u32)mousex <= x + width && (u32)mousey >= y && (u32)mousey <= y + height;
 
-    b8 isPressed = BitEngine::BInput::IsMouseButtonPressed(BitEngine::BInput::MOUSE_BUTTON_LEFT);
+    b8 isPressed = BitEngine::InputIsMouseButtonPressed(BitEngine::MOUSE_BUTTON_LEFT);
     b8 isClicked = isHovered && isPressed; 
 
     DrawCommand drawCommand = 

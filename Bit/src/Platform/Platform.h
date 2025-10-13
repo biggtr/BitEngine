@@ -1,30 +1,35 @@
-#pragma once
+#pragma once 
 #include "Bit/Core/Defines.h"
-#include "Bit/Renderer/GraphicsContext.h"
-#include <string>
+
 namespace BitEngine
 {
 
 
-class Platform
+struct PlatformState
 {
-public:
-    virtual ~Platform() = default;
-
-    virtual b8 Initialize() = 0;
-    virtual void Shutdown() = 0;
-
-    virtual void ProcessEvents() = 0;
-    virtual void OnUpdate() = 0;
-
-    virtual u32 GetWidth() const = 0;
-    virtual u32 GetHeight() const = 0; 
-
-    virtual GraphicsContext* GetGraphicsContext() const= 0;
-
-    static Platform* Create(u32 width, u32 height, const std::string& name);
-
+    void* InternalState;
+    u32 Width;
+    u32 Height;
+    const char* Name;
 };
+
+
+b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i32 x, i32 y, u32 width, u32 height);
+b8 PlatformPumpMessages(PlatformState* platformState);
+void PlatformShutdown(PlatformState* platformState);
+
+void* PlatformAllocate(u64 size, b8 aligned);
+void PlatformFree(void* block, b8 aligned);
+void PlatformZeroMemory(void* block, u64 size);
+void PlatformSetMemory(void* dest, i32 value, u64 size);
+void PlatformCopyMemory(void* dest, const void* source, u64 size);
+
+void PlatformConsoleWrite(const char* message, u8 color);
+void PlatformConsoleWriteError(const char* message, u8 color);
+
+f64 PlatformGetAbsoluteTime();
+
+void PlatformSleep(u64 ms);
 
 }
 

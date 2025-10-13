@@ -36,15 +36,16 @@ public:
             if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
             {
                 Box2DColliderComponent& boxCollider = m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
-                shapeIndex = BPhysics2D::BCreateBoxShape(boxCollider.Size.x, boxCollider.Size.y);
+                shapeIndex = BPhysics2DCreateBoxShape(boxCollider.Size.x, boxCollider.Size.y);
                 BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxCollider.Size.x, boxCollider.Size.y);
             }
             else if(m_EntityManager->HasComponent<Circle2DColliderComponent>(entity))
             {
                 Circle2DColliderComponent& circleCollider = m_EntityManager->GetComponent<Circle2DColliderComponent>(entity);
-                shapeIndex = BPhysics2D::BCreateCircleShape(circleCollider.Radius);
+                shapeIndex = BPhysics2DCreateCircleShape(circleCollider.Radius);
+
             }
-            rigidBody.BodyIndex = BPhysics2D::CreateBody(shapeIndex, transform.Position, rigidBody.Mass, rigidBody.Restitution);
+            rigidBody.BodyIndex = BPhysics2DCreateBody(shapeIndex, transform.Position, rigidBody.Mass, rigidBody.Restitution);
             
             // BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
@@ -58,11 +59,11 @@ public:
             Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
             TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(entityA);
 
-            BPhysics2D::BBody& bodyA = BPhysics2D::GetBody(rigidBodyA.BodyIndex);
-            // BPhysics2D::EnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
-            BMath::Vec3 friction = BPhysics2D::GenerateFrictionForce(bodyA, 300.0f);
-            BPhysics2D::AddForce(bodyA, friction);
-            BPhysics2D::LinearIntegrate(bodyA, deltaTime);
+            BBody& bodyA = BPhysics2DGetBody(rigidBodyA.BodyIndex);
+            // BPhysics2DEnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
+            BMath::Vec3 friction = BPhysics2DGenerateFrictionForce(bodyA, 300.0f);
+            BPhysics2DAddForce(bodyA, friction);
+            BPhysics2DLinearIntegrate(bodyA, deltaTime);
 
             transformA.Position = bodyA.Position;
             transformA.Rotation = bodyA.Rotation;
@@ -75,8 +76,8 @@ public:
             return;
         auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
         
-        BPhysics2D::BBody& body = BPhysics2D::GetBody(rigidBody.BodyIndex);
-        BPhysics2D::ApplyImpulse(body, impulse);
+        BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
+        BPhysics2DApplyImpulse(body, impulse);
     }
 
 };

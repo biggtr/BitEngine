@@ -53,6 +53,6 @@ void AssetManager::AddAnimation(const char *assetID, const Animation2DComponent&
 }
 const Animation2DComponent& GetAnimation(const char *assetID)
 {
-
+    return {};
 }
 }

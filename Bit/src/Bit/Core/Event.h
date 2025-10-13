@@ -1,9 +1,5 @@
 #pragma once
 #include "Bit/Core/Defines.h"
-#include <array>
-#include <vector>
-namespace BitEngine
-{
 struct EventContext
 {
     //data is 128 bytes in total
@@ -49,32 +45,11 @@ typedef enum
 }EVENT_CODE;
 typedef b8 (*PFN_ON_EVENT)(u16 code, void* sender, void* listener, EventContext data);
 
-struct RegisteredEvent
-{
-    void* Listener;    
-    PFN_ON_EVENT Callback;
-};
-#define MAX_MESSAGE_CODE 4096
 
-struct RegisteredEvents
-{
-    std::vector<RegisteredEvent> events;
-};
-class EventManager
-{
-private:
-// TODO: Change it to my custom made containter
-    b8 m_Initialized = false;
-
-public:
-    EventManager(){}
-    ~EventManager(){}
-    b8 Initialize();
-    void Shutdown();
-    static b8 Register(u16 code, void* listener, PFN_ON_EVENT callback);
-    static b8 UnRegister(u16 code, void* listener, PFN_ON_EVENT callback);
-    static b8 EventFire(u16 code, void* sender, EventContext data);
+b8 EventInitialize(u64* memoryRequirement, void* state);
+void EventShutdown(void* state);
+b8 EventRegister(u16 code, void* listener, PFN_ON_EVENT callback);
+b8 EventUnRegister(u16 code, void* listener, PFN_ON_EVENT callback);
+b8 EventFire(u16 code, void* sender, EventContext data);
 
 
-};
-}

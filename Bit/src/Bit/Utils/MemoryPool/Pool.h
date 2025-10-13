@@ -1,7 +1,7 @@
 #pragma once
 #include "Bit/Core/Defines.h"
 #include <cstdint>
-#include <strings.h>
+#include <string>
 #include <vector>
 
 #define MAX_NUM_ENTITIES 1000000

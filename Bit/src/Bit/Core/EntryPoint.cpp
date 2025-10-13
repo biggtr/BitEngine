@@ -10,19 +10,15 @@ int main()
 
     BitEngine::Game* game = BitEngine::CreateGame();
 
+    BitEngine::Application* app = new BitEngine::Application();
    
-    if(!BitEngine::Application::Create(game))
+    if(!app->Create(game))
     {
         BIT_LOG_ERROR("Couldnt create a new game");
         return -1;
     }
 
-    BitEngine::Application::Run();
-    
-    if(BitEngine::Application::Shutdown())
-    {
-        delete game;
-    }
+    app->Run();
     
     return 0;
 }

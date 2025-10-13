@@ -1,81 +1,63 @@
 #include <cstdarg>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <ctime>
 #include "Logger.h"
+#include "Logger.h"
+#include <cstdio>
+#include <stdarg.h>
+#include "assert.h"
 
-namespace BitEngine 
+struct LoggerState
 {
-Logger* Logger::s_Instance = nullptr; 
-
-bool Logger::Initialize()
+    u64 MaxLoggerFilesSize;
+};
+static LoggerState* loggerState = 0;
+b8 LoggerInitialize(u64* memoryRequirement, void* state)
 {
-    if(s_Instance)
+    *memoryRequirement = sizeof(LoggerState);
+    if(!state)
     {
-        printf("You Cannot Create More Than One Logger Instance At A Time\n");
-        return false;
+        return true;
     }
-    s_Instance = new Logger();
+    loggerState = (LoggerState*)state;
+    memset(loggerState, 0, sizeof(LoggerState));
     return true;
 }
-
-void Logger::Log(LOG_LEVEL level, const char* msg, ...)
+void LoggerShutdown(void* state)
 {
+    if(state)
+    {
+        loggerState = 0;
+    }
+    BIT_LOG_INFO("Event System Is shutting down..!");
+}
 
-    constexpr size_t STACK_BUFFER_SIZE = 2048;
-    char stackBuffer[STACK_BUFFER_SIZE];
-    
+
+void Log(LOG_LEVEL level, const char* message, ...)
+{
+    const char* logLevel[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: "};
+    char outMessage[64000];
     va_list args;
-    va_start(args, msg);
-
-    int result = vsnprintf(stackBuffer, STACK_BUFFER_SIZE, msg, args); 
+    va_start(args, message);
+    vsnprintf(outMessage, sizeof(outMessage), message, args);
     va_end(args);
 
-                          
-    if(result < STACK_BUFFER_SIZE)
-    {
-        s_Instance->LogInternal(level, stackBuffer);
-    }
-    else 
-    {
-        int size = result + 1; // +1 for nul term
-        char* buffer = new char[size]; 
+    char finalOutMessage[64000];
+    sprintf(finalOutMessage, "%s%s\n", logLevel[(u8)level], outMessage);
 
-        va_start(args, msg);
-        vsnprintf(buffer, size, msg, args);
-        va_end(args);
-        s_Instance->LogInternal(level, buffer);
-        delete[] buffer;
-    }
-}                         
-void Logger::LogInternal(LOG_LEVEL level, const char* msg)
+    printf("%s", finalOutMessage);
+}
+b8 ShutdownLogging()
 {
-    time_t now = time(nullptr);
-    struct tm* timeinfo = localtime(&now);
-    printf("[%04d-%02d-%02d %02d:%02d:%02d] [%-5s] %s\n",
-           timeinfo->tm_year + 1900,
-           timeinfo->tm_mon + 1,
-           timeinfo->tm_mday,
-           timeinfo->tm_hour,
-           timeinfo->tm_min,
-           timeinfo->tm_sec,
-           GetLevelString(level),
-           msg);
+    return TRUE;
 }
-                          
-const char* Logger::GetLevelString(LOG_LEVEL level)
+void ReportAssertionFailure(const char* expression, const char* message, const char* fileName, u32 line)
 {
-    const char* levelStrings[] = {"FATAL" , "ERROR", "WARN", "INFO", "DEBUG", "TRACE" };
-    uint8_t index = (uint8_t)level;
-    return (index > 0 && index < 6) ? levelStrings[index] : "UNKOWN";
-}
-bool Logger::Shutdown()   
-{                         
-    if(!s_Instance)
-        return false;
-    delete s_Instance;
-    s_Instance = nullptr;
-    return true;
-}
-
+    Log(LOG_LEVEL_FATAL,
+        "Assertion Failure: '%s', message: '%s', in file '%s', line : %d",
+        expression, message,
+        fileName, line
+       );
 }
