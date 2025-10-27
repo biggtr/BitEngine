@@ -14,6 +14,7 @@ struct LinuxWindowRequirements
     Colormap colormap;
     unsigned long valueMask;
     int depth;
+    GLXFBConfig fbconfig;
 };
 class OpenGLContextLinux : public GraphicsContext
 {
@@ -22,10 +23,10 @@ private:
     Window m_Window;
     i32 m_Screen;
 
-    GLXFBConfig m_FBConfig;
+    LinuxWindowRequirements m_Req;
     GLXContext m_GLContext;
 public:
-    OpenGLContextLinux(Display* display, Window window, int screen);
+    OpenGLContextLinux(Display* display, Window window, int screen, const LinuxWindowRequirements& req);
     ~OpenGLContextLinux();
     virtual b8 Initialize() override;
     virtual void SwapBuffers() override;

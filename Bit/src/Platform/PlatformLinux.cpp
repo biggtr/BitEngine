@@ -1,3 +1,4 @@
+#include "Backend/OpenGL/OpenGLContextLinux.h"
 #include "Platform.h"
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Input.h"
@@ -25,7 +26,7 @@ struct InternalState
 {
     Display* Dpy;
     i32 Screen;
-    Window Window;
+    u32 Window;
 };
 
 b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i32 x, i32 y, u32 width, u32 height)
@@ -35,35 +36,25 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
     internalState->Dpy = XOpenDisplay(NULL);
     if(!internalState->Dpy)
     {
-        CERROR("Couldn't Create a Display on linux..!");
+        BIT_LOG_ERROR("Couldn't Create a Display on linux..!");
         return false;
     }
     internalState->Screen = XDefaultScreen(internalState->Dpy);
 
+    LinuxWindowRequirements req = OpenGLContextLinux::GetWindowRequirements(internalState->Dpy, internalState->Screen);
 
-    LinuxWindowRequirements req = LinuxContext::GetWindowRequirements(internalState->Dpy, internalState->Screen);
     if (!req.visualInfo) {
         XCloseDisplay(internalState->Dpy);
         return false;
     }
-
-    XVisualInfo visualInfo;
-    if(!XMatchVisualInfo(internalState->Dpy, internalState->Screen, 24, TrueColor, &visualInfo))
-    {
-        CERROR("Couldn't found appropriate 24 TrueColor visual info");
-        return false;
-    }
     u32 rootWindow = RootWindow(internalState->Dpy, internalState->Screen);
-    Colormap colormap = XCreateColormap(internalState->Dpy, rootWindow, visualInfo.visual, AllocNone);
-    
-
 
     XSetWindowAttributes attr;
     memset(&attr, 0, sizeof(XSetWindowAttributes));
     attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | 
                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                       StructureNotifyMask | FocusChangeMask;
-    attr.colormap = colormap;
+    attr.colormap = req.colormap;
     attr.background_pixel = BlackPixel(internalState->Dpy, internalState->Screen);
 
     u64 valueMask = CWEventMask | CWBackPixel | CWColormap;
@@ -72,22 +63,25 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
     platformState->Height = height;
     internalState->Window = XCreateWindow(internalState->Dpy, 
             rootWindow, x, y, width, height, 0,
-            visualInfo.depth, InputOutput, visualInfo.visual, valueMask, &attr);
+            req.depth, InputOutput, req.visualInfo->visual, valueMask, &attr);
 
     if(!internalState->Window)
     {
-        CERROR("Failed To Create A Window");
+        BIT_LOG_ERROR("Failed To Create A Window");
         XCloseDisplay(internalState->Dpy);
         return false;
     }
 
-    platformState->Context = new LinuxContext(internalState->Dpy, internalState->Window, internalState->Screen);
-    if (!platformState->Context->initialize()) {
+    platformState->Context = new OpenGLContextLinux(internalState->Dpy, internalState->Window, internalState->Screen, req);
+    if (!platformState->Context->Initialize()) {
         BIT_LOG_FATAL("Failed to initialize graphics context!");
+        OpenGLContextLinux::FreeWindowRequirements(internalState->Dpy, req);
         XDestroyWindow(internalState->Dpy, internalState->Window);
         XCloseDisplay(internalState->Dpy);
         return false;
     }
+    OpenGLContextLinux::FreeWindowRequirements(internalState->Dpy, req);
+
     // register event for handling the xlib window closing 
     Atom wmDelete = XInternAtom(internalState->Dpy, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(internalState->Dpy, internalState->Window, &wmDelete, 1);
@@ -103,7 +97,7 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
 
 void PlatformShutdown(PlatformState* platformState)
 {
-    CDEBUG("Platform Shutting Down.")
+    BIT_LOG_DEBUG("Platform Shutting Down.")
     InternalState* internalState = (InternalState*)platformState->InternalState;
     XAutoRepeatOn(internalState->Dpy);
     XUnmapWindow(internalState->Dpy, internalState->Window);
@@ -129,7 +123,7 @@ b8 PlatformPumpMessages(PlatformState* platformState)
                     {
                         platformState->Width = width;
                         platformState->Height = height;
-                        CDEBUG("Width: %d, Height: %d", width, height);
+                        BIT_LOG_DEBUG("Width: %d, Height: %d", width, height);
                         EventContext context{};
                         context.U16[0] = width;
                         context.U16[1] = height;
