@@ -1,10 +1,10 @@
-#include "Bit/Scene/EntityManager.h"
+#include "Bit/ECS/EntityManager.h"
 #include "Bit/Core/Defines.h"
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Systems/System.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
+#include "Bit/ECS/Systems/System.h"
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>

@@ -1,6 +1,6 @@
 #pragma once 
 #include "Bit/Renderer/Texture.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/ECS/Compontents.h"
 #include <map>
 namespace BitEngine
 {

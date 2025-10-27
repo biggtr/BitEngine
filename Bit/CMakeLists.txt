@@ -46,9 +46,9 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Renderer/Camera.cpp
     src/Bit/Renderer/CameraManager.cpp
 
-    src/Bit/Scene/EntityManager.cpp
+    src/Bit/ECS/EntityManager.cpp
     src/Bit/Scene/Scene.cpp
-    src/Bit/Systems/System.cpp
+    src/Bit/ECS/Systems/System.cpp
 
 
     src/Bit/Resources/AssetManager.cpp
@@ -92,6 +92,7 @@ if(WIN32)
     )
 
     target_link_libraries(BitEngine PRIVATE gdi32 user32 shell32)
+
 elseif(UNIX AND NOT APPLE)
     set(PLATFORM_NAME "LINUX")
     target_compile_definitions(BitEngine PRIVATE BPLATFORM_LINUX)
@@ -102,13 +103,14 @@ elseif(UNIX AND NOT APPLE)
     find_package(X11 REQUIRED)
     target_link_libraries(BitEngine PRIVATE X11::X11 ${CMAKE_THREAD_LIBS_INIT})
 endif()
+
 target_sources(BitEngine PRIVATE ${BITENGINE_COMMON_SOURCES})
 
 target_include_directories(BitEngine
 PUBLIC 
 ${CMAKE_CURRENT_SOURCE_DIR}/src
 vendor/glad/include        
-vendor/assimp/include        
+${CMAKE_BINARY_DIR}/assimp/include        
 vendor/stb_image
 )
 
@@ -116,15 +118,31 @@ target_link_libraries(BitEngine PRIVATE glad assimp OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 
-        PRIVATE -Wall -Wextra -Wpedantic 
-        -Wno-unused-function -Wno-unused-parameter -Wno-pedantic 
+        PRIVATE 
+            -Wall -Wextra -Wpedantic 
+            -Wno-unused-function 
+            -Wno-unused-parameter 
+            -Wno-pedantic 
     ) 
+elseif(MSVC)
+    target_compile_options(BitEngine 
+        PRIVATE 
+            /W4
+            /wd4100  
+    )
 endif()
 
-set_target_properties(BitEngine PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin-int/$<CONFIG>/${PLATFORM_NAME}"
-    OUTPUT_NAME "BitEngine"  
-)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets 
-     DESTINATION "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/${PLATFORM_NAME}"
+if(WIN32)
+    add_custom_command(TARGET BitEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:assimp>
+            $<TARGET_FILE_DIR:BitEngine>
+        COMMENT "Copying Assimp DLL to output directory..."
+    )
+endif()
+add_custom_command(TARGET BitEngine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets
+        ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/${PLATFORM_NAME}/assets
+    COMMENT "Copying assets..."
 )

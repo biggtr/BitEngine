@@ -1,6 +1,6 @@
 #pragma once 
 #include "Bit/Core/Application.h"
-#include "Bit/Scene/Entity.h"
+#include "Bit/ECS/Entity.h"
 #include <Bit/Core/Game.h>
 
 class PoolGame : public BitEngine::Game

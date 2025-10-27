@@ -3,10 +3,10 @@
 #include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Scene/EntityManager.h"
-#include "Bit/Systems/System.h"
+#include "Bit/ECS/EntityManager.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
+#include "System.h"
 namespace BitEngine 
 {
 

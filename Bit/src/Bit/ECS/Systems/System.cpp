@@ -1,7 +1,7 @@
 #include "System.h"
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Scene/Entity.h"
+#include "Bit/ECS/Entity.h"
 #include <algorithm>
 
 

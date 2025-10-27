@@ -1,9 +1,9 @@
 #pragma once
 #include "Bit/Core/Logger.h"
-#include "Bit/Scene/EntityManager.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Systems/System.h"
+#include "Bit/ECS/EntityManager.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
+#include "System.h"
 #include "Bit/Utils/MemoryPool/Pool.h"
 #include <unordered_map>
 namespace BitEngine

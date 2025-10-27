@@ -2,7 +2,6 @@
 #include "Bit/Core/Defines.h"
 #include "Bit/Math/Vector.h"
 #include "BPhysicsTypes.h"
-#include <unordered_map>
 #include <vector>
 
 namespace BitEngine
@@ -20,22 +19,15 @@ BShape& BPhysics2DGetShape(BBody* body);
 BBody& BPhysics2DGetBody(u32 bodyIndex);
 BMath::Vec3 BPhysics2DVec3EdgeAt(BPolygonShape& polygon, u32 index);
 
-BParticle* BPhysics2DCreateParticle();
 
-void BPhysics2DAddForce(BParticle& particle, BMath::Vec3& force);
-BMath::Vec3 BPhysics2DGennerateDragForce(BParticle particle, f32 dragValue);
-BMath::Vec3 BPhysics2DGennerateFrictionForce(BParticle particle, f32 frictionValue);
-BMath::Vec3 BPhysics2DGennerateGravitationalForce(BParticle a, BParticle b, f32 G);
-BMath::Vec3 BPhysics2DGennerateSpringForce(BParticle particle, BMath::Vec3& anchor,f32 restLength, f32 k);
-void BPhysics2DEnableWeight(BParticle& particle, f32 gravity);
-void BPhysics2DLinearIntegrate(BParticle particle, f32 deltaTime);
+void BPhysics2DApplyImpulse(BBody& body, const BMath::Vec3& impulse);
 
 void BPhysics2DAddForce(BBody& body, const BMath::Vec3& force);
-void BPhysics2DApplyImpulse(BBody& body, const BMath::Vec3& impulse);
-BMath::Vec3 BPhysics2DGennerateDragForce(BBody& body, f32 dragValue);
+BMath::Vec3 BPhysics2DGenerateDragForce(BBody& body, f32 dragValue);
 BMath::Vec3 BPhysics2DGenerateFrictionForce(BBody& body, f32 frictionValue);
-BMath::Vec3 BPhysics2DGennerateGravitationalForce(BBody& a, BBody b, f32 G);
-BMath::Vec3 BPhysics2DGennerateSpringForce(BBody& body, BMath::Vec3& anchor,f32 restLength, f32 k);
+BMath::Vec3 BPhysics2DGenerateGravitationalForce(BBody& a, BBody b, f32 G);
+BMath::Vec3 BPhysics2DGenerateSpringForce(BBody& body, BMath::Vec3& anchor,f32 restLength, f32 k);
+
 void BPhysics2DEnableWeight(BBody& body, f32 gravity);
 void BPhysics2DLinearIntegrate(BBody& body, f32 deltaTime);
 

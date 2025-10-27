@@ -2,7 +2,7 @@
 #include "Bit/Renderer/RenderCommand.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Resources/ShaderManager.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/ECS/Compontents.h"
 
 namespace BitEngine
 {

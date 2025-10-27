@@ -1,9 +1,9 @@
 #pragma once
 #include "Bit/Containers/BQueue.h"
 #include "Bit/Core/Logger.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Systems/System.h"
-#include "Bit/Scene/Compontents.h"
+#include "Entity.h"
+#include "Systems/System.h"
+#include "Compontents.h"
 #include "Bit/Utils/MemoryPool/Pool.h"
 #include <cstdint>
 #include <utility>

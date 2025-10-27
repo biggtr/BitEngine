@@ -1,3 +1,3 @@
 add_subdirectory(PoolGame)
-# add_subdirectory(3DGame)
-
+add_subdirectory(Rabbit)
+add_subdirectory(3DGame)

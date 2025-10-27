@@ -125,78 +125,6 @@ BMath::Vec3 BPhysics2DVec3EdgeAt(BPolygonShape& polygon, u32 index)
 ////////////////////////////////////////////////////////
 // Linear Movement
 ////////////////////////////////////////////////////////
-void BPhysics2DAddForce(BParticle& particle, BMath::Vec3& force)
-{
-    particle.SumForces += force;
-}
-BMath::Vec3 BPhysics2DGenerateDragForce(BParticle particle, f32 dragValue)
-{
-    //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
-    if(BMath::Vec3LengthSquared(particle.Velocity) < 0.0f)
-    {
-        return BMath::Vec3(0.0f);
-    }
-    BMath::Vec3 dragDirection = Vec3Normalize(particle.Velocity) * -1.0f;
-    f32 dragMagnitude = BMath::Vec3LengthSquared(particle.Velocity) * dragValue;
-    BMath::Vec3 dragForce = dragDirection * dragMagnitude;
-
-    return dragForce;
-}
-BMath::Vec3 BPhysics2DGenerateFrictionForce(BParticle particle, f32 frictionValue)
-{
-    //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the particle
-    BMath::Vec3 frictionDirection = Vec3Normalize(particle.Velocity) * -1.0f;
-    BMath::Vec3 frictionForce = frictionDirection * frictionValue;
-
-    return frictionForce;
-}
-BMath::Vec3 BPhysics2DGenerateGravitationalForce(BParticle a, BParticle b, f32 G)
-{
-    BMath::Vec3 d = b.Position - a.Position;
-    f32 distanceSquared = BMath::Vec3LengthSquared(d);
-    if(distanceSquared < 0.0f)
-    {
-        return BMath::Vec3(0.0f);
-    }
-    f32 attractionMagintude = G * (a.Mass * b.Mass) / distanceSquared;
-    BMath::Vec3 attractionDirection = Vec3Normalize(d);
-    BMath::Vec3 gravitationalForce = attractionDirection * attractionMagintude  ;
-
-
-    return gravitationalForce;
-
-}
-// k -> Spring stiff constant == how much force do we need to deform the object
-// l -> displacement after deformation
-BMath::Vec3 BPhysics2DGenerateSpringForce(BParticle particle, BMath::Vec3& anchor,f32 restLength, f32 k)
-{
-    BMath::Vec3 d = particle.Position - anchor;
-    f32 displacement = BMath::Vec3Length(d) - restLength;
-
-    BMath::Vec3 springDirection = Vec3Normalize(d);
-    f32 springForceMagnitude = -k * displacement;
-    BMath::Vec3 springForce = springDirection * springForceMagnitude;
-    return springForce;
-}
-void BPhysics2DEnableWeight(BParticle& particle, f32 gravity)
-{
-    BMath::Vec3 weightForce(0.0, particle.Mass * gravity, 0.0f);
-
-    BPhysics2DAddForce(particle, weightForce);
-}
-void BPhysics2DLinearIntegrate(BParticle particle, f32 deltaTime)
-{
-    if(particle.Mass == 0)
-    {
-        return;
-    }
-    particle.Acceleration = particle.SumForces * particle.InvMass;
-    particle.Velocity += particle.Acceleration * deltaTime;
-    particle.Position += particle.Velocity * deltaTime;
-
-    // Clearing All Forces after Integration
-    particle.SumForces = (0.0f);
-}
 
 void BPhysics2DAddForce(BBody& body, const BMath::Vec3& force)
 {
@@ -224,7 +152,6 @@ BMath::Vec3 BPhysics2DGenerateDragForce(BBody& body, f32 dragValue)
 }
 BMath::Vec3 BPhysics2DGenerateFrictionForce(BBody& body, f32 frictionValue)
 {
-    //frictionValue -> CoeffOfSurfaceFriction * Magnitude if normal force of the surface on the body
     if(NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
         return {0.0f, 0.0f, 0.0f};
     BMath::Vec3 frictionDirection = Vec3Normalize(body.Velocity) * -1.0f;
@@ -244,9 +171,7 @@ BMath::Vec3 BPhysics2DGenerateGravitationalForce(BBody& a, BBody b, f32 G)
     BMath::Vec3 attractionDirection = Vec3Normalize(d);
     BMath::Vec3 gravitationalForce = attractionDirection * attractionMagintude  ;
 
-
     return gravitationalForce;
-
 }
 // k -> Spring stiff constant == how much force do we need to deform the object
 // l -> displacement after deformation
@@ -276,7 +201,6 @@ void BPhysics2DLinearIntegrate(BBody& body, f32 deltaTime)
     body.Velocity += body.Acceleration * deltaTime;
     body.Position += body.Velocity * deltaTime;
 
-    // Clearing All Forces after Integration
     body.SumForces = (0.0f);
 }
 

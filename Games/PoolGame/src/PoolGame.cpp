@@ -6,11 +6,11 @@
 #include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Systems/InputSystem.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
+#include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/Font/Font.h"
-#include "Bit/Systems/System.h"
+#include "Bit/ECS/Systems/System.h"
 #include "Bit/UI/BitUI.h"
 #include "Bit/UI/Widgets.h"
 
@@ -78,7 +78,6 @@ BitEngine::Entity PoolGame::CreateTable(BitEngine::Entity* outPockets, f32 width
     righttableEdge.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
     righttableEdge.AddComponent<BitEngine::Box2DColliderComponent>(BMath::Vec3(5.0f, height - 10.0f, 0.0f));
 
-    // Create Table Pockets
     for(i32 i = 0; i < 6; ++i)
     {
         f32 x = (i % 3 - 1) * (width / 2.0f);
@@ -155,7 +154,7 @@ void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
 }
 void PoolGame::Initialize()
 {
-    CreateBalls(m_Balls, 5);
+    CreateBalls(m_Balls, 10);
 
     m_Table = CreateTable(m_Pockets, 150.0f, 65.0f);
 

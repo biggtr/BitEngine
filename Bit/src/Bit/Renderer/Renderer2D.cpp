@@ -10,7 +10,7 @@
 #include "Bit/Renderer/Shader.h"
 #include "Bit/Renderer/VertexArray.h"
 #include "Bit/Renderer/Texture.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/ECS/Compontents.h"
 #include <cstdint>
 
 namespace BitEngine 

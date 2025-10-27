@@ -5,10 +5,10 @@
 #include "Bit/Physics/BCollision.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Physics/BPhysicsTypes.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Scene/EntityManager.h"
-#include "Bit/Systems/System.h"
+#include "Bit/ECS/EntityManager.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
+#include "System.h"
 
 #define METER_PER_PIXEL 100
 namespace BitEngine 
@@ -51,7 +51,7 @@ public:
         }
     }
 
-    void Update(float deltaTime)
+    void Update(f32 deltaTime)
     {
         for(u32 i = 0; i < m_Entities.size();  ++i)
         {

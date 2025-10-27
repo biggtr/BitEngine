@@ -231,12 +231,12 @@ b8 BPhysics2DIsPolygonPolygonColliding(BBody* a, BBody* b, BPhysics2DContact& co
     f32 seperationAB = BPhysics2DFindMinSeperation(shapeA, shapeB, axisA, pointA);
     if(seperationAB >= 0)
     {
-        return false; // no collision
+        return false; 
     }
     f32 seperationBA = BPhysics2DFindMinSeperation(shapeB, shapeA, axisB, pointB);
     if(seperationBA >= 0)
     {
-        return false; // no collision
+        return false; 
     }
     if(seperationAB > seperationBA)
     {

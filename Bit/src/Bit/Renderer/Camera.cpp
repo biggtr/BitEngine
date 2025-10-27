@@ -2,7 +2,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Matrix.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/ECS/Compontents.h"
 #include <algorithm>
 
 namespace BitEngine

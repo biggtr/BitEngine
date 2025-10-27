@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "Bit/Core/Event.h"
-#include "Bit/Scene/Compontents.h"
+#include "Bit/ECS/Compontents.h"
 #include <vector>
 #include "Bit/Core/Defines.h"
 namespace BitEngine

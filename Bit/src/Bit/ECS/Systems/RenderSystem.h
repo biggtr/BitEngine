@@ -2,11 +2,11 @@
 #include "Bit/Core/Core.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Vector.h"
-#include "Bit/Scene/EntityManager.h"
+#include "Bit/ECS/EntityManager.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
 #include "Bit/Renderer/Renderer2D.h"
-#include "Bit/Scene/Compontents.h"
-#include "Bit/Scene/Entity.h"
-#include "Bit/Systems/System.h"
+#include "System.h"
 #include <vector>
 #include <algorithm>
 #include <string>
