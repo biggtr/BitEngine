@@ -67,7 +67,6 @@ void main()
     if(texColor.a < 0.1)
         discard;
 
-    // color =  texColor * v_Color;
-    color = vec4(1.0, 0.0 ,0.0 , 1.0);
+    color =  texColor * v_Color;
 }
 

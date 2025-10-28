@@ -106,7 +106,8 @@ public:
         m_InputSystem       = services.entityManager->GetSystem<InputSystem>();
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
-        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
+        ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
+        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
         Initialize();
         SetupInput();
@@ -129,14 +130,15 @@ public:
         BMath::Mat4 viewMatrix = ActiveWorldCamera->GetViewMatrix();
         BMath::Mat4 viewProjection = ProjectionMatrix * viewMatrix;
 
-        m_Renderer3D->BeginFrame(viewProjection);
-        Render3D();
-        m_Renderer3D->EndFrame();
-
         m_Renderer2D->BeginScene(viewProjection);
         Render2D();
         m_RenderSystem->Update(*m_Renderer2D);
         m_Renderer2D->EndScene();
+
+        m_Renderer3D->BeginFrame(viewProjection);
+        Render3D();
+        m_Renderer3D->EndFrame();
+
 
         m_Renderer2D->BeginScene(m_UIProjection);
         RenderUI();

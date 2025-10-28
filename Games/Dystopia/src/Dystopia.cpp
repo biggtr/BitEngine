@@ -13,11 +13,16 @@ void Dystopia::Initialize()
 {
     ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
     BitEngine::Entity player = m_ECS->CreateEntity();
-    player.AddComponent<BitEngine::TransformComponent>(
-            BMath::Vec3(0.0f, 0.0f, -3.0f),
-            BMath::Vec3(0.0f, 0.0f, 0.0f),
-            BMath::Vec3(32.0f, 32.0f, 1.0f)
-            );
+    player.AddComponent<BitEngine::TransformComponent>();
+
+    auto& playerTransform = player.GetComponent<BitEngine::TransformComponent>();
+    playerTransform.Position = BMath::Vec3(0.0f, 0.0f, -5.0f);
+    playerTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
+    playerTransform.Scale = {32.0f, 32.0f, 1.0f};
+        BIT_LOG_DEBUG("Scale in Initialize(): %.2f, %.2f, %.2f", 
+            playerTransform.Scale.x, 
+            playerTransform.Scale.y, 
+            playerTransform.Scale.z);
     player.AddComponent<BitEngine::SpriteComponent>();
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
     
@@ -25,9 +30,10 @@ void Dystopia::Initialize()
     playerSprite.STexture = m_AssetManager->GetTexture("tree");
     playerSprite.FrameWidth = 360;
     playerSprite.FrameHeight = 303;
-    playerSprite.CurrentFrame = 0;
-    playerSprite.Width = 360;
-    playerSprite.Height = 303;
+    playerSprite.CurrentFrame = 1;
+    playerSprite.Width = playerSprite.STexture->GetWidth();
+    playerSprite.Height = playerSprite.STexture->GetWidth();
+    playerSprite.IsUI = false;
     // player.AddComponent<BitEngine::Animation2DControllerComponent>();
     //
     // m_Animation2DSystem->CreateAnimation(player, "playerIdle", 8, 1, 0.4f);
@@ -37,6 +43,10 @@ void Dystopia::RenderUI()
 {
 }
 void Dystopia::Render2D()
+{
+}
+
+void Dystopia::Render3D()
 {
 }
 void Dystopia::Update(f32 deltaTime)

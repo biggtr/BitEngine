@@ -144,6 +144,23 @@ void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
             BMath::Vec3(1.0f)
             );
 
+    BitEngine::Entity player = m_ECS->CreateEntity();
+    player.AddComponent<BitEngine::TransformComponent>(
+            BMath::Vec3(0.0f, 0.0f, -5.0f),
+            BMath::Vec3(0.0f),
+            BMath::Vec3(1.0f)
+            );
+    player.AddComponent<BitEngine::SpriteComponent>();
+    auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
+    
+    m_AssetManager->AddTexture("tree", "assets/textures/tree.png");
+    playerSprite.STexture = m_AssetManager->GetTexture("tree");
+    playerSprite.FrameWidth = 360;
+    playerSprite.FrameHeight = 303;
+    playerSprite.CurrentFrame = 0;
+    playerSprite.Width = 360;
+    playerSprite.Height = 303;
+    playerSprite.IsUI = false;
 
     m_WhiteBall.AddComponent<BitEngine::Circle2DComponent>(BALL_RADIUS);
     m_WhiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
@@ -160,7 +177,7 @@ void PoolGame::Initialize()
 
     isDragging = false;
 }
-void PoolGame::UIRender()
+void PoolGame::RenderUI()
 {
     // BitUI::BeginLayout(BitUI::HorizontalLayout(100.0f, 100.0f, 5.0f));
     // BitUI::Button("blabla", 100.0f, 100.0f);
@@ -182,7 +199,7 @@ void PoolGame::UIRender()
     //     m_Renderer2D->.DrawQuad(command.Position, command.Size, command.data.Color);
     // }
 }
-void PoolGame::Render()
+void PoolGame::Render2D()
 {
     if(isDragging)
     {

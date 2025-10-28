@@ -54,6 +54,7 @@ public:
                 if(spriteComponent.STexture)
                 {
                     UpdateUVs(spriteComponent);
+
                     renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
                             spriteComponent
                             );

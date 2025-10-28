@@ -83,7 +83,6 @@ set(BITENGINE_COMMON_SOURCES
 )
 
 if(WIN32)
-    set(PLATFORM_NAME "Win")
     target_compile_definitions(BitEngine PRIVATE BPLATFORM_WINDOWS)
     
     list(APPEND BITENGINE_COMMON_SOURCES
@@ -94,7 +93,6 @@ if(WIN32)
     target_link_libraries(BitEngine PRIVATE gdi32 user32 shell32)
 
 elseif(UNIX AND NOT APPLE)
-    set(PLATFORM_NAME "LINUX")
     target_compile_definitions(BitEngine PRIVATE BPLATFORM_LINUX)
     list(APPEND BITENGINE_COMMON_SOURCES
     src/Platform/PlatformLinux.cpp
