@@ -6,7 +6,7 @@ layout (location = 3) in float a_TexIndex;
 
 out vec2 v_TexCoords;
 out vec4 v_Color;
-out float v_TexIndex;
+flat out float v_TexIndex;
 uniform mat4 u_ViewProjection;
 void main()
 { 
@@ -19,7 +19,7 @@ void main()
 #Fragment 
 out vec4 color;  
 in vec2 v_TexCoords;
-in float v_TexIndex;
+flat in float v_TexIndex;
 in vec4 v_Color;
 uniform sampler2D u_Textures[16];
 void main()
@@ -67,6 +67,7 @@ void main()
     if(texColor.a < 0.1)
         discard;
 
-    color =  texColor * v_Color;
+    // color =  texColor * v_Color;
+    color = vec4(1.0, 0.0 ,0.0 , 1.0);
 }
 

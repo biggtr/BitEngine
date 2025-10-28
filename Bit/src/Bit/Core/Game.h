@@ -106,7 +106,7 @@ public:
         m_InputSystem       = services.entityManager->GetSystem<InputSystem>();
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
-        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
+        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
 
         Initialize();
         SetupInput();
@@ -122,23 +122,25 @@ public:
     }
     virtual b8 OnRender() 
     {
-        m_Renderer2D->BeginScene(m_UIProjection);
-        m_UIRenderSystem->Update(*m_Renderer2D);
-        UIRender();
-        m_Renderer2D->EndScene();
-
+        m_Renderer3D->SetClearColor({1.0f, 0.0f, 0.0f, 1.0f});
+        m_Renderer3D->Clear();
         BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 
-                                        ? m_OrthoProjection : m_PerspectiveProjection;
+            ? m_OrthoProjection : m_PerspectiveProjection;
         BMath::Mat4 viewMatrix = ActiveWorldCamera->GetViewMatrix();
         BMath::Mat4 viewProjection = ProjectionMatrix * viewMatrix;
 
         m_Renderer3D->BeginFrame(viewProjection);
-        Render();
+        Render3D();
         m_Renderer3D->EndFrame();
 
         m_Renderer2D->BeginScene(viewProjection);
+        Render2D();
         m_RenderSystem->Update(*m_Renderer2D);
-        Render();
+        m_Renderer2D->EndScene();
+
+        m_Renderer2D->BeginScene(m_UIProjection);
+        RenderUI();
+        m_UIRenderSystem->Update(*m_Renderer2D);
         m_Renderer2D->EndScene();
 
         return true;
@@ -181,7 +183,8 @@ protected:
     virtual void Initialize() = 0;
     virtual void SetupInput(){} 
     virtual void Update(float deltaTime) = 0;
-    virtual void Render() = 0; 
-    virtual void UIRender() = 0; 
+    virtual void Render2D() {}; 
+    virtual void Render3D() {}; 
+    virtual void RenderUI() {}; 
 };
 }

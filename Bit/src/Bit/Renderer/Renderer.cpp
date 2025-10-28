@@ -72,8 +72,6 @@ b8 Renderer::BeginFrame(BMath::Mat4& ViewProjection, const BMath::Vec4& clearCol
     }
     m_ViewProjectionMatrix = ViewProjection;
 
-    SetClearColor(clearColor);
-    Clear();
 
     m_RenderQueue.clear();
     ResetStats();

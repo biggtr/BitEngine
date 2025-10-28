@@ -12,8 +12,8 @@ public:
     virtual void Initialize() override;
     // virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;
-    virtual void Render() override; 
-    virtual void UIRender() override; 
+    virtual void Render3D() override; 
+    virtual void RenderUI() override; 
 
 
 };

@@ -26,8 +26,8 @@ public:
     virtual void Initialize() override;
     // virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;
-    virtual void Render() override; 
-    virtual void UIRender() override; 
+    virtual void Render2D() override; 
+    virtual void RenderUI() override; 
 
 private:
     void CreateBalls(BitEngine::Entity* outEntities, u8 lastRow);

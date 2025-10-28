@@ -28,12 +28,12 @@ void Game3D::Update(f32 deltaTime)
     cubeTransform = BMath::Mat4CreateTransform(cubePosition, {2,2,2}, cubeRotation);
     planeTransform = BMath::Mat4CreateTransform(planePosition, {2,2,2}, cubeRotation);
 }
-void Game3D::Render()
+void Game3D::Render3D()
 {
     m_Renderer3D->Submit(cubeGeometry, cubeTransform);
     m_Renderer3D->Submit(planeGeometry, planeTransform);
 }
-void Game3D::UIRender()
+void Game3D::RenderUI()
 {
 
 }
