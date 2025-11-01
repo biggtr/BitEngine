@@ -114,6 +114,7 @@ const Vec3 Vec3Cross(const Vec3& vec1, const Vec3& vec2);
 f32 Vec3LengthSquared(const Vec3& vec);
 f32 Vec3Distance(const Vec3& vec1, const Vec3& vec2);
 f32 Vec3DistanceSquared(const Vec3& vec1, const Vec3& vec2);
+BMath::Vec3 Lerp(BMath::Vec3 a, BMath::Vec3 b, f32 t);
 
 struct Vec4
 {
@@ -151,6 +152,7 @@ const Vec4 Vec4Cross(const Vec4& vec1, const Vec4& vec2);
 f32 Vec4LengthSquared(const Vec4& vec);
 f32 Vec4Distance(const Vec4& vec1, const Vec4& vec2);
 f32 Vec4DistanceSquared(const Vec4& vec1, const Vec4& vec2);
+BMath::Vec4 Lerp(BMath::Vec4 a, BMath::Vec4 b, f32 t);
 
 
 }

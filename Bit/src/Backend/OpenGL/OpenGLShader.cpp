@@ -62,7 +62,6 @@ void OpenGLShader::SetMat4(const std::string& uniformName, const BMath::Mat4& ma
     GLCall(glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat.Data));
 }
 
-
 int OpenGLShader::GetUniformLocation(const std::string& uniformName)
 {
     GLCall(int uniformLocation = glGetUniformLocation(m_ID, uniformName.c_str()));

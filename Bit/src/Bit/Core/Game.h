@@ -75,7 +75,7 @@ public:
         );
 
         m_PerspectiveProjection = BMath::Mat4Perspective(
-                DegToRad(45.0f), m_AppConfig.width / (f32)m_AppConfig.height, 0.1f, 100.0f);
+                BMath::DegToRad(45.0f), m_AppConfig.width / (f32)m_AppConfig.height, 0.1f, 100.0f);
         m_UIProjection = BMath::Mat4Ortho(
             0.0f,  m_AppConfig.width, 
             m_AppConfig.height, 0.0f,

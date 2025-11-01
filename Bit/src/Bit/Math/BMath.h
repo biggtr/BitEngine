@@ -1,6 +1,9 @@
 #pragma once 
 #include "Bit/Core/Defines.h"
 #include "math.h"
+
+namespace BMath 
+{
 #define B_PI 3.14159265358979323846f
 #define B_2PI (2.0f * B_PI)
 #define B_4PI (4.0f * B_PI)
@@ -31,5 +34,6 @@ inline f32 DegToRad(f32 degrees) { return degrees * B_DEG2RAD_MULTIPLIER; }
 inline f32 RadToDeg(f32 radians) { return radians * B_RAD2DEG_MULTIPLIER; }
 
 inline b8 NearlyEqual(f32 a, f32 b) { return fabs(a - b) < B_EPSILON; }
+inline f32 Lerp(f32 a, f32 b, f32 t) { return a + (b - a) * t; }
 
-
+}

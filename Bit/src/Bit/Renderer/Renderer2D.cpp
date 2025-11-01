@@ -293,9 +293,9 @@ void Renderer2D::Flush()
     }
 }
 
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, const BMath::Vec4& color)
 {
-    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, {0.0f, 0.0f, rotation});
     DrawQuad(transform, color);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
@@ -316,16 +316,15 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
     Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, SpriteComponent& sprite)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, SpriteComponent& sprite)
 {
-    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size);
+    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, {0.0f, 0.0f, rotation});
     DrawQuad(transform, sprite);
 }
 void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)
 {
     float textureIndex = 0.0f;
     const BMath::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
-    BIT_LOG_DEBUG("color alpha %.2f", color.w);
     float* Uvs = sprite.UVs;
     BMath::Vec2 texCoords[4] = { {Uvs[0], Uvs[1]}, {Uvs[2], Uvs[3]},{Uvs[4], Uvs[5]},{Uvs[6], Uvs[7]}};
     //Check if we already have the texture stored inside the texture slots to be bound in future

@@ -6,6 +6,7 @@
 class Dystopia : public BitEngine::Game
 {
 public:
+    BitEngine::Entity player;
     Dystopia()
     {
     }

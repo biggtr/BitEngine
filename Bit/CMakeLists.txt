@@ -10,7 +10,6 @@ set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_ASAN_RELEASE OFF CACHE BOOL "" FORCE)
 set(ASSIMP_UBSAN_RELEASE OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
-
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
@@ -56,6 +55,7 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Resources/MaterialManager.cpp
     src/Bit/Resources/GeometryManager.cpp
     
+    src/Bit/Particles/ParticleSystem.cpp
 
     src/Bit/Font/Font.cpp
 
@@ -110,6 +110,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src
 vendor/glad/include        
 ${CMAKE_BINARY_DIR}/assimp/include        
 vendor/stb_image
+vendor/glm
 )
 
 target_link_libraries(BitEngine PRIVATE glad assimp OpenGL::GL)

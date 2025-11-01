@@ -90,12 +90,12 @@ u32 BPhysics2DCreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass, 
     {
         case SHAPE_CIRCLE:
             body.Inertia = shape.BCircle.InertiaWithoutMass * body.Mass;
-            body.InvInertia = NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
+            body.InvInertia = BMath::NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
             break;
 
         case SHAPE_BOX:
             body.Inertia = shape.BBox.InertiaWithoutMass * body.Mass;
-            body.InvInertia = NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
+            body.InvInertia = BMath::NearlyEqual(body.Inertia, 0.0f) ? 0.0f : 1.0f / body.Inertia;
             break;
         case SHAPE_POLYGON:
           break;
@@ -132,7 +132,7 @@ void BPhysics2DAddForce(BBody& body, const BMath::Vec3& force)
 }
 void BPhysics2DApplyImpulse(BBody& body, const BMath::Vec3& impulse)
 {
-    if(NearlyEqual(body.Mass, 0.0f))
+    if(BMath::NearlyEqual(body.Mass, 0.0f))
         return;
 
     body.Velocity += impulse * body.InvMass;
@@ -140,7 +140,7 @@ void BPhysics2DApplyImpulse(BBody& body, const BMath::Vec3& impulse)
 BMath::Vec3 BPhysics2DGenerateDragForce(BBody& body, f32 dragValue)
 {
     //dragValue -> FluidDensity * CoeffDrag * CrossSurfaceArea = constant value
-    if(NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
+    if(BMath::NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
     {
         return BMath::Vec3(0.0f);
     }
@@ -152,7 +152,7 @@ BMath::Vec3 BPhysics2DGenerateDragForce(BBody& body, f32 dragValue)
 }
 BMath::Vec3 BPhysics2DGenerateFrictionForce(BBody& body, f32 frictionValue)
 {
-    if(NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
+    if(BMath::NearlyEqual(BMath::Vec3LengthSquared(body.Velocity), 0.0f))
         return {0.0f, 0.0f, 0.0f};
     BMath::Vec3 frictionDirection = Vec3Normalize(body.Velocity) * -1.0f;
     BMath::Vec3 frictionForce = frictionDirection * frictionValue;
@@ -163,7 +163,7 @@ BMath::Vec3 BPhysics2DGenerateGravitationalForce(BBody& a, BBody b, f32 G)
 {
     BMath::Vec3 d = b.Position - a.Position;
     f32 distanceSquared = BMath::Vec3LengthSquared(d);
-    if(NearlyEqual(distanceSquared, 0.0f))
+    if(BMath::NearlyEqual(distanceSquared, 0.0f))
     {
         return BMath::Vec3(0.0f);
     }
@@ -193,7 +193,7 @@ void BPhysics2DEnableWeight(BBody& body, f32 gravity)
 }
 void BPhysics2DLinearIntegrate(BBody& body, f32 deltaTime)
 {
-    if(NearlyEqual(body.InvMass, 0.0f))
+    if(BMath::NearlyEqual(body.InvMass, 0.0f))
     {
         return;
     }
@@ -213,7 +213,7 @@ void BPhysics2DAddTorque(BBody& body, f32 torque)
 }
 void BPhyiscs2DAngularIntegrate(BBody& body, f32 deltaTime)
 {
-    if(NearlyEqual(body.InvInertia, 0.0f))
+    if(BMath::NearlyEqual(body.InvInertia, 0.0f))
     {
         return;
     }

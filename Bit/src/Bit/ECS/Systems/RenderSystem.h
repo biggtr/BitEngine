@@ -55,13 +55,13 @@ public:
                 {
                     UpdateUVs(spriteComponent);
 
-                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, transformComponent.Rotation.z,
                             spriteComponent
                             );
                 }
                 else
                 {
-                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                    renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, transformComponent.Rotation.z,
                             spriteComponent.Color
                             );
                 }

@@ -92,7 +92,6 @@ BitEngine::Entity PoolGame::CreateTable(BitEngine::Entity* outPockets, f32 width
         pocket.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f);
         outPockets[i] = pocket;
     }
-
     return table;
 }
 void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
@@ -166,7 +165,7 @@ void PoolGame::CreateBalls(BitEngine::Entity* outEntities, u8 row)
     m_WhiteBall.AddComponent<BitEngine::Circle2DColliderComponent>(BALL_RADIUS);
     m_WhiteBall.AddComponent<BitEngine::Rigid2DBodyComponent>(BALL_MASS);
     outEntities[i] = m_WhiteBall;
-    m_ActiveBallCount = totalNumBalls + 1;  
+    m_ActiveBallCount = totalNumBalls + 1;
     BIT_LOG_INFO("Created %u balls total (%u colored + 1 white)", m_ActiveBallCount, totalNumBalls);
 }
 void PoolGame::Initialize()

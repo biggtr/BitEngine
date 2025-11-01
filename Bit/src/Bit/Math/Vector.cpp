@@ -1,4 +1,5 @@
 #include "Vector.h"
+#include "BMath.h"
 
 namespace BMath
 {
@@ -116,6 +117,10 @@ f32 Vec3DistanceSquared(const Vec3& vec1, const Vec3& vec2)
     return Vec3LengthSquared(d);
 }
 
+BMath::Vec3 Lerp(BMath::Vec3 a, BMath::Vec3 b, f32 t)
+{
+    return a + (b - a) * t;
+}
 
 Vec4& operator*=(Vec4& v, f32 scalar) 
 {
@@ -226,6 +231,11 @@ f32 Vec4DistanceSquared(const Vec4& vec1, const Vec4& vec2)
 {
     Vec4 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z, vec2.w - vec1.w};
     return Vec4LengthSquared(d);
+}
+
+BMath::Vec4 Lerp(BMath::Vec4 a, BMath::Vec4 b, f32 t)
+{
+    return a + (b - a) * t;
 }
 }
 

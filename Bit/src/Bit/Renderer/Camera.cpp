@@ -124,7 +124,7 @@ void Camera::AdjustYaw(f32 amount)
 void Camera::AdjustPitch(f32 amount)
 {
     m_EulerRotation.x += amount;
-    static const f32 limit = DegToRad(89);
+    static const f32 limit = BMath::DegToRad(89);
     m_EulerRotation.x = std::clamp(m_EulerRotation.x, -limit, limit);
     IsDirty = true;
 }

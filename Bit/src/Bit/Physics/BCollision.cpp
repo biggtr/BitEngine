@@ -262,7 +262,7 @@ b8 BPhysics2DIsPolygonPolygonColliding(BBody* a, BBody* b, BPhysics2DContact& co
 }
 void BPhysics2DResolvePenetration(BPhysics2DContact& contact)
 {
-    if(NearlyEqual(contact.a->InvMass, 0.0f) && NearlyEqual(contact.b->InvMass, 0.0f)) 
+    if(BMath::NearlyEqual(contact.a->InvMass, 0.0f) && BMath::NearlyEqual(contact.b->InvMass, 0.0f)) 
         return;
 
     f32 totalInvMass = contact.a->InvMass + contact.b->InvMass;

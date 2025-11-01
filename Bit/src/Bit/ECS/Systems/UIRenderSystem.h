@@ -30,7 +30,7 @@ public:
             if(spriteComponent.IsUI)
             {
                 UpdateUVs(spriteComponent);
-                renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,
+                renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,transformComponent.Rotation.z ,
                         spriteComponent
                         );
                 if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
