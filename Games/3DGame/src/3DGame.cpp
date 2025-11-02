@@ -17,9 +17,7 @@ void Game3D::Initialize()
     cubeGeometry = m_Renderer3D->GetGeometryManager()->GetGeometry("cube");
     planeGeometry= m_Renderer3D->GetGeometryManager()->CreatePlane("plane");
 
-    
     BitEngine::Material* material = m_Renderer3D->GetMaterialManager()->CreateMaterial("cubeMaterial", "PhongShader.glsl");
-
 
     m_AssetManager->AddTexture("texture", "assets/textures/icon_chest.png");
     material->SetTexture("u_texture", m_AssetManager->GetTexture("texture"));

@@ -10,7 +10,7 @@ class Renderer2D;
 
 struct ParticleSettings
 {
-
+    BMath::Vec3 Position;
     BMath::Vec3 Velocity;
     BMath::Vec3 VelocityVariation;
 
@@ -27,7 +27,6 @@ struct ParticleSettings
 
     f32 LifeTimeVariation;
     f32 LifeTime;
-    f32 TimeRemaining;
 };
 class ParticleSystem
 {

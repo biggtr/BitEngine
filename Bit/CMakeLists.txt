@@ -63,6 +63,8 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Math/Vector.cpp
     src/Bit/Math/Matrix.cpp
     src/Bit/Math/Transform.cpp
+    src/Bit/Math/Random.cpp
+
 
 
     src/Bit/UI/BitUI.cpp

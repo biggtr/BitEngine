@@ -57,6 +57,7 @@ struct RenderStats
 };
 static RenderStats Stats; 
 
+
 struct Renderer2DData
 {
     static const u32 MaxQuads = 10000;
@@ -237,6 +238,7 @@ void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath
 void Renderer2D::EndScene()
 {
     Flush();
+    BIT_LOG_DEBUG("Number of draw calls %d", Stats.DrawCalls);
 }
 void Renderer2D::StartBatch()
 {

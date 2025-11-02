@@ -2,6 +2,7 @@
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Physics/BPhysics.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Game.h"
@@ -18,11 +19,12 @@ Application::Application()
     m_EntityManager = new EntityManager();
     m_AssetManager = new AssetManager();
     m_CameraManager = new CameraManager();
-    
+    m_ParticleSystem = new ParticleSystem();
 }
 
 Application::~Application()
 {
+    delete m_ParticleSystem;
     delete m_CameraManager;
     delete m_AssetManager;
     delete m_EntityManager;
@@ -95,7 +97,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager}))
+    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;

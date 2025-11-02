@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Math/BMath.h"
+#include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Renderer/CameraManager.h"
 #include "Bit/Resources/AssetManager.h"
 #include "Bit/Core/Logger.h"
@@ -19,6 +20,8 @@
 #include "Bit/ECS/Systems/Physics2DSystem.h"
 #include "Bit/ECS/Systems/RenderSystem.h"
 #include "Bit/ECS/Systems/UIRenderSystem.h"
+#include "Bit/Resources/GeometryManager.h"
+#include "Bit/Resources/MaterialManager.h"
 namespace BitEngine 
 {
 struct GameSystems
@@ -28,6 +31,7 @@ struct GameSystems
     EntityManager* entityManager;
     AssetManager* assetManager;
     CameraManager* cameraManager;
+    ParticleSystem* particleSystem;
 };
 
 extern Game* CreateGame();
@@ -43,6 +47,9 @@ protected:
     EntityManager* m_ECS = nullptr;
     AssetManager* m_AssetManager = nullptr;
     CameraManager* m_CameraManager = nullptr;
+    ParticleSystem* m_ParticleSystem = nullptr;
+    MaterialManager* m_MaterialManager = nullptr;
+    GeometryManager* m_GeometryManager = nullptr;
     
 
     RenderSystem* m_RenderSystem;
@@ -91,6 +98,10 @@ public:
         m_ECS = services.entityManager;
         m_AssetManager = services.assetManager;
         m_CameraManager = services.cameraManager;
+        m_ParticleSystem = services.particleSystem;
+        m_MaterialManager = m_Renderer3D->GetMaterialManager();
+        m_GeometryManager = m_Renderer3D->GetGeometryManager();
+
         services.entityManager->AddSystem<RenderSystem>();
         services.entityManager->AddSystem<UIRenderSystem>();
         services.entityManager->AddSystem<Physics2DSystem>();
@@ -119,6 +130,7 @@ public:
         m_CollisionSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
         Update(deltaTime);
+        m_ParticleSystem->OnUpdate(deltaTime);
         return true;
     }
     virtual b8 OnRender() 
@@ -132,6 +144,7 @@ public:
 
         m_Renderer2D->BeginScene(viewProjection);
         Render2D();
+        m_ParticleSystem->OnRender(m_Renderer2D);
         m_RenderSystem->Update(*m_Renderer2D);
         m_Renderer2D->EndScene();
 

@@ -14,6 +14,7 @@ class EntityManager;
 class AssetManager;
 class CameraManager;
 class EventManager;
+class ParticleSystem;
 
 struct ApplicationConfig
 {
@@ -52,6 +53,7 @@ private:
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
+    ParticleSystem* m_ParticleSystem;
 
 
     u64 m_LoggerSystemMemReq;
