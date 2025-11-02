@@ -6,11 +6,11 @@
 BitEngine::Game* BitEngine::CreateGame()
 {
     ApplicationConfig appConfig;
-    appConfig.x = 0;
-    appConfig.y = 0;
-    appConfig.width = 1080;
-    appConfig.height = 1920;
-    appConfig.name = "Dystopia";
     Game* newGame = new Dystopia();
+    newGame->m_AppConfig.x = 0;
+    newGame->m_AppConfig.y = 0;
+    newGame->m_AppConfig.width = 1280;
+    newGame->m_AppConfig.height = 720;
+    newGame->m_AppConfig.name = "Dystopia";
     return newGame;
 }

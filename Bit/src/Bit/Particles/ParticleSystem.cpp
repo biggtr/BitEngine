@@ -38,20 +38,19 @@ void ParticleSystem::Emit(const ParticleSettings& particleSettings)
     particle.StartColor = particleSettings.StartColor;
     particle.LifeTime = particleSettings.LifeTime;
 
-    particle.Velocity.x += particleSettings.VelocityVariation.x * BMath::RandomRange(1.0f, 2.0f) * 0.5f; 
-    particle.Velocity.y += particleSettings.VelocityVariation.y * BMath::RandomRange(1.0f, 2.0f) * 0.5f; 
+    particle.Velocity.x += particleSettings.VelocityVariation.x * BMath::RandomRange(-1.0f, 1.0f); 
+    particle.Velocity.y += particleSettings.VelocityVariation.y * BMath::RandomRange(-1.0f, 1.0f); 
 
-    //TODO: Add Color variation
-    particle.StartColor += particleSettings.StartColor;
+    particle.StartColor = particleSettings.StartColor;
     particle.EndColor = particleSettings.EndColor;
 
-    particle.StartSize += particleSettings.SizeVariation * BMath::RandomRange(1.0f, 2.0f) * 0.5f;
+    particle.StartSize += particleSettings.SizeVariation * BMath::RandomRange(-1.0f, 1.0f);
     particle.EndSize = particleSettings.EndSize;
 
-    particle.StartRotation += particleSettings.StartRotation * BMath::RandomRange(1.0f, 2.0f) * 0.5f;
+    particle.StartRotation += particleSettings.RotationVariation * BMath::RandomRange(-1.0f, 1.0f);
     particle.EndRotation = particleSettings.EndRotation;
 
-    particle.LifeTime += particleSettings.LifeTimeVariation * BMath::RandomRange(1.0f, 2.0f) * 0.5f;
+    particle.LifeTime += particleSettings.LifeTimeVariation * BMath::RandomRange(-1.0f, 1.0f);
     particle.TimeRemaining = particle.LifeTime;
 
     m_ParticleIndex = --m_ParticleIndex % m_Particles.size();

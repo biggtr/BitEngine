@@ -162,6 +162,9 @@ public:
     }
     void OnWindowResize(u16 width, u16 height)
     {
+        m_AppConfig.width = width;
+        m_AppConfig.height = height;
+
         f32 aspectRatio = (f32)width / (f32)height;
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
@@ -171,7 +174,11 @@ public:
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
-        
+        m_PerspectiveProjection = BMath::Mat4Perspective(
+            BMath::DegToRad(45.0f), 
+            aspectRatio,
+            0.1f, 100.0f
+        );
         
         m_UIProjection = BMath::Mat4Ortho(
             0, width,
@@ -179,13 +186,16 @@ public:
             -1.0f, 1.0f
         );
         
-        m_Renderer2D->SetViewport(0, 0, width, height);
+        if(m_Renderer2D)
+        {
+            m_Renderer2D->SetViewport(0, 0, width, height);
+        }
     }
 
     BMath::Vec3 ScreenToWorldCoords(f32 screenX, f32 screenY) 
     {
-        f32 ndcX = (2.0f * screenX) / m_AppConfig.width - 1.0f;
-        f32 ndcY = 1.0f - (2.0f * screenY) / m_AppConfig.height; 
+        f32 ndcX = (2.0f * (screenX + 0.5f)) / m_AppConfig.width - 1.0f;
+        f32 ndcY = 1.0f - (2.0f * (screenY + 0.5f)) / m_AppConfig.height; 
         
         BMath::Mat4 viewProjection = m_OrthoProjection * ActiveWorldCamera->GetViewMatrix();
         BMath::Mat4 invViewProjection = BMath::Mat4Inverse(viewProjection);

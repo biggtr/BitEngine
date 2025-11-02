@@ -80,6 +80,7 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Failed To Startup the platform");
         return false;
     }
+    PlatformPumpMessages(&m_Platform);
     if(!m_Renderer3D->Initialize())
     {
         BIT_LOG_ERROR("Failed To Initialze Renderer3D");
@@ -102,7 +103,6 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
     }
-    m_GameInstance->OnWindowResize(m_Width, m_Height);
 
     m_IsRunning = true;
     m_IsSuspended = false;
@@ -166,10 +166,6 @@ b8 Application::OnEvent(u16 code, EventContext data)
         }
         case EVENT_CODE_WINDOW_RESIZED:
         {
-            if(!m_IsRunning)
-            {
-                break;
-            }
             u16 width = data.U16[0];
             u16 height = data.U16[1];
             BIT_LOG_DEBUG("Windows Resize -> width : %d, height : %d", width, height);

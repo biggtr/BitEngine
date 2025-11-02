@@ -18,10 +18,10 @@ class ParticleSystem;
 
 struct ApplicationConfig
 {
-    uint32_t x = 100;
-    uint32_t y = 100;
-    uint32_t width = 1280;
-    uint32_t height = 720;
+    uint32_t x;
+    uint32_t y;
+    uint32_t width ;
+    uint32_t height;
     const char* name = "BitEngine";
 };
 
