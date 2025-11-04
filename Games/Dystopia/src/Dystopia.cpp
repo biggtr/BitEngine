@@ -8,7 +8,6 @@
 #include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/ECS/Systems/System.h"
 
-
 void Dystopia::Initialize()
 {
     player = m_ECS->CreateEntity();
@@ -36,7 +35,10 @@ void Dystopia::Initialize()
     m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
     m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
 
+
+    m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
 }
+
 void Dystopia::RenderUI()
 {
 }
@@ -62,11 +64,25 @@ void Dystopia::Update(f32 deltaTime)
     }
     if(BitEngine::InputIsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
     {
-        m_Animation2DSystem->SetAnimation(player, "PlayerAttack");
         i32 x;
         i32 y;
         BitEngine::InputGetMousePosition(&x, &y);
         BMath::Vec3 position = ScreenToWorldCoords(x, y);
+
+        BitEngine::Entity dystopiaTileset = m_ECS->CreateEntity();
+        auto& transform = dystopiaTileset.AddComponent<BitEngine::TransformComponent>();
+        transform.Position = position;
+        transform.Scale = {32, 32, 0};
+        auto& sprite = dystopiaTileset.AddComponent<BitEngine::SpriteComponent>();
+        sprite.STexture = m_AssetManager->GetTexture("dystopiaTileset");
+        sprite.Width = 320;
+        sprite.Height = 320;
+        sprite.FrameWidth = 32;
+        sprite.FrameHeight = 32;
+        sprite.CurrentFrame = 92;
+        sprite.IsUI = false;
+
+        m_Animation2DSystem->SetAnimation(player, "PlayerAttack");
         BIT_LOG_DEBUG("position %.2f, %.2f", position.x, position.y);
         position.z = -5;
        
@@ -92,6 +108,7 @@ void Dystopia::Update(f32 deltaTime)
                 });
     }
     // m_Animation2DSystem->SetAnimation(player, "PlayerDamaged");
+
 
 }
 
