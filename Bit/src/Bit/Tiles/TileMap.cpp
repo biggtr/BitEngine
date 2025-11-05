@@ -5,11 +5,12 @@
 namespace BitEngine
 {
 
-TileMap::TileMap(u32 widthInTiles, u32 heightInTiles, TileSet* tileSet, const std::string& name)
+TileMap::TileMap(u32 widthInTiles, u32 heightInTiles, TileSet* tileSet, u32 tileSize, const std::string& name)
 {
     m_WidthInTiles = widthInTiles;
     m_HeightInTiles = heightInTiles;
     m_Tileset = tileSet;
+    m_TileSize = tileSize;
     m_Name = name;
     m_ActiveLayerIndex = 0;
 }

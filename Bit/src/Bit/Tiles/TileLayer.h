@@ -33,6 +33,10 @@ public:
     void Clear();
     void Resize(u32 newWidthInTiles, u32 newHeightInTiles);
     void SetLayerType(TILE_LAYER_TYPE tileLayerType) { m_TileLayerType = tileLayerType; }
+    TILE_LAYER_TYPE GetType() { return m_TileLayerType; }
+    b8 IsVisible(){ return m_IsVisible; }
+    u32 GetWidth() { return m_WidthInTiles; }
+    u32 GetHeight() { return m_HeightInTiles; }
 private:
     std::string m_Name;
     u32 m_WidthInTiles;

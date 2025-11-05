@@ -317,21 +317,20 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
     Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, SpriteComponent& sprite)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, Texture* sprite, f32* uvs)
 {
     BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, {0.0f, 0.0f, rotation});
-    DrawQuad(transform, sprite);
+    DrawQuad(transform, sprite, uvs);
 }
-void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)
+void Renderer2D::DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs)
 {
     float textureIndex = 0.0f;
     const BMath::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
-    float* Uvs = sprite.UVs;
-    BMath::Vec2 texCoords[4] = { {Uvs[0], Uvs[1]}, {Uvs[2], Uvs[3]},{Uvs[4], Uvs[5]},{Uvs[6], Uvs[7]}};
+    BMath::Vec2 texCoords[4] = { {uvs[0], uvs[1]}, {uvs[2], uvs[3]},{uvs[4], uvs[5]},{uvs[6], uvs[7]}};
     //Check if we already have the texture stored inside the texture slots to be bound in future
     for(u32 i = 0; i < s_RenderData.TextureSlotIndex; ++i)
     {
-        if(s_RenderData.TextureSlots[i]->GetID() == sprite.STexture->GetID())
+        if(s_RenderData.TextureSlots[i]->GetID() == sprite->GetID())
         {
             textureIndex = (f32)i;
             break;
@@ -341,7 +340,7 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, SpriteComponent& sprite)
     if(textureIndex == 0.0f)
     {
         textureIndex = s_RenderData.TextureSlotIndex;
-        s_RenderData.TextureSlots[s_RenderData.TextureSlotIndex] = sprite.STexture;
+        s_RenderData.TextureSlots[s_RenderData.TextureSlotIndex] = sprite;
         s_RenderData.TextureSlotIndex++;
     }
 

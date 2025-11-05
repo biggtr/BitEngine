@@ -56,7 +56,7 @@ public:
                     UpdateUVs(spriteComponent);
 
                     renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, transformComponent.Rotation.z,
-                            spriteComponent
+                            spriteComponent.STexture, spriteComponent.UVs
                             );
                 }
                 else

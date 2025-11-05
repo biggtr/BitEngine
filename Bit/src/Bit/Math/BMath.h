@@ -36,4 +36,10 @@ inline f32 RadToDeg(f32 radians) { return radians * B_RAD2DEG_MULTIPLIER; }
 inline b8 NearlyEqual(f32 a, f32 b) { return fabs(a - b) < B_EPSILON; }
 inline f32 Lerp(f32 a, f32 b, f32 t) { return a + (b - a) * t; }
 
+inline f32 Min(f32 a, f32 b) { return fmin(a, b); }
+inline f32 Max(f32 a, f32 b) { return fmax(a, b); }
+
+inline f32 Ceil(f32 a) { return ceil(a); }
+inline f32 Floor(f32 a) { return floor(a); }
+
 }

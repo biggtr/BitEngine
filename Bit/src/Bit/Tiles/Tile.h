@@ -25,6 +25,8 @@ public:
     Tile* GetTileAtPosition(f32 x, f32 y);
     void CalculateTileUVs(u32 tileID, f32* UVs);
     u32 GetTileCount() { return m_RowCount * m_ColomnCount; }
+    u32 GetTilesetWidth() { return m_TileSetWidth; }
+    u32 GetTilesetHeight() { return m_TileSetHeight; }
 private:
     std::vector<Tile> m_Tiles;
     Texture* m_Texture;
