@@ -1,6 +1,7 @@
 #include "TileRenderer.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Matrix.h"
+#include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileLayer.h"
 #include "Bit/Renderer/Camera.h"
@@ -63,6 +64,10 @@ void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, Camera* c
             
             BMath::Vec3 size(tileSize, tileSize, 1.0f);
 
+
+            f32 Uvs[8] = {};
+            tileSet->CalculateTileUVs(tileID, Uvs);
+            m_Renderer2D->DrawQuad(position, size, {}, tileSet->GetTexture(), Uvs);
         }
     }
 
