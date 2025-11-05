@@ -31,22 +31,22 @@ void TileSet::SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, 
     }
 }
 
-const Tile& TileSet::GetTile(u32 tileID)
+Tile* TileSet::GetTile(u32 tileID)
 {
     if(tileID >= m_Tiles.size())
     {
         BIT_LOG_ERROR("Tile id %d is not found in the tileset array ", tileID);
-        return m_Tiles[0];
+        return nullptr;
     }
-    return m_Tiles[tileID];
+    return &m_Tiles[tileID];
 }
-const Tile& TileSet::GetTileAtPosition(f32 x, f32 y)
+Tile* TileSet::GetTileAtPosition(f32 x, f32 y)
 {
     u32 tileX = x / m_TileWidth ;
     u32 tileY = y / m_TileHeight;
     u32 tileID = tileY * m_ColomnCount + tileX;
 
-    return m_Tiles[tileID];
+    return &m_Tiles[tileID];
 }
 void TileSet::CalculateTileUVs(u32 tileID, f32* UVs)
 {

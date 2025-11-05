@@ -21,8 +21,8 @@ public:
     ~TileSet() = default; 
     void SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, f32 tileWidth, f32 tileHeight); 
     Texture* GetTexture() { return m_Texture; }
-    const Tile& GetTile(u32 tileID);
-    const Tile& GetTileAtPosition(f32 x, f32 y);
+    Tile* GetTile(u32 tileID);
+    Tile* GetTileAtPosition(f32 x, f32 y);
     void CalculateTileUVs(u32 tileID, f32* UVs);
     u32 GetTileCount() { return m_RowCount * m_ColomnCount; }
 private:

@@ -32,6 +32,7 @@ public:
     void Fill(u32 tileID);
     void Clear();
     void Resize(u32 newWidthInTiles, u32 newHeightInTiles);
+    void SetLayerType(TILE_LAYER_TYPE tileLayerType) { m_TileLayerType = tileLayerType; }
 private:
     std::string m_Name;
     u32 m_WidthInTiles;
