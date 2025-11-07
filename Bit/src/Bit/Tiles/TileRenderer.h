@@ -1,11 +1,14 @@
 #pragma once
+#include "Bit/Tiles/TileEditorState.h"
+#include "Bit/Math/Vector.h"
 
-#include "Bit/Tiles/TileMap.h"
 namespace BitEngine
 {
 
 class Renderer2D;
 class Camera;
+class TileSet;
+class TileLayer;
 struct VisibleBounds;
 
 
@@ -16,6 +19,7 @@ public:
     ~TileRenderer();
 
     void Render(TileMap* tileMap, Camera* camera2D);
+    void RenderGrid(TileMap* tileMap, Camera* camera2D, const BMath::Vec4& gridColor, u32 tileSize);
 
 private:
     void RenderLayer(TileLayer* tileLayer, TileSet* tileSet, Camera* camera2D, u32 tileSize);

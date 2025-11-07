@@ -29,6 +29,8 @@ public:
     void SetTileOnActiveLayer(u32 x, u32 y, u32 tileID);
     u32 GetTileOnActiveLayer(u32 x, u32 y);
     u32 GetTileSize() { return m_TileSize; }
+    u32 GetWidth() { return m_WidthInTiles; }
+    u32 GetHeight() { return m_HeightInTiles; }
 private:
     std::string m_Name; 
     std::vector<TileLayer> m_TileLayers; 

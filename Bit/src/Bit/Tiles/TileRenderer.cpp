@@ -4,6 +4,7 @@
 #include "Bit/Renderer/Renderer2D.h"
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileLayer.h"
+#include "Bit/Tiles/TileMap.h"
 #include "Bit/Renderer/Camera.h"
 
 
@@ -37,6 +38,39 @@ void TileRenderer::Render(TileMap* tileMap, Camera* camera2D)
             continue;
 
         RenderLayer(layer, tileSet, camera2D, tileMap->GetTileSize());
+    }
+}
+
+void TileRenderer::RenderGrid(TileMap* tileMap, Camera* camera2D, const BMath::Vec4& gridColor, u32 tileSize)
+{
+    VisibleBounds bounds = CalculateVisibleBounds(camera2D, tileMap->GetWidth(), tileMap->GetHeight(), tileSize);
+
+    //Drawing Vertical line
+    for(i32 x = bounds.MinTileX; x <= bounds.MaxTileX + 1; ++x)
+    {
+        f32 worldX = x * tileSize;
+        f32 startY = bounds.MinTileY * tileSize;
+        f32 endY   = (bounds.MaxTileY + 1) * tileSize;
+
+        m_Renderer2D->DrawLine(
+                BMath::Vec3(worldX, startY, -4.5f),
+                BMath::Vec3(worldX, endY, -4.5f),
+                gridColor
+            );
+    }
+
+    //Drawing Horizontal line
+    for(i32 y = bounds.MinTileY; y <= bounds.MaxTileY + 1; ++y)
+    {
+        f32 worldY = y * tileSize;
+        f32 startX = bounds.MinTileX * tileSize;
+        f32 endX   = (bounds.MaxTileX + 1) * tileSize;
+
+        m_Renderer2D->DrawLine(
+                BMath::Vec3(worldY, startX, -4.5f),
+                BMath::Vec3(worldY, endX, -4.5f),
+                gridColor
+            );
     }
 }
 
