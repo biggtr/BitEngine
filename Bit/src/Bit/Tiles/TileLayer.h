@@ -34,6 +34,7 @@ public:
     void Resize(u32 newWidthInTiles, u32 newHeightInTiles);
     void SetLayerType(TILE_LAYER_TYPE tileLayerType) { m_TileLayerType = tileLayerType; }
     TILE_LAYER_TYPE GetType() { return m_TileLayerType; }
+    void SetVisible(b8 visible){ m_IsVisible = visible; }
     b8 IsVisible(){ return m_IsVisible; }
     u32 GetWidth() { return m_WidthInTiles; }
     u32 GetHeight() { return m_HeightInTiles; }

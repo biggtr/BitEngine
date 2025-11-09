@@ -1,6 +1,7 @@
 #pragma once 
 #include "Application.h"
 #include "Bit/Core/Input.h"
+#include "Bit/Editor/TileEditor.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Renderer/CameraManager.h"
@@ -22,6 +23,7 @@
 #include "Bit/ECS/Systems/UIRenderSystem.h"
 #include "Bit/Resources/GeometryManager.h"
 #include "Bit/Resources/MaterialManager.h"
+#include "Bit/Tiles/TileMap.h"
 namespace BitEngine 
 {
 struct GameSystems
@@ -38,8 +40,12 @@ extern Game* CreateGame();
 class Game
 {
 public:
-    Game(){};
-    virtual ~Game() = default;
+    Game(){}
+    virtual ~Game()
+    {
+        if(m_TileEditor)
+            delete m_TileEditor;
+    }
     ApplicationConfig m_AppConfig;
 protected:
     Renderer2D* m_Renderer2D = nullptr;
@@ -58,6 +64,7 @@ protected:
     CollisionSystem* m_CollisionSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
+    TileEditor* m_TileEditor;
 
     class Camera* ActiveWorldCamera;
 
@@ -120,6 +127,8 @@ public:
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
         ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
+        m_TileEditor = new TileEditor(m_Renderer2D);
+
         Initialize();
         SetupInput();
         return true;
@@ -129,6 +138,10 @@ public:
         m_Animation2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
+        if (m_TileEditor)
+        {
+            m_TileEditor->Update(deltaTime, ActiveWorldCamera);
+        }
         Update(deltaTime);
         m_ParticleSystem->OnUpdate(deltaTime);
         return true;
@@ -143,6 +156,10 @@ public:
         BMath::Mat4 viewProjection = ProjectionMatrix * viewMatrix;
 
         m_Renderer2D->BeginScene(viewProjection);
+        if (m_TileEditor)
+        {
+            m_TileEditor->Render(m_Renderer2D, ActiveWorldCamera);
+        }
         Render2D();
         m_ParticleSystem->OnRender(m_Renderer2D);
         m_RenderSystem->Update(*m_Renderer2D);
@@ -189,6 +206,10 @@ public:
         if(m_Renderer2D)
         {
             m_Renderer2D->SetViewport(0, 0, width, height);
+        }
+        if(m_TileEditor)
+        {
+            m_TileEditor->SetScreenSize(width, height);
         }
     }
 

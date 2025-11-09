@@ -16,13 +16,13 @@ class TileEditorState
 {
 
 public:
-    TileEditorState();
-    ~TileEditorState();
+    TileEditorState() = default;
+    ~TileEditorState() = default;
 
-    void SetTileMap(TileMap* tilemap);
-    void SetSelectedTile(u32 tileID);
-    void SetActiveTool(TileEditorTool tool);
-    void SetActiveLayer(u32 layerIndex);
+    void SetTileMap(TileMap* tilemap) { m_ActiveTileMap = tilemap; }
+    void SetSelectedTile(u32 tileID) { m_SelectedTile = tileID; }
+    void SetActiveTool(TileEditorTool tool) { m_ActiveTool = tool; }
+    void SetActiveLayer(u32 layerIndex) { m_ActiveLayer = layerIndex; }
 
     TileMap* GetTileMap() { return m_ActiveTileMap; }
     u32 GetSelectedTile() { return m_SelectedTile; }
