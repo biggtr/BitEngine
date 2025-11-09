@@ -54,7 +54,15 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Resources/ShaderManager.cpp
     src/Bit/Resources/MaterialManager.cpp
     src/Bit/Resources/GeometryManager.cpp
-    
+
+
+    src/Bit/Editor/TileEditor.cpp
+
+    src/Bit/Tiles/Tile.cpp
+    src/Bit/Tiles/TileLayer.cpp
+    src/Bit/Tiles/TileMap.cpp
+    src/Bit/Tiles/TileRenderer.cpp
+
     src/Bit/Particles/ParticleSystem.cpp
 
     src/Bit/Font/Font.cpp

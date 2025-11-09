@@ -35,8 +35,14 @@ void Dystopia::Initialize()
     m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
     m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
 
-
     m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
+
+    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tileset.png");
+    BitEngine::TileSet* tileset = m_TileEditor->CreateTileSet(tilesetTexture, 320.0f, 320.0f, 32, 32);
+            
+
+    m_TileEditor->CreateTileMap("Level_1", 32, 32, 32);
+
 }
 
 void Dystopia::RenderUI()
@@ -62,53 +68,6 @@ void Dystopia::Update(f32 deltaTime)
         playertransform.Scale.x *= playertransform.Scale.x > 0 ? -1 : 1;
         m_Animation2DSystem->SetAnimation(player, "PlayerRun");
     }
-    if(BitEngine::InputIsMouseButtonDown(BitEngine::MOUSE_BUTTON_LEFT))
-    {
-        i32 x;
-        i32 y;
-        BitEngine::InputGetMousePosition(&x, &y);
-        BMath::Vec3 position = ScreenToWorldCoords(x, y);
-
-        BitEngine::Entity dystopiaTileset = m_ECS->CreateEntity();
-        auto& transform = dystopiaTileset.AddComponent<BitEngine::TransformComponent>();
-        transform.Position = position;
-        transform.Scale = {32, 32, 0};
-        auto& sprite = dystopiaTileset.AddComponent<BitEngine::SpriteComponent>();
-        sprite.STexture = m_AssetManager->GetTexture("dystopiaTileset");
-        sprite.Width = 320;
-        sprite.Height = 320;
-        sprite.FrameWidth = 32;
-        sprite.FrameHeight = 32;
-        sprite.CurrentFrame = 92;
-        sprite.IsUI = false;
-
-        m_Animation2DSystem->SetAnimation(player, "PlayerAttack");
-        BIT_LOG_DEBUG("position %.2f, %.2f", position.x, position.y);
-        position.z = -5;
-       
-        m_ParticleSystem->Emit({
-                .Position = position,
-                .Velocity = {5.0f, 4.0f, 0.0f},
-                .VelocityVariation = {0.8f, 1.0f, 0.0f},
-
-            
-                .StartColor = {0.0f, 1.0f, 0.0f, 1.0},
-                .EndColor = {0.0f, 0.4f, 1.0f, 1.0},
-
-                .SizeVariation = 0.4f,
-                .StartSize = 2.0f,
-                .EndSize = 0.1,
-
-                .RotationVariation = 8.2f,
-                .StartRotation = 2.0f,
-                .EndRotation = 0.5f,
-
-                .LifeTimeVariation = 4.0f,
-                .LifeTime = 2.0f,
-                });
-    }
-    // m_Animation2DSystem->SetAnimation(player, "PlayerDamaged");
-
 
 }
 

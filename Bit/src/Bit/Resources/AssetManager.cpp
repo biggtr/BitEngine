@@ -10,19 +10,19 @@ AssetManager::AssetManager()
     :   m_Textures()
     {}
 
-void AssetManager::AddTexture(const char *assetID, const char *filePath)
+Texture* AssetManager::AddTexture(const char *assetID, const char *filePath)
 {
     Texture* texture = Texture::Create(filePath);
 
     if(m_Textures.contains(assetID))
     {
         BIT_LOG_DEBUG("Asset with ID : %s is already there", assetID);
-        return;
+        return nullptr;
     }
 
     m_Textures[assetID] = texture;
     BIT_LOG_INFO("Texture Asset With ID: %s Added..", assetID);
-
+    return m_Textures.at(assetID);
 }
 Texture* AssetManager::GetTexture(const char *assetID)
 {

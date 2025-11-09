@@ -47,7 +47,7 @@ void TileEditor::Initialize()
     BIT_LOG_INFO("TileEditor initialized");
 }
 
-TileSet* TileEditor::CreateTileSet()
+TileSet* TileEditor::CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight)
 {
     if (m_TileSet)
     {
@@ -57,6 +57,7 @@ TileSet* TileEditor::CreateTileSet()
     
     m_TileSet = new TileSet();
     BIT_LOG_INFO("Created new tileset");
+    SetTileSetTexture(texture, tilesetWidth, tilesetHeight, tileWidth, tileHeight);
     return m_TileSet;
 }
 
@@ -88,26 +89,33 @@ TileMap* TileEditor::CreateTileMap(const std::string& name, u32 widthInTiles, u3
     }
     
     m_TileMap = new TileMap(widthInTiles, heightInTiles, m_TileSet, tileSize, name);
-    
+    m_EditorState.SetTileMap(m_TileMap);
     BIT_LOG_INFO("Created new tilemap: %s (%dx%d tiles, tile size: %d)", 
                  name.c_str(), widthInTiles, heightInTiles, tileSize);
 
     return m_TileMap;
 }
-
 void TileEditor::ClearTileMap()
 {
     if (!m_TileMap)
         return;
     
+    i32 mapWidth = (i32)m_TileMap->GetWidth();
+    i32 mapHeight = (i32)m_TileMap->GetHeight();
+
+    i32 minX = -mapWidth / 2;
+    i32 minY = -mapHeight / 2;
+    i32 maxX = minX + mapWidth;
+    i32 maxY = minY + mapHeight;
+
     for (u32 i = 0; i < m_TileMap->GetLayerCount(); ++i)
     {
         TileLayer* layer = m_TileMap->GetLayer(i);
         if (layer)
         {
-            for (u32 y = 0; y < m_TileMap->GetHeight(); ++y)
+            for (i32 y = minY; y < maxY; ++y)
             {
-                for (u32 x = 0; x < m_TileMap->GetWidth(); ++x)
+                for (i32 x = minX; x < maxX; ++x)
                 {
                     layer->SetTile(x, y, 0);
                 }
@@ -117,6 +125,7 @@ void TileEditor::ClearTileMap()
     
     BIT_LOG_INFO("Cleared tilemap");
 }
+
 
 void TileEditor::AddLayer(const std::string& name, TILE_LAYER_TYPE type)
 {
@@ -195,9 +204,12 @@ u32 TileEditor::GetLayerCount()
     return m_TileMap->GetLayerCount();
 }
 
-void TileEditor::Update(f32 deltaTime, Camera* camera)
-
+void TileEditor::Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection)
 {
+    if (!InputWasKeyDown(KEY_E) && InputIsKeyDown(KEY_E))
+    {
+        ToggleEditorMode();
+    }
     if (!m_EditorState.IsEditorMode())
         return;
     
@@ -205,30 +217,30 @@ void TileEditor::Update(f32 deltaTime, Camera* camera)
         return;
     
     HandleKeyboardShortcuts();
-    HandleInput(camera);
+    HandleInput(camera, viewProjection);
     
     if (m_IsPainting || m_IsErasing)
     {
         HandleToolInput(camera);
     }
 }
-void TileEditor::Render(Renderer2D* renderer, Camera* camera)
+void TileEditor::Render(Renderer2D* renderer, const BMath::Mat4& viewProjection)
 {
     TileMap* tilemap = m_EditorState.GetTileMap();
     if (!tilemap)
         return;
     
-    m_TileRenderer.Render(tilemap, camera);
+    m_TileRenderer.Render(tilemap, viewProjection);
     
     if (m_EditorState.ShowGrid())
     {
-        BMath::Vec4 gridColor(0.5f, 0.5f, 0.5f, 0.3f);
-        m_TileRenderer.RenderGrid(tilemap, camera, gridColor, tilemap->GetTileSize());
+        BMath::Vec4 gridColor(1.0f, 1.0f, 1.0f, 1.0f);
+        m_TileRenderer.RenderGrid(tilemap, viewProjection, gridColor, tilemap->GetTileSize());
     }
     
     if (m_EditorState.IsEditorMode())
     {
-        RenderCursor(renderer, camera);
+        RenderCursor(renderer, viewProjection);
     }
 }
 
@@ -269,9 +281,7 @@ void TileEditor::ToggleGrid()
     m_EditorState.ToggleGrid();
     BIT_LOG_DEBUG("Grid: %s", m_EditorState.ShowGrid() ? "ON" : "OFF");
 }
-
-
-void TileEditor::HandleInput(Camera* camera)
+void TileEditor::HandleInput(Camera* camera, const BMath::Mat4& viewProjection)
 {
     i32 mouseX, mouseY;
     InputGetMousePosition(&mouseX, &mouseY);
@@ -280,8 +290,16 @@ void TileEditor::HandleInput(Camera* camera)
     if (!tilemap)
         return;
     
-    BMath::Mat4 invVP = BMath::Mat4Inverse(camera->GetViewMatrix());
+    if (m_ScreenWidth == 0 || m_ScreenHeight == 0)
+    {
+        BIT_LOG_ERROR("Screen dimensions not set");
+        return;
+    }
     
+    mouseX = BMath::Clamp(mouseX, 0, (i32)m_ScreenWidth - 1);
+    mouseY = BMath::Clamp(mouseY, 0, (i32)m_ScreenHeight - 1);
+    
+    const BMath::Mat4 invVP = BMath::Mat4Inverse(viewProjection);
     
     f32 ndcX = (2.0f * mouseX) / m_ScreenWidth - 1.0f;
     f32 ndcY = 1.0f - (2.0f * mouseY) / m_ScreenHeight;
@@ -289,8 +307,10 @@ void TileEditor::HandleInput(Camera* camera)
     BMath::Vec4 worldPos = invVP * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);
     
     u32 tileSize = tilemap->GetTileSize();
+
     m_MouseTilePos.x = BMath::Floor(worldPos.x / (f32)tileSize);
     m_MouseTilePos.y = BMath::Floor(worldPos.y / (f32)tileSize);
+    
     
     if (InputIsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
@@ -313,6 +333,136 @@ void TileEditor::HandleInput(Camera* camera)
         m_IsErasing = false;
     }
 }
+
+void TileEditor::RenderCursor(Renderer2D* renderer, const BMath::Mat4& viewProjection)
+{
+    TileMap* tilemap = m_EditorState.GetTileMap();
+    if (!tilemap)
+        return;
+    
+    i32 tileX = (i32)m_MouseTilePos.x;
+    i32 tileY = (i32)m_MouseTilePos.y;
+    
+    u32 tileSize = tilemap->GetTileSize();
+    i32 mapWidth = (i32)tilemap->GetWidth();
+    i32 mapHeight = (i32)tilemap->GetHeight();
+    
+    i32 minX = -(mapWidth / 2);
+    i32 minY = -(mapHeight / 2);
+    i32 maxX = minX + mapWidth;
+    i32 maxY = minY + mapHeight;
+    
+    if (tileX < minX - 1 || tileX >= maxX + 1 || 
+        tileY < minY - 1 || tileY >= maxY + 1)
+    {
+        return;
+    }
+    
+    f32 worldX = (f32)tileX * (f32)tileSize + (f32)tileSize * 0.5f;
+    f32 worldY = (f32)tileY * (f32)tileSize + (f32)tileSize * 0.5f;
+    
+    BMath::Vec3 position(worldX, worldY, 0.2f);
+    BMath::Vec3 size((f32)tileSize, (f32)tileSize, 1.0f);
+    
+    
+    BMath::Vec4 cursorColor;
+    switch (m_EditorState.GetActiveTool())
+    {
+        case TileEditorTool::PAINT:
+            cursorColor = BMath::Vec4(0.0f, 1.0f, 0.0f, 0.3f); 
+            break;
+        case TileEditorTool::ERASE:
+            cursorColor = BMath::Vec4(1.0f, 0.0f, 0.0f, 0.3f); 
+            break;
+        case TileEditorTool::FILL:
+            cursorColor = BMath::Vec4(0.0f, 0.5f, 1.0f, 0.3f); 
+            break;
+        default:
+            cursorColor = BMath::Vec4(1.0f, 1.0f, 1.0f, 0.3f); 
+            break;
+    }
+    
+    renderer->DrawRect(position, size, cursorColor);
+    
+    BMath::Vec4 borderColor(cursorColor.x, cursorColor.y, cursorColor.z, 0.8f);
+    f32 halfSize = (f32)tileSize * 0.5f;
+    f32 borderZ = 0.3f;
+    
+    renderer->DrawLine(
+        BMath::Vec3(worldX - halfSize, worldY + halfSize, borderZ),
+        BMath::Vec3(worldX + halfSize, worldY + halfSize, borderZ),
+        borderColor
+    );
+    
+    renderer->DrawLine(
+        BMath::Vec3(worldX - halfSize, worldY - halfSize, borderZ),
+        BMath::Vec3(worldX + halfSize, worldY - halfSize, borderZ),
+        borderColor
+    );
+    
+    renderer->DrawLine(
+        BMath::Vec3(worldX - halfSize, worldY - halfSize, borderZ),
+        BMath::Vec3(worldX - halfSize, worldY + halfSize, borderZ),
+        borderColor
+    );
+    
+    renderer->DrawLine(
+        BMath::Vec3(worldX + halfSize, worldY - halfSize, borderZ),
+        BMath::Vec3(worldX + halfSize, worldY + halfSize, borderZ),
+        borderColor
+    );
+}
+
+void TileEditor::PaintTile(i32 tileX, i32 tileY)
+{
+    TileMap* tilemap = m_EditorState.GetTileMap();
+    if (!tilemap)
+        return;
+    
+    u32 layerIndex = m_EditorState.GetActiveLayer();
+    if (layerIndex >= tilemap->GetLayerCount())
+        return;
+    
+    TileLayer* layer = tilemap->GetLayer(layerIndex);
+    if (!layer)
+        return;
+    
+    i32 mapWidth = (i32)tilemap->GetWidth();
+    i32 mapHeight = (i32)tilemap->GetHeight();
+    i32 localX = tileX + (mapWidth / 2);
+    i32 localY = tileY + (mapHeight / 2);
+    
+    if (localX < 0 || localX >= mapWidth || localY < 0 || localY >= mapHeight)
+        return;
+    
+    u32 selectedTile = m_EditorState.GetSelectedTile();
+    layer->SetTile(localX, localY, selectedTile);
+}
+
+void TileEditor::EraseTile(i32 tileX, i32 tileY)
+{
+    TileMap* tilemap = m_EditorState.GetTileMap();
+    if (!tilemap)
+        return;
+    
+    u32 layerIndex = m_EditorState.GetActiveLayer();
+    if (layerIndex >= tilemap->GetLayerCount())
+        return;
+    
+    TileLayer* layer = tilemap->GetLayer(layerIndex);
+    if (!layer)
+        return;
+    
+    i32 mapWidth = (i32)tilemap->GetWidth();
+    i32 mapHeight = (i32)tilemap->GetHeight();
+    i32 localX = tileX + (mapWidth / 2);
+    i32 localY = tileY + (mapHeight / 2);
+    
+    if (localX < 0 || localX >= mapWidth || localY < 0 || localY >= mapHeight)
+        return;
+    
+    layer->SetTile(localX, localY, 0);
+}
 void TileEditor::HandleToolInput(Camera* camera)
 {
     i32 tileX = (i32)m_MouseTilePos.x;
@@ -322,11 +472,6 @@ void TileEditor::HandleToolInput(Camera* camera)
     if (!tilemap)
         return;
     
-    if (tileX < 0 || tileX >= (i32)tilemap->GetWidth() ||
-        tileY < 0 || tileY >= (i32)tilemap->GetHeight())
-    {
-        return;
-    }
     
     TileEditorTool tool = m_EditorState.GetActiveTool();
     
@@ -376,6 +521,7 @@ void TileEditor::HandleToolInput(Camera* camera)
 }
 void TileEditor::HandleKeyboardShortcuts()
 {
+
     if (!InputWasKeyDown(KEY_1) && InputIsKeyDown(KEY_1))
     {
         SetTool(TileEditorTool::PAINT);
@@ -394,10 +540,6 @@ void TileEditor::HandleKeyboardShortcuts()
         ToggleGrid();
     }
     
-    if (!InputWasKeyDown(KEY_E) && InputIsKeyDown(KEY_E))
-    {
-        ToggleEditorMode();
-    }
     
     if (InputIsKeyDown(KEY_LSHIFT) || InputIsKeyDown(KEY_RSHIFT))
     {
@@ -421,41 +563,6 @@ void TileEditor::HandleKeyboardShortcuts()
     }
 }
 
-void TileEditor::PaintTile(i32 tileX, i32 tileY)
-{
-    TileMap* tilemap = m_EditorState.GetTileMap();
-    if (!tilemap)
-        return;
-    
-    u32 layerIndex = m_EditorState.GetActiveLayer();
-    if (layerIndex >= tilemap->GetLayerCount())
-        return;
-    
-    TileLayer* layer = tilemap->GetLayer(layerIndex);
-    if (!layer)
-        return;
-    
-    u32 selectedTile = m_EditorState.GetSelectedTile();
-    layer->SetTile(tileX, tileY, selectedTile);
-}
-
-void TileEditor::EraseTile(i32 tileX, i32 tileY)
-{
-    TileMap* tilemap = m_EditorState.GetTileMap();
-    if (!tilemap)
-        return;
-    
-    u32 layerIndex = m_EditorState.GetActiveLayer();
-    if (layerIndex >= tilemap->GetLayerCount())
-        return;
-    
-    TileLayer* layer = tilemap->GetLayer(layerIndex);
-    if (!layer)
-        return;
-    
-    layer->SetTile(tileX, tileY, 0);
-}
-
 void TileEditor::FloodFill(i32 startX, i32 startY)
 {
 }
@@ -464,77 +571,6 @@ void TileEditor::SetScreenSize(u32 screenWidth, u32 screenHeight)
 {
     m_ScreenWidth = screenWidth;
     m_ScreenHeight = screenHeight;
-}
-
-void TileEditor::RenderCursor(Renderer2D* renderer, Camera* camera)
-{
-    TileMap* tilemap = m_EditorState.GetTileMap();
-    if (!tilemap)
-        return;
-    
-    i32 tileX = (i32)m_MouseTilePos.x;
-    i32 tileY = (i32)m_MouseTilePos.y;
-    
-    if (tileX < 0 || tileX >= (i32)tilemap->GetWidth() ||
-        tileY < 0 || tileY >= (i32)tilemap->GetHeight())
-    {
-        return;
-    }
-    
-    u32 tileSize = tilemap->GetTileSize();
-    
-    BMath::Vec3 position;
-    position.x = tileX * tileSize + tileSize * 0.5f;
-    position.y = tileY * tileSize + tileSize * 0.5f;
-    position.z = -4.0f;
-    
-    BMath::Vec3 size((f32)tileSize, (f32)tileSize, 1.0f);
-    
-    BMath::Vec4 cursorColor;
-    switch (m_EditorState.GetActiveTool())
-    {
-        case TileEditorTool::PAINT:
-            cursorColor = BMath::Vec4(0.0f, 1.0f, 0.0f, 0.3f); 
-            break;
-        case TileEditorTool::ERASE:
-            cursorColor = BMath::Vec4(1.0f, 0.0f, 0.0f, 0.3f); 
-            break;
-        case TileEditorTool::FILL:
-            cursorColor = BMath::Vec4(0.0f, 0.5f, 1.0f, 0.3f); 
-            break;
-        default:
-            cursorColor = BMath::Vec4(1.0f, 1.0f, 1.0f, 0.3f); 
-            break;
-    }
-    
-    renderer->DrawRect(position, size, cursorColor);
-    
-    BMath::Vec4 borderColor(cursorColor.x, cursorColor.y, cursorColor.z, 0.8f);
-    f32 halfSize = tileSize * 0.5f;
-    
-    renderer->DrawLine(
-        BMath::Vec3(position.x - halfSize, position.y + halfSize, position.z - 0.1f),
-        BMath::Vec3(position.x + halfSize, position.y + halfSize, position.z - 0.1f),
-        borderColor
-    );
-    
-    renderer->DrawLine(
-        BMath::Vec3(position.x - halfSize, position.y - halfSize, position.z - 0.1f),
-        BMath::Vec3(position.x + halfSize, position.y - halfSize, position.z - 0.1f),
-        borderColor
-    );
-    
-    renderer->DrawLine(
-        BMath::Vec3(position.x - halfSize, position.y - halfSize, position.z - 0.1f),
-        BMath::Vec3(position.x - halfSize, position.y + halfSize, position.z - 0.1f),
-        borderColor
-    );
-    
-    renderer->DrawLine(
-        BMath::Vec3(position.x + halfSize, position.y - halfSize, position.z - 0.1f),
-        BMath::Vec3(position.x + halfSize, position.y + halfSize, position.z - 0.1f),
-        borderColor
-    );
 }
 
 }

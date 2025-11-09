@@ -7,7 +7,6 @@
 #include "Bit/Tiles/TileMap.h"
 #include "Bit/Renderer/Camera.h"
 
-
 namespace BitEngine
 {
 
@@ -21,12 +20,13 @@ TileRenderer::TileRenderer(Renderer2D* renderer2D)
 {
     m_Renderer2D = renderer2D;
 }
+
 TileRenderer::~TileRenderer()
 {
     m_Renderer2D = 0;
 }
 
-void TileRenderer::Render(TileMap* tileMap, Camera* camera2D)
+void TileRenderer::Render(TileMap* tileMap, const BMath::Mat4& viewProjection)
 {
     for(u32 i = 0; i < tileMap->GetLayerCount(); ++i)
     {
@@ -37,50 +37,59 @@ void TileRenderer::Render(TileMap* tileMap, Camera* camera2D)
         if(layer->GetType() == TILE_LAYER_TYPE::COLLISION)
             continue;
 
-        RenderLayer(layer, tileSet, camera2D, tileMap->GetTileSize());
+        RenderLayer(layer, tileSet, viewProjection, tileMap->GetTileSize());
     }
 }
-
-void TileRenderer::RenderGrid(TileMap* tileMap, Camera* camera2D, const BMath::Vec4& gridColor, u32 tileSize)
+void TileRenderer::RenderGrid(TileMap* tileMap, const BMath::Mat4& viewProjection, const BMath::Vec4& gridColor, u32 tileSize)
 {
-    VisibleBounds bounds = CalculateVisibleBounds(camera2D, tileMap->GetWidth(), tileMap->GetHeight(), tileSize);
+    BMath::Mat4 invVP = BMath::Mat4Inverse(viewProjection);
+    
+    BMath::Vec4 topLeft = invVP * BMath::Vec4(-1.0f, 1.0f, 0.0f, 1.0f);
+    BMath::Vec4 topRight = invVP * BMath::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    BMath::Vec4 botRight = invVP * BMath::Vec4(1.0f, -1.0f, 0.0f, 1.0f);
+    BMath::Vec4 botLeft = invVP * BMath::Vec4(-1.0f, -1.0f, 0.0f, 1.0f);
 
-    //Drawing Vertical line
-    for(i32 x = bounds.MinTileX; x <= bounds.MaxTileX + 1; ++x)
+    f32 viewLeft = BMath::Min(topLeft.x, botLeft.x);
+    f32 viewRight = BMath::Max(topRight.x, botRight.x);
+    f32 viewTop = BMath::Max(topLeft.y, topRight.y);
+    f32 viewBottom = BMath::Min(botLeft.y, botRight.y);
+
+    f32 gridZ = 0.1f; 
+    f32 fTileSize = (f32)tileSize;
+
+    f32 startX = BMath::Floor(viewLeft / fTileSize) * fTileSize;
+    f32 endX = BMath::Ceil(viewRight / fTileSize) * fTileSize;
+    f32 startY = BMath::Floor(viewBottom / fTileSize) * fTileSize;
+    f32 endY = BMath::Ceil(viewTop / fTileSize) * fTileSize;
+
+    for(f32 x = startX; x <= endX; x += fTileSize)
     {
-        f32 worldX = x * tileSize;
-        f32 startY = bounds.MinTileY * tileSize;
-        f32 endY   = (bounds.MaxTileY + 1) * tileSize;
-
         m_Renderer2D->DrawLine(
-                BMath::Vec3(worldX, startY, -4.5f),
-                BMath::Vec3(worldX, endY, -4.5f),
-                gridColor
-            );
+            BMath::Vec3(x, viewBottom, gridZ),
+            BMath::Vec3(x, viewTop, gridZ),   
+            gridColor
+        );
     }
-
-    //Drawing Horizontal line
-    for(i32 y = bounds.MinTileY; y <= bounds.MaxTileY + 1; ++y)
+    
+    for(f32 y = startY; y <= endY; y += fTileSize)
     {
-        f32 worldY = y * tileSize;
-        f32 startX = bounds.MinTileX * tileSize;
-        f32 endX   = (bounds.MaxTileX + 1) * tileSize;
-
         m_Renderer2D->DrawLine(
-                BMath::Vec3(worldY, startX, -4.5f),
-                BMath::Vec3(worldY, endX, -4.5f),
-                gridColor
-            );
+            BMath::Vec3(viewLeft, y, gridZ),  
+            BMath::Vec3(viewRight, y, gridZ), 
+            gridColor
+        );
     }
 }
-
-void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, Camera* camera2D, u32 tileSize)
+void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, const BMath::Mat4& viewProjection, u32 tileSize)
 {
-    VisibleBounds bounds = CalculateVisibleBounds(camera2D, tileLayer->GetWidth(), tileLayer->GetHeight(), tileSize);
-
-    for(i32 y = bounds.MinTileY; y < bounds.MaxTileY; ++y)
+    VisibleBounds bounds = CalculateVisibleBounds(viewProjection, tileLayer->GetWidth(), tileLayer->GetHeight(), tileSize);
+    
+    u32 mapWidth = tileLayer->GetWidth();
+    u32 mapHeight = tileLayer->GetHeight();
+    
+    for(i32 y = bounds.MinTileY; y <= bounds.MaxTileY; ++y)
     {
-        for(i32 x = bounds.MinTileX; x < bounds.MaxTileX; ++x)
+        for(i32 x = bounds.MinTileX; x <= bounds.MaxTileX; ++x)
         {
             u32 tileID = tileLayer->GetTile(x, y);
 
@@ -91,44 +100,51 @@ void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, Camera* c
             if (!tile)
                 continue;
 
-            BMath::Vec3 position;
-            position.x = x * tileSize;
-            position.y = y * tileSize;
-            position.z = -5.0f;  // adjsut this in future
-            
-            BMath::Vec3 size(tileSize, tileSize, 1.0f);
+            i32 worldX = x + (mapWidth / 2);
+            i32 worldY = y + (mapHeight / 2);
 
+            BMath::Vec3 position;
+            position.x = worldX * tileSize + tileSize * 0.5f; 
+            position.y = worldY * tileSize + tileSize * 0.5f;
+            position.z = -0.5f;
+
+            BMath::Vec3 size(tileSize, tileSize, 1.0f);
 
             f32 Uvs[8] = {};
             tileSet->CalculateTileUVs(tileID, Uvs);
             m_Renderer2D->DrawQuad(position, size, {}, tileSet->GetTexture(), Uvs);
         }
     }
-
 }
-
-VisibleBounds TileRenderer::CalculateVisibleBounds(Camera* camera, u32 mapWidth, u32 mapHeight, u32 tileSize)
+VisibleBounds TileRenderer::CalculateVisibleBounds(const BMath::Mat4& viewProjection, u32 mapWidth, u32 mapHeight, u32 tileSize)
 {
     VisibleBounds bound;
-    BMath::Mat4 invVP = BMath::Mat4Inverse(camera->GetViewMatrix());
+    BMath::Mat4 invVP = BMath::Mat4Inverse(viewProjection);
     
-    //Getting the world coords from the ndc
     BMath::Vec4 topLeft = invVP * BMath::Vec4(-1.0f, 1.0f, 0.0f, 1.0f);
     BMath::Vec4 topRight = invVP * BMath::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
     BMath::Vec4 botRight = invVP * BMath::Vec4(1.0f, -1.0f, 0.0f, 1.0f);
     BMath::Vec4 botLeft = invVP * BMath::Vec4(-1.0f, -1.0f, 0.0f, 1.0f);
 
     bound.Left = BMath::Min(topLeft.x, botLeft.x);
-    bound.Right = BMath::Min(topRight.x, botRight.x);
-    bound.Top = BMath::Min(topLeft.y, topRight.y);
+    bound.Right = BMath::Max(topRight.x, botRight.x);
+    bound.Top = BMath::Max(topLeft.y, topRight.y);
     bound.Bottom = BMath::Min(botLeft.y, botRight.y);
 
-    //Getting bound in tile coords 
-    bound.MinTileX = BMath::Max(0.0f, (i32)BMath::Floor(bound.Left / tileSize));
-    bound.MaxTileX = BMath::Min(mapWidth - 1, (i32)BMath::Ceil(bound.Right / tileSize));
-    bound.MinTileY = BMath::Max(0.0f, (i32)BMath::Floor(bound.Top / tileSize));
-    bound.MaxTileY = BMath::Min(mapHeight - 1, (i32)BMath::Ceil(bound.Bottom / tileSize));
+    i32 worldMinTileX = (i32)BMath::Floor(bound.Left / tileSize);
+    i32 worldMaxTileX = (i32)BMath::Ceil(bound.Right / tileSize);
+    i32 worldMinTileY = (i32)BMath::Floor(bound.Bottom / tileSize);
+    i32 worldMaxTileY = (i32)BMath::Ceil(bound.Top / tileSize);
+
+    i32 halfWidth = mapWidth / 2;
+    i32 halfHeight = mapHeight / 2;
+    
+    bound.MinTileX = worldMinTileX - halfWidth;
+    bound.MaxTileX = worldMaxTileX - halfWidth;
+    bound.MinTileY = worldMinTileY - halfHeight;
+    bound.MaxTileY = worldMaxTileY - halfHeight;
 
     return bound;
 }
+
 }

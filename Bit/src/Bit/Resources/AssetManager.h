@@ -16,7 +16,7 @@ public:
     AssetManager();
     ~AssetManager(){}
     void ClearTextures();
-    void AddTexture(const char *assetID, const char *filePath);
+    Texture* AddTexture(const char *assetID, const char *filePath);
     Texture* GetTexture(const char *assetID);
 
     void ClearAnimations();

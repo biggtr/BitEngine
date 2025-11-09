@@ -128,6 +128,7 @@ public:
         ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
         m_TileEditor = new TileEditor(m_Renderer2D);
+        m_TileEditor->Initialize();
 
         Initialize();
         SetupInput();
@@ -140,7 +141,12 @@ public:
         m_Physics2DSystem->Update(deltaTime);
         if (m_TileEditor)
         {
-            m_TileEditor->Update(deltaTime, ActiveWorldCamera);
+            BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 
+                ? m_OrthoProjection : m_PerspectiveProjection;
+            BMath::Mat4 viewMatrix = ActiveWorldCamera->GetViewMatrix();
+            BMath::Mat4 viewProjection = ProjectionMatrix * viewMatrix;
+
+            m_TileEditor->Update(deltaTime, ActiveWorldCamera, viewProjection);
         }
         Update(deltaTime);
         m_ParticleSystem->OnUpdate(deltaTime);
@@ -158,7 +164,7 @@ public:
         m_Renderer2D->BeginScene(viewProjection);
         if (m_TileEditor)
         {
-            m_TileEditor->Render(m_Renderer2D, ActiveWorldCamera);
+            m_TileEditor->Render(m_Renderer2D, viewProjection);
         }
         Render2D();
         m_ParticleSystem->OnRender(m_Renderer2D);

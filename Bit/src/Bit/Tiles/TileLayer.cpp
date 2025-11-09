@@ -7,40 +7,49 @@ namespace BitEngine
 {
 TileLayer::TileLayer(u32 widthInTiles, u32 heightInTiles, std::string name)
 {
-
     m_WidthInTiles = widthInTiles;
     m_HeightInTiles = heightInTiles;
     m_Name = name;
-    m_TileData.reserve(widthInTiles * heightInTiles);
+    m_TileData.resize(widthInTiles * heightInTiles, 0); 
     m_IsVisible = true;
     m_IsLocked = false;
     m_Opacity = 1.0;
 }
+u32 TileLayer::GetIndex(i32 x, i32 y)
+{
+    i32 offsetX = x + (m_WidthInTiles / 2);
+    i32 offsetY = y + (m_HeightInTiles / 2);
 
-void TileLayer::SetTile(u32 x, u32 y, u32 tileID)
-{
-    if(!IsValidPosition(x, y))
+    if (offsetX < 0 || offsetX >= m_WidthInTiles || offsetY < 0 || offsetY >= m_HeightInTiles)
     {
-        BIT_LOG_ERROR("Tile Position out of bound");
-        return;
+        return (u32)-1; 
     }
-    u32 index = y * m_WidthInTiles + x;
-    m_TileData[index] = tileID;
+    
+    return offsetX + offsetY * m_WidthInTiles;
 }
-u32 TileLayer::GetTile(u32 x, u32 y)
+void TileLayer::SetTile(i32 x, i32 y, u32 tileID)
 {
-    u32 index = y * m_WidthInTiles + x;
-    return m_TileData[index];
+    u32 index = GetIndex(x, y);
+    if (index != (u32)-1) 
+    {
+        m_TileData[index] = tileID;
+    }
 }
-void TileLayer::ClearTile(u32 x, u32 y)
+u32 TileLayer::GetTile(i32 x, i32 y)
 {
-    u32 index = y * m_WidthInTiles + x;
-    m_TileData[index] = -1;
+    u32 index = GetIndex(x, y);
+    if (index != (u32)-1) 
+    {
+        return m_TileData[index];
+    }
+    return 0;
 }
-b8 TileLayer::IsValidPosition(u32 x, u32 y)
+
+void TileLayer::ClearTile(i32 x, i32 y)
 {
-    return x >= 0 && x < m_WidthInTiles && y >= 0 && y < m_HeightInTiles;
+    SetTile(x, y, 0); 
 }
+
 void TileLayer::Fill(u32 tileID)
 {
     for(u32 i = 0; i < m_TileData.size(); ++i)
@@ -48,17 +57,18 @@ void TileLayer::Fill(u32 tileID)
         m_TileData[i]= tileID;
     }
 }
+
 void TileLayer::Clear()
 {
     for(u32 i = 0; i < m_TileData.size(); ++i)
     {
-        m_TileData[i]= -1;
+        m_TileData[i]= 0;
     }
 }
 void TileLayer::Resize(u32 newWidthInTiles, u32 newHeightInTiles)
 {
     m_TileData.resize(newWidthInTiles * newHeightInTiles);
     m_WidthInTiles = newWidthInTiles;
-    m_HeightInTiles =  newWidthInTiles;
+    m_HeightInTiles = newHeightInTiles; 
 }
 }

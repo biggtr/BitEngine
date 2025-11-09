@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Core/Defines.h"
+#include "Bit/Math/Matrix.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Tiles/TileEditorState.h"
 #include "Bit/Tiles/TileLayer.h"
@@ -19,10 +20,10 @@ public:
     ~TileEditor(); 
     
     void Initialize();
-    void Update(f32 deltaTime, Camera* camera);
-    void Render(Renderer2D* renderer, Camera* camera);
+    void Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection);
+    void Render(Renderer2D* renderer, const BMath::Mat4& viewProjection);
     
-    TileSet* CreateTileSet();
+    TileSet* CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight);
     void SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, 
                            f32 tileWidth, f32 tileHeight);
     TileSet* GetTileSet() { return m_TileSet; }
@@ -51,7 +52,7 @@ public:
     TileEditorState* GetEditorState() { return &m_EditorState; }
     
 private:
-    void HandleInput(Camera* camera);
+    void HandleInput(Camera* camera, const BMath::Mat4& viewProjection);
     void HandleToolInput(Camera* camera);
     void HandleKeyboardShortcuts();
     
@@ -59,7 +60,7 @@ private:
     void EraseTile(i32 tileX, i32 tileY);
     void FloodFill(i32 startX, i32 startY);
     
-    void RenderCursor(Renderer2D* renderer, Camera* camera);
+    void RenderCursor(Renderer2D* renderer, const BMath::Mat4& viewProjection);
 
     u32 m_ScreenWidth;
     u32 m_ScreenHeight;

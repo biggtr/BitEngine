@@ -41,5 +41,6 @@ inline f32 Max(f32 a, f32 b) { return fmax(a, b); }
 
 inline f32 Ceil(f32 a) { return ceil(a); }
 inline f32 Floor(f32 a) { return floor(a); }
+inline f32 Clamp(f32 value, f32 min, f32 max) { return (value < min) ? min : ((value > max) ? max : value); }
 
 }
