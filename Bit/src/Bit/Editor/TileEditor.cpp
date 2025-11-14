@@ -1,6 +1,7 @@
 #include "TileEditor.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/BMath.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Renderer/Camera.h"
@@ -8,6 +9,7 @@
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileMap.h"
 #include "Bit/Tiles/TileRenderer.h"
+#include <processthreadsapi.h>
 
 namespace BitEngine
 {
@@ -36,7 +38,7 @@ void TileEditor::Initialize()
     m_EditorState.SetActiveTool(TileEditorTool::PAINT);
     m_EditorState.SetSelectedTile(0);
     m_EditorState.SetActiveLayer(0);
-    m_EditorState.SetEditorMode(true);
+    m_EditorState.SetEditorMode(false);
     
     m_IsPainting = false;
     m_IsErasing = false;
@@ -222,6 +224,82 @@ void TileEditor::Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewPr
     if (m_IsPainting || m_IsErasing)
     {
         HandleToolInput(camera);
+    }
+}
+
+b8 TileEditor::IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex)
+{
+    if(!m_TileMap)
+        return false;
+
+    if(layerIndex >= m_TileMap->GetLayerCount())
+        return false;
+
+    TileLayer* layer = m_TileMap->GetLayer(layerIndex);
+    if(!layer || !layer->IsVisible())
+        return false;
+
+    u32 tileID = layer->GetTile(tileX, tileY);
+
+    return tileID != 0;
+}
+void TileEditor::GetTileCollisions(const BMath::Vec3& position, f32 width, f32 height, std::vector<TileCollisionInfo>& collisions, u32 layerIndex)
+{
+    if (!m_TileMap)
+        return;
+    
+    collisions.clear();
+    BMath::Vec3 centerPosition = position;
+    centerPosition.x += width * 0.5f;
+    centerPosition.y += height * 0.5f;
+    u32 tileSize = m_TileMap->GetTileSize();
+    i32 minTileX = BMath::Floor((centerPosition.x - width * 0.5f) / tileSize);
+    i32 maxTileX = BMath::Floor((centerPosition.x + width * 0.5f) / tileSize);
+    i32 minTileY = BMath::Floor((centerPosition.y - height * 0.5f) / tileSize);
+    i32 maxTileY = BMath::Floor((centerPosition.y + height * 0.5f) / tileSize);
+
+    for(i32 ty = minTileY; ty < maxTileY; ++ty)
+    {
+        for(i32 tx = minTileX; tx < maxTileX; ++tx)
+        {
+            if (!IsTileSolid(tx, ty, layerIndex))
+                continue;
+
+            f32 tileWorldX = (f32)tx * (f32)tileSize + (f32)tileSize * 0.5f;
+            f32 tileWorldY = (f32)ty * (f32)tileSize + (f32)tileSize * 0.5f;
+
+            //distance between center of entity and tile
+            f32 dx = position.x - tileWorldX;
+            f32 dy = position.y - tileWorldY;
+
+            f32 combinedHalfWidth = (width + tileSize) * 0.5f;
+            f32 combinedHalfHeight = (height + tileSize) * 0.5f;
+
+            //if position from center to center is bigger than the combinedHalfWidth or combinedHalfHeight this means no overlap no collision
+            f32 overlapX = combinedHalfWidth - abs(dx);
+            f32 overlapY = combinedHalfHeight - abs(dx);
+
+            if(overlapX > 0.0f && overlapY > 0.0f)
+            {
+                TileCollisionInfo collisionInfo;
+                collisionInfo.IsColliding = true;
+                collisionInfo.TileX = tx;
+                collisionInfo.TileY = ty;
+
+                if(overlapX < overlapY)
+                {
+                    collisionInfo.Depth = overlapX;
+                    collisionInfo.Normal = BMath::Vec3(dx > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
+                }
+                else
+                {
+                    collisionInfo.Depth = overlapY;
+                    collisionInfo.Normal = BMath::Vec3(0.0f, dy > 0.0f ? 1.0f : -1.0f, 0.0f);
+                }
+                collisions.push_back(collisionInfo);
+            }
+        }
+
     }
 }
 void TileEditor::Render(Renderer2D* renderer, const BMath::Mat4& viewProjection)

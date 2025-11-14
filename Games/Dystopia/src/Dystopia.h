@@ -77,5 +77,5 @@ private:
     void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
 private:
     BitEngine::Entity player;
-
+    BitEngine::Entity m_WorldColliders[100];
 };

@@ -45,10 +45,16 @@ public:
                         Rigid2DBodyComponent& rigidBodyB = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityB);
                         BBody& bodyA = BPhysics2DGetBody(rigidBodyA.BodyIndex);
                         BBody& bodyB = BPhysics2DGetBody(rigidBodyB.BodyIndex);
+                        if(bodyA.BodyType == BODY_STATIC && bodyB.BodyType == BODY_STATIC)
+                            continue;
+                        
                         BPhysics2DContact contact;
                         if(BPhysics2DIsColliding(&bodyA, &bodyB, contact))
                         {
                             BPhysics2DResolveCollision(contact);
+                            BIT_LOG_DEBUG("COllision happend");
+                            
+                            // OnCollision(entityA, entityB, contact); if want to use event system
                         }
                     }
                 }

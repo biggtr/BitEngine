@@ -2,6 +2,7 @@
 #include "Bit/Core/Input.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
+#include "Bit/Physics/BPhysicsTypes.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Texture.h"
@@ -181,20 +182,15 @@ struct Circle2DColliderComponent
 };
 struct Rigid2DBodyComponent
 {
-    enum class BodyType { Static, Dynamic, Kinematic};
-    BodyType Type = BodyType::Dynamic;
-
-    u32 BodyIndex;
-    f32 Mass;
-    f32 Restitution;
-    Rigid2DBodyComponent(){}
-    Rigid2DBodyComponent(f32 mass, f32 restitution = 0.9f)
-        : Mass(mass), Restitution(restitution) 
-    {
-    }
-
+    u32 BodyIndex = 0;
+    f32 Mass = 1.0f;
+    f32 Restitution = 0.5f;
+    BODY_TYPE BodyType = BODY_DYNAMIC;
+    
+    Rigid2DBodyComponent() = default;
+    Rigid2DBodyComponent(f32 mass, BODY_TYPE type = BODY_DYNAMIC, f32 restitution = 0.5f)
+        : Mass(mass), Restitution(restitution), BodyType(type) {}
 };
-
 struct Camera2DComponent
 {
     BMath::Vec3 Position;

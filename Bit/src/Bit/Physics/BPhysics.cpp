@@ -73,18 +73,40 @@ u32 BPhysics2DCreatePolygonShape(const BMath::Vec3* vertices, u32 count, f32 ine
     physics2DState->Shapes.push_back(shape);
     return shapeIndex;
 }
-u32 BPhysics2DCreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass, f32 restitution)
+u32 BPhysics2DCreateBody(u32 ShapeIndex, const BMath::Vec3& position, f32 mass, f32 restitution, BODY_TYPE type)
 {
     const BShape& shape = physics2DState->Shapes[ShapeIndex];
     BBody body; 
     body.ShapeIndex = ShapeIndex;
     body.Position = position;
-    // BIT_LOG_DEBUG("from physics pos is : %f, %f, %f", body.Position.x, body.Position.y, body.Position.z);
     body.Rotation = 0.0f;
     body.Acceleration = {0.0f, 0.0f, 0.0f};
     body.Velocity = {0.0f, 0.0f, 0.0f};
-    body.Mass = mass;
-    body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
+    body.BodyType = type;
+
+    switch (body.BodyType) 
+    {
+        case BODY_STATIC:
+            {
+                body.Mass = 0.0f;
+                body.InvMass = 0.0f;
+                break;
+            }
+        case BODY_DYNAMIC:
+            {
+                body.Mass = mass;
+                body.InvMass = (mass > 0.0f) ? 1.0f / mass : 0.0f;
+                break;
+            }
+        case BODY_KINEMATIC:
+            {
+                body.Mass = 0.0f;
+                body.InvMass = 0.0f;
+                break;
+            }
+
+          break;
+    }
     body.Restitution = restitution;
     switch (shape.Type) 
     {
@@ -193,15 +215,17 @@ void BPhysics2DEnableWeight(BBody& body, f32 gravity)
 }
 void BPhysics2DLinearIntegrate(BBody& body, f32 deltaTime)
 {
-    if(BMath::NearlyEqual(body.InvMass, 0.0f))
-    {
+    if(body.BodyType != BODY_DYNAMIC)
         return;
-    }
+    
+    if(BMath::NearlyEqual(body.InvMass, 0.0f))
+        return;
+
     body.Acceleration = body.SumForces * body.InvMass;
     body.Velocity += body.Acceleration * deltaTime;
     body.Position += body.Velocity * deltaTime;
 
-    body.SumForces = (0.0f);
+    body.SumForces = BMath::Vec3(0.0f);
 }
 
 ////////////////////////////////////////////////////////
@@ -213,12 +237,42 @@ void BPhysics2DAddTorque(BBody& body, f32 torque)
 }
 void BPhyiscs2DAngularIntegrate(BBody& body, f32 deltaTime)
 {
-    if(BMath::NearlyEqual(body.InvInertia, 0.0f))
-    {
+    if(body.BodyType != BODY_DYNAMIC)
         return;
-    }
+        
+    if(BMath::NearlyEqual(body.InvInertia, 0.0f))
+        return;
+
     body.AngularAcceleration = body.SumTorques * body.InvInertia;
     body.AngularVelocity += body.AngularAcceleration * deltaTime;
     body.Rotation += body.AngularVelocity * deltaTime;
+    
+    body.SumTorques = 0.0f;
+}
+void BPhysics2DSetKinematicVelocity(BBody& body, const BMath::Vec3& velocity)
+{
+    if(body.BodyType == BODY_KINEMATIC)
+    {
+        body.Velocity = velocity;
+    }
+}
+
+void BPhysics2DMoveKinematic(BBody& body, const BMath::Vec3& position)
+{
+    if(body.BodyType == BODY_KINEMATIC)
+    {
+        body.Position = position;
+    }
+}
+
+void BPhysics2DUpdateKinematics(f32 deltaTime)
+{
+    for(auto& body : physics2DState->Bodies)
+    {
+        if(body.BodyType == BODY_KINEMATIC)
+        {
+            body.Position += body.Velocity * deltaTime;
+        }
+    }
 }
 }

@@ -24,6 +24,8 @@ struct BParticle
         InvMass = Mass == 0.0f ? 0.0f : 1.0f / Mass;
     }
 };
+
+
 enum SHAPE_TYPE
 {
     SHAPE_CIRCLE,
@@ -57,9 +59,16 @@ struct BShape
         BPolygonShape BPolygon;
     };
 };
+enum BODY_TYPE
+{
+    BODY_STATIC,      
+    BODY_DYNAMIC,     
+    BODY_KINEMATIC    
+};
 struct BBody
 {
     u32 ShapeIndex;
+    BODY_TYPE BodyType;  
 
     BMath::Vec3 Acceleration;
     BMath::Vec3 Velocity; 

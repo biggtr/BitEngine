@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Core/Defines.h"
 #include "Bit/Math/Matrix.h"
+#include "Bit/Math/Vector.h"
 #include "Bit/Renderer/Texture.h"
 #include "Bit/Tiles/TileEditorState.h"
 #include "Bit/Tiles/TileLayer.h"
@@ -12,6 +13,15 @@ namespace BitEngine
 class TileMap;
 class Renderer2D;
 class Camera;
+
+struct TileCollisionInfo
+{
+    b8 IsColliding;
+    BMath::Vec3 Normal;
+    f32 Depth;
+    i32 TileX;
+    i32 TileY;
+};
 
 class TileEditor
 {
@@ -39,6 +49,9 @@ public:
     void MoveLayerDown(u32 index);
     void SetLayerVisible(u32 index, b8 visible);
     u32 GetLayerCount();
+
+    b8 IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex = 0);
+    void GetTileCollisions(const BMath::Vec3& position, f32 width, f32 height, std::vector<TileCollisionInfo>& collisions, u32 layerIndex = 0);
     
     b8 SaveTileMap(const std::string& filepath);
     b8 LoadTileMap(const std::string& filepath);

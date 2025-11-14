@@ -45,7 +45,13 @@ public:
                 shapeIndex = BPhysics2DCreateCircleShape(circleCollider.Radius);
 
             }
-            rigidBody.BodyIndex = BPhysics2DCreateBody(shapeIndex, transform.Position, rigidBody.Mass, rigidBody.Restitution);
+            rigidBody.BodyIndex = BPhysics2DCreateBody(
+                shapeIndex, 
+                transform.Position, 
+                rigidBody.Mass, 
+                rigidBody.Restitution,
+                rigidBody.BodyType
+            );
             
             BIT_LOG_DEBUG("Entity with id : added and body index is %d", entity.GetID(), rigidBody.BodyIndex);
         }
@@ -53,31 +59,81 @@ public:
 
     void Update(f32 deltaTime)
     {
-        for(u32 i = 0; i < m_Entities.size();  ++i)
+        for(u32 i = 0; i < m_Entities.size(); ++i)
         {
-            const Entity& entityA = m_Entities[i];
-            Rigid2DBodyComponent& rigidBodyA = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entityA);
-            TransformComponent& transformA = m_EntityManager->GetComponent<TransformComponent>(entityA);
+            const Entity& entity = m_Entities[i];
+            Rigid2DBodyComponent& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
+            TransformComponent& transform = m_EntityManager->GetComponent<TransformComponent>(entity);
 
-            BBody& bodyA = BPhysics2DGetBody(rigidBodyA.BodyIndex);
-            // BPhysics2DEnableWeight(bodyA, -9.8f * METER_PER_PIXEL);
-            BMath::Vec3 friction = BPhysics2DGenerateFrictionForce(bodyA, 300.0f);
-            BPhysics2DAddForce(bodyA, friction);
-            BPhysics2DLinearIntegrate(bodyA, deltaTime);
-
-            transformA.Position = bodyA.Position;
-            transformA.Rotation = bodyA.Rotation;
+            BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
+            
+            if(body.BodyType == BODY_DYNAMIC)
+            {
+                // BPhysics2DEnableWeight(body, -9.8f * METER_PER_PIXEL);
+                
+                BMath::Vec3 friction = BPhysics2DGenerateFrictionForce(body, 300.0f);
+                BPhysics2DAddForce(body, friction);
+                BPhysics2DLinearIntegrate(body, deltaTime);
+            }
+            else if(body.BodyType == BODY_KINEMATIC)
+            {
+                body.Position += body.Velocity * deltaTime;
+            }
+            
+            transform.Position = body.Position;
+            transform.Rotation = body.Rotation;
         }
     }
-
     void ApplyImpulse(const Entity& entity, const BMath::Vec3& impulse)
     {
         if(!m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
             return;
+            
         auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
-        
         BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
-        BPhysics2DApplyImpulse(body, impulse);
+        
+        if(body.BodyType == BODY_DYNAMIC)
+        {
+            BPhysics2DApplyImpulse(body, impulse);
+        }
+    }
+    
+    void SetKinematicVelocity(const Entity& entity, const BMath::Vec3& velocity)
+    {
+        if(!m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
+            return;
+            
+        auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
+        BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
+        
+        if(body.BodyType == BODY_KINEMATIC)
+        {
+            body.Velocity = velocity;
+        }
+    }
+    
+    void SetPosition(const Entity& entity, const BMath::Vec3& position)
+    {
+        if(!m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
+            return;
+            
+        auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
+        BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
+        
+        if(body.BodyType != BODY_DYNAMIC)
+        {
+            body.Position = position;
+        }
+    }
+    
+    BMath::Vec3 GetVelocity(const Entity& entity)
+    {
+        if(!m_EntityManager->HasComponent<Rigid2DBodyComponent>(entity))
+            return BMath::Vec3(0.0f);
+            
+        auto& rigidBody = m_EntityManager->GetComponent<Rigid2DBodyComponent>(entity);
+        BBody& body = BPhysics2DGetBody(rigidBody.BodyIndex);
+        return body.Velocity;
     }
 
 };

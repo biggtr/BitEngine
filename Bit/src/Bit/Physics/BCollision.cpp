@@ -262,24 +262,51 @@ b8 BPhysics2DIsPolygonPolygonColliding(BBody* a, BBody* b, BPhysics2DContact& co
 }
 void BPhysics2DResolvePenetration(BPhysics2DContact& contact)
 {
-    if(BMath::NearlyEqual(contact.a->InvMass, 0.0f) && BMath::NearlyEqual(contact.b->InvMass, 0.0f)) 
+    if(contact.a->BodyType == BODY_STATIC && contact.b->BodyType == BODY_STATIC)
         return;
+
+    f32 correction = contact.Depth * 1.01f; 
 
     f32 totalInvMass = contact.a->InvMass + contact.b->InvMass;
-    if(totalInvMass < 0.001f)
-        return;
-
-    f32 correction = 0.01f + contact.Depth;
-
     
-    f32 displacementA = correction * (contact.a->InvMass / totalInvMass);
-    f32 displacementB = correction * (contact.b->InvMass / totalInvMass); 
-    contact.a->Position -= contact.Normal * displacementA;
-    contact.b->Position += contact.Normal * displacementB;
+    if(totalInvMass < 0.001f)
+    {
+        if(contact.a->BodyType == BODY_KINEMATIC && contact.b->BodyType == BODY_STATIC)
+        {
+            contact.a->Position -= contact.Normal * correction;
+        }
+        else if(contact.a->BodyType == BODY_STATIC && contact.b->BodyType == BODY_KINEMATIC)
+        {
+            contact.b->Position += contact.Normal * correction;
+        }
+        else if(contact.a->BodyType == BODY_KINEMATIC && contact.b->BodyType == BODY_KINEMATIC)
+        {
+            contact.a->Position -= contact.Normal * (correction * 0.5f);
+            contact.b->Position += contact.Normal * (correction * 0.5f);
+        }
+        return;
+    }
+
+    f32 percentA = contact.a->InvMass / totalInvMass;
+    f32 percentB = contact.b->InvMass / totalInvMass;
+
+    if(contact.a->BodyType != BODY_STATIC)
+    {
+        contact.a->Position -= contact.Normal * (correction * percentA);
+    }
+    
+    if(contact.b->BodyType != BODY_STATIC)
+    {
+        contact.b->Position += contact.Normal * (correction * percentB);
+    }
 }
 void BPhysics2DResolveCollision(BPhysics2DContact& contact)
 {
+    if(contact.a->BodyType != BODY_DYNAMIC && contact.b->BodyType != BODY_DYNAMIC)
+        return;
+
     if(contact.Depth < 0.01f)
+
         return;
     BPhysics2DResolvePenetration(contact);
         
@@ -301,7 +328,10 @@ void BPhysics2DResolveCollision(BPhysics2DContact& contact)
 
     BMath::Vec3 impulse = impulseDirection * impulseMagnitude;
 
-    BPhysics2DApplyImpulse(*contact.a, impulse * -1.0f);
-    BPhysics2DApplyImpulse(*contact.b, impulse); 
+    if(contact.a->BodyType == BODY_DYNAMIC)
+        BPhysics2DApplyImpulse(*contact.a, impulse * -1.0f);
+        
+    if(contact.b->BodyType == BODY_DYNAMIC)
+        BPhysics2DApplyImpulse(*contact.b, impulse);
 }
 }
