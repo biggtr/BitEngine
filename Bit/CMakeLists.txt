@@ -1,6 +1,7 @@
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(vendor/glad)
+add_subdirectory(vendor/box2d)
 
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -119,11 +120,12 @@ PUBLIC
 ${CMAKE_CURRENT_SOURCE_DIR}/src
 vendor/glad/include        
 ${CMAKE_BINARY_DIR}/assimp/include        
+${CMAKE_CURRENT_SOURCE_DIR}/Bit/vendor/box2d/include
 vendor/stb_image
 vendor/glm
 )
 
-target_link_libraries(BitEngine PRIVATE glad assimp OpenGL::GL)
+target_link_libraries(BitEngine PRIVATE glad assimp box2d OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

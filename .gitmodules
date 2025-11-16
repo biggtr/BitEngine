@@ -1,3 +1,6 @@
 [submodule "Bit/vendor/assimp"]
 	path = Bit/vendor/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "Bit/vendor/box2d"]
+	path = Bit/vendor/box2d
+	url = https://github.com/erincatto/box2d.git

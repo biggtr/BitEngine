@@ -75,6 +75,8 @@ private:
     void HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision);
 
     void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
+
+    void HandleKinematicCollisions(BitEngine::BBody& body, Character2DControllerComponent& controller);
 private:
     BitEngine::Entity player;
     BitEngine::Entity m_WorldColliders[100];

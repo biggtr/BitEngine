@@ -10,9 +10,16 @@
 namespace BitEngine 
 {
 
+struct EntityContact
+{
+    Entity entityA;
+    Entity entityB;
+    BPhysics2DContact contact;
+};       
 class CollisionSystem : public System
 {
-        
+private:
+    std::vector<EntityContact> m_EntityContacts;
 public:
 
     CollisionSystem()
@@ -24,6 +31,7 @@ public:
 
     void Update()
     {
+        m_EntityContacts.clear(); 
         for(u32 i = 0; i < m_Entities.size(); ++i)
         {
             for(u32 j = i + 1; j < m_Entities.size(); ++j)
@@ -51,10 +59,15 @@ public:
                         BPhysics2DContact contact;
                         if(BPhysics2DIsColliding(&bodyA, &bodyB, contact))
                         {
-                            BPhysics2DResolveCollision(contact);
-                            BIT_LOG_DEBUG("COllision happend");
-                            
-                            // OnCollision(entityA, entityB, contact); if want to use event system
+                            if(bodyA.BodyType == BODY_DYNAMIC && bodyB.BodyType == BODY_DYNAMIC)
+                            {
+                                BPhysics2DResolveCollision(contact);
+                            }
+                            EntityContact entityContact;
+                            entityContact.entityA = entityA;
+                            entityContact.entityB = entityB;
+                            entityContact.contact = contact;
+                            m_EntityContacts.push_back(entityContact);
                         }
                     }
                 }
@@ -64,6 +77,8 @@ public:
         }
         
     }
+    std::vector<EntityContact>& GetContacts() { return m_EntityContacts; }
+
 
 };
 }

@@ -136,6 +136,7 @@ public:
     }
     virtual b8 OnUpdate(f64 deltaTime)
     {
+        Update(deltaTime);
         m_Animation2DSystem->Update(deltaTime);
         m_CollisionSystem->Update();
         m_Physics2DSystem->Update(deltaTime);
@@ -148,7 +149,6 @@ public:
 
             m_TileEditor->Update(deltaTime, ActiveWorldCamera, viewProjection);
         }
-        Update(deltaTime);
         m_ParticleSystem->OnUpdate(deltaTime);
         return true;
     }
