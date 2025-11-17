@@ -3,7 +3,7 @@
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Particles/ParticleSystem.h"
-#include "Bit/Physics/BPhysics.h"
+#include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Game.h"
 #include "Platform/Platform.h"
@@ -20,10 +20,12 @@ Application::Application()
     m_AssetManager = new AssetManager();
     m_CameraManager = new CameraManager();
     m_ParticleSystem = new ParticleSystem();
+    m_Physics2D = new Physics2D();
 }
 
 Application::~Application()
 {
+    delete m_Physics2D;
     delete m_ParticleSystem;
     delete m_CameraManager;
     delete m_AssetManager;
@@ -92,13 +94,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    if(!BPhysics2DInitialize())
-    {
-        BIT_LOG_ERROR("Failed To Initialze BPhysics2D System");
-        return false;
-    }
-
-    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem}))
+    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem, m_Physics2D}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
@@ -144,12 +140,12 @@ void Application::Run()
         }
 
     }
+    PlatformShutdown(&m_Platform);
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
 
-    BPhysics2DShutdown();
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
 }

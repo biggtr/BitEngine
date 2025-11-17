@@ -7,7 +7,7 @@
 #include "Bit/ECS/Entity.h"
 #include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/ECS/Systems/System.h"
-#include "Bit/Physics/BPhysicsTypes.h"
+#include "Bit/Physics/Physics2D.h"
 
 void Dystopia::Initialize()
 {
@@ -42,12 +42,13 @@ void Dystopia::Initialize()
     collision.Height = 32.0f;
 
 
-    player.AddComponent<BitEngine::Rigid2DBodyComponent>();
+    auto& playerRigidBody = player.AddComponent<BitEngine::Rigidbody2DComponent>();
+    playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
     
-    auto& playerCollider = player.AddComponent<BitEngine::Box2DColliderComponent>();
-    playerCollider.Size = BMath::Vec3(28.0f, 32.0f, 0.0f);
-    BIT_LOG_INFO("Player collider size: (%f, %f, %f)", 
-                 playerCollider.Size.x, playerCollider.Size.y, playerCollider.Size.z);
+    auto& playerCollider = player.AddComponent<BitEngine::BoxCollider2DComponent>();
+    playerCollider.Width = 3.0f;
+    playerCollider.Height = 3.0f;
+
     auto floor = m_ECS->CreateEntity();
     
     auto& floorTransform = floor.AddComponent<BitEngine::TransformComponent>();
@@ -57,10 +58,12 @@ void Dystopia::Initialize()
     auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
     floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
-    floor.AddComponent<BitEngine::Rigid2DBodyComponent>(0.0f, BitEngine::BODY_STATIC);
-    
-    auto& floorCollider = floor.AddComponent<BitEngine::Box2DColliderComponent>();
-    floorCollider.Size = BMath::Vec3(500.0f, 10.0f, 0.0f);
+    auto& floorRigidBody = floor.AddComponent<BitEngine::Rigidbody2DComponent>();
+    floorRigidBody.Type = BitEngine::PhysicsBodyType::Static;
+
+    auto& floorCollider = floor.AddComponent<BitEngine::BoxCollider2DComponent>();
+    floorCollider.Width = 200.0f;
+    floorCollider.Height = 40.0f;
 
     m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
 
@@ -86,32 +89,17 @@ void Dystopia::Update(f32 deltaTime)
 {
     auto& transform = player.GetComponent<BitEngine::TransformComponent>();
     auto& controller = player.GetComponent<Character2DControllerComponent>();
-    auto& rigidbody = player.GetComponent<BitEngine::Rigid2DBodyComponent>();
-    BitEngine::BBody& body = BitEngine::BPhysics2DGetBody(rigidbody.BodyIndex);
-
-    BIT_LOG_INFO("=== FRAME START ===");
-    BIT_LOG_INFO("Body position: (%f, %f, %f)", body.Position.x, body.Position.y, body.Position.z);
-    BIT_LOG_INFO("Velocity: (%f, %f)", controller.Velocity.x, controller.Velocity.y);
+    auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
 
     HandleInput(controller, deltaTime);
     HandleMovement(controller, deltaTime);
     HandleJump(controller, deltaTime);
     HandleGravity(controller, deltaTime);
 
-    BIT_LOG_INFO("After movement, velocity: (%f, %f)", controller.Velocity.x, controller.Velocity.y);
+    m_Physics2DSystem->SetVelocity(player, controller.Velocity);
     
-    body.Position += controller.Velocity * deltaTime;
+    // HandleKinematicCollisions(controller);
     
-    BIT_LOG_INFO("After applying velocity, pos: (%f, %f, %f)", 
-                 body.Position.x, body.Position.y, body.Position.z);
-    
-    HandleKinematicCollisions(body, controller);
-    
-    BIT_LOG_INFO("After collision, pos: (%f, %f, %f)", 
-                 body.Position.x, body.Position.y, body.Position.z);
-    BIT_LOG_INFO("IsGrounded: %d", controller.IsGrounded);
-    
-    transform.Position = body.Position;
     
     UpdateAnimation(controller, transform);
 }
@@ -210,76 +198,76 @@ void Dystopia::HandleGravity(Character2DControllerComponent& controller, f32 del
     if (controller.Velocity.y < -controller.TerminalVelocity)
         controller.Velocity.y = -controller.TerminalVelocity;
 }
-void Dystopia::HandleKinematicCollisions(BitEngine::BBody& body, Character2DControllerComponent& controller)
-{
-    controller.IsGrounded = false;
-    
-    auto& entityContacts = m_CollisionSystem->GetContacts();
-    
-    BIT_LOG_INFO("Checking %zu contacts", entityContacts.size());
-    
-    for(auto& entityContact : entityContacts)
-    {
-        auto& contact = entityContact.contact;
-        
-        BitEngine::BBody* otherBody = nullptr;
-        BMath::Vec3 normal;
-        f32 depth;
-        
-        if(contact.a == &body)
-        {
-            otherBody = contact.b;
-            normal = contact.Normal;
-            depth = contact.Depth;
-        }
-        else if(contact.b == &body)
-        {
-            otherBody = contact.a;
-            normal = contact.Normal * -1.0f;
-            depth = contact.Depth;
-        }
-        else
-        {
-            continue; 
-        }
-        
-        BIT_LOG_INFO("Resolving collision - Normal: (%f, %f, %f), Depth: %f", 
-                     normal.x, normal.y, normal.z, depth);
-        
-        // ✅ Only resolve if there's actual penetration
-        if(depth > 0.01f)
-        {
-            body.Position += normal * depth;
-            BIT_LOG_INFO("Moved body to: (%f, %f, %f)", 
-                         body.Position.x, body.Position.y, body.Position.z);
-        }
-        
-        f32 velocityAlongNormal = BMath::Vec3Dot(controller.Velocity, normal);
-        if(velocityAlongNormal < 0.0f) 
-        {
-            controller.Velocity -= normal * velocityAlongNormal;
-        }
-        
-        if(normal.y < -0.7f)
-        {
-            controller.IsGrounded = true;
-            controller.JumpCount = 0;
-            controller.IsJumping = false;
-            controller.CoyoteTimer = controller.CoyoteTime; 
-        }
-        
-        if(normal.y > 0.7f)
-        {
-            if(controller.Velocity.y > 0.0f)
-            {
-                controller.Velocity.y = 0.0f;
-            }
-        }
-        
-        // ✅ IMPORTANT: Break after first collision or you'll apply the same correction multiple times
-        break;
-    }
-}
+// void Dystopia::HandleKinematicCollisions(BitEngine::BBody& body, Character2DControllerComponent& controller)
+// {
+//     controller.IsGrounded = false;
+//
+//     auto& entityContacts = m_CollisionSystem->GetContacts();
+//
+//     BIT_LOG_INFO("Checking %zu contacts", entityContacts.size());
+//
+//     for(auto& entityContact : entityContacts)
+//     {
+//         auto& contact = entityContact.contact;
+//
+//         BitEngine::BBody* otherBody = nullptr;
+//         BMath::Vec3 normal;
+//         f32 depth;
+//
+//         if(contact.a == &body)
+//         {
+//             otherBody = contact.b;
+//             normal = contact.Normal;
+//             depth = contact.Depth;
+//         }
+//         else if(contact.b == &body)
+//         {
+//             otherBody = contact.a;
+//             normal = contact.Normal * -1.0f;
+//             depth = contact.Depth;
+//         }
+//         else
+//         {
+//             continue; 
+//         }
+//
+//         BIT_LOG_INFO("Resolving collision - Normal: (%f, %f, %f), Depth: %f", 
+//                      normal.x, normal.y, normal.z, depth);
+//
+//         // ✅ Only resolve if there's actual penetration
+//         if(depth > 0.01f)
+//         {
+//             body.Position += normal * depth;
+//             BIT_LOG_INFO("Moved body to: (%f, %f, %f)", 
+//                          body.Position.x, body.Position.y, body.Position.z);
+//         }
+//
+//         f32 velocityAlongNormal = BMath::Vec3Dot(controller.Velocity, normal);
+//         if(velocityAlongNormal < 0.0f) 
+//         {
+//             controller.Velocity -= normal * velocityAlongNormal;
+//         }
+//
+//         if(normal.y < -0.7f)
+//         {
+//             controller.IsGrounded = true;
+//             controller.JumpCount = 0;
+//             controller.IsJumping = false;
+//             controller.CoyoteTimer = controller.CoyoteTime; 
+//         }
+//
+//         if(normal.y > 0.7f)
+//         {
+//             if(controller.Velocity.y > 0.0f)
+//             {
+//                 controller.Velocity.y = 0.0f;
+//             }
+//         }
+//
+//         // ✅ IMPORTANT: Break after first collision or you'll apply the same correction multiple times
+//         break;
+//     }
+// }
 void Dystopia::HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision)
 {
     collision.CollidingBelow = false;

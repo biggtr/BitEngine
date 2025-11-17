@@ -32,7 +32,7 @@ public:
         {
             if(m_EntityManager->HasComponent<SpriteComponent>(entity) || 
                 m_EntityManager->HasComponent<Circle2DComponent>(entity) ||
-                m_EntityManager->HasComponent<Box2DColliderComponent>(entity)) 
+                m_EntityManager->HasComponent<BoxCollider2DComponent>(entity)) 
             {
                 RenderableEntities.push_back(entity);
             }
@@ -72,13 +72,13 @@ public:
                 BMath::Mat4 transform = BMath::Mat4CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleComponent.Radius);
                 renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
             }
-            if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
+            if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
             {
 
-                Box2DColliderComponent& boxColliderComponent= m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
+                BoxCollider2DComponent& boxColliderComponent= m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
                 // BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxColliderComponent.Size.x, boxColliderComponent.Size.y);
                 // BIT_LOG_DEBUG("transformComponent.Position.x : %.2f, pos.y : %.2f", transformComponent.Position.x, transformComponent.Position.y);
-                renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
+                renderer.DrawRect(transformComponent.Position, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
                         {1.0f, 0.0f, 0.0f, 1.0f}
                         );
             }

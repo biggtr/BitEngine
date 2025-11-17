@@ -33,11 +33,11 @@ public:
                 renderer.DrawQuad(transformComponent.Position, transformComponent.Scale,transformComponent.Rotation.z ,
                         spriteComponent.STexture, spriteComponent.UVs
                         );
-                if(m_EntityManager->HasComponent<Box2DColliderComponent>(entity))
+                if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
                 {
 
-                    Box2DColliderComponent& boxColliderComponent = m_EntityManager->GetComponent<Box2DColliderComponent>(entity);
-                    renderer.DrawRect(transformComponent.Position, boxColliderComponent.Size,
+                    BoxCollider2DComponent& boxColliderComponent = m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
+                    renderer.DrawRect(transformComponent.Position, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
                             {1.0f, 0.0f, 0.0f, 1.0f}
                             );
                 }

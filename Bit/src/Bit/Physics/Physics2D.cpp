@@ -7,12 +7,18 @@
 namespace BitEngine
 {
 
-void Physics2D::CreateWorld(const BMath::Vec2& gravity)
+b2WorldId Physics2D::CreateWorld(const BMath::Vec2& gravity)
 {
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = (b2Vec2){gravity.x, gravity.y};
 
     m_World = b2CreateWorld(&worldDef);
+    return m_World;
+}
+
+void Physics2D::DestroyWorld()
+{
+    b2DestroyWorld(m_World);
 }
 
 b2BodyId Physics2D::CreateBody(PhysicsBodyType bodyType, const BMath::Vec3& position)
@@ -91,4 +97,20 @@ b2ShapeId Physics2D::AddCapsule(b2BodyId body, const b2Capsule& capsule,
 
     return b2CreateCapsuleShape(body, &def, &capsule);
 }
+
+void Physics2D::SetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity)
+{
+    b2Body_SetLinearVelocity(bodyID, (b2Vec2){velocity.x, velocity.y});
+}
+
+BMath::Vec2 Physics2D::GetLinearVelocity(b2BodyId bodyID)
+{
+    b2Vec2 vel = b2Body_GetLinearVelocity(bodyID);
+    return BMath::Vec2(vel.x, vel.y);
+}
+void Physics2D::Step()
+{
+    b2World_Step(m_World, m_FixedTimeStep, m_SubSteps);
+}
+
 }

@@ -1,7 +1,7 @@
 #pragma once
-#include <box2d/box2d.h>
 #include <vector>
 #include "Bit/Math/Vector.h"
+#include "box2d/box2d.h"
 
 namespace BitEngine
 {
@@ -22,10 +22,11 @@ class Physics2D
 {
 
 public:
-    Physics2D();
-    ~Physics2D();
+    Physics2D(){}
+    ~Physics2D(){}
 
-    void CreateWorld(const BMath::Vec2& gravity = {0.0f, -10.0f});
+    b2WorldId CreateWorld(const BMath::Vec2& gravity = {0.0f, -10.0f});
+    void DestroyWorld();
     b2BodyId CreateBody(PhysicsBodyType bodyType, const BMath::Vec3& position);
 
     b2Circle CreateCircleShape(const BMath::Vec2& center, f32 radius);
@@ -47,10 +48,21 @@ public:
                          float density = 1.0f,
                          float friction = 0.3f,
                          float restitution = 0.0f);
+
+    void SetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity);
+    BMath::Vec2 GetLinearVelocity(b2BodyId bodyID);
+
+    BMath::Vec2 GetPosition(b2BodyId bodyID) { b2Vec2 pos = b2Body_GetPosition(bodyID); return {pos.x, pos.y}; }
+    f32 GetRotation(b2BodyId bodyID) { b2Rot q = b2Body_GetRotation(bodyID); return atan2f(q.s, q.c); }
+
+    void Step();
+    f32 GetFixedTimeStep() { return m_FixedTimeStep; }
 private:
     b2WorldId m_World; // maybe change in future to support many worlds for different scenes idk!
     BMath::Vec2 m_Gravity; 
 
+    f32 m_FixedTimeStep = 1.0f / 60.0f;
+    i32 m_SubSteps = 4;
 };
 
 }

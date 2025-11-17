@@ -1,7 +1,10 @@
 find_package(OpenGL REQUIRED)
 
 add_subdirectory(vendor/glad)
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
 add_subdirectory(vendor/box2d)
+
 
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -78,8 +81,7 @@ set(BITENGINE_COMMON_SOURCES
 
     src/Bit/UI/BitUI.cpp
 
-    src/Bit/Physics/BPhysics.cpp
-    src/Bit/Physics/BCollision.cpp
+    src/Bit/Physics/Physics2D.cpp
 
 
     vendor/stb_image/stb_image.cpp
@@ -117,15 +119,14 @@ target_sources(BitEngine PRIVATE ${BITENGINE_COMMON_SOURCES})
 
 target_include_directories(BitEngine
 PUBLIC 
-${CMAKE_CURRENT_SOURCE_DIR}/src
-vendor/glad/include        
-${CMAKE_BINARY_DIR}/assimp/include        
-${CMAKE_CURRENT_SOURCE_DIR}/Bit/vendor/box2d/include
-vendor/stb_image
-vendor/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    vendor/glad/include        
+    ${CMAKE_BINARY_DIR}/assimp/include        
+    vendor/stb_image
+    ${CMAKE_CURRENT_SOURCE_DIR}/Bit/vendor/box2d/include
 )
 
-target_link_libraries(BitEngine PRIVATE glad assimp box2d OpenGL::GL)
+target_link_libraries(BitEngine PUBLIC box2d PRIVATE glad assimp OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

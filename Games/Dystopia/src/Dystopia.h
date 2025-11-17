@@ -1,6 +1,5 @@
 #pragma once 
 #include "Bit/Core/Application.h"
-#include "Bit/ECS/Compontents.h"
 #include "Bit/ECS/Entity.h"
 #include <Bit/Core/Game.h>
 
@@ -76,7 +75,7 @@ private:
 
     void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
 
-    void HandleKinematicCollisions(BitEngine::BBody& body, Character2DControllerComponent& controller);
+    void HandleKinematicCollisions(Character2DControllerComponent& controller);
 private:
     BitEngine::Entity player;
     BitEngine::Entity m_WorldColliders[100];

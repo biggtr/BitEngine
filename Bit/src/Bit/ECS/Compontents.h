@@ -2,13 +2,10 @@
 #include "Bit/Core/Input.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
-#include "Bit/Physics/BPhysicsTypes.h"
+#include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Texture.h"
-#include "box2d/id.h"
-#include <stddef.h>
-#include <stdint.h>
 #include <unordered_map>
 #include <vector>
 namespace BitEngine 
@@ -154,34 +151,45 @@ struct Animation2DControllerComponent
     
 };
 
-enum class BodyType : u8
-{
-    Static = 0,
-    Kinematic = 1,
-    Dynamic = 2
-};
 
 struct Rigidbody2DComponent
 {
-    b2BodyId bodyId = b2_nullBodyId;
-    BodyType type = BodyType::Static;
+    b2BodyId BodyId = b2_nullBodyId;
+    PhysicsBodyType Type = PhysicsBodyType::Static;
     
-    f32 gravityScale = 1.0f;
-    b8 fixedRotation = true; 
-    
-    BMath::Vec3 velocity = BMath::Vec3(0.0f, 0.0f, 0.0f);
+    f32 GravityScale = 1.0f;
+    b8 FixedRotation = true; 
+    f32 Density = 1.0f;
+    f32 Friction = 0.3f;
+    f32 Restitution = 0.0f;
+
+
+    BMath::Vec3 Position = BMath::Vec3Zero();
+    BMath::Vec3 Velocity = BMath::Vec3Zero();
 };
 
 struct BoxCollider2DComponent
 {
     b2ShapeId shapeId = b2_nullShapeId;
-    
-    BMath::Vec3 size = BMath::Vec3(1.0f, 1.0f, 0.0f);
-    BMath::Vec3 offset = BMath::Vec3(0.0f, 0.0f, 0.0f);
-    
-    f32 friction = 0.3f;
-    b8 isSensor = false;
+    f32 Width;
+    f32 Height;
 };
+
+struct CircleCollider2DComponent
+{
+    b2ShapeId shapeId = b2_nullShapeId;
+    const BMath::Vec2& center;
+    f32 radius;
+};
+
+struct CapsuleCollider2DComponent
+{
+    b2ShapeId shapeId = b2_nullShapeId;
+    const BMath::Vec2& center1;
+    const BMath::Vec2& center2;
+    f32 radius;
+};
+
 struct Camera2DComponent
 {
     BMath::Vec3 Position;

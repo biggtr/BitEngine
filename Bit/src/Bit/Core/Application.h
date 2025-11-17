@@ -15,6 +15,7 @@ class AssetManager;
 class CameraManager;
 class EventManager;
 class ParticleSystem;
+class Physics2D;
 
 struct ApplicationConfig
 {
@@ -54,6 +55,7 @@ private:
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
     ParticleSystem* m_ParticleSystem;
+    Physics2D* m_Physics2D;
 
 
     u64 m_LoggerSystemMemReq;
