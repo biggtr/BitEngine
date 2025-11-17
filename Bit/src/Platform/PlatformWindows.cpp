@@ -4,7 +4,6 @@
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Backend/OpenGL/OpenGLContextWindows.h" 
 #include "Platform/Platform.h"
-#include <minwindef.h>
 #include <stdlib.h>
 #ifdef BPLATFORM_WINDOWS
 #include <windowsx.h>

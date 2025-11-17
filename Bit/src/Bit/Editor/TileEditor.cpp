@@ -9,7 +9,6 @@
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileMap.h"
 #include "Bit/Tiles/TileRenderer.h"
-#include <processthreadsapi.h>
 
 namespace BitEngine
 {
