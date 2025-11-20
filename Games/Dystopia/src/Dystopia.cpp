@@ -15,9 +15,13 @@ void Dystopia::Initialize()
     player.AddComponent<BitEngine::TransformComponent>();
 
     auto& playerTransform = player.GetComponent<BitEngine::TransformComponent>();
-    playerTransform.Position = BMath::Vec3(0.0f, 70.0f, -5.0f);
+    playerTransform.Position = BMath::Vec3(0.0f, 100.0f, -5.0f);
     playerTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
     playerTransform.Scale = {35.0f, 35.0f, 1.0f};
+
+    auto& playerRigidBody = player.AddComponent<BitEngine::Rigidbody2DComponent>();
+    playerRigidBody.Position = {0.0f, 100.0f, 0.0f};
+    playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
 
     player.AddComponent<BitEngine::SpriteComponent>();
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
@@ -36,40 +40,49 @@ void Dystopia::Initialize()
     m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
     m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
 
-    player.AddComponent<Character2DControllerComponent>();
-    auto& collision = player.AddComponent<CollisionComponent>();
-    collision.Width = 28.0f;
-    collision.Height = 32.0f;
+    auto& playerController = player.AddComponent<Character2DControllerComponent>();
+    playerController.Width = 3.0f;
+    playerController.Height = 13.0f;
 
 
-    auto& playerRigidBody = player.AddComponent<BitEngine::Rigidbody2DComponent>();
-    playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
     
     auto& playerCollider = player.AddComponent<BitEngine::BoxCollider2DComponent>();
     playerCollider.Width = 3.0f;
-    playerCollider.Height = 3.0f;
+    playerCollider.Height = 13.0f;
 
     auto floor = m_ECS->CreateEntity();
     
     auto& floorTransform = floor.AddComponent<BitEngine::TransformComponent>();
     floorTransform.Position = BMath::Vec3(0.0f, 0.0f, -5.0f);
-    floorTransform.Scale = BMath::Vec3(50.0f, 10.0f, 0.0f);
-    
-    auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
-    floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    floorTransform.Scale = BMath::Vec3(30.0f, 10.0f, 0.0f);
     
     auto& floorRigidBody = floor.AddComponent<BitEngine::Rigidbody2DComponent>();
+    floorRigidBody.Position = BMath::Vec3(0.0f, 0.0f, 0.0f);
     floorRigidBody.Type = BitEngine::PhysicsBodyType::Static;
 
     auto& floorCollider = floor.AddComponent<BitEngine::BoxCollider2DComponent>();
     floorCollider.Width = 200.0f;
-    floorCollider.Height = 40.0f;
+    floorCollider.Height = 10.0f;
+    BIT_LOG_INFO("Floor bounds minY=%f maxY=%f", floorRigidBody.Position.y - floorCollider.Height*0.5f, floorRigidBody.Position.y + floorCollider.Height*0.5f);
+    auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
+    floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    
+
 
     m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
 
     BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tileset.png");
     BitEngine::TileSet* tileset = m_TileEditor->CreateTileSet(tilesetTexture, 320.0f, 320.0f, 32, 32);
-            
+
+    BIT_LOG_INFO("Floor created at y=%f with height=%f (bounds: %f to %f)", 
+    floorRigidBody.Position.y, 
+    floorCollider.Height,
+    floorRigidBody.Position.y - floorCollider.Height * 0.5f,
+    floorRigidBody.Position.y + floorCollider.Height * 0.5f);
+
+    BIT_LOG_INFO("Player created at y=%f with height=%f", 
+    playerRigidBody.Position.y,
+    playerCollider.Height);
 
     m_TileEditor->CreateTileMap("Level_1", 32, 32, 32);
 
@@ -91,19 +104,52 @@ void Dystopia::Update(f32 deltaTime)
     auto& controller = player.GetComponent<Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
 
+    BMath::Vec2 currentPos = m_Physics2D->GetPosition(rigidbody.BodyId);
+    UpdateGroundedState(rigidbody, controller, currentPos);
+    
     HandleInput(controller, deltaTime);
     HandleMovement(controller, deltaTime);
     HandleJump(controller, deltaTime);
     HandleGravity(controller, deltaTime);
 
-    m_Physics2DSystem->SetVelocity(player, controller.Velocity);
+    BMath::Vec2 desiredMove = BMath::Vec2(controller.Velocity.x, controller.Velocity.y) * deltaTime;
+    BMath::Vec2 desiredPos = currentPos + desiredMove;
     
-    // HandleKinematicCollisions(controller);
+    BMath::Vec2 finalPos = HandleKinematicCollisions(deltaTime, rigidbody, controller, currentPos, desiredPos);
     
+    m_Physics2D->SetPosition(rigidbody.BodyId, finalPos);
+    rigidbody.Position = BMath::Vec3(finalPos.x, finalPos.y, rigidbody.Position.z);
+    
+    transform.Position.x = finalPos.x;
+    transform.Position.y = finalPos.y;
     
     UpdateAnimation(controller, transform);
 }
 
+void Dystopia::UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, 
+                                    Character2DControllerComponent& controller,
+                                    const BMath::Vec2& currentPos)
+{
+    const float groundCheckDistance = 0.2f;
+    
+    BMath::Vec2 groundRayStart = {currentPos.x, currentPos.y - controller.Height * 0.5f};
+    BMath::Vec2 groundRayEnd   = {currentPos.x, groundRayStart.y - groundCheckDistance};
+    BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
+    
+    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.ShapeId);
+    
+    if(b2Shape_IsValid(groundContext.ShapeID) && 
+       groundContext.Fraction >= 0.0f && 
+       groundContext.Fraction < 1.0f &&
+       groundContext.Normal.y > 0.5f)
+    {
+        controller.IsGrounded = true;
+    }
+    else
+    {
+        controller.IsGrounded = false;
+    }
+}
 void Dystopia::HandleInput(Character2DControllerComponent& controller, f32 deltaTime)
 {
     b8 wasJumpPressed = controller.JumpPressed;
@@ -123,10 +169,48 @@ void Dystopia::HandleInput(Character2DControllerComponent& controller, f32 delta
     controller.JumpReleased = !controller.JumpHeld && wasJumpPressed;
 
     if(controller.JumpPressed)
+    {
         controller.JumpBufferTimer = controller.JumpBufferTime;
-
+    }
     else if(controller.JumpBufferTimer > 0.0f)
+    {
         controller.JumpBufferTimer -= deltaTime;
+    }
+    
+    if(controller.IsGrounded && !controller.JumpHeld && controller.JumpBufferTimer > 0.0f)
+    {
+        controller.JumpBufferTimer = 0.0f;
+    }
+}
+
+void Dystopia::HandleJump(Character2DControllerComponent& controller, f32 deltaTime)
+{
+    if(controller.IsGrounded)
+    {
+        controller.CoyoteTimer = controller.CoyoteTime;
+    }
+    else if(controller.CoyoteTimer > 0.0f)
+    {
+        controller.CoyoteTimer -= deltaTime;
+    }
+
+    b8 canJump = (controller.CoyoteTimer > 0.0f && controller.JumpCount == 0) || 
+                 (controller.JumpCount < controller.MaxJumps);
+
+    if(controller.JumpBufferTimer > 0.0f && canJump && controller.JumpHeld)
+    {
+        controller.Velocity.y = controller.JumpForce;
+        controller.IsJumping = true;
+        controller.JumpCount++;
+
+        controller.JumpBufferTimer = 0.0f;
+        controller.CoyoteTimer = 0.0f;
+    }
+
+    if(controller.JumpReleased && controller.Velocity.y > 0.0f)
+    {
+        controller.Velocity.y *= 0.5f;
+    }
 }
 
 void Dystopia::HandleMovement(Character2DControllerComponent& controller, f32 deltaTime)
@@ -153,34 +237,7 @@ void Dystopia::HandleMovement(Character2DControllerComponent& controller, f32 de
     if (fabs(movement) > fabs(speedDiff))
         movement = speedDiff;
 
-    controller.Velocity += movement;
-}
-
-void Dystopia::HandleJump(Character2DControllerComponent& controller, f32 deltaTime)
-{
-    if(controller.IsGrounded)
-        controller.CoyoteTimer = controller.CoyoteTime;
-
-    else if(controller.CoyoteTimer > 0.0f)
-        controller.CoyoteTimer -= deltaTime;
-
-    b8 canJump = (controller.CoyoteTimer > 0.0f && controller.JumpCount == 0) || (controller.JumpCount < controller.MaxJumps);
-
-    if(controller.JumpBufferTimer > 0.0f && canJump)
-    {
-        controller.Velocity.y = controller.JumpForce;
-        controller.IsJumping = true;
-        controller.JumpCount++;
-
-        controller.JumpBufferTimer = 0.0f;
-        controller.CoyoteTimer = 0.0f;
-    }
-
-    // if the jump button was released mid air
-    if (controller.JumpReleased && controller.Velocity.y > 0.0f)
-        controller.Velocity.y *= 0.5f;
-    
-    
+    controller.Velocity.x += movement;
 }
 
 void Dystopia::HandleGravity(Character2DControllerComponent& controller, f32 deltaTime)
@@ -191,6 +248,7 @@ void Dystopia::HandleGravity(Character2DControllerComponent& controller, f32 del
         controller.IsJumping = false;
         return;
     }
+    
     f32 gravity = (controller.Velocity.y > 0.0f) ? controller.RisingGravity : controller.FallingGravity;
 
     controller.Velocity.y -= gravity * deltaTime;
@@ -198,86 +256,110 @@ void Dystopia::HandleGravity(Character2DControllerComponent& controller, f32 del
     if (controller.Velocity.y < -controller.TerminalVelocity)
         controller.Velocity.y = -controller.TerminalVelocity;
 }
-// void Dystopia::HandleKinematicCollisions(BitEngine::BBody& body, Character2DControllerComponent& controller)
-// {
-//     controller.IsGrounded = false;
-//
-//     auto& entityContacts = m_CollisionSystem->GetContacts();
-//
-//     BIT_LOG_INFO("Checking %zu contacts", entityContacts.size());
-//
-//     for(auto& entityContact : entityContacts)
-//     {
-//         auto& contact = entityContact.contact;
-//
-//         BitEngine::BBody* otherBody = nullptr;
-//         BMath::Vec3 normal;
-//         f32 depth;
-//
-//         if(contact.a == &body)
-//         {
-//             otherBody = contact.b;
-//             normal = contact.Normal;
-//             depth = contact.Depth;
-//         }
-//         else if(contact.b == &body)
-//         {
-//             otherBody = contact.a;
-//             normal = contact.Normal * -1.0f;
-//             depth = contact.Depth;
-//         }
-//         else
-//         {
-//             continue; 
-//         }
-//
-//         BIT_LOG_INFO("Resolving collision - Normal: (%f, %f, %f), Depth: %f", 
-//                      normal.x, normal.y, normal.z, depth);
-//
-//         // ✅ Only resolve if there's actual penetration
-//         if(depth > 0.01f)
-//         {
-//             body.Position += normal * depth;
-//             BIT_LOG_INFO("Moved body to: (%f, %f, %f)", 
-//                          body.Position.x, body.Position.y, body.Position.z);
-//         }
-//
-//         f32 velocityAlongNormal = BMath::Vec3Dot(controller.Velocity, normal);
-//         if(velocityAlongNormal < 0.0f) 
-//         {
-//             controller.Velocity -= normal * velocityAlongNormal;
-//         }
-//
-//         if(normal.y < -0.7f)
-//         {
-//             controller.IsGrounded = true;
-//             controller.JumpCount = 0;
-//             controller.IsJumping = false;
-//             controller.CoyoteTimer = controller.CoyoteTime; 
-//         }
-//
-//         if(normal.y > 0.7f)
-//         {
-//             if(controller.Velocity.y > 0.0f)
-//             {
-//                 controller.Velocity.y = 0.0f;
-//             }
-//         }
-//
-//         // ✅ IMPORTANT: Break after first collision or you'll apply the same correction multiple times
-//         break;
-//     }
-// }
-void Dystopia::HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision)
+BMath::Vec2 Dystopia::HandleKinematicCollisions(f32 deltaTime, 
+                                                  BitEngine::Rigidbody2DComponent& rigidBody, 
+                                                  Character2DControllerComponent& controller,
+                                                  const BMath::Vec2& currentPos,
+                                                  const BMath::Vec2& desiredPos)
 {
-    collision.CollidingBelow = false;
-    collision.CollidingAbove = false;
-    collision.CollidingLeft = false;
-    collision.CollidingRight = false;
+    bool wasGrounded = controller.IsGrounded;
+    controller.IsGrounded = false;
+    BMath::Vec2 finalPos = desiredPos;
+    
+    const f32 groundEpsilon = 0.01f;
+    const f32 groundCheckDistance = 0.2f;
+    
+    if(!wasGrounded && controller.Velocity.y < -5.0f)
+    {
+        BMath::Vec2 sweepStart = {currentPos.x, currentPos.y - controller.Height * 0.5f};
+        BMath::Vec2 sweepEnd   = {desiredPos.x, desiredPos.y - controller.Height * 0.5f};
+        BMath::Vec2 sweepVector = sweepEnd - sweepStart;
+        
+        if(fabs(sweepVector.y) > 0.1f)
+        {
+            BitEngine::CastRayContext sweepContext = m_Physics2D->CastRay(sweepStart, sweepVector, rigidBody.ShapeId);
+            
+            if(b2Shape_IsValid(sweepContext.ShapeID) && 
+               sweepContext.Fraction > 0.0f && 
+               sweepContext.Fraction <= 1.0f &&
+               sweepContext.Normal.y > 0.5f)
+            {
+                f32 hitGroundY = sweepContext.Point.y;
+                finalPos.y = hitGroundY + controller.Height * 0.5f + groundEpsilon;
+                finalPos.x = sweepStart.x + (sweepEnd.x - sweepStart.x) * sweepContext.Fraction;
+                
+                controller.Velocity.y = 0.0f;
+                controller.IsGrounded = true;
+                controller.JumpCount = 0;
+                
+                return finalPos;
+            }
+        }
+    }
+    
+    BMath::Vec2 groundRayStart = {finalPos.x, finalPos.y - controller.Height * 0.5f};
+    BMath::Vec2 groundRayEnd   = {finalPos.x, groundRayStart.y - groundCheckDistance};
+    BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
+    
+    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.ShapeId);
+    
+    if(b2Shape_IsValid(groundContext.ShapeID) && 
+       groundContext.Fraction >= 0.0f && 
+       groundContext.Fraction < 1.0f &&
+       groundContext.Normal.y > 0.5f)
+    {
+        float groundY = groundContext.Point.y;
+        float standingY = groundY + controller.Height * 0.5f + groundEpsilon;
+        float distanceToGround = finalPos.y - standingY;
+        
+        if(distanceToGround >= -0.05f && distanceToGround <= groundCheckDistance)
+        {
+            if(wasGrounded && fabs(controller.Velocity.y) < 0.1f && fabs(distanceToGround) < 0.1f)
+            {
+                controller.IsGrounded = true;
+                controller.JumpCount = 0;
+                controller.Velocity.y = 0.0f;
+            }
+            else
+            {
+                finalPos.y = standingY;
+                controller.IsGrounded = true;
+                controller.JumpCount = 0;
+                controller.Velocity.y = 0.0f;
+            }
+        }
+    }
+    
+    if(controller.Velocity.y > 0.5f)
+    {
+        BMath::Vec2 ceilingRayStart = {finalPos.x, finalPos.y + controller.Height * 0.5f};
+        BMath::Vec2 ceilingRayEnd   = {finalPos.x, ceilingRayStart.y + 0.2f};
+        BMath::Vec2 ceilingRayVector = ceilingRayEnd - ceilingRayStart;
+        
+        BitEngine::CastRayContext ceilingContext = m_Physics2D->CastRay(ceilingRayStart, ceilingRayVector, rigidBody.ShapeId);
+        
+        if(b2Shape_IsValid(ceilingContext.ShapeID) && 
+           ceilingContext.Fraction > 0.0f && 
+           ceilingContext.Normal.y < -0.5f)
+        {
+            float ceilingY = ceilingContext.Point.y;
+            finalPos.y = ceilingY - controller.Height * 0.5f - groundEpsilon;
+            controller.Velocity.y = 0.0f;
+        }
+    }
+    
+    return finalPos;
+}
+void Dystopia::HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller)
+{
+    controller.CollidingBelow = false;
+    controller.CollidingAbove = false;
+    controller.CollidingLeft = false;
+    controller.CollidingRight = false;
     
     
     std::vector<BitEngine::TileCollisionInfo> tileCollisions;
-    m_TileEditor->GetTileCollisions(transform.Position, collision.Width, collision.Height, 
+    m_TileEditor->GetTileCollisions(transform.Position, controller.Width, controller.Height, 
                                     tileCollisions, 0);
     for (auto& tileCol : tileCollisions)
     {
@@ -296,42 +378,25 @@ void Dystopia::HandleCollision(BitEngine::TransformComponent& transform, Charact
         
         if (tileCol.Normal.y > 0.7f)  
         {
-            collision.CollidingBelow = true;
+            controller.CollidingBelow = true;
         }
         else if (tileCol.Normal.y < -0.7f)
         {
-            collision.CollidingAbove = true;
+            controller.CollidingAbove = true;
         }
         
         if (tileCol.Normal.x > 0.7f) 
         {
-            collision.CollidingLeft = true;
+            controller.CollidingLeft = true;
         }
         else if (tileCol.Normal.x < -0.7f)  
         {
-            collision.CollidingRight = true;
+            controller.CollidingRight = true;
         }
         
     }
 }
 
-void Dystopia::HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision)
-{
-    bool wasGrounded = controller.IsGrounded;
-
-    controller.IsGrounded = collision.CollidingBelow;
-
-    if (controller.IsGrounded && !wasGrounded)
-    {
-        controller.JumpCount = 0;
-        controller.IsJumping = false;
-    }
-
-    if (!controller.IsGrounded && wasGrounded)
-    {
-        BIT_LOG_INFO("Player left ground"); // play animation idk!
-    }
-}
 
 void Dystopia::UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform)
 {

@@ -31,11 +31,10 @@ struct Character2DControllerComponent
     bool JumpPressed = false;
     bool JumpHeld = false;
     bool JumpReleased = false;
-};
-struct CollisionComponent
-{
-    f32 Width = 32.0f;
-    f32 Height = 32.0f;
+
+    // half width and height
+    f32 Width = 16.0f;
+    f32 Height = 16.0f;
     BMath::Vec3 Offset;
 
     b8 CollidingBelow = false;
@@ -69,13 +68,15 @@ private:
 
     void ApplyPhysics(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, f32 deltaTime);
 
-    void HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision);
+    void HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller); 
 
-    void HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, CollisionComponent& collision);
+    void HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller);
 
     void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
 
-    void HandleKinematicCollisions(Character2DControllerComponent& controller);
+    BMath::Vec2 HandleKinematicCollisions(f32 deltaTime, BitEngine::Rigidbody2DComponent& rigidBody, Character2DControllerComponent& controller, const BMath::Vec2& currentPos, const BMath::Vec2& desiredPos);
+
+    void UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, Character2DControllerComponent& controller, const BMath::Vec2& currentPos);
 private:
     BitEngine::Entity player;
     BitEngine::Entity m_WorldColliders[100];

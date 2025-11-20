@@ -4,6 +4,110 @@
 namespace BMath
 {
 
+Vec2& operator*=(Vec2& v, f32 scalar) 
+{
+    v.x *= scalar;
+    v.y *= scalar;
+    return v;
+}
+Vec2 operator*(const Vec2& v, f32 scalar) 
+{
+    Vec2 tmp = v;
+    tmp *= scalar;
+    return tmp;
+}
+
+Vec2& operator/=(Vec2& v, f32 scalar) 
+{
+    v.x /= scalar;
+    v.y /= scalar;
+    return v;
+}
+Vec2 operator/(Vec2& v, f32 scalar)
+{
+    Vec2 tmp = v;
+    tmp /= scalar;
+    return tmp;
+}
+Vec2& operator+=(Vec2& v1, const Vec2& v2)
+{
+    v1.x += v2.x;
+    v1.y += v2.y;
+    return v1;
+}
+Vec2 operator+(const Vec2& v1, const Vec2& v2)
+{
+    Vec2 tmp = v1;
+    tmp += v2;
+    return tmp;
+}
+
+Vec2& operator-=(Vec2& v1, const Vec2& v2)
+{
+    v1.x -= v2.x;
+    v1.y -= v2.y;
+    return v1;
+}
+Vec2 operator-(const Vec2& v1, const Vec2& v2)
+{
+    Vec2 tmp = v1;
+    tmp -= v2;
+    return tmp;
+}
+
+Vec2 Vec2Zero()
+{
+    return Vec2(0, 0);
+}
+Vec2 Vec2One()
+{
+    return Vec2(1, 1);
+}
+float Vec2Dot(const Vec2& a, const Vec2& b)
+{
+    return a.x * b.x + a.y * b.y; 
+}
+
+f32 Vec2Length(const Vec2& vec) 
+{
+    return sqrt(vec.x * vec.x + vec.y * vec.y);
+}
+void Vec2Normalize(Vec2* vec) 
+{
+    float vecLength = Vec2Length(*vec);
+    vec->x /= vecLength;
+    vec->y /= vecLength;
+}
+Vec2 Vec2Normalize(Vec2 vector) 
+{
+    Vec2Normalize(&vector);
+    return vector;
+}
+Vec2 Vec2Normal2D(const Vec2& v)
+{
+    return {v.y, -v.x};
+}
+f32 Vec2LengthSquared(const Vec2& vec)
+{
+    return vec.x * vec.x + vec.y * vec.y; 
+}
+
+f32 Vec2Distance(const Vec2& vec1, const Vec2& vec2)
+{
+    Vec2 d = {vec2.x - vec1.x, vec2.y - vec1.y};
+    return Vec2Length(d);
+}
+f32 Vec2DistanceSquared(const Vec2& vec1, const Vec2& vec2)
+{
+    Vec2 d = {vec2.x - vec1.x, vec2.y - vec1.y};
+    return Vec2LengthSquared(d);
+}
+
+BMath::Vec2 Lerp(BMath::Vec2 a, BMath::Vec2 b, f32 t)
+{
+    return a + (b - a) * t;
+}
+
 
 Vec3& operator*=(Vec3& v, f32 scalar) 
 {

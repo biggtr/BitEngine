@@ -155,6 +155,7 @@ struct Animation2DControllerComponent
 struct Rigidbody2DComponent
 {
     b2BodyId BodyId = b2_nullBodyId;
+    b2ShapeId ShapeId = b2_nullShapeId;
     PhysicsBodyType Type = PhysicsBodyType::Static;
     
     f32 GravityScale = 1.0f;

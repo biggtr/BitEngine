@@ -1,7 +1,9 @@
 #include "Physics2D.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Math/Vector.h"
 #include "box2d/box2d.h"
 #include "box2d/types.h"
+#include <cstring>
 
 
 namespace BitEngine
@@ -111,6 +113,32 @@ BMath::Vec2 Physics2D::GetLinearVelocity(b2BodyId bodyID)
 void Physics2D::Step()
 {
     b2World_Step(m_World, m_FixedTimeStep, m_SubSteps);
+}
+
+f32 Physics2D::CastCallback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context)
+{
+    CastRayContext* myContext = (CastRayContext*)context;
+
+    if(shapeId.index1 == myContext->IgnoreShapeID.index1)
+        return 1.0f;
+    if (fraction < myContext->Fraction)
+    {
+        myContext->ShapeID = shapeId;
+        myContext->Point = point;
+        myContext->Normal = normal;
+        myContext->Fraction = fraction;
+    }
+
+    return fraction;
+}
+CastRayContext Physics2D::CastRay(const BMath::Vec2& origin, const BMath::Vec2& translation, b2ShapeId ignoreShapeID)
+{
+    CastRayContext context = {};
+    context.Fraction = 1.0f;
+    context.IgnoreShapeID = ignoreShapeID;
+    b2QueryFilter filter = b2DefaultQueryFilter();
+    b2World_CastRay(m_World, (b2Vec2){origin.x, origin.y}, (b2Vec2){translation.x, translation.y}, filter, CastCallback, &context);
+    return context;
 }
 
 }

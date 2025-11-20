@@ -38,21 +38,21 @@ public:
         {
             auto& boxCollider = m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
             b2Polygon polygon = m_Physics2D->CreateBoxShape(boxCollider.Width, boxCollider.Height);
-            boxCollider.shapeId = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+            rigidbody.ShapeId = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
         }
 
         else if(m_EntityManager->HasComponent<CircleCollider2DComponent>(entity))
         {
             auto& circleCollider = m_EntityManager->GetComponent<CircleCollider2DComponent>(entity);
             b2Circle circle = m_Physics2D->CreateCircleShape(circleCollider.center, circleCollider.radius);
-            circleCollider.shapeId = m_Physics2D->AddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+            rigidbody.ShapeId = m_Physics2D->AddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
         }
 
         else if(m_EntityManager->HasComponent<CapsuleCollider2DComponent>(entity))
         {
             auto& capsuleCollider = m_EntityManager->GetComponent<CapsuleCollider2DComponent>(entity);
             b2Capsule capsule = m_Physics2D->CreateCapsuleShape(capsuleCollider.center1, capsuleCollider.center2, capsuleCollider.radius);
-            capsuleCollider.shapeId = m_Physics2D->AddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+            rigidbody.ShapeId = m_Physics2D->AddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
         }
         
 
@@ -73,6 +73,7 @@ public:
             m_Accumulator -= fixedTimeStep;
         }
         SyncTransforms();
+
     }
 
     void SyncTransforms()

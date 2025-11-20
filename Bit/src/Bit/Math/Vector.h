@@ -21,64 +21,26 @@ struct Vec2
 
 };
 
-// Vec2& operator=(const Vec2& vec)
-// {
-//     x = vec.x;
-//     y = vec.y;
-//     return *this;
-// }
-//
-// Vec2& operator=(Vec2&& vec)
-// {
-//     x = vec.x;
-//     y = vec.y;
-//     return *this;
-// }
-// Vec2 operator+(Vec2& other)
-// {
-//     return Vec2(x + other.x, y + other.y);
-// }
-// Vec2 operator-(Vec2& other)
-// {
-//     return Vec2(x - other.x, y - other.y);
-// }
-// static float Dot(const Vec2& a, const Vec2& b)
-// {
-//     return a.x * b.x + a.y * b.y;
-// }
-//
-//
-//
-// static f32 LengthSquared(const Vec2& vec)
-// {
-//     return vec.x * vec.x + vec.y * vec.y;
-// }
-// static f32 Length(const Vec2& vec) 
-// {
-//     return std::sqrt(vec.x * vec.x + vec.y * vec.y);
-// }
-//
-// static void Normalize(Vec2* vec) 
-// {
-//     float vecLength = Vec2::Length(*vec);
-//     vec->x /= vecLength;
-//     vec->y /= vecLength;
-// }
-// static Vec2 Normalize(Vec2 vector) 
-// {
-//     Vec2::Normalize(&vector);
-//     return vector;
-// }
-// static f32 Distance(const Vec2& vector1, const Vec2& vector2)
-// {
-//     Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
-//     return Vec2::Length(d);
-// }
-// static f32 DistanceSquared(const Vec2& vector1, const Vec2& vector2)
-// {
-//     Vec2 d = {vector2.x - vector1.x, vector2.y - vector1.y};
-//     return Vec2::LengthSquared(d);
-// }
+Vec2& operator*=(Vec2& v, f32 scalar); 
+Vec2 operator*(const Vec2& v, f32 scalar); 
+Vec2& operator/=(Vec2& v, f32 scalar); 
+Vec2 operator/(Vec2& v, f32 scalar);
+Vec2& operator+=(Vec2& v1, const Vec2& v2);
+Vec2 operator+(const Vec2& v1, const Vec2& v2);
+Vec2& operator-=(Vec2& v1, const Vec2& v2);
+Vec2 operator-(const Vec2& v1, const Vec2& v2);
+float Vec2Dot(const Vec2& a, const Vec2& b);
+Vec2 Vec2Zero();
+Vec2 Vec2One();
+f32 Vec2Length(const Vec2& vec); 
+void Vec2Normalize(Vec2* vec); 
+Vec2 Vec2Normalize(Vec2 vector); 
+Vec2 Vec2Normal2D(const Vec2& v);
+f32 Vec2LengthSquared(const Vec2& vec);
+f32 Vec2Distance(const Vec2& vec1, const Vec2& vec2);
+f32 Vec2DistanceSquared(const Vec2& vec1, const Vec2& vec2);
+BMath::Vec2 Lerp(BMath::Vec2 a, BMath::Vec2 b, f32 t);
+
 struct Vec3
 {
     union 

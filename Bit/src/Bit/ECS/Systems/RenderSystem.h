@@ -79,7 +79,7 @@ public:
                 // BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxColliderComponent.Size.x, boxColliderComponent.Size.y);
                 // BIT_LOG_DEBUG("transformComponent.Position.x : %.2f, pos.y : %.2f", transformComponent.Position.x, transformComponent.Position.y);
                 renderer.DrawRect(transformComponent.Position, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
-                        {1.0f, 0.0f, 0.0f, 1.0f}
+                        {1.0f, 1.0f, 0.0f, 1.0f}
                         );
             }
         }
