@@ -37,7 +37,7 @@ public:
         if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
         {
             auto& boxCollider = m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
-            b2Polygon polygon = m_Physics2D->CreateBoxShape(boxCollider.Width, boxCollider.Height);
+            b2Polygon polygon = m_Physics2D->CreateBoxShape(boxCollider.Width, boxCollider.Height, boxCollider.offset);
             rigidbody.ShapeId = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
         }
 

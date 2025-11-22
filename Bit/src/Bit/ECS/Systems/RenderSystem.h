@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Core/Core.h"
+#include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/ECS/EntityManager.h"
@@ -20,6 +21,7 @@ public:
     RenderSystem()
     {
         RequireComponent<TransformComponent>();
+        m_IsWireframeOn = false;
     }
     SYSTEM_CLASS_TYPE(RENDER);
 
@@ -27,6 +29,10 @@ public:
     
     void Update(Renderer2D& renderer) 
     {
+        if(InputIsKeyDown(KEY_W) && !InputWasKeyDown(KEY_W))
+        {
+            m_IsWireframeOn = !m_IsWireframeOn; 
+        }
         std::vector<Entity> RenderableEntities;
         for(const Entity& entity : GetEntities())
         {
@@ -72,15 +78,31 @@ public:
                 BMath::Mat4 transform = BMath::Mat4CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleComponent.Radius);
                 renderer.DrawCircle(transform, circleComponent.Color, circleComponent.Thickness, circleComponent.Fade);
             }
-            if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
+            if(m_IsWireframeOn)
             {
+                if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
+                {
 
-                BoxCollider2DComponent& boxColliderComponent= m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
-                // BIT_LOG_DEBUG("boxCollider.size.x : %.2f, size.y : %.2f", boxColliderComponent.Size.x, boxColliderComponent.Size.y);
-                // BIT_LOG_DEBUG("transformComponent.Position.x : %.2f, pos.y : %.2f", transformComponent.Position.x, transformComponent.Position.y);
-                renderer.DrawRect(transformComponent.Position, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
-                        {1.0f, 1.0f, 0.0f, 1.0f}
-                        );
+                    BoxCollider2DComponent& boxColliderComponent= m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
+                    renderer.DrawRect({transformComponent.Position.x + boxColliderComponent.offset.x, transformComponent.Position.y + boxColliderComponent.offset.y, 0.0f}, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
+                            0.0f,
+                            boxColliderComponent.DebugColor
+                            );
+                }
+                if(m_EntityManager->HasComponent<CircleCollider2DComponent>(entity))
+                {
+                    CircleCollider2DComponent& circleCollider = m_EntityManager->GetComponent<CircleCollider2DComponent>(entity);
+                    BMath::Mat4 transform = BMath::Mat4CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleCollider.radius);
+                    renderer.DrawCircle(transform, {1.0f, 1.0f, 1.0f, 1.0f});
+                }
+
+                if(m_EntityManager->HasComponent<CapsuleCollider2DComponent>(entity))
+                {
+                    CapsuleCollider2DComponent& capsuleCollider = m_EntityManager->GetComponent<CapsuleCollider2DComponent>(entity);
+                    renderer.DrawCapsule({capsuleCollider.center1.x + transformComponent.Position.x, capsuleCollider.center1.y + transformComponent.Position.y},
+                            {capsuleCollider.center2.x + transformComponent.Position.x, capsuleCollider.center2.y + transformComponent.Position.y},
+                            capsuleCollider.radius, capsuleCollider.color);
+                }
             }
         }
         
@@ -109,6 +131,7 @@ private:
         sprite.UVs[6] = u1; sprite.UVs[7] = v2;
     }
     
+    b8 m_IsWireframeOn;
 
 };
 

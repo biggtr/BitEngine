@@ -41,7 +41,7 @@ public:
     b2BodyId CreateBody(PhysicsBodyType bodyType, const BMath::Vec3& position);
 
     b2Circle CreateCircleShape(const BMath::Vec2& center, f32 radius);
-    b2Polygon CreateBoxShape(f32 width, f32 height);
+    b2Polygon CreateBoxShape(f32 width, f32 height, const BMath::Vec2& offset, f32 angle = 0.0f);
     b2Capsule CreateCapsuleShape(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius);
 
 

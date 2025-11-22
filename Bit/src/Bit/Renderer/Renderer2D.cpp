@@ -2,6 +2,7 @@
 #include <array>
 #include "Bit/Core/Logger.h"
 #include "Bit/Resources/ShaderManager.h"
+#include "box2d/collision.h"
 #include "glad/glad.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
@@ -233,6 +234,7 @@ void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath
 
     s_RenderData.CircleShader->Bind();
     s_RenderData.CircleShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
+
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -385,34 +387,52 @@ void Renderer2D::DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BM
 
     s_RenderData.LineVertexCount += 2;
 }
-void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color)
+void Renderer2D::DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, const BMath::Vec4& color)
 {
-    BMath::Vec3 p0(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
-    BMath::Vec3 p1(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
-    BMath::Vec3 p2(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
-    BMath::Vec3 p3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
-
-    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 1, p0.x, p0.y);
-    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 2, p1.x, p1.y);
-    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 3, p2.x, p2.y);
-    // BIT_LOG_DEBUG("V : %d x: %.2f y: %.2f", 4, p3.x, p3.y);
-    DrawLine(p0, p1, color);
-    DrawLine(p1, p2, color);
-    DrawLine(p2, p3, color);
-    DrawLine(p3, p0, color);
+    BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, rotation);
+    DrawRect(transform, color);
 }
-// void Renderer2D::DrawRect(BMath::Mat4& transform, const BMath::Vec4& color)
-// {
-//     BMath::Vec3 lineVertices[4];
-//     for(u32 i = 0; i < 4; ++i)
-//     {
-//         lineVertices[i] = transform * s_RenderData.QuadVertexPositions[i];
-//     }
-//     DrawLine(lineVertices[0], lineVertices[1], color);
-//     DrawLine(lineVertices[1], lineVertices[2], color);
-//     DrawLine(lineVertices[2], lineVertices[3], color);
-//     DrawLine(lineVertices[3], lineVertices[0], color);
-// }
+void Renderer2D::DrawRect(const BMath::Mat4& transform, const BMath::Vec4& color)
+{
+    BMath::Vec3 worldVertices[4];
+    for (u32 i = 0; i < 4; ++i)
+    {
+        BMath::Vec4 transformed = transform * s_RenderData.QuadVertexPositions[i];
+        worldVertices[i] = BMath::Vec4ToVec3(transformed);
+    }
+
+    DrawLine(worldVertices[0], worldVertices[1], color);
+    DrawLine(worldVertices[1], worldVertices[2], color);
+    DrawLine(worldVertices[2], worldVertices[3], color);
+    DrawLine(worldVertices[3], worldVertices[0], color);
+}
+
+void Renderer2D::DrawCapsule(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius, const BMath::Vec4& color)
+{
+    BMath::Vec2 dir = center2 - center1;
+    f32 length = BMath::Vec2Length(dir);
+    if(BMath::Vec2Length(dir) <= 0.01f) // circles too close draw only one circle
+    {
+        BMath::Mat4 transform = BMath::Mat4Translate(center1.x, center1.y, 0.0f)
+                             * BMath::Mat4Scale(radius * 2.0f, radius * 2.0f, 1.0f);
+                             
+        DrawCircle(transform, color);
+        return;
+    }
+    BMath::Vec2 rectMid = (center1 + center2) * 0.5f;
+    f32 angle = atan2f(dir.y, dir.x);
+
+    BMath::Mat4 rectTransform = BMath::Mat4Translate(rectMid.x, rectMid.y, 0.0f) * BMath::Mat4Rotate(0.0f, 0.0f, angle) * BMath::Mat4Scale(length, radius * 2.0f, 0.0f);
+    DrawRect(rectTransform,  color);
+
+    BMath::Mat4 leftCapTransform  = BMath::Mat4Translate(center1.x, center1.y, 0.0f) * BMath::Mat4Scale(radius * 2.0f, radius * 2.0f, 1.0f);
+    
+    BMath::Mat4 rightCapTransform = BMath::Mat4Translate(center2.x, center2.y, 0.0f) * BMath::Mat4Scale(radius * 2.0f, radius * 2.0f, 1.0f);
+    
+    DrawCircle(leftCapTransform, color, 0.2f);
+
+    DrawCircle(rightCapTransform, color, 0.2f);
+}
 void Renderer2D::Shutdown()
 {
     delete m_ShaderManager;

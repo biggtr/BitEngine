@@ -2,6 +2,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Vector.h"
 #include "box2d/box2d.h"
+#include "box2d/collision.h"
 #include "box2d/types.h"
 #include <cstring>
 
@@ -53,9 +54,10 @@ b2Circle Physics2D::CreateCircleShape(const BMath::Vec2& center, f32 radius)
     return circle;
 }
 
-b2Polygon Physics2D::CreateBoxShape(f32 width, f32 height)
+b2Polygon Physics2D::CreateBoxShape(f32 width, f32 height, const BMath::Vec2& offset, f32 angle)
 {
-    b2Polygon box = b2MakeBox(width * 0.5f, height * 0.5f);
+    b2Rot rotation = b2MakeRot(angle);
+    b2Polygon box = b2MakeOffsetBox(width * 0.5f, height * 0.5f, (b2Vec2){offset.x, offset.y}, rotation);
     return box;
 }
 

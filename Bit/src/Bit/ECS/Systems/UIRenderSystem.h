@@ -38,6 +38,7 @@ public:
 
                     BoxCollider2DComponent& boxColliderComponent = m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
                     renderer.DrawRect(transformComponent.Position, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
+                            0.0f,
                             {1.0f, 0.0f, 0.0f, 1.0f}
                             );
                 }

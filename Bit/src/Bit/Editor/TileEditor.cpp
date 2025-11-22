@@ -459,7 +459,7 @@ void TileEditor::RenderCursor(Renderer2D* renderer, const BMath::Mat4& viewProje
             break;
     }
     
-    renderer->DrawRect(position, size, cursorColor);
+    renderer->DrawRect(position, size, 0.0f, cursorColor);
     
     BMath::Vec4 borderColor(cursorColor.x, cursorColor.y, cursorColor.z, 0.8f);
     f32 halfSize = (f32)tileSize * 0.5f;

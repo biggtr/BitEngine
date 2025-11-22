@@ -7,15 +7,15 @@ struct Character2DControllerComponent
 {
     BMath::Vec3 Velocity;
 
-    f32 MaxSpeed = 180.0f;
-    f32 Acceleration = 1500.0f;
-    f32 Deceleration = 2000.0f;
-    f32 AirControl = 0.85f;
+    f32 MaxSpeed = 100.0f;
+    f32 Acceleration = 300.0f;
+    f32 Deceleration = 400.0f;
+    f32 AirControl = 0.86f;
     
-    f32 JumpForce = 380.0f;
-    f32 RisingGravity = 1000.0f;
-    f32 FallingGravity = 1800.0f;
-    f32 TerminalVelocity = 500.0f;
+    f32 JumpForce = 200.0f;
+    f32 RisingGravity = 400.0f;
+    f32 FallingGravity = 550.0f;
+    f32 TerminalVelocity = 100.0f;
 
     b8 IsGrounded = false;
     b8 IsJumping = false;
@@ -31,11 +31,6 @@ struct Character2DControllerComponent
     bool JumpPressed = false;
     bool JumpHeld = false;
     bool JumpReleased = false;
-
-    // half width and height
-    f32 Width = 16.0f;
-    f32 Height = 16.0f;
-    BMath::Vec3 Offset;
 
     b8 CollidingBelow = false;
     b8 CollidingAbove = false;
@@ -68,15 +63,23 @@ private:
 
     void ApplyPhysics(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, f32 deltaTime);
 
-    void HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller); 
+    // void HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller); 
 
     void HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller);
 
     void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
 
-    BMath::Vec2 HandleKinematicCollisions(f32 deltaTime, BitEngine::Rigidbody2DComponent& rigidBody, Character2DControllerComponent& controller, const BMath::Vec2& currentPos, const BMath::Vec2& desiredPos);
+    BMath::Vec2 HandleKinematicCollisions(f32 deltaTime, 
+                                                  BitEngine::Rigidbody2DComponent& rigidBody, 
+                                                  Character2DControllerComponent& controller,
+                                                  BitEngine::BoxCollider2DComponent& boxCollider,
+                                                  const BMath::Vec2& currentPos,
+                                                  const BMath::Vec2& desiredPos);
 
-    void UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, Character2DControllerComponent& controller, const BMath::Vec2& currentPos);
+    void UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, 
+                                    Character2DControllerComponent& controller,
+                                    BitEngine::BoxCollider2DComponent& boxCollider,
+                                    const BMath::Vec2& currentPos);
 private:
     BitEngine::Entity player;
     BitEngine::Entity m_WorldColliders[100];

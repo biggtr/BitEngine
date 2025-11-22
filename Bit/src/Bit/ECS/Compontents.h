@@ -174,20 +174,23 @@ struct BoxCollider2DComponent
     b2ShapeId shapeId = b2_nullShapeId;
     f32 Width;
     f32 Height;
+    BMath::Vec2 offset = BMath::Vec2Zero();
+    BMath::Vec4 DebugColor = {1.0f, 0.0f ,1.0f, 1.0f};
 };
 
 struct CircleCollider2DComponent
 {
     b2ShapeId shapeId = b2_nullShapeId;
-    const BMath::Vec2& center;
+    BMath::Vec2 center;
     f32 radius;
 };
 
 struct CapsuleCollider2DComponent
 {
     b2ShapeId shapeId = b2_nullShapeId;
-    const BMath::Vec2& center1;
-    const BMath::Vec2& center2;
+    BMath::Vec2 center1 = {0.0f, 0.0f};
+    BMath::Vec2 center2 = {0.0f, 0.0f};
+    BMath::Vec4 color = {1.0f, 0.4f, 1.0f, 1.0f};
     f32 radius;
 };
 

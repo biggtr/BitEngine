@@ -43,9 +43,12 @@ public:
     void DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs);
 
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
-    void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, const BMath::Vec4& color);
-    // void DrawRect(BMath::Mat4& transform, const BMath::Vec4& color)
+
+    void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, const BMath::Vec4& color);
+    void DrawRect(const BMath::Mat4& transform, const BMath::Vec4& color);
+
     void DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f32 thickness = 0.5, f32 fade = 0.0005);
+    void DrawCapsule(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius, const BMath::Vec4& color);
     void EndScene();
 
     
