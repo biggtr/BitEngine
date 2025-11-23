@@ -14,7 +14,7 @@ void TileSet::SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, 
 {
     m_Texture = texture;
     m_TileSetWidth = tilesetWidth;
-    m_TileSetHeight = tilesetWidth;
+    m_TileSetHeight = tileSetHeight;
     m_TileWidth = tileWidth;
     m_TileHeight = tileHeight;
 

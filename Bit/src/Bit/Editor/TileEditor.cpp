@@ -301,7 +301,7 @@ void TileEditor::GetTileCollisions(const BMath::Vec3& position, f32 width, f32 h
 
     }
 }
-void TileEditor::Render(Renderer2D* renderer, const BMath::Mat4& viewProjection)
+void TileEditor::Render(const BMath::Mat4& viewProjection)
 {
     TileMap* tilemap = m_EditorState.GetTileMap();
     if (!tilemap)
@@ -317,7 +317,7 @@ void TileEditor::Render(Renderer2D* renderer, const BMath::Mat4& viewProjection)
     
     if (m_EditorState.IsEditorMode())
     {
-        RenderCursor(renderer, viewProjection);
+        RenderCursor(m_Renderer2D, viewProjection);
     }
 }
 
@@ -504,16 +504,9 @@ void TileEditor::PaintTile(i32 tileX, i32 tileY)
     if (!layer)
         return;
     
-    i32 mapWidth = (i32)tilemap->GetWidth();
-    i32 mapHeight = (i32)tilemap->GetHeight();
-    i32 localX = tileX + (mapWidth / 2);
-    i32 localY = tileY + (mapHeight / 2);
-    
-    if (localX < 0 || localX >= mapWidth || localY < 0 || localY >= mapHeight)
-        return;
     
     u32 selectedTile = m_EditorState.GetSelectedTile();
-    layer->SetTile(localX, localY, selectedTile);
+    layer->SetTile(tileX, tileY, selectedTile);
 }
 
 void TileEditor::EraseTile(i32 tileX, i32 tileY)

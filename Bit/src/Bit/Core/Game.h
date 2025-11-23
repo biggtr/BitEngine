@@ -169,7 +169,7 @@ public:
         m_Renderer2D->BeginScene(viewProjection);
         if (m_TileEditor)
         {
-            m_TileEditor->Render(m_Renderer2D, viewProjection);
+            m_TileEditor->Render(viewProjection);
         }
         Render2D();
         m_ParticleSystem->OnRender(m_Renderer2D);

@@ -84,9 +84,6 @@ void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, const BMa
 {
     VisibleBounds bounds = CalculateVisibleBounds(viewProjection, tileLayer->GetWidth(), tileLayer->GetHeight(), tileSize);
     
-    u32 mapWidth = tileLayer->GetWidth();
-    u32 mapHeight = tileLayer->GetHeight();
-    
     for(i32 y = bounds.MinTileY; y <= bounds.MaxTileY; ++y)
     {
         for(i32 x = bounds.MinTileX; x <= bounds.MaxTileX; ++x)
@@ -96,19 +93,21 @@ void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, const BMa
             if (tileID == (u32)-1 || tileID == 0)
                 continue;
             
+            
+            
             Tile* tile = tileSet->GetTile(tileID);
             if (!tile)
+            {
                 continue;
-
-            i32 worldX = x + (mapWidth / 2);
-            i32 worldY = y + (mapHeight / 2);
+            }
 
             BMath::Vec3 position;
-            position.x = worldX * tileSize + tileSize * 0.5f; 
-            position.y = worldY * tileSize + tileSize * 0.5f;
+            position.x = (f32)x * (f32)tileSize + (f32)tileSize * 0.5f; 
+            position.y = (f32)y * (f32)tileSize + (f32)tileSize * 0.5f;
             position.z = -0.5f;
 
-            BMath::Vec3 size(tileSize, tileSize, 1.0f);
+
+            BMath::Vec3 size((f32)tileSize, (f32)tileSize, 1.0f);
 
             f32 Uvs[8] = {};
             tileSet->CalculateTileUVs(tileID, Uvs);
@@ -131,19 +130,12 @@ VisibleBounds TileRenderer::CalculateVisibleBounds(const BMath::Mat4& viewProjec
     bound.Top = BMath::Max(topLeft.y, topRight.y);
     bound.Bottom = BMath::Min(botLeft.y, botRight.y);
 
-    i32 worldMinTileX = (i32)BMath::Floor(bound.Left / tileSize);
-    i32 worldMaxTileX = (i32)BMath::Ceil(bound.Right / tileSize);
-    i32 worldMinTileY = (i32)BMath::Floor(bound.Bottom / tileSize);
-    i32 worldMaxTileY = (i32)BMath::Ceil(bound.Top / tileSize);
+    bound.MinTileX = (i32)BMath::Floor(bound.Left / tileSize);
+    bound.MaxTileX = (i32)BMath::Ceil(bound.Right / tileSize);
+    bound.MinTileY = (i32)BMath::Floor(bound.Bottom / tileSize);
+    bound.MaxTileY = (i32)BMath::Ceil(bound.Top / tileSize);
 
-    i32 halfWidth = mapWidth / 2;
-    i32 halfHeight = mapHeight / 2;
     
-    bound.MinTileX = worldMinTileX - halfWidth;
-    bound.MaxTileX = worldMaxTileX - halfWidth;
-    bound.MinTileY = worldMinTileY - halfHeight;
-    bound.MaxTileY = worldMaxTileY - halfHeight;
-
     return bound;
 }
 

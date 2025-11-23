@@ -31,7 +31,7 @@ public:
     
     void Initialize();
     void Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection);
-    void Render(Renderer2D* renderer, const BMath::Mat4& viewProjection);
+    void Render(const BMath::Mat4& viewProjection);
     
     TileSet* CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight);
     void SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, 
@@ -82,6 +82,7 @@ private:
     TileSet* m_TileSet;
     TileEditorState m_EditorState;
     TileRenderer m_TileRenderer;
+    Renderer2D* m_Renderer2D;
     
     BMath::Vec3 m_MouseTilePos;
     BMath::Vec3 m_LastPaintedTile;

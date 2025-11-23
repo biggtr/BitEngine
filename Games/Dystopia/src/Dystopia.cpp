@@ -8,6 +8,8 @@
 #include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/ECS/Systems/System.h"
 #include "Bit/Physics/Physics2D.h"
+#include "Bit/Tiles/Tile.h"
+#include "Bit/Tiles/TileLayer.h"
 
 void Dystopia::Initialize()
 {
@@ -65,10 +67,13 @@ void Dystopia::Initialize()
 
     m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
 
-    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tileset.png");
-    BitEngine::TileSet* tileset = m_TileEditor->CreateTileSet(tilesetTexture, 320.0f, 320.0f, 32, 32);
+    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/samuri.png");
+    m_TileEditor->CreateTileSet(tilesetTexture, 672.0f, 64.0f, 32, 32);
+    m_TileEditor->SelectTile(3);
 
-    m_TileEditor->CreateTileMap("Level_1", 32, 32, 32);
+    m_TileEditor->CreateTileMap("Level_1", 32, 32, 4);
+    m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
+    m_TileEditor->SetActiveLayer(0);
 
 }
 
