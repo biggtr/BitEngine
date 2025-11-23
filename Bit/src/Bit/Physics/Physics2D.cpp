@@ -70,10 +70,15 @@ b2Capsule Physics2D::CreateCapsuleShape(const BMath::Vec2& center1, const BMath:
     return capsule;
 }
 
-b2ShapeId Physics2D::AddCircle(b2BodyId body, const b2Circle& circle,
-                               float density, float friction, float restitution)
+b2ShapeId Physics2D::AddCircle(b2BodyId body, const b2Circle& circle, 
+                    float density, 
+                    float friction,
+                    float restitution, 
+                    PhysicsCategories categoryType, PhysicsCategories categoryToCollideWith)
 {
     b2ShapeDef def = b2DefaultShapeDef();
+    def.filter.categoryBits = categoryType;
+    def.filter.maskBits = categoryToCollideWith;
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
@@ -82,19 +87,29 @@ b2ShapeId Physics2D::AddCircle(b2BodyId body, const b2Circle& circle,
 }
 
 b2ShapeId Physics2D::AddBox(b2BodyId body, const b2Polygon& box,
-                               float density, float friction, float restitution)
+                    float density, 
+                    float friction,
+                    float restitution, 
+                    PhysicsCategories categoryType, PhysicsCategories categoryToCollideWith)
 {
     b2ShapeDef def = b2DefaultShapeDef();
+    def.filter.categoryBits = categoryType;
+    def.filter.maskBits = categoryToCollideWith;
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
 
     return b2CreatePolygonShape(body, &def, &box);
 }
-b2ShapeId Physics2D::AddCapsule(b2BodyId body, const b2Capsule& capsule,
-                               float density, float friction, float restitution)
+b2ShapeId Physics2D::AddCapsule(b2BodyId body, const b2Capsule& capsule, 
+                    float density, 
+                    float friction,
+                    float restitution, 
+                    PhysicsCategories categoryType, PhysicsCategories categoryToCollideWith)
 {
     b2ShapeDef def = b2DefaultShapeDef();
+    def.filter.categoryBits = categoryType;
+    def.filter.maskBits = categoryToCollideWith;
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;

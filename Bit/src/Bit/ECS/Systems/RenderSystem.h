@@ -2,6 +2,7 @@
 #include "Bit/Core/Core.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/ECS/EntityManager.h"
 #include "Bit/ECS/Compontents.h"
@@ -37,8 +38,7 @@ public:
         for(const Entity& entity : GetEntities())
         {
             if(m_EntityManager->HasComponent<SpriteComponent>(entity) || 
-                m_EntityManager->HasComponent<Circle2DComponent>(entity) ||
-                m_EntityManager->HasComponent<BoxCollider2DComponent>(entity)) 
+                m_EntityManager->HasComponent<Circle2DComponent>(entity)) 
             {
                 RenderableEntities.push_back(entity);
             }
@@ -80,30 +80,58 @@ public:
             }
             if(m_IsWireframeOn)
             {
-                if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
+                if(m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
                 {
-
-                    BoxCollider2DComponent& boxColliderComponent= m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
-                    renderer.DrawRect({transformComponent.Position.x + boxColliderComponent.offset.x, transformComponent.Position.y + boxColliderComponent.offset.y, 0.0f}, {boxColliderComponent.Width, boxColliderComponent.Height, 0},
-                            0.0f,
-                            boxColliderComponent.DebugColor
-                            );
-                }
-                if(m_EntityManager->HasComponent<CircleCollider2DComponent>(entity))
-                {
-                    CircleCollider2DComponent& circleCollider = m_EntityManager->GetComponent<CircleCollider2DComponent>(entity);
-                    BMath::Mat4 transform = BMath::Mat4CreateTransform(transformComponent.Position,  BMath::Vec3(2.0f, 2.0f, 0.0f) * circleCollider.radius);
-                    renderer.DrawCircle(transform, {1.0f, 1.0f, 1.0f, 1.0f});
-                }
-
-                if(m_EntityManager->HasComponent<CapsuleCollider2DComponent>(entity))
-                {
-                    CapsuleCollider2DComponent& capsuleCollider = m_EntityManager->GetComponent<CapsuleCollider2DComponent>(entity);
-                    renderer.DrawCapsule({capsuleCollider.center1.x + transformComponent.Position.x, capsuleCollider.center1.y + transformComponent.Position.y},
-                            {capsuleCollider.center2.x + transformComponent.Position.x, capsuleCollider.center2.y + transformComponent.Position.y},
-                            capsuleCollider.radius, capsuleCollider.color);
+                    auto& rigidBody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
+                    
+                    for(const auto& collider : rigidBody.MultiColliderComponents)
+                    {
+                        switch (collider.Type) 
+                        {       
+                            case PhysicsColliderType::BOX:
+                            {
+                                BIT_LOG_DEBUG("DrawRect debug");
+                                renderer.DrawRect(
+                                    {transformComponent.Position.x + collider.BoxCollider2D.offset.x, 
+                                     transformComponent.Position.y + collider.BoxCollider2D.offset.y, 
+                                     0.0f}, 
+                                    {collider.BoxCollider2D.Width, collider.BoxCollider2D.Height, 0.0f},
+                                    BMath::DegToRad(collider.BoxCollider2D.Rotation),
+                                    {1.0f, 1.0f, 0.0f, 1.0f}
+                                );
+                                break;
+                            }
+                            case PhysicsColliderType::CIRCLE:
+                            {
+                                BMath::Vec3 circlePos = {
+                                    transformComponent.Position.x + collider.CircleCollider2D.center.x,
+                                    transformComponent.Position.y + collider.CircleCollider2D.center.y,
+                                    transformComponent.Position.z
+                                };
+                                BMath::Mat4 transform = BMath::Mat4CreateTransform(
+                                    circlePos,  
+                                    BMath::Vec3(2.0f, 2.0f, 0.0f) * collider.CircleCollider2D.radius
+                                );
+                                renderer.DrawCircle(transform, collider.CircleCollider2D.DebugColor);
+                                break;
+                            }
+                            case PhysicsColliderType::CAPSULE:
+                            {
+                                renderer.DrawCapsule(
+                                    {collider.CapsuleCollider2D.center1.x + transformComponent.Position.x, 
+                                     collider.CapsuleCollider2D.center1.y + transformComponent.Position.y},
+                                    {collider.CapsuleCollider2D.center2.x + transformComponent.Position.x, 
+                                     collider.CapsuleCollider2D.center2.y + transformComponent.Position.y},
+                                    collider.CapsuleCollider2D.radius, 
+                                    collider.CapsuleCollider2D.DebugColor
+                                );
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+
         }
         
     }

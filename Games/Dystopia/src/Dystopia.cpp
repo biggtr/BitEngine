@@ -37,18 +37,8 @@ void Dystopia::Initialize()
     playerRigidBody.Position = {0.0f, 100.0f, 0.0f};
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
 
-
-    // auto& playerCollider = player.AddComponent<BitEngine::CapsuleCollider2DComponent>();
-    // playerCollider.center1 = {0.0f, 10.0f};
-    // playerCollider.center2 = { 0.0f, -10.0f};
-    // playerCollider.radius = 2.0f;
-    
-    auto& playerCollider = player.AddComponent<BitEngine::BoxCollider2DComponent>();
-    playerCollider.Width = width * 0.4f; 
-    playerCollider.Height = height * 0.4f; 
-    playerCollider.offset = {0.0f, -5.0f};
-    playerCollider.DebugColor = {1.0f, 1.0f, 0.0f, 1.0f};
-
+    m_Physics2DSystem->CreateBoxShape(player, width * 0.4f, height * 0.4f, {0.0f, -5.0f}, 0.0f, true);
+    m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
 
     player.AddComponent<BitEngine::Animation2DControllerComponent>();
     m_Animation2DSystem->CreateAnimation(player, "PlayerRun", 16, 0, 0.07f);
@@ -67,11 +57,7 @@ void Dystopia::Initialize()
     floorRigidBody.Position = BMath::Vec3(0.0f, 0.0f, 0.0f);
     floorRigidBody.Type = BitEngine::PhysicsBodyType::Static;
 
-    auto& floorCollider = floor.AddComponent<BitEngine::BoxCollider2DComponent>();
-    floorCollider.Width = 200.0f;
-    floorCollider.Height = 10.0f;
-    floorCollider.DebugColor = {0.0f, 0.0f, 1.0f, 1.0f};
-    BIT_LOG_INFO("Floor bounds minY=%f maxY=%f", floorRigidBody.Position.y - floorCollider.Height*0.5f, floorRigidBody.Position.y + floorCollider.Height*0.5f);
+    m_Physics2DSystem->CreateBoxShape(floor, 200.0f, 10.0f);
     auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
     floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
@@ -81,16 +67,6 @@ void Dystopia::Initialize()
 
     BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tileset.png");
     BitEngine::TileSet* tileset = m_TileEditor->CreateTileSet(tilesetTexture, 320.0f, 320.0f, 32, 32);
-
-    BIT_LOG_INFO("Floor created at y=%f with height=%f (bounds: %f to %f)", 
-    floorRigidBody.Position.y, 
-    floorCollider.Height,
-    floorRigidBody.Position.y - floorCollider.Height * 0.5f,
-    floorRigidBody.Position.y + floorCollider.Height * 0.5f);
-
-    // BIT_LOG_INFO("Player created at y=%f with height=%f", 
-    // playerRigidBody.Position.y,
-    // playerCollider.Height);
 
     m_TileEditor->CreateTileMap("Level_1", 32, 32, 32);
 
@@ -111,8 +87,13 @@ void Dystopia::Update(f32 deltaTime)
     auto& transform = player.GetComponent<BitEngine::TransformComponent>();
     auto& controller = player.GetComponent<Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
-    auto& boxCollider = player.GetComponent<BitEngine::BoxCollider2DComponent>();
-
+    if(rigidbody.MultiColliderComponents.empty())
+    {
+        BIT_LOG_ERROR("Player has no colliders!");
+        return;
+    }
+    
+    auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;
     BMath::Vec2 currentPos = m_Physics2D->GetPosition(rigidbody.BodyId);
     UpdateGroundedState(rigidbody, controller, boxCollider, currentPos);
     
@@ -147,7 +128,7 @@ void Dystopia::UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody,
     BMath::Vec2 groundRayEnd   = {currentPos.x, groundRayStart.y - groundCheckDistance};
     BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
     
-    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.ShapeId);
+    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.PrimaryId);
     
     if(b2Shape_IsValid(groundContext.ShapeID) && 
        groundContext.Fraction >= 0.0f && 
@@ -289,7 +270,7 @@ BMath::Vec2 Dystopia::HandleKinematicCollisions(f32 deltaTime,
         
         if(fabs(sweepVector.y) > 0.1f)
         {
-            BitEngine::CastRayContext sweepContext = m_Physics2D->CastRay(sweepStart, sweepVector, rigidBody.ShapeId);
+            BitEngine::CastRayContext sweepContext = m_Physics2D->CastRay(sweepStart, sweepVector, rigidBody.PrimaryId);
             
             if(b2Shape_IsValid(sweepContext.ShapeID) && 
                sweepContext.Fraction > 0.0f && 
@@ -313,7 +294,7 @@ BMath::Vec2 Dystopia::HandleKinematicCollisions(f32 deltaTime,
     BMath::Vec2 groundRayEnd   = {finalPos.x, groundRayStart.y - groundCheckDistance};
     BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
     
-    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.ShapeId);
+    BitEngine::CastRayContext groundContext = m_Physics2D->CastRay(groundRayStart, groundRayVector, rigidBody.PrimaryId);
     
     if(b2Shape_IsValid(groundContext.ShapeID) && 
        groundContext.Fraction >= 0.0f && 
@@ -348,7 +329,7 @@ BMath::Vec2 Dystopia::HandleKinematicCollisions(f32 deltaTime,
         BMath::Vec2 ceilingRayEnd   = {finalPos.x, ceilingRayStart.y + 0.2f};
         BMath::Vec2 ceilingRayVector = ceilingRayEnd - ceilingRayStart;
         
-        BitEngine::CastRayContext ceilingContext = m_Physics2D->CastRay(ceilingRayStart, ceilingRayVector, rigidBody.ShapeId);
+        BitEngine::CastRayContext ceilingContext = m_Physics2D->CastRay(ceilingRayStart, ceilingRayVector, rigidBody.PrimaryId);
         
         if(b2Shape_IsValid(ceilingContext.ShapeID) && 
            ceilingContext.Fraction > 0.0f && 

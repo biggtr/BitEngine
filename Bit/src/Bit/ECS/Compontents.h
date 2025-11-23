@@ -3,9 +3,11 @@
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Physics/Physics2D.h"
+#include "Bit/Physics/PhysicsTypes.h"
 #include "Bit/Renderer/RendererAPI.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Texture.h"
+#include "box2d/types.h"
 #include <unordered_map>
 #include <vector>
 namespace BitEngine 
@@ -151,11 +153,50 @@ struct Animation2DControllerComponent
     
 };
 
+struct BoxCollider2DComponent
+{
+    b2ShapeId shapeId = b2_nullShapeId;
+    f32 Width;
+    f32 Height;
+    f32 Rotation;
+    BMath::Vec2 offset = BMath::Vec2Zero();
+    BMath::Vec4 DebugColor = {1.0f, 0.0f ,1.0f, 1.0f};
+};
+
+struct CircleCollider2DComponent
+{
+    b2ShapeId shapeId = b2_nullShapeId;
+    BMath::Vec2 center;
+    f32 radius;
+    BMath::Vec4 DebugColor = {0.0f, 0.0f, 1.0f, 1.0f};
+};
+
+struct CapsuleCollider2DComponent
+{
+    b2ShapeId shapeId = b2_nullShapeId;
+    BMath::Vec2 center1 = {0.0f, 0.0f};
+    BMath::Vec2 center2 = {0.0f, 0.0f};
+    BMath::Vec4 DebugColor = {1.0f, 0.4f, 1.0f, 1.0f};
+    f32 radius;
+};
+
+struct MultiColliderComponent
+{
+    PhysicsColliderType Type;
+    union   
+    {
+        BoxCollider2DComponent BoxCollider2D;        
+        CircleCollider2DComponent CircleCollider2D;        
+        CapsuleCollider2DComponent CapsuleCollider2D;        
+    };
+};
 
 struct Rigidbody2DComponent
 {
     b2BodyId BodyId = b2_nullBodyId;
-    b2ShapeId ShapeId = b2_nullShapeId;
+    b2ShapeId PrimaryId = b2_nullShapeId;
+    std::vector<b2ShapeId> ShapeIds; 
+    std::vector<MultiColliderComponent> MultiColliderComponents;
     PhysicsBodyType Type = PhysicsBodyType::Static;
     
     f32 GravityScale = 1.0f;
@@ -169,30 +210,6 @@ struct Rigidbody2DComponent
     BMath::Vec3 Velocity = BMath::Vec3Zero();
 };
 
-struct BoxCollider2DComponent
-{
-    b2ShapeId shapeId = b2_nullShapeId;
-    f32 Width;
-    f32 Height;
-    BMath::Vec2 offset = BMath::Vec2Zero();
-    BMath::Vec4 DebugColor = {1.0f, 0.0f ,1.0f, 1.0f};
-};
-
-struct CircleCollider2DComponent
-{
-    b2ShapeId shapeId = b2_nullShapeId;
-    BMath::Vec2 center;
-    f32 radius;
-};
-
-struct CapsuleCollider2DComponent
-{
-    b2ShapeId shapeId = b2_nullShapeId;
-    BMath::Vec2 center1 = {0.0f, 0.0f};
-    BMath::Vec2 center2 = {0.0f, 0.0f};
-    BMath::Vec4 color = {1.0f, 0.4f, 1.0f, 1.0f};
-    f32 radius;
-};
 
 struct Camera2DComponent
 {

@@ -2,6 +2,7 @@
 #include <vector>
 #include "Bit/Math/Vector.h"
 #include "Bit/Core/Defines.h"
+#include "Bit/Physics/PhysicsTypes.h"
 #include "box2d/box2d.h"
 
 namespace BitEngine
@@ -45,20 +46,23 @@ public:
     b2Capsule CreateCapsuleShape(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius);
 
 
-    b2ShapeId AddCircle(b2BodyId body, const b2Circle& circle,
-                        float density = 1.0f,
-                        float friction = 0.3f,
-                        float restitution = 0.0f);
+    b2ShapeId AddCircle(b2BodyId body, const b2Circle& circle, 
+                    float density = 1.0f,
+                    float friction = 0.3f,
+                    float restitution = 0.0f,
+                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
     b2ShapeId AddBox(b2BodyId body, const b2Polygon& box,
-                     float density = 1.0f,
-                     float friction = 0.3f,
-                     float restitution = 0.0f);
+                    float density = 1.0f,
+                    float friction = 0.3f,
+                    float restitution = 0.0f,
+                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
-    b2ShapeId AddCapsule(b2BodyId body, const b2Capsule& capsule,
-                         float density = 1.0f,
-                         float friction = 0.3f,
-                         float restitution = 0.0f);
+    b2ShapeId AddCapsule(b2BodyId body, const b2Capsule& capsule, 
+                    float density = 1.0f,
+                    float friction = 0.3f,
+                    float restitution = 0.0f,
+                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
     void SetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity);
     BMath::Vec2 GetLinearVelocity(b2BodyId bodyID);

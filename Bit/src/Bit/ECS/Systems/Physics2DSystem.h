@@ -1,10 +1,13 @@
 #pragma once
+#include "Bit/Core/Logger.h"
 #include "Bit/ECS/Compontents.h"
 #include "Bit/ECS/Entity.h"
 #include "Bit/ECS/EntityManager.h"
 #include "Bit/Physics/Physics2D.h"
+#include "Bit/Physics/PhysicsTypes.h"
 #include "System.h"
 #include "Bit/Math/Vector.h"
+#include "box2d/box2d.h"
 #include "box2d/collision.h"
 #include <random>
 #include <unordered_map>
@@ -32,30 +35,113 @@ public:
             return;
 
         auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
-        rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+
+        if(!b2Body_IsValid(rigidbody.BodyId))
+        {
+            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+        }
+        BIT_LOG_DEBUG("rigidbody id : %d", rigidbody.BodyId);
+    }
+
+    void CreateCircleShape(const Entity& entity, const BMath::Vec2& center, f32 radius, b8 isPrimary = false,
+                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE)
+    {
+        if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
+            return; 
+
+        auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
+
+        if(!b2Body_IsValid(rigidbody.BodyId))
+        {
+            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+        }
+
+        b2Circle circle = m_Physics2D->CreateCircleShape(center, radius);
+        b2ShapeId newShape = m_Physics2D->AddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+
+        rigidbody.ShapeIds.push_back(newShape);
         
-        if(m_EntityManager->HasComponent<BoxCollider2DComponent>(entity))
+
+        MultiColliderComponent colliderData = {};
+        colliderData.Type = PhysicsColliderType::CIRCLE;
+        colliderData.CircleCollider2D.center = center;
+        colliderData.CircleCollider2D.radius = radius;
+        colliderData.CircleCollider2D.shapeId = newShape;
+        
+        rigidbody.MultiColliderComponents.push_back(colliderData); 
+
+        if(isPrimary || rigidbody.ShapeIds.size() == 1)
         {
-            auto& boxCollider = m_EntityManager->GetComponent<BoxCollider2DComponent>(entity);
-            b2Polygon polygon = m_Physics2D->CreateBoxShape(boxCollider.Width, boxCollider.Height, boxCollider.offset);
-            rigidbody.ShapeId = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+            rigidbody.PrimaryId = newShape;
+        }
+    }
+    void CreateBoxShape(const Entity& entity, f32 width, f32 height, const BMath::Vec2& offset = {0.0f, 0.0f}, f32 angle = 0.0f, b8 isPrimary = false,
+                PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE)
+    {
+        if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
+            return;
+
+        auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
+
+        if(!b2Body_IsValid(rigidbody.BodyId))
+        {
+            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
         }
 
-        else if(m_EntityManager->HasComponent<CircleCollider2DComponent>(entity))
-        {
-            auto& circleCollider = m_EntityManager->GetComponent<CircleCollider2DComponent>(entity);
-            b2Circle circle = m_Physics2D->CreateCircleShape(circleCollider.center, circleCollider.radius);
-            rigidbody.ShapeId = m_Physics2D->AddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
-        }
+        b2Polygon polygon = m_Physics2D->CreateBoxShape(width, height, offset, angle);
 
-        else if(m_EntityManager->HasComponent<CapsuleCollider2DComponent>(entity))
-        {
-            auto& capsuleCollider = m_EntityManager->GetComponent<CapsuleCollider2DComponent>(entity);
-            b2Capsule capsule = m_Physics2D->CreateCapsuleShape(capsuleCollider.center1, capsuleCollider.center2, capsuleCollider.radius);
-            rigidbody.ShapeId = m_Physics2D->AddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
-        }
+        b2ShapeId newShape = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution, categoryType, categoryToCollideWith); 
+        rigidbody.ShapeIds.push_back(newShape);
         
 
+        MultiColliderComponent colliderData = {};
+        colliderData.Type = PhysicsColliderType::BOX;  
+        colliderData.BoxCollider2D.Width = width;
+        colliderData.BoxCollider2D.Height = height;
+        colliderData.BoxCollider2D.Rotation = angle;
+        colliderData.BoxCollider2D.offset = offset;
+        colliderData.BoxCollider2D.shapeId = newShape;
+    
+    rigidbody.MultiColliderComponents.push_back(colliderData);
+
+        if(isPrimary || rigidbody.ShapeIds.size() == 1)
+        {
+            rigidbody.PrimaryId = newShape;
+        }
+    }
+
+    void CreateCapsuleShape(const Entity& entity, const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius, b8 isPrimary = false,
+            PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE)
+    {
+        if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
+            return;
+
+        auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
+
+        if(!b2Body_IsValid(rigidbody.BodyId))
+        {
+            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+        }
+
+        b2Capsule capsule = m_Physics2D->CreateCapsuleShape(center1, center2, radius);
+
+        b2ShapeId newShape  = m_Physics2D->AddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+
+        rigidbody.ShapeIds.push_back(newShape);
+        
+        MultiColliderComponent colliderData = {};
+        colliderData.Type = PhysicsColliderType::CAPSULE;
+        colliderData.CapsuleCollider2D.center1 = center1;
+        colliderData.CapsuleCollider2D.center2 = center2;
+        colliderData.CapsuleCollider2D.radius = radius;
+        colliderData.CapsuleCollider2D.shapeId = newShape;
+        
+        rigidbody.MultiColliderComponents.push_back(colliderData);
+
+        if(isPrimary || rigidbody.ShapeIds.size() == 1)
+        {
+            rigidbody.PrimaryId = newShape;
+        }
     }
 
     void RemoveEntity(const Entity& entity) override

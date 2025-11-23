@@ -121,7 +121,6 @@ void Application::Run()
             m_Time.Update();
             float deltaTime = m_Time.GetDeltaTime();
 
-            m_EntityManager->Update();
             if(!m_GameInstance->OnUpdate(deltaTime))
             {
                 BIT_LOG_FATAL("Something Went Wrong with Game Update");

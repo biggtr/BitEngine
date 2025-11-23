@@ -141,6 +141,7 @@ public:
     }
     virtual b8 OnUpdate(f64 deltaTime)
     {
+        m_ECS->Update();
         m_Animation2DSystem->Update(deltaTime);
         m_Physics2DSystem->Update(deltaTime);
         if (m_TileEditor)
