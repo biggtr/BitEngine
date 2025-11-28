@@ -46,7 +46,6 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
     EventRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
-    EventRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
 
     u64 m_InputSystemMemReq;
@@ -82,15 +81,14 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Failed To Startup the platform");
         return false;
     }
-    PlatformPumpMessages(&m_Platform);
-    if(!m_Renderer3D->Initialize())
-    {
-        BIT_LOG_ERROR("Failed To Initialze Renderer3D");
-        return false;
-    }
     if(!m_Renderer2D->Initialize())
     {
         BIT_LOG_ERROR("Failed To Initialze Renderer2D");
+        return false;
+    }
+    if(!m_Renderer3D->Initialize())
+    {
+        BIT_LOG_ERROR("Failed To Initialze Renderer3D");
         return false;
     }
 
@@ -99,6 +97,9 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
     }
+
+    EventRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
+    PlatformPumpMessages(&m_Platform);
 
     m_IsRunning = true;
     m_IsSuspended = false;

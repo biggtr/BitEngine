@@ -60,6 +60,7 @@ protected:
     MaterialManager* m_MaterialManager = nullptr;
     GeometryManager* m_GeometryManager = nullptr;
     Physics2D* m_Physics2D = nullptr;
+    TileEditor* m_TileEditor = nullptr;
     
 
     RenderSystem* m_RenderSystem;
@@ -67,7 +68,6 @@ protected:
     Physics2DSystem* m_Physics2DSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
-    TileEditor* m_TileEditor;
 
     class Camera* ActiveWorldCamera;
 
@@ -127,7 +127,7 @@ public:
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
-        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
+        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
 
         //Create New Physics World
         m_Physics2D->CreateWorld(BMath::Vec2(0,0));
@@ -218,7 +218,7 @@ public:
         {
             m_Renderer2D->SetViewport(0, 0, width, height);
         }
-        if(m_TileEditor)
+        if(m_TileEditor != nullptr)
         {
             m_TileEditor->SetScreenSize(width, height);
         }

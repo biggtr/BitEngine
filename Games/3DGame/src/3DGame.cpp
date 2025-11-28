@@ -2,40 +2,39 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Material.h"
 
+BitEngine::Material* frenselMaterial;
 BitEngine::Geometry* cubeGeometry;
-BitEngine::Geometry* planeGeometry;
 BMath::Vec3 cubePosition;
-BMath::Vec3 planePosition;
 BMath::Vec3 cubeRotation;
 BMath::Mat4 cubeTransform;
 BMath::Mat4 planeTransform;
+BMath::Vec4 viewVec;
 void Game3D::Initialize()
 {
+    BIT_LOG_DEBUG("3d game init");
     cubePosition = {0,0,-10};
-    planePosition = {5,0,-10};
 
-    cubeGeometry = m_Renderer3D->GetGeometryManager()->GetGeometry("cube");
-    planeGeometry= m_Renderer3D->GetGeometryManager()->CreatePlane("plane");
+    cubeGeometry = m_Renderer3D->GetGeometryManager()->CreateCube("bluecube", 1.0f, {1.0f, 1.0f, 1.0f, 1.0f});
 
-    BitEngine::Material* material = m_Renderer3D->GetMaterialManager()->CreateMaterial("cubeMaterial", "PhongShader.glsl");
+    
+    BitEngine::Shader* frenselShader = m_Renderer3D->GetShaderManager()->LoadShader("frenselShader", "assets/shaders/FrenselOutline.glsl");
+    frenselMaterial = m_Renderer3D->GetMaterialManager()->CreateMaterial("frenselMaterial", "frenselShader");
 
-    m_AssetManager->AddTexture("texture", "assets/textures/icon_chest.png");
-    material->SetTexture("u_texture", m_AssetManager->GetTexture("texture"));
-    cubeGeometry->SetMaterial(material);
-    planeGeometry->SetMaterial(material);
-
+    cubeGeometry->SetMaterial(frenselMaterial);
+    
 }
 void Game3D::Update(f32 deltaTime)
 {
-    cubeRotation.x += 3.0f * deltaTime;
-    cubeRotation.y += 3.0f * deltaTime;
-    cubeTransform = BMath::Mat4CreateTransform(cubePosition, {2,2,2}, cubeRotation);
-    planeTransform = BMath::Mat4CreateTransform(planePosition, {2,2,2}, cubeRotation);
+    
+    cubeRotation.x += 0.7 * deltaTime; 
+    cubeRotation.z += 0.7 * deltaTime; 
+    cubeTransform = BMath::Mat4CreateTransform(cubePosition, {5,5,5}, cubeRotation);
+    frenselMaterial->SetVec3("u_CameraPos", ActiveWorldCamera->GetPosition());
 }
 void Game3D::Render3D()
 {
-    m_Renderer3D->Submit(cubeGeometry, cubeTransform);
-    m_Renderer3D->Submit(planeGeometry, planeTransform);
+
+    m_Renderer3D->Submit(cubeGeometry, frenselMaterial, cubeTransform);
 }
 void Game3D::RenderUI()
 {

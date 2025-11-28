@@ -15,5 +15,4 @@ public:
     virtual void Render3D() override; 
     virtual void RenderUI() override; 
 
-
 };
