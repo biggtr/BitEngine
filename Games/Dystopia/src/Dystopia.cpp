@@ -13,6 +13,7 @@
 
 void Dystopia::Initialize()
 {
+    TileIndex = 0;
     player = m_ECS->CreateEntity();
     player.AddComponent<BitEngine::TransformComponent>();
     player.AddComponent<BitEngine::SpriteComponent>();
@@ -65,13 +66,12 @@ void Dystopia::Initialize()
     
 
 
-    m_AssetManager->AddTexture("dystopiaTileset", "assets/textures/dystopiatiles.png");
 
-    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/samuri.png");
-    m_TileEditor->CreateTileSet(tilesetTexture, 672.0f, 64.0f, 32, 32);
-    m_TileEditor->SelectTile(3);
+    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tilesettest.png");
+    m_TileEditor->CreateTileSet(tilesetTexture, 512.0f, 512.0f, 32, 32);
+    m_TileEditor->SelectTile(TileIndex);
 
-    m_TileEditor->CreateTileMap("Level_1", 32, 32, 4);
+    m_TileEditor->CreateTileMap("Level_1", 32, 32, 8);
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
     m_TileEditor->SetActiveLayer(0);
 
@@ -96,6 +96,18 @@ void Dystopia::Update(f32 deltaTime)
     {
         BIT_LOG_ERROR("Player has no colliders!");
         return;
+    }
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_L) && !BitEngine::InputWasKeyDown(BitEngine::KEY_L))
+    {
+        TileIndex++;
+        m_TileEditor->SelectTile(TileIndex);
+    }
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_K) && !BitEngine::InputWasKeyDown(BitEngine::KEY_K))
+    {
+        if(TileIndex > 0)
+            TileIndex--;
+
+        m_TileEditor->SelectTile(TileIndex);
     }
     
     auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;
@@ -149,7 +161,7 @@ void Dystopia::UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody,
 }
 void Dystopia::HandleInput(Character2DControllerComponent& controller, f32 deltaTime)
 {
-    b8 wasJumpPressed = controller.JumpPressed;
+    b8 wasJumpHeld = controller.JumpHeld;
     controller.MoveInput = 0.0f;
 
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_D))
@@ -162,8 +174,8 @@ void Dystopia::HandleInput(Character2DControllerComponent& controller, f32 delta
     }
 
     controller.JumpHeld = BitEngine::InputIsKeyDown(BitEngine::KEY_SPACE);
-    controller.JumpPressed = controller.JumpHeld && !wasJumpPressed;
-    controller.JumpReleased = !controller.JumpHeld && wasJumpPressed;
+    controller.JumpPressed = controller.JumpHeld && !wasJumpHeld;
+    controller.JumpReleased = !controller.JumpHeld && wasJumpHeld;
 
     if(controller.JumpPressed)
     {
@@ -172,11 +184,6 @@ void Dystopia::HandleInput(Character2DControllerComponent& controller, f32 delta
     else if(controller.JumpBufferTimer > 0.0f)
     {
         controller.JumpBufferTimer -= deltaTime;
-    }
-    
-    if(controller.IsGrounded && !controller.JumpHeld && controller.JumpBufferTimer > 0.0f)
-    {
-        controller.JumpBufferTimer = 0.0f;
     }
 }
 

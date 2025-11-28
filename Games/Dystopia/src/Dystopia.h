@@ -7,27 +7,27 @@ struct Character2DControllerComponent
 {
     BMath::Vec3 Velocity;
 
-    f32 MaxSpeed = 100.0f;
-    f32 Acceleration = 300.0f;
-    f32 Deceleration = 400.0f;
-    f32 AirControl = 0.86f;
+    f32 MaxSpeed = 100.0f;           
+    f32 Acceleration = 1000.0f;      
+    f32 Deceleration = 1200.0f;      
+    f32 AirControl = 0.6f;          
     
-    f32 JumpForce = 200.0f;
-    f32 RisingGravity = 400.0f;
-    f32 FallingGravity = 550.0f;
-    f32 TerminalVelocity = 100.0f;
+    f32 JumpForce = 170.0f;          
+    f32 RisingGravity = 800.0f;     
+    f32 FallingGravity = 200.0f;    
+    f32 TerminalVelocity = 500.0f;   
 
     b8 IsGrounded = false;
     b8 IsJumping = false;
     i32 JumpCount = 0;
-    i32 MaxJumps = 2;  
+    i32 MaxJumps = 2;                
 
-    float CoyoteTime = 0.12f; // gives the player some time after leaving the ground to jump (beep beep)
-    float CoyoteTimer = 0.0f; // counter till the coyotetime to see how much time left for coyote jumping
-    float JumpBufferTime = 0.12f; // allows the player to jump before touching the ground again from falling makes it not laggy and responsive
+    float CoyoteTime = 0.08f;        
+    float CoyoteTimer = 0.0f;
+    float JumpBufferTime = 0.15f;    
     float JumpBufferTimer = 0.0f;
 
-    float MoveInput = 0.0f;  // -1, 0, 1
+    float MoveInput = 0.0f;
     bool JumpPressed = false;
     bool JumpHeld = false;
     bool JumpReleased = false;
@@ -37,6 +37,7 @@ struct Character2DControllerComponent
     b8 CollidingLeft = false;
     b8 CollidingRight = false;
 };
+
 class Dystopia : public BitEngine::Game
 {
 public:
@@ -83,4 +84,5 @@ private:
 private:
     BitEngine::Entity player;
     BitEngine::Entity m_WorldColliders[100];
+    u32 TileIndex;
 };
