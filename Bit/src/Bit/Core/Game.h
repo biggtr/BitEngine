@@ -64,7 +64,7 @@ protected:
     UIRenderSystem* m_UIRenderSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
-
+    Physics2DSystem* m_Physics2DSystem;
     class Camera* ActiveWorldCamera;
 
     BMath::Mat4 m_PerspectiveProjection;
@@ -86,6 +86,9 @@ public:
             -halfHeight, halfHeight,
             -100.0f, 100.0f         
         );
+
+        m_WorldHeight = VIEWPORT_HEIGHT;
+        m_WorldWidth = VIEWPORT_HEIGHT * aspectRatio;
 
         m_PerspectiveProjection = BMath::Mat4Perspective(
                 BMath::DegToRad(45.0f), m_AppConfig.width / (f32)m_AppConfig.height, 0.1f, 100.0f);
@@ -112,11 +115,13 @@ public:
         services.entityManager->AddSystem<UIRenderSystem>();
         services.entityManager->AddSystem<Animation2DSystem>();
         services.entityManager->AddSystem<InputSystem>();
+        services.entityManager->AddSystem<Physics2DSystem>();
 
         m_RenderSystem      = services.entityManager->GetSystem<RenderSystem>();
         m_UIRenderSystem    = services.entityManager->GetSystem<UIRenderSystem>();
         m_Animation2DSystem = services.entityManager->GetSystem<Animation2DSystem>();
         m_InputSystem       = services.entityManager->GetSystem<InputSystem>();
+        m_Physics2DSystem = services.entityManager->GetSystem<Physics2DSystem>();
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
@@ -136,6 +141,7 @@ public:
         m_ECS->Update();
         m_Animation2DSystem->Update(deltaTime);
         Physics2DUpdate(deltaTime);
+        m_Physics2DSystem->Update();
         if (m_TileEditor)
         {
             BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 
@@ -189,6 +195,9 @@ public:
         f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
         f32 halfWidth = halfHeight * aspectRatio;
 
+        m_WorldHeight = VIEWPORT_HEIGHT;
+        m_WorldWidth = VIEWPORT_HEIGHT * aspectRatio;
+
         m_OrthoProjection = BMath::Mat4Ortho(
             -halfWidth, halfWidth, 
             -halfHeight, halfHeight,
@@ -227,6 +236,15 @@ public:
         BMath::Vec4 worldPos =  invViewProjection * BMath::Vec4(ndcX, ndcY, 0.0f, 1.0f);
         
         return BMath::Vec4ToVec3(worldPos);
+    }
+
+    u32 CalculateTilesNumberWide(u32 tileSize)
+    {
+        return (u32)BMath::Ceil(m_WorldWidth / (f32)tileSize);
+    }
+    u32 CalculateTilesNumberTall(u32 tileSize)
+    {
+        return (u32)BMath::Ceil(m_WorldHeight / (f32)tileSize);
     }
 protected:
     virtual void Initialize() = 0;

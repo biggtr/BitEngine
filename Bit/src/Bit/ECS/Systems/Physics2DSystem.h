@@ -147,7 +147,7 @@ public:
     {
 
     }
-    void Update(f32 deltaTime)
+    void Update()
     {
         SyncTransforms();
     }

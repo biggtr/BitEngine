@@ -20,10 +20,13 @@ void Dystopia::Initialize()
     player.AddComponent<Character2DControllerComponent>();
 
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
-    m_AssetManager->AddTexture("samuri", "assets/textures/samuri.png");
-    playerSprite.STexture = m_AssetManager->GetTexture("samuri");
-    playerSprite.Width = 21 * 32;
-    playerSprite.Height = 64;
+    m_AssetManager->AddTexture("wolfIdle", "assets/textures/wolf/Black_Werewolf/Idle.png");
+    m_AssetManager->AddTexture("wolfAttack", "assets/textures/wolf/Black_Werewolf/Attack_1.png");
+    m_AssetManager->AddTexture("wolfJump", "assets/textures/wolf/Black_Werewolf/Jump.png");
+    m_AssetManager->AddTexture("wolfRun", "assets/textures/wolf/Black_Werewolf/Run.png");
+    playerSprite.STexture = m_AssetManager->GetTexture("wolfIdle");
+    playerSprite.Width = 8 * 32;
+    playerSprite.Height = 32;
     playerSprite.FrameWidth = 32;
     playerSprite.FrameHeight = 32;
     playerSprite.CurrentFrame = 0;
@@ -40,14 +43,14 @@ void Dystopia::Initialize()
     playerRigidBody.Position = {0.0f, 100.0f, 0.0f};
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
 
-    // m_Physics2DSystem->CreateBoxShape(player, width * 0.4f, height * 0.4f, {0.0f, -5.0f}, 0.0f, true);
-    // m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
+    m_Physics2DSystem->CreateBoxShape(player, width * 0.4f, height * 0.4f, {0.0f, -5.0f}, 0.0f, true);
+    m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
 
     player.AddComponent<BitEngine::Animation2DControllerComponent>();
-    m_Animation2DSystem->CreateAnimation(player, "PlayerRun", 16, 0, 0.07f);
-    m_Animation2DSystem->CreateAnimation(player, "PlayerAttack", 7, 22, 0.07f);
-    m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
-    m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
+    m_Animation2DSystem->CreateAnimation(player, "wolfIdle", 8, 0, 0.07f);
+    // m_Animation2DSystem->CreateAnimation(player, "PlayerAttack", 7, 22, 0.07f);
+    // m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
+    // m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
 
 
     auto floor = m_ECS->CreateEntity();
@@ -60,18 +63,21 @@ void Dystopia::Initialize()
     floorRigidBody.Position = BMath::Vec3(0.0f, 0.0f, 0.0f);
     floorRigidBody.Type = BitEngine::PhysicsBodyType::Static;
 
-    // m_Physics2DSystem->CreateBoxShape(floor, 200.0f, 10.0f);
+    m_Physics2DSystem->CreateBoxShape(floor, 200.0f, 10.0f);
     auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
     floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
 
 
 
-    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/tilesettest.png");
-    m_TileEditor->CreateTileSet(tilesetTexture, 512.0f, 512.0f, 32, 32);
+    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/prototype/Tiles/Tileset1.png");
+    m_TileEditor->CreateTileSet(tilesetTexture, 256.0f, 256.0f, 32, 32);
     m_TileEditor->SelectTile(TileIndex);
 
-    m_TileEditor->CreateTileMap("Level_1", 32, 32, 8);
+    u32 tilesWidth = CalculateTilesNumberWide(5);
+    u32 tilesHeight = CalculateTilesNumberTall(5);
+
+    m_TileEditor->CreateTileMap("Level_1", tilesWidth, tilesHeight, 5);
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
     m_TileEditor->SetActiveLayer(0);
 
@@ -97,15 +103,15 @@ void Dystopia::UpdateAnimation(Character2DControllerComponent& controller, BitEn
     
     if (!controller.IsGrounded)
     {
-        m_Animation2DSystem->SetAnimation(player, "PlayerIdle");  // jump animation 
+        m_Animation2DSystem->SetAnimation(player, "wolfIdle");  // jump animation 
     }
     else if (abs(controller.Velocity.x) > 10.0f)
     {
-        m_Animation2DSystem->SetAnimation(player, "PlayerRun");
+        m_Animation2DSystem->SetAnimation(player, "wolfIdle");
     }
     else
     {
-        m_Animation2DSystem->SetAnimation(player, "PlayerIdle");
+        m_Animation2DSystem->SetAnimation(player, "wolfIdle");
     }
 }
 void Dystopia::Update(f32 deltaTime)

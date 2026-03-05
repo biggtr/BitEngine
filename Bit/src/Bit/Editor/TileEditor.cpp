@@ -75,6 +75,9 @@ void TileEditor::SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tiles
                  tilesetWidth, tilesetHeight, tileWidth, tileHeight);
 }
 
+
+// widthInTiles means how many tiles do you want the map have horizontally 
+// heightInTiles means how many tiles do you want the map have vertically
 TileMap* TileEditor::CreateTileMap(const std::string& name, u32 widthInTiles, u32 heightInTiles, u32 tileSize)
 {
     if (!m_TileSet)
@@ -523,15 +526,8 @@ void TileEditor::EraseTile(i32 tileX, i32 tileY)
     if (!layer)
         return;
     
-    i32 mapWidth = (i32)tilemap->GetWidth();
-    i32 mapHeight = (i32)tilemap->GetHeight();
-    i32 localX = tileX + (mapWidth / 2);
-    i32 localY = tileY + (mapHeight / 2);
     
-    if (localX < 0 || localX >= mapWidth || localY < 0 || localY >= mapHeight)
-        return;
-    
-    layer->SetTile(localX, localY, 0);
+    layer->SetTile(tileX, tileY, 0);
 }
 void TileEditor::HandleToolInput(Camera* camera)
 {

@@ -81,8 +81,8 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    m_Phyiscs2DSystem = ArenaAllocate(&m_SystemsArena, m_Physics2DSystemMemReq);
-    if(!Physics2DInitialize(&m_Physics2DSystemMemReq, m_Phyiscs2DSystem))
+    m_Physics2DSystem = ArenaAllocate(&m_SystemsArena, m_Physics2DSystemMemReq);
+    if(!Physics2DInitialize(&m_Physics2DSystemMemReq, m_Physics2DSystem))
     {
         BIT_LOG_ERROR("Failed To Initialze Physics2D System");
         return false;
@@ -165,7 +165,7 @@ void Application::Run()
     }
     PlatformShutdown(&m_Platform);
 
-    Physics2DShutdown(m_InputSystem);
+    Physics2DShutdown(m_Physics2DSystem);
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
 
@@ -174,6 +174,11 @@ void Application::Run()
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
 
+    if(m_SystemsMemoryBlock)
+    {
+        free(m_SystemsMemoryBlock);
+        m_SystemsMemoryBlock = nullptr;
+    }
 }
 
 b8 Application::OnEvent(u16 code, EventContext data)

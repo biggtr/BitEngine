@@ -24,18 +24,18 @@ TileLayer* TileMap::AddLayer(const std::string& name, TILE_LAYER_TYPE layerType)
 
 void TileMap::RemoveLayer(u32 index)
 {
-    if(index > m_TileLayers.size())
+    if(index >= m_TileLayers.size())
     {
         BIT_LOG_ERROR("index %d is out of bound", index);
         return; 
     }
     TileLayer layer(0, 0, "none");
-    m_TileLayers[index] = layer;
+    m_TileLayers.erase(m_TileLayers.begin() + index);
 }
 
 TileLayer* TileMap::GetLayer(u32 index)
 {
-    if(index > m_TileLayers.size())
+    if(index >= m_TileLayers.size())
     {
         BIT_LOG_ERROR("index %d is out of bound", index);
         return nullptr;
@@ -62,22 +62,20 @@ void TileMap::MoveLayer(u32 fromIndex, u32 toIndex)
 }
 void TileMap::SetTile(u32 layerIndex, u32 x, u32 y, u32 tileID)
 {
-    TileLayer layer = m_TileLayers[layerIndex];
-    layer.SetTile(x, y, tileID);
+    if(layerIndex >= m_TileLayers.size()) return;
+    m_TileLayers[layerIndex].SetTile(x, y, tileID);
 }
 u32 TileMap::GetTile(u32 layerIndex, u32 x, u32 y)
 {
-    TileLayer layer = m_TileLayers[layerIndex];
-    return layer.GetTile(x, y);
+    if(layerIndex >= m_TileLayers.size()) return 0;
+    return m_TileLayers[layerIndex].GetTile(x, y);
 }
 void TileMap::SetTileOnActiveLayer(u32 x, u32 y, u32 tileID)
 {
-    TileLayer layer = m_TileLayers[m_ActiveLayerIndex];
-    layer.SetTile(x, y, tileID);
+    m_TileLayers[m_ActiveLayerIndex].SetTile(x, y, tileID);
 }
 u32 TileMap::GetTileOnActiveLayer(u32 x, u32 y)
 {
-    TileLayer layer = m_TileLayers[m_ActiveLayerIndex];
-    return layer.GetTile(x, y);
+    return m_TileLayers[m_ActiveLayerIndex].GetTile(x, y);
 }
 }
