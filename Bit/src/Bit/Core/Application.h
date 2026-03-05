@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Core/Event.h"
+#include "Bit/Core/Memory/ArenaAllocator.h"
 #include "Bit/Core/TimeStamp.h"
 #include "Platform/Platform.h"
 #include <cstdint>
@@ -15,7 +16,6 @@ class AssetManager;
 class CameraManager;
 class EventManager;
 class ParticleSystem;
-class Physics2D;
 
 struct ApplicationConfig
 {
@@ -55,8 +55,11 @@ private:
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
     ParticleSystem* m_ParticleSystem;
-    Physics2D* m_Physics2D;
 
+
+    ArenaAllocator m_SystemsArena;
+    void* m_SystemsMemoryBlock;
+    u64 TotalSystemsMemorySize;
 
     u64 m_LoggerSystemMemReq;
     void* m_LoggerSystem;
@@ -70,7 +73,8 @@ private:
     u64 m_EventSystemMemReq;
     void* m_EventSystem;
 
-    void* m_Physics2DSystem;
+    u64 m_Phyiscs2DSystemMemReq;
+    void* m_Phyiscs2DSystem;
 };
 
 }

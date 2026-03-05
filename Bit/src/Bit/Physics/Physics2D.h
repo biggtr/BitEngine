@@ -30,63 +30,52 @@ struct CastRayContext
     f32 Fraction;
 };
 
-class Physics2D
-{
+b8 Physics2DInitialize(u64* memoryRequirements, void* state);
+void Physics2DShutdown(void* state);
+b2WorldId Physics2DCreateWorld(const BMath::Vec2& gravity = {0.0f, -10.0f});
+void Physics2DDestroyWorld();
+b2BodyId Physics2DCreateBody(PhysicsBodyType bodyType, const BMath::Vec3& position);
 
-public:
-    Physics2D(){}
-    ~Physics2D(){}
-
-    b2WorldId CreateWorld(const BMath::Vec2& gravity = {0.0f, -10.0f});
-    void DestroyWorld();
-    b2BodyId CreateBody(PhysicsBodyType bodyType, const BMath::Vec3& position);
-
-    b2Circle CreateCircleShape(const BMath::Vec2& center, f32 radius);
-    b2Polygon CreateBoxShape(f32 width, f32 height, const BMath::Vec2& offset, f32 angle = 0.0f);
-    b2Capsule CreateCapsuleShape(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius);
+b2Circle Physics2DCreateCircleShape(const BMath::Vec2& center, f32 radius);
+b2Polygon Physics2DCreateBoxShape(f32 width, f32 height, const BMath::Vec2& offset, f32 angle = 0.0f);
+b2Capsule Physics2DCreateCapsuleShape(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius);
 
 
-    b2ShapeId AddCircle(b2BodyId body, const b2Circle& circle, 
-                    float density = 1.0f,
-                    float friction = 0.3f,
-                    float restitution = 0.0f,
-                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
+b2ShapeId Physics2DAddCircle(b2BodyId body, const b2Circle& circle, 
+                float density = 1.0f,
+                float friction = 0.3f,
+                float restitution = 0.0f,
+                PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
-    b2ShapeId AddBox(b2BodyId body, const b2Polygon& box,
-                    float density = 1.0f,
-                    float friction = 0.3f,
-                    float restitution = 0.0f,
-                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
+b2ShapeId Physics2DAddBox(b2BodyId body, const b2Polygon& box,
+                float density = 1.0f,
+                float friction = 0.3f,
+                float restitution = 0.0f,
+                PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
-    b2ShapeId AddCapsule(b2BodyId body, const b2Capsule& capsule, 
-                    float density = 1.0f,
-                    float friction = 0.3f,
-                    float restitution = 0.0f,
-                    PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
+b2ShapeId Physics2DAddCapsule(b2BodyId body, const b2Capsule& capsule, 
+                float density = 1.0f,
+                float friction = 0.3f,
+                float restitution = 0.0f,
+                PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
-    void SetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity);
-    BMath::Vec2 GetLinearVelocity(b2BodyId bodyID);
+void Physics2DSetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity);
+BMath::Vec2 Physics2DGetLinearVelocity(b2BodyId bodyID);
 
-    BMath::Vec2 GetPosition(b2BodyId bodyID) { b2Vec2 pos = b2Body_GetPosition(bodyID); return {pos.x, pos.y}; }
-    void SetPosition(b2BodyId bodyID, BMath::Vec2 position) { b2Body_SetTransform(bodyID, b2Vec2(position.x, position.y), b2Body_GetRotation(bodyID)); }
-    f32 GetRotation(b2BodyId bodyID) { b2Rot q = b2Body_GetRotation(bodyID); return atan2f(q.s, q.c); }
+BMath::Vec2 Physics2DGetPosition(b2BodyId bodyID); 
+void Physics2DSetPosition(b2BodyId bodyID, BMath::Vec2 position); 
+f32 Physics2DGetRotation(b2BodyId bodyID); 
 
-    void Step();
-    f32 GetFixedTimeStep() { return m_FixedTimeStep; }
+void Physics2DUpdate(f32 deltaTime);
+f32 Physics2DGetFixedTimeStep(); 
 
-    b2ContactEvents GetContactEvents() { return b2World_GetContactEvents(m_World); }
+b2ContactEvents Physics2DGetContactEvents(); 
 
-    static f32 CastCallback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context);
- 
-    CastRayContext CastRay(const BMath::Vec2& origin, const BMath::Vec2& translation, b2ShapeId ignoreShapeID);
-private:
-    b2WorldId m_World; // maybe change in future to support many worlds for different scenes idk!
-    BMath::Vec2 m_Gravity; 
-    b2ContactEvents m_ContactEvents;
+f32 Physics2DCastCallback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context);
 
-    f32 m_FixedTimeStep = 1.0f / 60.0f;
-    i32 m_SubSteps = 4;
+CastRayContext Physics2DCastRay(const BMath::Vec2& origin, const BMath::Vec2& translation, b2ShapeId ignoreShapeID);
+
+
 };
 
-}
 

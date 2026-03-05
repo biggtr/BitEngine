@@ -1,6 +1,6 @@
-#include "Bit/Core/BMemory.h"
+#include "Bit/Core/Memory/BMemory.h"
 #include "Platform/Platform.h"
-#include "Logger.h"
+#include "Bit/Core/Logger.h"
 #include <cstdio>
 #include <cstring>
 

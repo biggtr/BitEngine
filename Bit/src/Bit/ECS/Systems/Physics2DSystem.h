@@ -20,12 +20,11 @@ class Physics2DSystem : public System
 public:
     SYSTEM_CLASS_TYPE(PHYSICS2D)
 
-    Physics2DSystem(Physics2D* physics2D)
+    Physics2DSystem()
     {
         RequireComponent<TransformComponent>();
         RequireComponent<Rigidbody2DComponent>();
 
-        m_Physics2D = physics2D;
     }
     ~Physics2DSystem(){}
 
@@ -38,7 +37,7 @@ public:
 
         if(!b2Body_IsValid(rigidbody.BodyId))
         {
-            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+            rigidbody.BodyId = Physics2DCreateBody(rigidbody.Type, rigidbody.Position);
         }
         BIT_LOG_DEBUG("rigidbody id : %d", rigidbody.BodyId);
     }
@@ -53,11 +52,11 @@ public:
 
         if(!b2Body_IsValid(rigidbody.BodyId))
         {
-            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+            rigidbody.BodyId = Physics2DCreateBody(rigidbody.Type, rigidbody.Position);
         }
 
-        b2Circle circle = m_Physics2D->CreateCircleShape(center, radius);
-        b2ShapeId newShape = m_Physics2D->AddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+        b2Circle circle = Physics2DCreateCircleShape(center, radius);
+        b2ShapeId newShape = Physics2DAddCircle(rigidbody.BodyId, circle, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
 
         rigidbody.ShapeIds.push_back(newShape);
         
@@ -85,12 +84,12 @@ public:
 
         if(!b2Body_IsValid(rigidbody.BodyId))
         {
-            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+            rigidbody.BodyId = Physics2DCreateBody(rigidbody.Type, rigidbody.Position);
         }
 
-        b2Polygon polygon = m_Physics2D->CreateBoxShape(width, height, offset, angle);
+        b2Polygon polygon = Physics2DCreateBoxShape(width, height, offset, angle);
 
-        b2ShapeId newShape = m_Physics2D->AddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution, categoryType, categoryToCollideWith); 
+        b2ShapeId newShape = Physics2DAddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution, categoryType, categoryToCollideWith); 
         rigidbody.ShapeIds.push_back(newShape);
         
 
@@ -120,12 +119,12 @@ public:
 
         if(!b2Body_IsValid(rigidbody.BodyId))
         {
-            rigidbody.BodyId = m_Physics2D->CreateBody(rigidbody.Type, rigidbody.Position);
+            rigidbody.BodyId = Physics2DCreateBody(rigidbody.Type, rigidbody.Position);
         }
 
-        b2Capsule capsule = m_Physics2D->CreateCapsuleShape(center1, center2, radius);
+        b2Capsule capsule = Physics2DCreateCapsuleShape(center1, center2, radius);
 
-        b2ShapeId newShape  = m_Physics2D->AddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
+        b2ShapeId newShape  = Physics2DAddCapsule(rigidbody.BodyId, capsule, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution);
 
         rigidbody.ShapeIds.push_back(newShape);
         
@@ -150,16 +149,7 @@ public:
     }
     void Update(f32 deltaTime)
     {
-        m_Accumulator += deltaTime;
-        f32 fixedTimeStep = m_Physics2D->GetFixedTimeStep();
-
-        while(m_Accumulator >= fixedTimeStep)
-        {
-            m_Physics2D->Step();
-            m_Accumulator -= fixedTimeStep;
-        }
         SyncTransforms();
-
     }
 
     void SyncTransforms()
@@ -169,8 +159,8 @@ public:
             auto& transform = m_EntityManager->GetComponent<TransformComponent>(entity);
             auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
 
-            BMath::Vec2 pos = m_Physics2D->GetPosition(rigidbody.BodyId);
-            float rot = m_Physics2D->GetRotation(rigidbody.BodyId);
+            BMath::Vec2 pos = Physics2DGetPosition(rigidbody.BodyId);
+            float rot = Physics2DGetRotation(rigidbody.BodyId);
 
             transform.Position = { pos.x, pos.y, transform.Position.z };
             transform.Rotation.z = rot;
@@ -185,23 +175,20 @@ public:
         if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
             return;
         auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
-        m_Physics2D->SetLinearVelocity(rigidbody.BodyId, velocity);
+        Physics2DSetLinearVelocity(rigidbody.BodyId, velocity);
     }
     BMath::Vec2 GetVelocity(const Entity& entity)
     {
         if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
             return {};
         auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
-        return m_Physics2D->GetLinearVelocity(rigidbody.BodyId);
+        return Physics2DGetLinearVelocity(rigidbody.BodyId);
     }
     b8 IsGrounded(Entity entity)
     {
-
+        return 0;
     }
 
-private:
-    Physics2D* m_Physics2D;
-    f32 m_Accumulator = 0.0f;
      
 };
 }

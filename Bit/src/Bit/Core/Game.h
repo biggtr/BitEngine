@@ -34,7 +34,6 @@ struct GameSystems
     AssetManager* assetManager;
     CameraManager* cameraManager;
     ParticleSystem* particleSystem;
-    Physics2D* physics2D;
 };
 
 extern Game* CreateGame();
@@ -44,7 +43,6 @@ public:
     Game(){}
     virtual ~Game()
     {
-        m_Physics2D->DestroyWorld();
 
         if(m_TileEditor)
             delete m_TileEditor;
@@ -59,13 +57,11 @@ protected:
     ParticleSystem* m_ParticleSystem = nullptr;
     MaterialManager* m_MaterialManager = nullptr;
     GeometryManager* m_GeometryManager = nullptr;
-    Physics2D* m_Physics2D = nullptr;
     TileEditor* m_TileEditor = nullptr;
     
 
     RenderSystem* m_RenderSystem;
     UIRenderSystem* m_UIRenderSystem;
-    Physics2DSystem* m_Physics2DSystem;
     Animation2DSystem* m_Animation2DSystem;
     InputSystem* m_InputSystem;
 
@@ -111,26 +107,22 @@ public:
         m_ParticleSystem = services.particleSystem;
         m_MaterialManager = m_Renderer3D->GetMaterialManager();
         m_GeometryManager = m_Renderer3D->GetGeometryManager();
-        m_Physics2D = services.physics2D;
 
         services.entityManager->AddSystem<RenderSystem>();
         services.entityManager->AddSystem<UIRenderSystem>();
-        services.entityManager->AddSystem<Physics2DSystem>(m_Physics2D);
         services.entityManager->AddSystem<Animation2DSystem>();
         services.entityManager->AddSystem<InputSystem>();
 
         m_RenderSystem      = services.entityManager->GetSystem<RenderSystem>();
         m_UIRenderSystem    = services.entityManager->GetSystem<UIRenderSystem>();
-        m_Physics2DSystem   = services.entityManager->GetSystem<Physics2DSystem>();
         m_Animation2DSystem = services.entityManager->GetSystem<Animation2DSystem>();
         m_InputSystem       = services.entityManager->GetSystem<InputSystem>();
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
-        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
+        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
-        //Create New Physics World
-        m_Physics2D->CreateWorld(BMath::Vec2(0,0));
+        Physics2DCreateWorld(BMath::Vec2(0,0));
 
         m_TileEditor = new TileEditor(m_Renderer2D);
         m_TileEditor->Initialize();
@@ -143,7 +135,7 @@ public:
     {
         m_ECS->Update();
         m_Animation2DSystem->Update(deltaTime);
-        m_Physics2DSystem->Update(deltaTime);
+        Physics2DUpdate(deltaTime);
         if (m_TileEditor)
         {
             BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 

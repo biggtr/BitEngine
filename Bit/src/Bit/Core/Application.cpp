@@ -2,12 +2,14 @@
 #include "Bit/Core/Event.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Core/Memory/ArenaAllocator.h"
 #include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Game.h"
 #include "Platform/Platform.h"
 #include <cstdlib>
+#include <cstring>
 
 namespace BitEngine
 {
@@ -20,12 +22,10 @@ Application::Application()
     m_AssetManager = new AssetManager();
     m_CameraManager = new CameraManager();
     m_ParticleSystem = new ParticleSystem();
-    m_Physics2D = new Physics2D();
 }
 
 Application::~Application()
 {
-    delete m_Physics2D;
     delete m_ParticleSystem;
     delete m_CameraManager;
     delete m_AssetManager;
@@ -38,8 +38,27 @@ Application::~Application()
 b8 Application::Create(Game* gameInstance)
 {
     u64 m_EventSystemMemReq;
+    u64 m_InputSystemMemReq;
+    u64 m_LoggerSystemMemReq;
+    u64 m_Physics2DSystemMemReq;
+
     EventInitialize(&m_EventSystemMemReq, 0);
-    m_EventSystem = malloc(m_EventSystemMemReq);
+    InputInitialize(&m_InputSystemMemReq, 0);
+    LoggerInitialize(&m_LoggerSystemMemReq, 0);
+    Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
+
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq;
+    m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
+    if(!m_SystemsMemoryBlock)
+    {
+        BIT_LOG_ERROR("Failed To Allocate Systems Memory");
+        return false;
+    }
+    memset(m_SystemsMemoryBlock, 0, TotalSystemsMemorySize);
+    BIT_LOG_INFO("Allocated %llu bytes for all systems", TotalSystemsMemorySize);
+    ArenaCreate(&m_SystemsArena, TotalSystemsMemorySize, m_SystemsMemoryBlock);
+
+    m_EventSystem = ArenaAllocate(&m_SystemsArena, m_EventSystemMemReq);
     if(!EventInitialize(&m_EventSystemMemReq, m_EventSystem))
     {
         BIT_LOG_ERROR("Failed To Initialze Event System");
@@ -48,23 +67,27 @@ b8 Application::Create(Game* gameInstance)
     EventRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
     EventRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
 
-    u64 m_InputSystemMemReq;
-    InputInitialize(&m_InputSystemMemReq, 0);
-    m_InputSystem = malloc(m_InputSystemMemReq);
+    m_InputSystem = ArenaAllocate(&m_SystemsArena, m_InputSystemMemReq); 
     if(!InputInitialize(&m_InputSystemMemReq, m_InputSystem))
     {
         BIT_LOG_ERROR("Failed To Initialze Input System");
         return false;
     }
 
-    u64 m_LoggerSystemMemReq;
-    LoggerInitialize(&m_LoggerSystemMemReq, 0);
-    m_LoggerSystem = malloc(m_LoggerSystemMemReq);
+    m_LoggerSystem = ArenaAllocate(&m_SystemsArena, m_LoggerSystemMemReq); 
     if(!LoggerInitialize(&m_LoggerSystemMemReq, m_LoggerSystem))
     {
         BIT_LOG_ERROR("Failed To Initialze Logger System");
         return false;
     }
+
+    m_Phyiscs2DSystem = ArenaAllocate(&m_SystemsArena, m_Physics2DSystemMemReq);
+    if(!Physics2DInitialize(&m_Physics2DSystemMemReq, m_Phyiscs2DSystem))
+    {
+        BIT_LOG_ERROR("Failed To Initialze Physics2D System");
+        return false;
+    }
+
     m_GameInstance = gameInstance;
 
     m_Width = m_GameInstance->m_AppConfig.width;
@@ -92,7 +115,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem, m_Physics2D}))
+    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
@@ -141,13 +164,16 @@ void Application::Run()
 
     }
     PlatformShutdown(&m_Platform);
+
+    Physics2DShutdown(m_InputSystem);
+    LoggerShutdown(m_LoggerSystem);
+    InputShutdown(m_InputSystem);
+
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
 
-    LoggerShutdown(m_LoggerSystem);
-    InputShutdown(m_InputSystem);
 }
 
 b8 Application::OnEvent(u16 code, EventContext data)

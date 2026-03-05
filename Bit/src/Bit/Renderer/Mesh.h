@@ -26,7 +26,7 @@ public:
 
     void SetTransform(const BMath::Transform& t) { m_Transform = t; };
     BMath::Transform GetTransform() { return m_Transform; }
-    
+
     void LoadModelFromFile(const std::string& filepath);
     void ProcessNode(aiNode* node, const aiScene* scene);
     Geometry* ProcessMesh(aiMesh* mesh, const aiScene* scene);
