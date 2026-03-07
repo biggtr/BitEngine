@@ -33,17 +33,16 @@ public:
     void Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection);
     void Render(const BMath::Mat4& viewProjection);
     
-    TileSet* CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight);
-    void SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, 
-                           f32 tileWidth, f32 tileHeight);
+    TileSet* CreateTileSet(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, u32 tileWidth, u32 tileHeight);
+    void SetTileSetTexture(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, 
+                           u32 tileWidth, u32 tileHeight);
     TileSet* GetTileSet() { return m_TileSet; }
     
-    TileMap* CreateTileMap(const std::string& name, u32 widthInTiles, 
-                          u32 heightInTiles, u32 tileSize);
+    TileMap* CreateTileMap(const char* name, f32 screenWidth, f32 screenHeight, u32 tileSize);
     TileMap* GetTileMap() { return m_TileMap; }
     void ClearTileMap();
     
-    void AddLayer(const std::string& name, TILE_LAYER_TYPE type);
+    void AddLayer(const char* name, TILE_LAYER_TYPE type);
     void RemoveLayer(u32 index);
     void MoveLayerUp(u32 index);
     void MoveLayerDown(u32 index);
@@ -53,8 +52,8 @@ public:
     b8 IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex = 0);
     void GetTileCollisions(const BMath::Vec3& position, f32 width, f32 height, std::vector<TileCollisionInfo>& collisions, u32 layerIndex = 0);
     
-    b8 SaveTileMap(const std::string& filepath);
-    b8 LoadTileMap(const std::string& filepath);
+    b8 SaveTileMap();
+    b8 LoadTileMap();
 
     void SelectTile(u32 tileID);
     void SetTool(TileEditorTool tool);

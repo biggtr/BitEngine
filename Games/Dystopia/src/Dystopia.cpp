@@ -7,6 +7,7 @@
 #include "Bit/ECS/Entity.h"
 #include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/ECS/Systems/System.h"
+#include "Bit/Resources/AssetStore.h"
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileLayer.h"
 #include "PlayerController.h"
@@ -20,11 +21,11 @@ void Dystopia::Initialize()
     player.AddComponent<Character2DControllerComponent>();
 
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
-    m_AssetManager->AddTexture("wolfIdle", "assets/textures/wolf/Black_Werewolf/Idle.png");
-    m_AssetManager->AddTexture("wolfAttack", "assets/textures/wolf/Black_Werewolf/Attack_1.png");
-    m_AssetManager->AddTexture("wolfJump", "assets/textures/wolf/Black_Werewolf/Jump.png");
-    m_AssetManager->AddTexture("wolfRun", "assets/textures/wolf/Black_Werewolf/Run.png");
-    playerSprite.STexture = m_AssetManager->GetTexture("wolfIdle");
+    BitEngine::AssetStoreAddTexture("wolfIdle", "assets/textures/wolf/Black_Werewolf/Idle.png");
+    BitEngine::AssetStoreAddTexture("wolfAttack", "assets/textures/wolf/Black_Werewolf/Attack_1.png");
+    BitEngine::AssetStoreAddTexture("wolfJump", "assets/textures/wolf/Black_Werewolf/Jump.png");
+    BitEngine::AssetStoreAddTexture("wolfRun", "assets/textures/wolf/Black_Werewolf/Run.png");
+    playerSprite.STexture = BitEngine::AssetStoreGetTexture("wolfIdle");
     playerSprite.Width = 8 * 32;
     playerSprite.Height = 32;
     playerSprite.FrameWidth = 32;
@@ -44,7 +45,7 @@ void Dystopia::Initialize()
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
 
     m_Physics2DSystem->CreateBoxShape(player, width * 0.4f, height * 0.4f, {0.0f, -5.0f}, 0.0f, true);
-    m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
+    // m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
 
     player.AddComponent<BitEngine::Animation2DControllerComponent>();
     m_Animation2DSystem->CreateAnimation(player, "wolfIdle", 8, 0, 0.07f);
@@ -68,16 +69,12 @@ void Dystopia::Initialize()
     floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
 
-
-
-    BitEngine::Texture* tilesetTexture = m_AssetManager->AddTexture("tileset", "assets/textures/prototype/Tiles/Tileset1.png");
-    m_TileEditor->CreateTileSet(tilesetTexture, 256.0f, 256.0f, 32, 32);
+    BitEngine::Texture* tilesetTexture = BitEngine::AssetStoreAddTexture("tileset", "assets/textures/prototype/Tiles/Tileset1.png");
+    m_TileEditor->CreateTileSet(tilesetTexture, 256, 256, 32, 32);
     m_TileEditor->SelectTile(TileIndex);
 
-    u32 tilesWidth = CalculateTilesNumberWide(5);
-    u32 tilesHeight = CalculateTilesNumberTall(5);
 
-    m_TileEditor->CreateTileMap("Level_1", tilesWidth, tilesHeight, 5);
+    m_TileEditor->CreateTileMap("Level_1", m_WorldWidth, m_WorldHeight, 5);
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
     m_TileEditor->SetActiveLayer(0);
 
@@ -136,7 +133,15 @@ void Dystopia::Update(f32 deltaTime)
 
         m_TileEditor->SelectTile(TileIndex);
     }
-    
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_O) && !BitEngine::InputWasKeyDown(BitEngine::KEY_O))
+    {
+        m_TileEditor->SaveTileMap(); 
+    }
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_P) && !BitEngine::InputWasKeyDown(BitEngine::KEY_P))
+    {
+        m_TileEditor->LoadTileMap();
+    }
+
     auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;
     BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(rigidbody.BodyId);
     playerController.UpdateGroundedState(rigidbody, controller, boxCollider, currentPos);

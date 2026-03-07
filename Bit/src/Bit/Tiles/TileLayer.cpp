@@ -5,7 +5,7 @@
 
 namespace BitEngine 
 {
-TileLayer::TileLayer(u32 widthInTiles, u32 heightInTiles, std::string name)
+TileLayer::TileLayer(u32 widthInTiles, u32 heightInTiles, const char* name)
 {
     m_WidthInTiles = widthInTiles;
     m_HeightInTiles = heightInTiles;

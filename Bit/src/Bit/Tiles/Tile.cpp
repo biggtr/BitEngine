@@ -10,7 +10,7 @@ TileSet::TileSet()
 
 }
 
-void TileSet::SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, f32 tileWidth, f32 tileHeight)
+void TileSet::SetTexture(Texture* texture, u32 tilesetWidth, u32 tileSetHeight, u32 tileWidth, u32 tileHeight)
 {
     m_Texture = texture;
     m_TileSetWidth = tilesetWidth;
@@ -20,6 +20,7 @@ void TileSet::SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, 
 
     m_ColomnCount = m_TileSetWidth / m_TileWidth;
     m_RowCount = m_TileSetHeight / m_TileHeight;
+    m_TexturePath = texture->GetPath();
 
     //Assigning index for each tile in the tileset as an index to access it in future
     m_Tiles.reserve(GetTileCount());

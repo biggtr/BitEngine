@@ -48,7 +48,7 @@ void MemoryShutdown(void *state)
     }
 }
 
-void* CMemoryAllocate(u64 size, MEMORY_TAG memoryTag)
+void* BitMemoryAllocate(u64 size, MEMORY_TAG memoryTag)
 {
 
     if(memoryTag == MEMORY_TAG_UNKOWN)
@@ -64,7 +64,7 @@ void* CMemoryAllocate(u64 size, MEMORY_TAG memoryTag)
 
     return block;
 }
-void CMemoryFree(void *block, u64 size, MEMORY_TAG memoryTag)
+void BitMemoryFree(void *block, u64 size, MEMORY_TAG memoryTag)
 {
     if(memoryTag == MEMORY_TAG_UNKOWN)
     {
@@ -76,12 +76,12 @@ void CMemoryFree(void *block, u64 size, MEMORY_TAG memoryTag)
 
     PlatformFree(block, false);
 }
-void CMemorySet(void *dest, i32 value, u64 size)
+void BitMemorySet(void *dest, i32 value, u64 size)
 {
     PlatformSetMemory(dest, value, size);
 }
 
-void CMemoryCopy(void *dest, const void *source, u64 size)
+void BitMemoryCopy(void *dest, const void *source, u64 size)
 {
     PlatformCopyMemory(dest, source, size);
 }

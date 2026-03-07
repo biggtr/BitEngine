@@ -18,7 +18,7 @@ typedef enum
 class TileLayer
 {
 public:
-    TileLayer(u32 widthInTiles, u32 heightInTiles, std::string name);
+    TileLayer(u32 widthInTiles, u32 heightInTiles, const char* name);
     ~TileLayer() = default;
 
     void SetTile(i32 x, i32 y, u32 tileID);
@@ -33,13 +33,16 @@ public:
     TILE_LAYER_TYPE GetType() { return m_TileLayerType; }
     void SetVisible(b8 visible){ m_IsVisible = visible; }
     b8 IsVisible(){ return m_IsVisible; }
+    const char* GetName() { return m_Name; }
     u32 GetWidth() { return m_WidthInTiles; }
     u32 GetHeight() { return m_HeightInTiles; }
+    const std::vector<u32>& GetTileData() { return m_TileData; }
+    void SetTileData(const std::vector<u32>& data) { m_TileData = data; }
 
 private:
     u32 GetIndex(i32 x, i32 y);
 
-    std::string m_Name;
+    const char* m_Name;
     u32 m_WidthInTiles;
     u32 m_HeightInTiles;
     std::vector<u32> m_TileData;

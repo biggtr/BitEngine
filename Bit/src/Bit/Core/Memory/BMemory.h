@@ -23,15 +23,15 @@ enum MEMORY_TAG
 b8 MemoryInitialize(u64* memoryRequirement, void* state);
 void MemoryShutdown(void* state);
 
-void* CMemoryAllocate(u64 size, MEMORY_TAG memoryTag);
+void* BitMemoryAllocate(u64 size, MEMORY_TAG memoryTag);
 
-void CMemoryFree(void* block, u64 size, MEMORY_TAG memoryTag);
+void BitMemoryFree(void* block, u64 size, MEMORY_TAG memoryTag);
 
-void* CMemoryZero(void* block, u64 size);
+void* BitMemoryZero(void* block, u64 size);
 
-void CMemoryCopy(void* dest, const void* source, u64 size);
+void BitMemoryCopy(void* dest, const void* source, u64 size);
 
-void CMemorySet(void* dest, i32 value, u64 size);
+void BitMemorySet(void* dest, i32 value, u64 size);
 
 char* GetMemoryUsageStr();
 }

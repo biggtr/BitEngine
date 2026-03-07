@@ -6,7 +6,7 @@
 #include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/CameraManager.h"
-#include "Bit/Resources/AssetManager.h"
+#include "Bit/Resources/AssetStore.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
@@ -31,7 +31,6 @@ struct GameSystems
     Renderer2D* renderer2D;
     Renderer* renderer3D;
     EntityManager* entityManager;
-    AssetManager* assetManager;
     CameraManager* cameraManager;
     ParticleSystem* particleSystem;
 };
@@ -52,7 +51,6 @@ protected:
     Renderer2D* m_Renderer2D = nullptr;
     Renderer* m_Renderer3D = nullptr;
     EntityManager* m_ECS = nullptr;
-    AssetManager* m_AssetManager = nullptr;
     CameraManager* m_CameraManager = nullptr;
     ParticleSystem* m_ParticleSystem = nullptr;
     MaterialManager* m_MaterialManager = nullptr;
@@ -105,7 +103,6 @@ public:
         m_Renderer2D = services.renderer2D;
         m_Renderer3D = services.renderer3D;
         m_ECS = services.entityManager;
-        m_AssetManager = services.assetManager;
         m_CameraManager = services.cameraManager;
         m_ParticleSystem = services.particleSystem;
         m_MaterialManager = m_Renderer3D->GetMaterialManager();
@@ -238,14 +235,6 @@ public:
         return BMath::Vec4ToVec3(worldPos);
     }
 
-    u32 CalculateTilesNumberWide(u32 tileSize)
-    {
-        return (u32)BMath::Ceil(m_WorldWidth / (f32)tileSize);
-    }
-    u32 CalculateTilesNumberTall(u32 tileSize)
-    {
-        return (u32)BMath::Ceil(m_WorldHeight / (f32)tileSize);
-    }
 protected:
     virtual void Initialize() = 0;
     virtual void SetupInput(){} 

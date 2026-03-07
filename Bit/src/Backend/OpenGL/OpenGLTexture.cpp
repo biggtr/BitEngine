@@ -18,8 +18,8 @@ OpenGLTexture::OpenGLTexture(uint32_t width, uint32_t height)
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 }
-OpenGLTexture::OpenGLTexture(const char* path)
-    : m_FilePath(path)
+OpenGLTexture::OpenGLTexture(const char* name, const char* path)
+    : m_Name(name), m_FilePath(path)
 {
     int width, height, nrChannels = 0;
     stbi_set_flip_vertically_on_load(true);
@@ -34,10 +34,10 @@ OpenGLTexture::OpenGLTexture(const char* path)
     m_DataFormat = m_Channels == 4 ? GL_RGBA : GL_RGB;
     GLCall(glGenTextures(1, &m_ID));
     GLCall(glBindTexture(GL_TEXTURE_2D, m_ID));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     GLCall(glTexImage2D(GL_TEXTURE_2D, 0, m_DataFormat, width, height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data));
     // GLCall(glGenerateMipmap(GL_TEXTURE_2D));
     stbi_image_free(data);

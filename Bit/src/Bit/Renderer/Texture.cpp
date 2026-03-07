@@ -18,7 +18,7 @@ Texture* Texture::Create(uint32_t width, uint32_t height)
     }
     return nullptr;
 }
-Texture* Texture::Create(const char* path)
+Texture* Texture::Create(const char* name, const char* path)
 {
 
     switch (RendererAPI::GetAPI()) 
@@ -27,7 +27,7 @@ Texture* Texture::Create(const char* path)
     case RENDERER_API::NONE:
         return nullptr;
     case RENDERER_API::OPENGL:
-            return new OpenGLTexture(path);
+            return new OpenGLTexture(name, path);
       break;
     }
     return nullptr;

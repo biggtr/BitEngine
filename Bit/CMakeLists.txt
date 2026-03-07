@@ -58,7 +58,7 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/ECS/Systems/System.cpp
 
 
-    src/Bit/Resources/AssetManager.cpp
+    src/Bit/Resources/AssetStore.cpp
     src/Bit/Resources/ShaderManager.cpp
     src/Bit/Resources/MaterialManager.cpp
     src/Bit/Resources/GeometryManager.cpp

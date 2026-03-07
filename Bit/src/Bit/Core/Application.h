@@ -75,6 +75,9 @@ private:
 
     u64 m_Physics2DSystemMemReq;
     void* m_Physics2DSystem;
+
+    u64 m_AssetStoreSystemMemReq;
+    void* m_AssetStoreSystem;
 };
 
 }

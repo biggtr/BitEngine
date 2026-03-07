@@ -1,4 +1,5 @@
 #include "TileEditor.h"
+#include "Bit/Core/Defines.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
@@ -6,9 +7,15 @@
 #include "Bit/Math/Vector.h"
 #include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/Renderer2D.h"
+#include "Bit/Resources/AssetStore.h"
 #include "Bit/Tiles/Tile.h"
+#include "Bit/Tiles/TileEditorState.h"
+#include "Bit/Tiles/TileLayer.h"
 #include "Bit/Tiles/TileMap.h"
 #include "Bit/Tiles/TileRenderer.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 namespace BitEngine
 {
@@ -48,7 +55,7 @@ void TileEditor::Initialize()
     BIT_LOG_INFO("TileEditor initialized");
 }
 
-TileSet* TileEditor::CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight)
+TileSet* TileEditor::CreateTileSet(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, u32 tileWidth, u32 tileHeight)
 {
     if (m_TileSet)
     {
@@ -62,7 +69,7 @@ TileSet* TileEditor::CreateTileSet(Texture* texture, f32 tilesetWidth, f32 tiles
     return m_TileSet;
 }
 
-void TileEditor::SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tilesetHeight, f32 tileWidth, f32 tileHeight)
+void TileEditor::SetTileSetTexture(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, u32 tileWidth, u32 tileHeight)
 {
     if (!m_TileSet)
     {
@@ -78,7 +85,7 @@ void TileEditor::SetTileSetTexture(Texture* texture, f32 tilesetWidth, f32 tiles
 
 // widthInTiles means how many tiles do you want the map have horizontally 
 // heightInTiles means how many tiles do you want the map have vertically
-TileMap* TileEditor::CreateTileMap(const std::string& name, u32 widthInTiles, u32 heightInTiles, u32 tileSize)
+TileMap* TileEditor::CreateTileMap(const char* name, f32 screenWidth, f32 screenHeight, u32 tileSize)
 {
     if (!m_TileSet)
     {
@@ -91,11 +98,13 @@ TileMap* TileEditor::CreateTileMap(const std::string& name, u32 widthInTiles, u3
         BIT_LOG_WARN("Deleting existing tilemap");
         delete m_TileMap;
     }
-    
-    m_TileMap = new TileMap(widthInTiles, heightInTiles, m_TileSet, tileSize, name);
+    u32 tilesWidth = (u32)BMath::Ceil(screenWidth / (f32)tileSize);
+    u32 tilesHeight = (u32)BMath::Ceil(screenHeight / (f32)tileSize); 
+
+    m_TileMap = new TileMap(tilesWidth, tilesHeight, m_TileSet, tileSize, name);
     m_EditorState.SetTileMap(m_TileMap);
     BIT_LOG_INFO("Created new tilemap: %s (%dx%d tiles, tile size: %d)", 
-                 name.c_str(), widthInTiles, heightInTiles, tileSize);
+                 name, tilesWidth, tilesHeight, tileSize);
 
     return m_TileMap;
 }
@@ -131,7 +140,7 @@ void TileEditor::ClearTileMap()
 }
 
 
-void TileEditor::AddLayer(const std::string& name, TILE_LAYER_TYPE type)
+void TileEditor::AddLayer(const char* name, TILE_LAYER_TYPE type)
 {
     if (!m_TileMap)
     {
@@ -140,7 +149,7 @@ void TileEditor::AddLayer(const std::string& name, TILE_LAYER_TYPE type)
     }
     
     m_TileMap->AddLayer(name, type);
-    BIT_LOG_INFO("Added layer: %s", name.c_str());
+    BIT_LOG_INFO("Added layer: %s", name);
 }
 
 void TileEditor::RemoveLayer(u32 index)
@@ -639,4 +648,166 @@ void TileEditor::SetScreenSize(u32 screenWidth, u32 screenHeight)
     m_ScreenHeight = screenHeight;
 }
 
+b8 TileEditor::SaveTileMap()
+{
+    FILE* f = fopen("TileMap.bmap", "wb");
+    if(f == nullptr)
+    {
+        BIT_LOG_WARN("Couldn't Create new file to save TileMap");
+        return false;
+    }
+    TileSet* tileSet = m_TileMap->GetTileSet();
+
+    const char* texturePath = tileSet->GetTexture()->GetPath();
+    u32 texturePathLen = strlen(texturePath);
+    fwrite(&texturePathLen, sizeof(u32), 1, f);
+    fwrite(texturePath, sizeof(char), texturePathLen, f);
+
+    const char* textureName = tileSet->GetTexture()->GetName();
+    u32 textureNameLen = strlen(textureName);
+    fwrite(&textureNameLen, sizeof(u32), 1, f);
+    fwrite(textureName, sizeof(char), textureNameLen, f);
+
+    u32 tilesetWidth = tileSet->GetTilesetWidth();
+    u32 tilesetHeight = tileSet->GetTilesetHeight();
+    u32 singleTileWidth = tileSet->GetSingleTileWidth();
+    u32 singleTileHeight = tileSet->GetSingleTileHeight();
+    fwrite(&tilesetWidth, sizeof(u32), 1, f);
+    fwrite(&tilesetHeight, sizeof(u32), 1, f);
+    fwrite(&singleTileWidth, sizeof(u32), 1, f);
+    fwrite(&singleTileHeight, sizeof(u32), 1, f);
+
+    TileMap* tileMap = m_TileMap;
+    u32 nTilesOnScreenWidth = tileMap->GetWidth();
+    u32 nTilesOnScreenHeight = tileMap->GetHeight();
+    u32 singleTileSize = tileMap->GetTileSize();
+    const char* tileMapName = tileMap->GetName();
+    u32 tileMapNameLen = strlen(tileMapName);
+    fwrite(&nTilesOnScreenWidth, sizeof(u32), 1, f);
+    fwrite(&nTilesOnScreenHeight, sizeof(u32), 1, f);
+    fwrite(&singleTileSize, sizeof(u32), 1, f);
+    fwrite(&tileMapNameLen, sizeof(u32), 1, f);
+    fwrite(tileMapName, sizeof(char), tileMapNameLen, f);
+
+    std::vector<TileLayer> tileLayers = tileMap->GetAllLayers();
+    u32 tileLayersCount = tileLayers.size();
+    fwrite(&tileLayersCount, sizeof(u32), 1, f);
+    for(u32 i = 0; i < tileLayersCount; ++i)
+    {
+        std::vector<u32> tileData = tileLayers[i].GetTileData();
+        u32 tileDataCount = tileData.size();
+        fwrite(&tileDataCount, sizeof(u32), 1, f);
+        fwrite(tileData.data(), sizeof(u32), tileDataCount, f);
+        
+        const char* layerName = tileLayers[i].GetName();
+        u32 layerNameLen = strlen(layerName);
+        fwrite(&layerNameLen, sizeof(u32), 1, f);
+        fwrite(layerName, sizeof(char), layerNameLen, f);
+    }
+    fclose(f);
+    return true;
+}
+
+b8 TileEditor::LoadTileMap()
+{
+    FILE* f = fopen("TileMap.bmap", "rb");
+
+    if(f == nullptr)
+    {
+        BIT_LOG_ERROR("Couldn't open the file TileMap.bmap");
+        return false;
+    }
+    u32 texturePathLen;
+    fread(&texturePathLen, sizeof(u32), 1, f);
+    char* texturePath = (char*)malloc(sizeof(char) * texturePathLen + 1);
+    fread(texturePath, sizeof(char), texturePathLen, f);
+    texturePath[texturePathLen] = '\0';
+
+
+
+    u32 textureNameLen;
+    fread(&textureNameLen, sizeof(u32), 1, f);
+    char* textureName = (char*)malloc(sizeof(char) * textureNameLen + 1);
+    fread(textureName, sizeof(char), textureNameLen, f);
+    textureName[textureNameLen] = '\0';
+    BIT_LOG_INFO("Loading texture '%s' from: %s", textureName, texturePath);
+
+    Texture* texture = AssetStoreAddTexture(textureName, texturePath);
+    if (texture == nullptr)
+    {
+        BIT_LOG_ERROR("Failed to load texture: %s from path: %s", textureName, texturePath);
+        free(textureName);
+        free(texturePath);
+        fclose(f);
+        return false;
+    }
+    free(textureName);
+    free(texturePath);
+
+    u32 tilesetWidth;
+    u32 tilesetHeight;
+    u32 singleTileWidth;
+    u32 singleTileHeight;
+    fread(&tilesetWidth, sizeof(u32), 1, f);
+    fread(&tilesetHeight, sizeof(u32), 1, f);
+    fread(&singleTileWidth, sizeof(u32), 1, f);
+    fread(&singleTileHeight, sizeof(u32), 1, f);
+    TileSet* tileSet = CreateTileSet(texture, tilesetWidth, tilesetHeight, singleTileWidth, singleTileHeight);
+    if (!tileSet)
+    {
+        BIT_LOG_ERROR("Failed to create tileset");
+        delete texture;
+        fclose(f);
+        return false;
+    }
+
+    u32 nTilesOnScreenWidth;
+    u32 nTilesOnScreenHeight;
+    u32 singleTileSize;
+    u32 tileMapNameLen;
+    fread(&nTilesOnScreenWidth, sizeof(u32), 1, f);
+    fread(&nTilesOnScreenHeight, sizeof(u32), 1, f);
+    fread(&singleTileSize, sizeof(u32), 1, f);
+    fread(&tileMapNameLen, sizeof(u32), 1, f);
+
+    char* tileMapName = (char*)malloc(sizeof(char) * tileMapNameLen + 1);
+    fread(tileMapName, sizeof(char), tileMapNameLen, f);
+    tileMapName[tileMapNameLen] = '\0';
+    if (m_TileMap)
+    {
+        delete m_TileMap;
+        m_TileMap = nullptr;
+    }
+    m_TileMap = new TileMap(nTilesOnScreenWidth, nTilesOnScreenHeight, tileSet, singleTileSize, tileMapName);
+    free(tileMapName);
+
+    u32 tileLayersCount;
+    fread(&tileLayersCount, sizeof(u32), 1, f);
+    for(u32 i = 0; i < tileLayersCount; ++i)
+    {
+        u32 tileDataCount;
+        fread(&tileDataCount, sizeof(u32), 1, f);
+
+        std::vector<u32> tileData(tileDataCount);
+        fread(tileData.data(), sizeof(u32), tileDataCount, f);
+
+        u32 layerNameLen;
+        fread(&layerNameLen, sizeof(u32), 1, f);
+        
+        char* layerName = new char[layerNameLen + 1];
+        fread(layerName, sizeof(char), layerNameLen, f);
+        layerName[layerNameLen] = '\0';
+
+        AddLayer(layerName, TILE_LAYER_TYPE::GROUND);
+        TileLayer* layer = m_TileMap->GetLayer(i);
+        if(layer) 
+        {
+            layer->SetTileData(tileData); 
+        }
+        free(layerName);
+    }
+
+    fclose(f);
+    return true;
+}
 }

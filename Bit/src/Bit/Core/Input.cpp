@@ -24,7 +24,7 @@ void InputShutdown(void* state)
     {
         inputState = 0;
     }
-    BIT_LOG_INFO("Event System Is shutting down..!");
+    BIT_LOG_INFO("Input System Is shutting down..!");
 }
 void InputUpdate(f32 deltaTime)
 {

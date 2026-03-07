@@ -6,6 +6,7 @@
 #include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/GraphicsContext.h"
+#include "Bit/Resources/AssetStore.h"
 #include "Game.h"
 #include "Platform/Platform.h"
 #include <cstdlib>
@@ -19,7 +20,6 @@ Application::Application()
     m_Renderer3D = new Renderer();
     m_Renderer2D = new Renderer2D();
     m_EntityManager = new EntityManager();
-    m_AssetManager = new AssetManager();
     m_CameraManager = new CameraManager();
     m_ParticleSystem = new ParticleSystem();
 }
@@ -28,7 +28,6 @@ Application::~Application()
 {
     delete m_ParticleSystem;
     delete m_CameraManager;
-    delete m_AssetManager;
     delete m_EntityManager;
     delete m_Renderer2D;
     delete m_Renderer3D;
@@ -37,17 +36,14 @@ Application::~Application()
 
 b8 Application::Create(Game* gameInstance)
 {
-    u64 m_EventSystemMemReq;
-    u64 m_InputSystemMemReq;
-    u64 m_LoggerSystemMemReq;
-    u64 m_Physics2DSystemMemReq;
 
     EventInitialize(&m_EventSystemMemReq, 0);
     InputInitialize(&m_InputSystemMemReq, 0);
     LoggerInitialize(&m_LoggerSystemMemReq, 0);
     Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
+    AssetsStoreInitialize(&m_AssetStoreSystemMemReq, 0);
 
-    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq;
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq;
     m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
     if(!m_SystemsMemoryBlock)
     {
@@ -88,6 +84,13 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
+    m_AssetStoreSystem = ArenaAllocate(&m_SystemsArena, m_AssetStoreSystemMemReq);
+    if(!AssetsStoreInitialize(&m_AssetStoreSystemMemReq, m_AssetStoreSystem))
+    {
+        BIT_LOG_ERROR("Failed To Initialze Asset Store System");
+        return false;
+    }
+
     m_GameInstance = gameInstance;
 
     m_Width = m_GameInstance->m_AppConfig.width;
@@ -115,7 +118,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_AssetManager, m_CameraManager, m_ParticleSystem}))
+    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_CameraManager, m_ParticleSystem}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
@@ -165,6 +168,7 @@ void Application::Run()
     }
     PlatformShutdown(&m_Platform);
 
+    AssetStoreShutdown(m_AssetStoreSystem);
     Physics2DShutdown(m_Physics2DSystem);
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);

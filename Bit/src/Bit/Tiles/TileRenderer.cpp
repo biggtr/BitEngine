@@ -23,7 +23,6 @@ TileRenderer::TileRenderer(Renderer2D* renderer2D)
 
 TileRenderer::~TileRenderer()
 {
-    m_Renderer2D = 0;
 }
 
 void TileRenderer::Render(TileMap* tileMap, const BMath::Mat4& viewProjection)
@@ -80,63 +79,75 @@ void TileRenderer::RenderGrid(TileMap* tileMap, const BMath::Mat4& viewProjectio
         );
     }
 }
-void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, const BMath::Mat4& viewProjection, u32 tileSize)
+void TileRenderer::RenderLayer(TileLayer* tileLayer, TileSet* tileSet, 
+                                const BMath::Mat4& viewProjection, u32 tileSize)
 {
-    VisibleBounds bounds = CalculateVisibleBounds(viewProjection, tileLayer->GetWidth(), tileLayer->GetHeight(), tileSize);
+    if (!tileLayer || !tileSet) return;
+
+    VisibleBounds bounds = CalculateVisibleBounds(
+        viewProjection, 
+        tileLayer->GetWidth(), 
+        tileLayer->GetHeight(), 
+        tileSize
+    );
     
-    for(i32 y = bounds.MinTileY; y <= bounds.MaxTileY; ++y)
+    for (i32 y = bounds.MinTileY; y <= bounds.MaxTileY; ++y)
     {
-        for(i32 x = bounds.MinTileX; x <= bounds.MaxTileX; ++x)
+        for (i32 x = bounds.MinTileX; x <= bounds.MaxTileX; ++x)
         {
             u32 tileID = tileLayer->GetTile(x, y);
 
-            if (tileID == (u32)-1 || tileID == 0)
+            if (tileID == 0 || tileID == (u32)-1)
                 continue;
             
-            
-            
-            Tile* tile = tileSet->GetTile(tileID);
-            if (!tile)
+            if (tileID >= tileSet->GetTileCount())
             {
+                BIT_LOG_WARN("TileID %d out of tileset range", tileID);
                 continue;
             }
 
             BMath::Vec3 position;
-            position.x = (f32)x * (f32)tileSize + (f32)tileSize * 0.5f; 
+            position.x = (f32)x * (f32)tileSize + (f32)tileSize * 0.5f;
             position.y = (f32)y * (f32)tileSize + (f32)tileSize * 0.5f;
             position.z = -0.5f;
 
-
             BMath::Vec3 size((f32)tileSize, (f32)tileSize, 1.0f);
 
-            f32 Uvs[8] = {};
-            tileSet->CalculateTileUVs(tileID, Uvs);
-            m_Renderer2D->DrawQuad(position, size, {}, tileSet->GetTexture(), Uvs);
+            f32 uvs[8] = {};
+            tileSet->CalculateTileUVs(tileID, uvs);
+
+            m_Renderer2D->DrawQuad(position, size, {}, tileSet->GetTexture(), uvs);
         }
     }
 }
-VisibleBounds TileRenderer::CalculateVisibleBounds(const BMath::Mat4& viewProjection, u32 mapWidth, u32 mapHeight, u32 tileSize)
+VisibleBounds TileRenderer::CalculateVisibleBounds(
+    const BMath::Mat4& viewProjection, 
+    u32 mapWidth, u32 mapHeight, u32 tileSize)
 {
-    VisibleBounds bound;
+    VisibleBounds bounds;
     BMath::Mat4 invVP = BMath::Mat4Inverse(viewProjection);
     
-    BMath::Vec4 topLeft = invVP * BMath::Vec4(-1.0f, 1.0f, 0.0f, 1.0f);
-    BMath::Vec4 topRight = invVP * BMath::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
-    BMath::Vec4 botRight = invVP * BMath::Vec4(1.0f, -1.0f, 0.0f, 1.0f);
-    BMath::Vec4 botLeft = invVP * BMath::Vec4(-1.0f, -1.0f, 0.0f, 1.0f);
+    BMath::Vec4 corners[4] = {
+        invVP * BMath::Vec4(-1.0f,  1.0f, 0.0f, 1.0f), // top left
+        invVP * BMath::Vec4( 1.0f,  1.0f, 0.0f, 1.0f), // top right
+        invVP * BMath::Vec4( 1.0f, -1.0f, 0.0f, 1.0f), // bot right
+        invVP * BMath::Vec4(-1.0f, -1.0f, 0.0f, 1.0f)  // bot left
+    };
 
-    bound.Left = BMath::Min(topLeft.x, botLeft.x);
-    bound.Right = BMath::Max(topRight.x, botRight.x);
-    bound.Top = BMath::Max(topLeft.y, topRight.y);
-    bound.Bottom = BMath::Min(botLeft.y, botRight.y);
+    bounds.Left   = BMath::Min(corners[0].x, corners[3].x);
+    bounds.Right  = BMath::Max(corners[1].x, corners[2].x);
+    bounds.Top    = BMath::Max(corners[0].y, corners[1].y);
+    bounds.Bottom = BMath::Min(corners[2].y, corners[3].y);
 
-    bound.MinTileX = (i32)BMath::Floor(bound.Left / tileSize);
-    bound.MaxTileX = (i32)BMath::Ceil(bound.Right / tileSize);
-    bound.MinTileY = (i32)BMath::Floor(bound.Bottom / tileSize);
-    bound.MaxTileY = (i32)BMath::Ceil(bound.Top / tileSize);
+    i32 halfW = (i32)mapWidth  / 2;
+    i32 halfH = (i32)mapHeight / 2;
 
-    
-    return bound;
+    bounds.MinTileX = BMath::Max((i32)BMath::Floor(bounds.Left   / (f32)tileSize), -halfW);
+    bounds.MaxTileX = BMath::Min((i32)BMath::Ceil (bounds.Right  / (f32)tileSize),  halfW);
+    bounds.MinTileY = BMath::Max((i32)BMath::Floor(bounds.Bottom / (f32)tileSize), -halfH);
+    bounds.MaxTileY = BMath::Min((i32)BMath::Ceil (bounds.Top    / (f32)tileSize),  halfH);
+
+    return bounds;
 }
 
 }

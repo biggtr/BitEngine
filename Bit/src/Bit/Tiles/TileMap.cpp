@@ -5,7 +5,7 @@
 namespace BitEngine
 {
 
-TileMap::TileMap(u32 widthInTiles, u32 heightInTiles, TileSet* tileSet, u32 tileSize, const std::string& name)
+TileMap::TileMap(u32 widthInTiles, u32 heightInTiles, TileSet* tileSet, u32 tileSize, const char* name)
 {
     m_WidthInTiles = widthInTiles;
     m_HeightInTiles = heightInTiles;
@@ -14,7 +14,7 @@ TileMap::TileMap(u32 widthInTiles, u32 heightInTiles, TileSet* tileSet, u32 tile
     m_Name = name;
     m_ActiveLayerIndex = 0;
 }
-TileLayer* TileMap::AddLayer(const std::string& name, TILE_LAYER_TYPE layerType)
+TileLayer* TileMap::AddLayer(const char* name, TILE_LAYER_TYPE layerType)
 {
     TileLayer tileLayer(m_WidthInTiles, m_HeightInTiles, name);
     tileLayer.SetLayerType(layerType);

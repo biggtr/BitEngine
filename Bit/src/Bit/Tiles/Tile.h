@@ -19,7 +19,7 @@ public:
 
     TileSet(); 
     ~TileSet() = default; 
-    void SetTexture(Texture* texture, f32 tilesetWidth, f32 tileSetHeight, f32 tileWidth, f32 tileHeight); 
+    void SetTexture(Texture* texture, u32 tilesetWidth, u32 tileSetHeight, u32 tileWidth, u32 tileHeight); 
     Texture* GetTexture() { return m_Texture; }
     Tile* GetTile(u32 tileID);
     Tile* GetTileAtPosition(f32 x, f32 y);
@@ -27,6 +27,8 @@ public:
     u32 GetTileCount() { return m_RowCount * m_ColomnCount; }
     u32 GetTilesetWidth() { return m_TileSetWidth; }
     u32 GetTilesetHeight() { return m_TileSetHeight; }
+    u32 GetSingleTileWidth() { return m_TileWidth; }
+    u32 GetSingleTileHeight() { return m_TileHeight; }
 private:
     std::vector<Tile> m_Tiles;
     Texture* m_Texture;
