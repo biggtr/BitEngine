@@ -48,6 +48,8 @@ Geometry* GeometryManager::LoadGeometry(const std::string& name, std::string fil
 
 Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const BMath::Vec4& color)
 {
+    BIT_LOG_DEBUG("size of cube is %.f", size);
+    BIT_LOG_DEBUG("name of cube : %s", name.c_str());
     if(HasGeometry(name))
     {
         return m_Geometries.at(name);
@@ -187,7 +189,7 @@ Geometry* GeometryManager::GetGeometry(const std::string& name)
     {
         return m_Geometries.at(name);
     }
-    return CreateCube("DefaultCube");
+    return CreateCube("DefaultCube", 1.0f);
 }
 b8 GeometryManager::HasGeometry(const std::string& name) const
 {
