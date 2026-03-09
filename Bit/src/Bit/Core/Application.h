@@ -78,6 +78,9 @@ private:
 
     u64 m_AssetStoreSystemMemReq;
     void* m_AssetStoreSystem;
+
+    u64 m_UISystemMemReq;
+    void* m_UISystem;
 };
 
 }

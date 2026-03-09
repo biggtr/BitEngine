@@ -1,14 +1,8 @@
 #pragma once
 #include "Bit/Math/Vector.h"
+#include "Bit/UI/Widgets.h"
 #include <vector>
-namespace BitUI
-{
 
-enum class LAYOUT_DIRECTION
-{
-    VERTICAL,
-    HORIZONTAL
-};
 enum class DRAW_COMMAND_TYPE
 {
     RECT,
@@ -16,55 +10,36 @@ enum class DRAW_COMMAND_TYPE
     LINE,
     TEXTURE,
 };
+enum class LAYOUT_TYPE
+{
+    VERTICAL,
+    HORIZONTAL
+};
+struct ElementID
+{
+    u64 ParentID;
+    u64 ID; 
+};
+
 struct DrawCommand
 {
+    ElementID Element;
     DRAW_COMMAND_TYPE Type;
-    BMath::Vec3 Position;
-    BMath::Vec3 Size;
-    union 
-    {
-        BMath::Vec4 Color;
-        u32 TextureID;
-        struct { BMath::Vec4 TintColor; u32 TintedTextureID;} ColoredTexture;
-    } data;
-
+    const char* Label;
+    Rect Bounds;
+    BMath::Vec4 Color;
 };
+b8 UIInitialize(u64* memoryRequirement, void* state);
+void UIShutdown(void* state);
 
-struct ElementLayout
-{
-    LAYOUT_DIRECTION LayoutDirection;
-    // Current Cursor Position To Place the items Relative to the layout
-    f32 CurrentX, CurrentY; 
-    f32 ItemGap;
+void UIBeginFrame();
+void UIEndFrame();
 
-    f32 MaxWidth = 0.0f;
-    f32 MaxHeight = 0.0f;
 
-};
+void UIBeginLayout(LAYOUT_TYPE type, Rect bounds);
+void UIEndLayout();
 
-struct BitUIState
-{
-    ElementLayout CurrentElementLayout;
-    std::vector<DrawCommand> DrawCommands;
-};
+// create new empty window
+void UIBegin(const char* label, Rect bounds);
+void UIEnd();
 
-b8 Initialize();
-void Shutdown();
-void BeginLayout(ElementLayout layoutConfig = {});
-
-////////////////////////////////////////////////////
-/// Util Functions
-////////////////////////////////////////////////////
-
-inline ElementLayout VerticalLayout(f32 x, f32 y, f32 itemGap)
-{
-    return {.LayoutDirection = LAYOUT_DIRECTION::VERTICAL, .CurrentX = x, .CurrentY = y, .ItemGap = itemGap, .MaxWidth = 0.0f, .MaxHeight = 0.0f};
-}
-inline ElementLayout HorizontalLayout(f32 x, f32 y, f32 itemGap)
-{
-    return {.LayoutDirection = LAYOUT_DIRECTION::HORIZONTAL, .CurrentX = x, .CurrentY = y, .ItemGap = itemGap, .MaxWidth = 0.0f, .MaxHeight = 0.0f};
-}
-
-std::vector<DrawCommand> EndLayout();
-
-}

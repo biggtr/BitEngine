@@ -1,85 +1,147 @@
 #include "BitUI.h"
+#include "Bit/Containers/darray.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/UI/Widgets.h"
+#include <cstring>
 
-namespace BitUI
-{
-static BitUIState* bitUIState;
 
-static b8 initialized = false;
-b8 Initialize()
+static u64 HashName(const char* name);
+struct UIContext
 {
-    if(initialized)
+    u32 HotID;
+    u32 ActiveID;
+    u32 FocusedID;
+    
+    u64* ParentsStack;
+    DrawCommand* DrawCommands;
+};
+
+static UIContext* bitUIContext;
+
+b8 UIInitialize(u64* memoryRequirement, void* state)
+{
+    *memoryRequirement = sizeof(UIContext);
+    if(state == nullptr)
     {
-        BIT_LOG_ERROR("BitUI is Already Initialized!.");
-        return false;
+        return true;
     }
 
-    bitUIState = new BitUIState();
-    initialized = true;
+    bitUIContext = (UIContext*)state;
+    memset(bitUIContext, 0, sizeof(UIContext));
+    if(!bitUIContext->DrawCommands)
+    {
+        bitUIContext->DrawCommands = (DrawCommand*)DArrayCreate(DrawCommand);
+    }
+    if(!bitUIContext->ParentsStack)
+    {
+        bitUIContext->ParentsStack = (u64*)DArrayCreate(u64);
+    }
     return true;
-
 }
-void Shutdown()
+
+void UIShutdown(void* state)
 {
-    if(!initialized)
+    DArrayDestroy(bitUIContext->DrawCommands);
+    DArrayDestroy(bitUIContext->ParentsStack);
+    if(state)
     {
-        BIT_LOG_ERROR("BitUI is not Initialized Already!.");
-        return;
+        bitUIContext = 0;
     }
-    delete bitUIState;
-    initialized = false;
+    BIT_LOG_INFO("UI System Is shutting down..!");
 }
-void BeginLayout(ElementLayout layoutConfig)
+void UIBeginFrame()
 {
-    bitUIState->CurrentElementLayout = layoutConfig;
-    bitUIState->DrawCommands.clear();
+    bitUIContext->HotID = 0;
+    DArrayClear(bitUIContext->DrawCommands);
+    DArrayClear(bitUIContext->ParentsStack);
+}
+void UIEndFrame()
+{
+    //Draw Commands
+}
+void UIBeginLayout(LAYOUT_TYPE type, Rect bounds);
+void UIEndLayout();
+
+void UIBegin(const char* label, Rect bounds)
+{
+    u64 id = HashName(label);
+    DArrayPush(bitUIContext->ParentsStack, id);
+}
+void UIEnd()
+{
+    u64 parentID;
+    DArrayPop(bitUIContext->ParentsStack, &parentID);
+    DrawCommand windowCmd;
+    //calculate the size of the window automatically based on the content it contains 
+    for(u32 i = 0; i < DArrayLength(bitUIContext->DrawCommands); ++i)
+    {
+        DrawCommand cmd = bitUIContext->DrawCommands[i];
+        if(cmd.Element.ParentID == parentID)
+        {
+            windowCmd.Bounds.w += cmd.Bounds.w;
+            windowCmd.Bounds.h += cmd.Bounds.h;
+        }
+    }
+    DArrayPush(bitUIContext->DrawCommands, windowCmd);
 }
 
-
-
-//////////////////////////////////////////////////////////////////
-/// Widgets
-//////////////////////////////////////////////////////////////////
-b8 Button(const char* text, f32 width, f32 height, BMath::Vec4 color)
+b8 UIButton(const char *label, Rect bounds, const BMath::Vec4& hoverColor, const BMath::Vec4& pressedColor)
 {
-    ElementLayout& currentElementLayout = bitUIState->CurrentElementLayout;
-
-    f32 x = currentElementLayout.CurrentX;
-    f32 y = currentElementLayout.CurrentY;
-    i32 mousex, mousey;
-    BitEngine::InputGetMousePosition(&mousex, &mousey);
-    b8 isHovered = (u32)mousex >= x && (u32)mousex <= x + width && (u32)mousey >= y && (u32)mousey <= y + height;
-
-    b8 isPressed = BitEngine::InputIsMouseButtonPressed(BitEngine::MOUSE_BUTTON_LEFT);
-    b8 isClicked = isHovered && isPressed; 
-
-    DrawCommand drawCommand = 
+    u64 parentsStackLen = DArrayLength(bitUIContext->ParentsStack);
+    u64 parentID = bitUIContext->ParentsStack[parentsStackLen - 1];
+    u64 id = HashName(label) + parentID;
+    i32 mouseX;
+    i32 mouseY;
+    BitEngine::InputGetMousePosition(&mouseX, &mouseY);
+    b8 mouseOver = ((f32)mouseX >= bounds.x && (f32)mouseX <= bounds.x + bounds.w && mouseY >= bounds.y && mouseY <= bounds.y + bounds.h);
+    if(mouseOver)
     {
-        .Type = DRAW_COMMAND_TYPE::RECT, 
-        .Position = BMath::Vec3(x, y, 0.0f),
-        .Size = BMath::Vec3(width, height, 0.0f),
-        .data= {.Color = color}
-    };
-    bitUIState->DrawCommands.push_back(drawCommand);
-
-    switch (currentElementLayout.LayoutDirection) 
+        bitUIContext->HotID = id;
+        if(BitEngine::InputIsMouseButtonPressed(BitEngine::MOUSE_BUTTON_LEFT))
+        {
+            bitUIContext->ActiveID = id;
+        }
+    }
+    b8 clicked = false;
+    if(bitUIContext->ActiveID == id && BitEngine::InputIsMouseButtonReleased(BitEngine::MOUSE_BUTTON_LEFT))
     {
-        case LAYOUT_DIRECTION::VERTICAL:
-            currentElementLayout.CurrentY+=  height + currentElementLayout.ItemGap;
-            currentElementLayout.MaxWidth = width > currentElementLayout.MaxWidth ? width : currentElementLayout.MaxWidth;
-            break;
-        case LAYOUT_DIRECTION::HORIZONTAL:
-            currentElementLayout.CurrentX+=  width + currentElementLayout.ItemGap;
-            currentElementLayout.MaxHeight = height > currentElementLayout.MaxHeight ? height: currentElementLayout.MaxHeight;
-            break;
+        clicked = true;
+        bitUIContext->ActiveID = 0;
+    }
+    DrawCommand cmd = {};
+    cmd.Bounds = bounds;
+    cmd.Label = label;
+    cmd.Element.ParentID = parentID;
+    cmd.Element.ID = id;
+    cmd.Type = DRAW_COMMAND_TYPE::RECT;
+    
+    if(bitUIContext->ActiveID == id)
+    {
+        cmd.Color = pressedColor;
+    }
+    else if(bitUIContext->HotID == id)
+    {
+        cmd.Color = hoverColor;
+    }
+    else 
+    {
+        cmd.Color = {1.0f, 1.0f, 0.0f, 1.0f};
     }
 
-    return isClicked;
+    DArrayPush(bitUIContext->DrawCommands, cmd);
+    return clicked;
 }
-std::vector<DrawCommand> EndLayout()
+u64 HashName(const char* name)
 {
-    return bitUIState->DrawCommands;
+    u32 p = 97;
+
+    unsigned const char* us;
+    u64 hash = 0;
+    for(us = (unsigned const char*)name; *us; ++us)
+    {
+        hash = hash * p + *us;
+    }
+    return hash;
 }
-}
+

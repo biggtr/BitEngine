@@ -7,6 +7,7 @@
 #include "Bit/Physics/Physics2D.h"
 #include "Bit/Renderer/GraphicsContext.h"
 #include "Bit/Resources/AssetStore.h"
+#include "Bit/UI/BitUI.h"
 #include "Game.h"
 #include "Platform/Platform.h"
 #include <cstdlib>
@@ -42,8 +43,9 @@ b8 Application::Create(Game* gameInstance)
     LoggerInitialize(&m_LoggerSystemMemReq, 0);
     Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
     AssetsStoreInitialize(&m_AssetStoreSystemMemReq, 0);
+    UIInitialize(&m_UISystemMemReq, 0);
 
-    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq;
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq;
     m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
     if(!m_SystemsMemoryBlock)
     {
@@ -88,6 +90,13 @@ b8 Application::Create(Game* gameInstance)
     if(!AssetsStoreInitialize(&m_AssetStoreSystemMemReq, m_AssetStoreSystem))
     {
         BIT_LOG_ERROR("Failed To Initialze Asset Store System");
+        return false;
+    }
+
+    m_UISystem = ArenaAllocate(&m_SystemsArena, m_UISystemMemReq);
+    if(!UIInitialize(&m_UISystemMemReq, m_UISystem))
+    {
+        BIT_LOG_ERROR("Failed To Initialze UI System");
         return false;
     }
 
@@ -168,6 +177,7 @@ void Application::Run()
     }
     PlatformShutdown(&m_Platform);
 
+    UIShutdown(m_UISystem);
     AssetStoreShutdown(m_AssetStoreSystem);
     Physics2DShutdown(m_Physics2DSystem);
     LoggerShutdown(m_LoggerSystem);
