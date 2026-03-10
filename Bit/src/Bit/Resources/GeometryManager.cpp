@@ -118,6 +118,7 @@ void GeometryManager::GenerateCubeData(std::vector<Vertex>& vertices, std::vecto
             vertex.Color = color;
             vertex.Normal = normals[face];
             vertex.TextureCoords = uvs[vert];
+            BIT_LOG_DEBUG("TextureCoords, %f %f\n",uvs[vert].x, uvs[vert].y);
             vertices.push_back(vertex);
         }
         u32 baseIndex = face * 4;
@@ -128,6 +129,45 @@ void GeometryManager::GenerateCubeData(std::vector<Vertex>& vertices, std::vecto
     }
 
     
+}
+Geometry* GeometryManager::CreateQuad(const std::string& name, f32 size, const BMath::Vec4& color)
+{
+    BIT_LOG_DEBUG("Creating quad: %s, size: %.2f", name.c_str(), size);
+
+    if(HasGeometry(name))
+    {
+        return m_Geometries.at(name);
+    }
+
+    std::vector<Vertex> vertices;
+    std::vector<u32> indices;
+    GenerateQuadData(vertices, indices, size, color);
+
+    Geometry* geometry = new Geometry(name);
+    geometry->SetVertices(vertices);
+    geometry->SetIndices(indices);
+    geometry->UploadToGPU();
+    m_Geometries[name] = geometry;
+    return m_Geometries.at(name);
+}
+
+void GeometryManager::GenerateQuadData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 size, const BMath::Vec4& color)
+{
+    f32 half = size * 0.5f;
+
+    vertices = 
+    {
+        { { -half, -half, 0.0f }, { 0.0f, 0.0f, 1.0f }, color, { 0.0f, 0.0f } },  // bottom-left
+        { {  half, -half, 0.0f }, { 0.0f, 0.0f, 1.0f }, color, { 1.0f, 0.0f } },  // bottom-right
+        { {  half,  half, 0.0f }, { 0.0f, 0.0f, 1.0f }, color, { 1.0f, 1.0f } },  // top-right
+        { { -half,  half, 0.0f }, { 0.0f, 0.0f, 1.0f }, color, { 0.0f, 1.0f } },  // top-left
+    };
+
+    indices = 
+    {
+        0, 1, 2,  // first triangle
+        0, 2, 3   // second triangle
+    };
 }
 Geometry* GeometryManager::CreateSphere(const std::string& name, f32 radius, u32 segments)
 {
@@ -151,6 +191,7 @@ void GeometryManager::GenerateSphereData(std::vector<Vertex>& vertices, std::vec
 }
 Geometry* GeometryManager::CreatePlane(const std::string& name, f32 width, f32 height, const BMath::Vec4& color)
 {
+    BIT_LOG_DEBUG("Creating a plane with width : %f, height: %f", width, height);
 
     if(HasGeometry(name))
     {

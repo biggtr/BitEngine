@@ -151,6 +151,8 @@ void Renderer::Clear()
 }
 void Renderer::SetViewport(u32 x, u32 y, u32 width, u32 height)
 {
+    m_ViewportWidth = width;
+    m_ViewportHeight = height;
     m_RenderCommand->SetViewport(x, y, width, height);
 }
 

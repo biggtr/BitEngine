@@ -36,6 +36,9 @@ private:
     BMath::Mat4 m_ProjectionMatrix;
     BMath::Mat4 m_ViewProjectionMatrix;
 
+    f32 m_ViewportWidth;
+    f32 m_ViewportHeight;
+
     std::vector<RenderingItem> m_RenderQueue;
 
     // === STATISTICS ===
@@ -67,6 +70,9 @@ public:
     void SetClearColor(f32 r, f32 g, f32 b, f32 a = 1.0f);
     void Clear();
     void SetViewport(u32 x, u32 y, u32 width, u32 height);
+    f32 GetViewportWidth() { return m_ViewportWidth; }
+    f32 GetViewportHeight() { return m_ViewportHeight; }
+
     
     const RenderStats& GetStats() const { return m_RenderStats; }
     void ResetStats()

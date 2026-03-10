@@ -40,36 +40,43 @@ void Material::SetShader(Shader* shader)
 void Material::SetFloat(const std::string& name, f32 value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT, .Float = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetInt(const std::string& name, i32 value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::INT, .Int1 = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetBool(const std::string& name, b8 value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::BOOL, .value = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetVec2(const std::string& name, const BMath::Vec2& value)
 {
-
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT2, .Float2 = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetVec3(const std::string& name, const BMath::Vec3& value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT3, .Float3 = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetVec4(const std::string& name, const BMath::Vec4& value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT4, .Float4 = value };
+    m_PropertiesDirty = true;
 }
 void Material::SetMat4(const std::string& name, const BMath::Mat4& value)
 {
     m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT4, .Matrix4 = value };
+    m_PropertiesDirty = true;
 }
 
 void Material::SetTexture(const std::string& name, Texture* texture)
 {
     m_Textures[name] = texture;
+    m_PropertiesDirty = true;
 }
 Texture* Material::GetTexture(const std::string& name) const
 {

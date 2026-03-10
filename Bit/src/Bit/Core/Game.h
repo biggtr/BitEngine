@@ -216,6 +216,10 @@ public:
         {
             m_Renderer2D->SetViewport(0, 0, width, height);
         }
+        if(m_Renderer3D)
+        {
+            m_Renderer3D->SetViewport(0, 0, width, height);
+        }
         if(m_TileEditor != nullptr)
         {
             m_TileEditor->SetScreenSize(width, height);
