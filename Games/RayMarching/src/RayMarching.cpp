@@ -1,4 +1,6 @@
 #include "RayMarching.h"
+#include "Bit/Core/Input.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/Geometry.h"
@@ -17,11 +19,17 @@ void RayMarching::Initialize()
 }
 void RayMarching::Update(f32 deltaTime)
 {
+    static f32 accumelatedTime= 0.0f;
+    accumelatedTime += deltaTime;
     f32 vpW = (f32)m_Renderer3D->GetViewportWidth();
     f32 vpH = (f32)m_Renderer3D->GetViewportHeight();
-    BIT_LOG_DEBUG("ratio: %.4f", vpW / vpH); 
     raymarchingMaterial->SetFloat("screenx", vpW);
     raymarchingMaterial->SetFloat("screeny", vpH);
+    raymarchingMaterial->SetFloat("time", accumelatedTime);
+
+    i32 x, y;
+    BitEngine::InputGetMousePosition(&x, &y);
+    raymarchingMaterial->SetVec2("mouseInput", {(f32)x, (f32)y});
 }
 void RayMarching::Render3D()
 {
