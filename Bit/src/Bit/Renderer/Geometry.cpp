@@ -1,5 +1,6 @@
 #include "Geometry.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Matrix.h"
 #include "Bit/Renderer/Buffers.h"
 
 namespace BitEngine {
@@ -7,8 +8,9 @@ using BMath::Mat4;
 
 Geometry::Geometry(const std::string& name)
     : m_VAO(), m_VBO(), m_IBO(), 
-        m_Material(), m_Transform(), m_IsUploaded(false), m_IsDynamic(false)
+        m_Material(), m_IsUploaded(false), m_IsDynamic(false)
 {
+    m_Transform = BMath::Mat4Identity();
     m_Name = name;
 }
 Geometry::~Geometry()
@@ -88,8 +90,10 @@ Material* Geometry::GetMaterial()
 
 void Geometry::Translate(const BMath::Vec3& translation)
 {
-  Mat4 t = BMath::Mat4Scale(translation.x, translation.y, translation.z);
-  m_Transform = m_Transform * t;
+    Mat4 t = BMath::Mat4Translate(translation.x, translation.y, translation.z);
+    m_Transform = m_Transform * t;
+    BIT_LOG_DEBUG("cube pos, x %.2f y %.2f, z %.2f ",translation.x, translation.y, translation.z);
+
 }
 void Geometry::Rotate(f32 angle, const BMath::Vec3& axis)
 {

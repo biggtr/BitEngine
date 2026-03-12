@@ -83,6 +83,13 @@ Vec2 Vec2Normalize(Vec2 vector)
     Vec2Normalize(&vector);
     return vector;
 }
+Vec2 Vec2ClampMagnitude(Vec2 vector, f32 maxLength)
+{
+    f32 magnitude = Vec2Length(vector);
+    if(magnitude <= maxLength)
+        return vector;
+    return Vec2Normalize(vector) * maxLength;
+}
 Vec2 Vec2Normal2D(const Vec2& v)
 {
     return {v.y, -v.x};

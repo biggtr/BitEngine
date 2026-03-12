@@ -42,5 +42,11 @@ inline f32 Max(f32 a, f32 b) { return fmax(a, b); }
 inline f32 Ceil(f32 a) { return ceil(a); }
 inline f32 Floor(f32 a) { return floor(a); }
 inline f32 Clamp(f32 value, f32 min, f32 max) { return (value < min) ? min : ((value > max) ? max : value); }
-
+inline f32 MoveTowards(f32 a, f32 b, f32 d) 
+{
+    f32 ba = abs(b - a);
+    f32 direction = b - a > 0.0f ? 1.0f : -1.0f;
+    f32 step = direction * d;
+    return ba < d ? b : a + step;
+}
 }

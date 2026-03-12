@@ -24,6 +24,12 @@ uniform float screenx;
 uniform float screeny;
 uniform float time;
 uniform vec2 mouseInput;
+uniform vec3 cameraPos;
+
+float sdfPlane(vec3 p, vec3 n, float h)
+{
+    return dot(p,n) * h;
+}
 float sdfSphere(vec3 p, vec3 translation, float scale, vec3 c, float r)
 {
     p -= translation;
@@ -39,13 +45,54 @@ float sdfCapsule(vec3 p, vec3 a, vec3 b, float r)
     vec3 c = a + t * ab;
     return length(p - c) - r;
 }
+
+float sdfTorus(vec3 p, vec2 t)
+{
+    float x = length(p.xz) - t.x;
+    return length(vec2(x, p.y)) - t.y;
+}
+float sdfBox(vec3 p, vec3 s)
+{
+    return length(max(abs(p) - s,0));
+}
+float opSmoothUnion( float a, float b, float k )
+{
+    k *= 4.0;
+    float h = max(k-abs(a-b),0.0);
+    return min(a, b) - h*h*0.25/k;
+}
+
+float opSmoothSubtraction( float a, float b, float k )
+{
+    return -opSmoothUnion(a,-b,k);
+
+    // k *= 4.0;
+    // float h = max(k-abs(-a-b),0.0);
+    // return max(-a, b) + h*h*0.25/k;
+}
+
+float opSmoothIntersection( float a, float b, float k )
+{
+    return -opSmoothUnion(-a,-b,k);
+
+    // k *= 4.0;
+    // float h = max(k-abs(a-b),0.0);
+    // return max(a, b) + h*h*0.25/k;
+}
 float scene(vec3 p)
 {
     vec3 center = vec3(0.0);
     float r = 0.5;
-    float sphere = sdfSphere(p, vec3(sin(time * 2.25) * 2 , 0.0, 0.0),2, center, r);
-    float capsule = sdfCapsule(p, center, vec3(0.0, 3.0f, 0.0), r);
-    return min(sphere, capsule); 
+    float plane = sdfPlane(p, vec3(0,1,0), 0.5);
+    float sphere = sdfSphere(p, vec3(sin(time * 1.5) * 1.5, sin(time * 0.3)  * cos(time * 2) * 2, 0.0),2, center, r);
+    float capsule = sdfCapsule(vec3(p.x - 2.0,p.y - sin(time * 1.5),p.z - 3), center, vec3(0.0, 3.0f, 0.0), r);
+    float torus = sdfTorus(vec3(p.x,p.y - sin(time * 1.5),p.z), vec2(1.5, 0.4));
+    float box = sdfBox(p - vec3(sin(time * 2) * 5,2,8), vec3(1.5));
+    float d = opSmoothUnion(sphere, capsule, 0.1);
+    d = opSmoothUnion(d, plane, 0.2);
+    d = opSmoothUnion(d, box, 0.3);
+    d = opSmoothUnion(d, torus, 0.1);
+    return d;
 }
 vec3 calculateNormals(in vec3 p)
 {
@@ -60,7 +107,7 @@ vec3 lighting(vec3 currentPos, vec3 cameraPos, vec3 lightPosition, vec3 lightCol
 {
     vec3 normal = calculateNormals(currentPos);
 
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
 
     vec3 ambient = ambientStrength * lightColor;
 
@@ -68,7 +115,7 @@ vec3 lighting(vec3 currentPos, vec3 cameraPos, vec3 lightPosition, vec3 lightCol
     float diffuseIntensity = max(0.0, dot(normal, directionToLight));
     vec3 diffuse = diffuseIntensity * lightColor;
 
-    float specularIntensity = 0.2;
+    float specularIntensity = 0.6;
     vec3 viewDir = normalize(cameraPos - currentPos);
     vec3 R = reflect(-directionToLight, normal);
     float shineness = 32;
@@ -100,9 +147,9 @@ void main()
     vec2 mouse = (2.0 * mouseInput / vec2(screenx, screeny)) - 1.0;
     mouse.x *= screenx / screeny;
 
-    vec3 cameraPos = vec3(0.0, 0.0, -5.0);
+    // vec3 cameraPos = vec3(0.0, 2.0, -6.0);
     vec3 ro = cameraPos;
-    vec3 rd = normalize(vec3(uv, 1.0));
+    vec3 rd = normalize(vec3(uv.x, uv.y-.2 , 1.0));
     vec3 color = vec3(0.0, 0.0, 0.0);
     float d = rayMarch(ro, rd);
     if(d >= MAX_DIST)
@@ -111,12 +158,13 @@ void main()
         return;
     }
     vec3 currentPos = ro + rd * d;
-    vec3 lightPosition = vec3(sin(mouse.x), mouse.y, -3.0);
+    vec3 lightPosition = vec3(mouse.x, mouse.y, -3.0);
     vec3 lightColor = vec3(1.0, 1.0, 0.0);
     color += lighting(currentPos, cameraPos, lightPosition, lightColor);
 
     FragColor = vec4(color, 1.0);
 }
+
 
 
 

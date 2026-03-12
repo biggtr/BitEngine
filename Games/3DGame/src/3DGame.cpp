@@ -1,8 +1,10 @@
 #include "3DGame.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Matrix.h"
+#include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/Material.h"
 
-BitEngine::Material* frenselMaterial;
+BitEngine::Material* material;
 BitEngine::Geometry* cubeGeometry;
 BMath::Vec3 cubePosition;
 BMath::Vec3 cubeRotation;
@@ -11,30 +13,23 @@ BMath::Mat4 planeTransform;
 BMath::Vec4 viewVec;
 void Game3D::Initialize()
 {
-    BIT_LOG_DEBUG("3d game init");
-    cubePosition = {0,0,-10};
+    cubePosition = {0,0,-2};
 
-    cubeGeometry = m_Renderer3D->GetGeometryManager()->CreateCube("bluecube", 1.0f, {1.0f, 1.0f, 1.0f, 1.0f});
+    cubeGeometry = m_Renderer3D->GetGeometryManager()->CreateCube("cube", 8.0f);
+    cubeGeometry->Translate(cubePosition);
+    cubeGeometry->Scale({4,1,1});
+    m_Renderer3D->GetShaderManager()->LoadShader("phongShader", "assets/shaders/PhongShader.glsl");
+    material = m_Renderer3D->GetMaterialManager()->CreateMaterial("PhongMaterial", "phongShader");
+    cubeGeometry->SetMaterial(material);
 
-    
-    BitEngine::Shader* frenselShader = m_Renderer3D->GetShaderManager()->LoadShader("frenselShader", "assets/shaders/FrenselOutline.glsl");
-    frenselMaterial = m_Renderer3D->GetMaterialManager()->CreateMaterial("frenselMaterial", "frenselShader");
-
-    cubeGeometry->SetMaterial(frenselMaterial);
-    
 }
 void Game3D::Update(f32 deltaTime)
 {
-    
-    cubeRotation.x += 0.7 * deltaTime; 
-    cubeRotation.z += 0.7 * deltaTime; 
-    cubeTransform = BMath::Mat4CreateTransform(cubePosition, {5,5,5}, cubeRotation);
-    frenselMaterial->SetVec3("u_CameraPos", ActiveWorldCamera->GetPosition());
+
 }
 void Game3D::Render3D()
 {
-
-    m_Renderer3D->Submit(cubeGeometry, frenselMaterial, cubeTransform);
+    m_Renderer3D->Submit(cubeGeometry, material);
 }
 void Game3D::RenderUI()
 {

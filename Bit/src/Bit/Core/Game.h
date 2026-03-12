@@ -122,7 +122,7 @@ public:
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
-        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
+        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
 
         Physics2DCreateWorld(BMath::Vec2(0,0));
 
@@ -154,7 +154,7 @@ public:
     }
     virtual b8 OnRender() 
     {
-        m_Renderer3D->SetClearColor({1.0f, 0.0f, 0.0f, 1.0f});
+        m_Renderer3D->SetClearColor({0.0f, 0.2f, 0.35f, 1.0f});
         m_Renderer3D->Clear();
         BMath::Mat4 ProjectionMatrix = ActiveWorldCamera->GetType() == CAMERA_TYPE::ORTHO 
             ? m_OrthoProjection : m_PerspectiveProjection;

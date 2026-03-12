@@ -48,8 +48,6 @@ Geometry* GeometryManager::LoadGeometry(const std::string& name, std::string fil
 
 Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const BMath::Vec4& color)
 {
-    BIT_LOG_DEBUG("size of cube is %.f", size);
-    BIT_LOG_DEBUG("name of cube : %s", name.c_str());
     if(HasGeometry(name))
     {
         return m_Geometries.at(name);
@@ -60,7 +58,6 @@ Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const B
     for(u32 i = 0; i < vertices.size(); ++i)
     {
 
-        BIT_LOG_DEBUG("Create Cube with vertices x : %.2f, y : %.2f, z : %.2f", vertices[i].Position.x, vertices[i].Position.y, vertices[i].Position.z)
     }
     Geometry* geometry = new Geometry(name);
     geometry->SetVertices(vertices);
@@ -118,7 +115,6 @@ void GeometryManager::GenerateCubeData(std::vector<Vertex>& vertices, std::vecto
             vertex.Color = color;
             vertex.Normal = normals[face];
             vertex.TextureCoords = uvs[vert];
-            BIT_LOG_DEBUG("TextureCoords, %f %f\n",uvs[vert].x, uvs[vert].y);
             vertices.push_back(vertex);
         }
         u32 baseIndex = face * 4;
