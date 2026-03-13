@@ -1,6 +1,7 @@
 #pragma once 
 #include "Bit/Core/Defines.h"
 #include "math.h"
+#include <cmath>
 
 namespace BMath 
 {
@@ -49,4 +50,6 @@ inline f32 MoveTowards(f32 a, f32 b, f32 d)
     f32 step = direction * d;
     return ba < d ? b : a + step;
 }
+inline f32 Cos(f32 angleInDegrees) { return cosf(DegToRad(angleInDegrees)); }
+inline f32 Sin(f32 angleInDegrees) { return sinf(DegToRad(angleInDegrees)); }
 }

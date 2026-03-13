@@ -14,7 +14,7 @@ void main()
 }
 
 #Fragment
-const float MAX_DIST = 64.0;
+const float MAX_DIST = 128.0;
 const float MIN_DIST = 0.001;
 
 out vec4 FragColor;  
@@ -25,6 +25,9 @@ uniform float screeny;
 uniform float time;
 uniform vec2 mouseInput;
 uniform vec3 cameraPos;
+uniform vec3 cameraForward;
+uniform vec3 cameraRight;
+uniform vec3 cameraUp;
 
 float sdfPlane(vec3 p, vec3 n, float h)
 {
@@ -79,19 +82,27 @@ float opSmoothIntersection( float a, float b, float k )
     // float h = max(k-abs(a-b),0.0);
     // return max(a, b) + h*h*0.25/k;
 }
+vec3 repeat(vec3 p, float s)
+{
+    vec3 r = p - s*round(p / s);
+    return r;
+}
 float scene(vec3 p)
 {
     vec3 center = vec3(0.0);
     float r = 0.5;
     float plane = sdfPlane(p, vec3(0,1,0), 0.5);
-    float sphere = sdfSphere(p, vec3(sin(time * 1.5) * 1.5, sin(time * 0.3)  * cos(time * 2) * 2, 0.0),2, center, r);
+    vec3 q = repeat(p, 15.0);
+    float sphere = sdfSphere(q, vec3(0, sin(time * 2), 0.0),2, center, r);
     float capsule = sdfCapsule(vec3(p.x - 2.0,p.y - sin(time * 1.5),p.z - 3), center, vec3(0.0, 3.0f, 0.0), r);
-    float torus = sdfTorus(vec3(p.x,p.y - sin(time * 1.5),p.z), vec2(1.5, 0.4));
-    float box = sdfBox(p - vec3(sin(time * 2) * 5,2,8), vec3(1.5));
-    float d = opSmoothUnion(sphere, capsule, 0.1);
-    d = opSmoothUnion(d, plane, 0.2);
-    d = opSmoothUnion(d, box, 0.3);
-    d = opSmoothUnion(d, torus, 0.1);
+    float torus = sdfTorus(q, vec2(5.5, 1.0));
+    float box = sdfBox(q, vec3(1.8));
+    
+    // d = opSmoothUnion(d, plane, 0.2);
+    // d = opSmoothUnion(d, torus, 0.1);
+
+    float d = opSmoothUnion(sphere, box, 0.4);
+    d = opSmoothUnion(d, torus, 0.8);
     return d;
 }
 vec3 calculateNormals(in vec3 p)
@@ -149,7 +160,7 @@ void main()
 
     // vec3 cameraPos = vec3(0.0, 2.0, -6.0);
     vec3 ro = cameraPos;
-    vec3 rd = normalize(vec3(uv.x, uv.y-.2 , 1.0));
+    vec3 rd = normalize(uv.x * cameraRight + uv.y * cameraUp + cameraForward);
     vec3 color = vec3(0.0, 0.0, 0.0);
     float d = rayMarch(ro, rd);
     if(d >= MAX_DIST)
@@ -164,6 +175,7 @@ void main()
 
     FragColor = vec4(color, 1.0);
 }
+
 
 
 
