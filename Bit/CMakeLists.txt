@@ -49,6 +49,7 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Renderer/Material.cpp
     src/Bit/Renderer/Geometry.cpp
     src/Bit/Renderer/Mesh.cpp
+    src/Bit/Renderer/ComputeShader.cpp
 
     src/Bit/Renderer/Camera.cpp
     src/Bit/Renderer/CameraManager.cpp

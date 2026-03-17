@@ -85,7 +85,7 @@ void TileEditor::SetTileSetTexture(Texture* texture, u32 tilesetWidth, u32 tiles
 
 // widthInTiles means how many tiles do you want the map have horizontally 
 // heightInTiles means how many tiles do you want the map have vertically
-TileMap* TileEditor::CreateTileMap(const char* name, f32 screenWidth, f32 screenHeight, u32 tileSize)
+TileMap* TileEditor::CreateTileMap(const char* name, u32 widthInTiles, u32 heightInTiles, u32 tileSize)
 {
     if (!m_TileSet)
     {
@@ -98,13 +98,10 @@ TileMap* TileEditor::CreateTileMap(const char* name, f32 screenWidth, f32 screen
         BIT_LOG_WARN("Deleting existing tilemap");
         delete m_TileMap;
     }
-    u32 tilesWidth = (u32)BMath::Ceil(screenWidth / (f32)tileSize);
-    u32 tilesHeight = (u32)BMath::Ceil(screenHeight / (f32)tileSize); 
 
-    m_TileMap = new TileMap(tilesWidth, tilesHeight, m_TileSet, tileSize, name);
+    m_TileMap = new TileMap(widthInTiles, heightInTiles, m_TileSet, tileSize, name);
+    m_TileMap->GetTileSize();
     m_EditorState.SetTileMap(m_TileMap);
-    BIT_LOG_INFO("Created new tilemap: %s (%dx%d tiles, tile size: %d)", 
-                 name, tilesWidth, tilesHeight, tileSize);
 
     return m_TileMap;
 }
@@ -246,6 +243,11 @@ b8 TileEditor::IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex)
     if(layerIndex >= m_TileMap->GetLayerCount())
         return false;
 
+    i32 halfW = (i32)(m_TileMap->GetWidth()  / 2);
+    i32 halfH = (i32)(m_TileMap->GetHeight() / 2);
+    if(tileX < -halfW || tileX >= halfW) return false;
+    if(tileY < -halfH || tileY >= halfH) return false;
+
     TileLayer* layer = m_TileMap->GetLayer(layerIndex);
     if(!layer || !layer->IsVisible())
         return false;
@@ -254,65 +256,7 @@ b8 TileEditor::IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex)
 
     return tileID != 0;
 }
-void TileEditor::GetTileCollisions(const BMath::Vec3& position, f32 width, f32 height, std::vector<TileCollisionInfo>& collisions, u32 layerIndex)
-{
-    if (!m_TileMap)
-        return;
-    
-    collisions.clear();
-    BMath::Vec3 centerPosition = position;
-    centerPosition.x += width * 0.5f;
-    centerPosition.y += height * 0.5f;
-    u32 tileSize = m_TileMap->GetTileSize();
-    i32 minTileX = BMath::Floor((centerPosition.x - width * 0.5f) / tileSize);
-    i32 maxTileX = BMath::Floor((centerPosition.x + width * 0.5f) / tileSize);
-    i32 minTileY = BMath::Floor((centerPosition.y - height * 0.5f) / tileSize);
-    i32 maxTileY = BMath::Floor((centerPosition.y + height * 0.5f) / tileSize);
 
-    for(i32 ty = minTileY; ty < maxTileY; ++ty)
-    {
-        for(i32 tx = minTileX; tx < maxTileX; ++tx)
-        {
-            if (!IsTileSolid(tx, ty, layerIndex))
-                continue;
-
-            f32 tileWorldX = (f32)tx * (f32)tileSize + (f32)tileSize * 0.5f;
-            f32 tileWorldY = (f32)ty * (f32)tileSize + (f32)tileSize * 0.5f;
-
-            //distance between center of entity and tile
-            f32 dx = position.x - tileWorldX;
-            f32 dy = position.y - tileWorldY;
-
-            f32 combinedHalfWidth = (width + tileSize) * 0.5f;
-            f32 combinedHalfHeight = (height + tileSize) * 0.5f;
-
-            //if position from center to center is bigger than the combinedHalfWidth or combinedHalfHeight this means no overlap no collision
-            f32 overlapX = combinedHalfWidth - abs(dx);
-            f32 overlapY = combinedHalfHeight - abs(dx);
-
-            if(overlapX > 0.0f && overlapY > 0.0f)
-            {
-                TileCollisionInfo collisionInfo;
-                collisionInfo.IsColliding = true;
-                collisionInfo.TileX = tx;
-                collisionInfo.TileY = ty;
-
-                if(overlapX < overlapY)
-                {
-                    collisionInfo.Depth = overlapX;
-                    collisionInfo.Normal = BMath::Vec3(dx > 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
-                }
-                else
-                {
-                    collisionInfo.Depth = overlapY;
-                    collisionInfo.Normal = BMath::Vec3(0.0f, dy > 0.0f ? 1.0f : -1.0f, 0.0f);
-                }
-                collisions.push_back(collisionInfo);
-            }
-        }
-
-    }
-}
 void TileEditor::Render(const BMath::Mat4& viewProjection)
 {
     TileMap* tilemap = m_EditorState.GetTileMap();

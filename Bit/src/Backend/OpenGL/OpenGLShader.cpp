@@ -6,7 +6,8 @@
 #include "Bit/Math/Matrix.h"
 #include "Bit/Resources/ShaderManager.h"
 #include <fstream>
-namespace BitEngine {
+namespace BitEngine 
+{
 
 
 OpenGLShader::OpenGLShader(const std::string& name, const ShaderSource& sources)

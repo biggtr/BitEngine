@@ -1,31 +1,9 @@
 #include "PlayerController.h"
+#include "Bit/ECS/Compontents.h"
+#include "Bit/Math/BMath.h"
 #include "Bit/Physics/Physics2D.h"
-void PlayerController::UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, 
-                                    Character2DControllerComponent& controller,
-                                    BitEngine::BoxCollider2DComponent& boxCollider,
-                                    const BMath::Vec2& currentPos)
-{
-    const float groundCheckDistance = 0.2f;
-    
-    BMath::Vec2 groundRayStart = {currentPos.x + boxCollider.offset.x,
-        currentPos.y + boxCollider.offset.y - boxCollider.Height * 0.5f};
-    BMath::Vec2 groundRayEnd   = {currentPos.x, groundRayStart.y - groundCheckDistance};
-    BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
-    
-    BitEngine::CastRayContext groundContext = BitEngine::Physics2DCastRay(groundRayStart, groundRayVector, rigidBody.PrimaryId);
-    
-    if(b2Shape_IsValid(groundContext.ShapeID) && 
-       groundContext.Fraction >= 0.0f && 
-       groundContext.Fraction < 1.0f &&
-       groundContext.Normal.y > 0.5f)
-    {
-        controller.IsGrounded = true;
-    }
-    else
-    {
-        controller.IsGrounded = false;
-    }
-}
+#include <cfloat>
+
 void PlayerController::HandleInput(Character2DControllerComponent& controller, f32 deltaTime)
 {
     b8 wasJumpHeld = controller.JumpHeld;
@@ -65,10 +43,13 @@ void PlayerController::HandleJump(Character2DControllerComponent& controller, f3
         controller.CoyoteTimer -= deltaTime;
     }
 
-    b8 canJump = (controller.CoyoteTimer > 0.0f && controller.JumpCount == 0) || 
-                 (controller.JumpCount < controller.MaxJumps);
-
-    if(controller.JumpBufferTimer > 0.0f && canJump && controller.JumpHeld)
+    b8 canJump = false;
+    
+    if(controller.JumpCount  == 0)
+        canJump = controller.CoyoteTimer > 0.0f;
+    else
+        canJump = controller.JumpCount < controller.MaxJumps;
+    if(controller.JumpBufferTimer > 0.0f && canJump)
     {
         controller.Velocity.y = controller.JumpForce;
         controller.IsJumping = true;
@@ -127,147 +108,171 @@ void PlayerController::HandleGravity(Character2DControllerComponent& controller,
     if (controller.Velocity.y < -controller.TerminalVelocity)
         controller.Velocity.y = -controller.TerminalVelocity;
 }
-BMath::Vec2 PlayerController::HandleKinematicCollisions(f32 deltaTime, 
-                                                  BitEngine::Rigidbody2DComponent& rigidBody, 
-                                                  Character2DControllerComponent& controller,
-                                                  BitEngine::BoxCollider2DComponent& boxCollider,
-                                                  const BMath::Vec2& currentPos,
-                                                  const BMath::Vec2& desiredPos)
+
+BMath::Vec2 PlayerController::ResolveTileCollisionSweep(
+    f32 deltaTime, BMath::Vec2 currentPos,
+    BitEngine::BoxCollider2DComponent& boxCollider,
+    BitEngine::TileEditor* tileEditor,
+    Character2DControllerComponent& controller)
 {
-    bool wasGrounded = controller.IsGrounded;
-    controller.IsGrounded = false;
-    BMath::Vec2 finalPos = desiredPos;
-    
-    const f32 groundEpsilon = 0.01f;
-    const f32 groundCheckDistance = 0.2f;
-    
-    if(!wasGrounded && controller.Velocity.y < -5.0f)
+    f32 tileSize  = (f32)tileEditor->GetTileMap()->GetTileSize();
+    f32 epsilon   = 0.01f;
+
+    BMath::Vec2 pos = currentPos + boxCollider.offset;
+
+    controller.IsGrounded    = false;
+    controller.CollidingLeft  = false;
+    controller.CollidingRight = false;
+    controller.CollidingAbove = false;
+    controller.CollidingBelow = false;
+
+    const f32 halfW = boxCollider.Width  * 0.5f;
+    const f32 halfH = boxCollider.Height * 0.5f;
+
+    f32 desiredX = pos.x + controller.Velocity.x * deltaTime;
+
+    if (controller.Velocity.x != 0.0f)
     {
-        BMath::Vec2 sweepStart = {currentPos.x + boxCollider.offset.x, currentPos.y + boxCollider.offset.y - boxCollider.Height * 0.5f};
-        BMath::Vec2 sweepEnd   = {desiredPos.x + boxCollider.offset.x, desiredPos.y + boxCollider.offset.y - boxCollider.Height * 0.5f};
-        BMath::Vec2 sweepVector = sweepEnd - sweepStart;
-        
-        if(fabs(sweepVector.y) > 0.1f)
+        i32 minTileX = BMath::Floor((BMath::Min(pos.x, desiredX) - halfW) / tileSize);
+        i32 maxTileX = BMath::Floor((BMath::Max(pos.x, desiredX) + halfW) / tileSize);
+        i32 minTileY = BMath::Floor((pos.y - halfH + epsilon) / tileSize);
+        i32 maxTileY = BMath::Floor((pos.y + halfH - epsilon) / tileSize);
+
+        bool hitWall = false;
+        f32 bestWall = (controller.Velocity.x > 0.0f) ? FLT_MAX : -FLT_MAX;
+
+        for (i32 ty = minTileY; ty <= maxTileY; ty++)
         {
-            BitEngine::CastRayContext sweepContext = BitEngine::Physics2DCastRay(sweepStart, sweepVector, rigidBody.PrimaryId);
-            
-            if(b2Shape_IsValid(sweepContext.ShapeID) && 
-               sweepContext.Fraction > 0.0f && 
-               sweepContext.Fraction <= 1.0f &&
-               sweepContext.Normal.y > 0.5f)
+            for (i32 tx = minTileX; tx <= maxTileX; tx++)
             {
-                f32 hitGroundY = sweepContext.Point.y;
-                finalPos.y = hitGroundY - boxCollider.offset.y + boxCollider.Height * 0.5f + groundEpsilon;
-                finalPos.x = sweepStart.x + (sweepEnd.x - sweepStart.x) * sweepContext.Fraction;
-                
-                controller.Velocity.y = 0.0f;
-                controller.IsGrounded = true;
-                controller.JumpCount = 0;
-                
-                return finalPos;
+                if (!tileEditor->IsTileSolid(tx, ty)) continue;
+
+                if (controller.Velocity.x > 0.0f)
+                {
+                    f32 tileLeft     = (f32)tx * tileSize;
+                    f32 currentRight = pos.x + halfW;
+
+                    if (tileLeft < currentRight - epsilon) continue;
+
+                    f32 playerRight = desiredX + halfW;
+                    if (playerRight > tileLeft && tileLeft < bestWall)
+                    {
+                        bestWall = tileLeft;
+                        hitWall  = true;
+                    }
+                }
+                else 
+                {
+                    f32 tileRight   = (f32)(tx + 1) * tileSize;
+                    f32 currentLeft = pos.x - halfW;
+
+                    if (tileRight > currentLeft + epsilon) continue;
+
+                    f32 playerLeft = desiredX - halfW;
+                    if (playerLeft < tileRight && tileRight > bestWall)
+                    {
+                        bestWall = tileRight;
+                        hitWall  = true;
+                    }
+                }
             }
         }
-    }
-    
-    BMath::Vec2 groundRayStart = {finalPos.x + boxCollider.offset.x, finalPos.y + boxCollider.offset.y - boxCollider.Height * 0.5f};
-    BMath::Vec2 groundRayEnd   = {finalPos.x, groundRayStart.y - groundCheckDistance};
-    BMath::Vec2 groundRayVector = groundRayEnd - groundRayStart;
-    
-    BitEngine::CastRayContext groundContext = BitEngine::Physics2DCastRay(groundRayStart, groundRayVector, rigidBody.PrimaryId);
-    
-    if(b2Shape_IsValid(groundContext.ShapeID) && 
-       groundContext.Fraction >= 0.0f && 
-       groundContext.Fraction < 1.0f &&
-       groundContext.Normal.y > 0.5f)
-    {
-        float groundY = groundContext.Point.y;
-        float standingY = groundY - boxCollider.offset.y + boxCollider.Height * 0.5f + groundEpsilon;
-        float distanceToGround = finalPos.y - standingY;
-        
-        if(distanceToGround >= -0.05f && distanceToGround <= groundCheckDistance)
+
+        if (hitWall)
         {
-            if(wasGrounded && fabs(controller.Velocity.y) < 0.1f && fabs(distanceToGround) < 0.1f)
+            if (controller.Velocity.x > 0.0f)
             {
-                controller.IsGrounded = true;
-                controller.JumpCount = 0;
-                controller.Velocity.y = 0.0f;
+                desiredX = bestWall - halfW - epsilon;
+                controller.CollidingRight = true;
             }
             else
             {
-                finalPos.y = standingY;
-                controller.IsGrounded = true;
-                controller.JumpCount = 0;
-                controller.Velocity.y = 0.0f;
+                desiredX = bestWall + halfW + epsilon;
+                controller.CollidingLeft = true;
+            }
+            controller.Velocity.x = 0.0f;
+        }
+    }
+
+    pos.x = desiredX;
+
+    f32 desiredY = pos.y + controller.Velocity.y * deltaTime;
+
+    {
+        i32 minTileX = BMath::Floor((pos.x - halfW + epsilon) / tileSize);
+        i32 maxTileX = BMath::Floor((pos.x + halfW - epsilon) / tileSize);
+        i32 minTileY = BMath::Floor((BMath::Min(pos.y, desiredY) - halfH) / tileSize);
+        i32 maxTileY = BMath::Floor((BMath::Max(pos.y, desiredY) + halfH) / tileSize);
+
+        bool hitFloor   = false;
+        bool hitCeiling = false;
+        f32  bestFloor   = -FLT_MAX;
+        f32  bestCeiling =  FLT_MAX;
+
+        for (i32 ty = minTileY; ty <= maxTileY; ty++)
+        {
+            for (i32 tx = minTileX; tx <= maxTileX; tx++)
+            {
+                if (!tileEditor->IsTileSolid(tx, ty)) continue;
+
+                f32 tileLeft   = (f32)tx       * tileSize;
+                f32 tileRight  = (f32)(tx + 1) * tileSize;
+                f32 tileTop    = (f32)(ty + 1) * tileSize;
+                f32 tileBottom = (f32)ty        * tileSize;
+
+                if ((pos.x + halfW) <= tileLeft  + epsilon) continue;
+                if ((pos.x - halfW) >= tileRight - epsilon) continue;
+
+                if (controller.Velocity.y <= 0.0f)
+                {
+                    f32 currentBottom = pos.y - halfH;
+
+                    if (tileTop > currentBottom + epsilon) continue;
+
+                    f32 playerBottom = desiredY - halfH;
+                    if (playerBottom <= tileTop && tileTop > bestFloor)
+                    {
+                        bestFloor = tileTop;
+                        hitFloor  = true;
+                    }
+                }
+
+                if (controller.Velocity.y > 0.0f)
+                {
+                    f32 currentTop = pos.y + halfH;
+
+                    if (tileBottom < currentTop - epsilon) continue;
+
+                    f32 playerTop = desiredY + halfH;
+                    if (playerTop >= tileBottom && tileBottom < bestCeiling)
+                    {
+                        bestCeiling = tileBottom;
+                        hitCeiling  = true;
+                    }
+                }
             }
         }
-    }
-    
-    if(controller.Velocity.y > 0.5f)
-    {
-        BMath::Vec2 ceilingRayStart = {finalPos.x + boxCollider.offset.x, finalPos.y + boxCollider.offset.y + boxCollider.Height * 0.5f};
-        BMath::Vec2 ceilingRayEnd   = {finalPos.x, ceilingRayStart.y + 0.2f};
-        BMath::Vec2 ceilingRayVector = ceilingRayEnd - ceilingRayStart;
-        
-        BitEngine::CastRayContext ceilingContext = BitEngine::Physics2DCastRay(ceilingRayStart, ceilingRayVector, rigidBody.PrimaryId);
-        
-        if(b2Shape_IsValid(ceilingContext.ShapeID) && 
-           ceilingContext.Fraction > 0.0f && 
-           ceilingContext.Normal.y < -0.5f)
+
+        if (hitFloor)
         {
-            float ceilingY = ceilingContext.Point.y;
-            finalPos.y = ceilingY - boxCollider.offset.y - boxCollider.Height * 0.5f - groundEpsilon;
+            desiredY = bestFloor + halfH + epsilon;
             controller.Velocity.y = 0.0f;
+            controller.IsGrounded = true;
+            controller.CollidingBelow = true;
+            controller.IsJumping  = false;
+            controller.JumpCount  = 0;
+        }
+
+        if (hitCeiling)
+        {
+            desiredY = bestCeiling - halfH - epsilon;
+            controller.Velocity.y = 0.0f;
+            controller.CollidingAbove = true;
         }
     }
-    
-    return finalPos;
+
+    pos.y = desiredY;
+
+    return pos - boxCollider.offset;
 }
-// void PlayerController::HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller)
-// {
-//     controller.CollidingBelow = false;
-//     controller.CollidingAbove = false;
-//     controller.CollidingLeft = false;
-//     controller.CollidingRight = false;
-//
-//
-//     std::vector<BitEngine::TileCollisionInfo> tileCollisions;
-//     m_TileEditor->GetTileCollisions(transform.Position, controller.Width, controller.Height, 
-//                                     tileCollisions, 0);
-//     for (auto& tileCol : tileCollisions)
-//     {
-//         transform.Position.x += tileCol.Normal.x * tileCol.Depth;
-//         transform.Position.y += tileCol.Normal.y * tileCol.Depth;
-//
-//
-//         float velocityAlongNormal = controller.Velocity.x * tileCol.Normal.x + 
-//                                    controller.Velocity.y *  tileCol.Normal.y;
-//
-//         if (velocityAlongNormal < 0.0f)  
-//         {
-//             controller.Velocity.x -= velocityAlongNormal * tileCol.Normal.x;
-//             controller.Velocity.y -= velocityAlongNormal * tileCol.Normal.y;
-//         }
-//
-//         if (tileCol.Normal.y > 0.7f)  
-//         {
-//             controller.CollidingBelow = true;
-//         }
-//         else if (tileCol.Normal.y < -0.7f)
-//         {
-//             controller.CollidingAbove = true;
-//         }
-//
-//         if (tileCol.Normal.x > 0.7f) 
-//         {
-//             controller.CollidingLeft = true;
-//         }
-//         else if (tileCol.Normal.x < -0.7f)  
-//         {
-//             controller.CollidingRight = true;
-//         }
-//
-//     }
-// }
-
-
 

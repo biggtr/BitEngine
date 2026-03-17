@@ -38,7 +38,7 @@ public:
                            u32 tileWidth, u32 tileHeight);
     TileSet* GetTileSet() { return m_TileSet; }
     
-    TileMap* CreateTileMap(const char* name, f32 screenWidth, f32 screenHeight, u32 tileSize);
+    TileMap* CreateTileMap(const char* name, u32 widthInTiles, u32 heightInTiles, u32 tileSize);
     TileMap* GetTileMap() { return m_TileMap; }
     void ClearTileMap();
     

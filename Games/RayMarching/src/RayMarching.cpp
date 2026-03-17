@@ -8,13 +8,14 @@
 
 BitEngine::Geometry* shape;
 BitEngine::Material* raymarchingMaterial;
-BMath::Vec3 cameraPos = {0,0,3};
+BMath::Vec3 cameraPos = {0,0,-6};
 BMath::Vec3 cameraForward = BMath::Vec3Zero();
 BMath::Vec3 cameraRight = BMath::Vec3Zero();
 BMath::Vec3 cameraUp = BMath::Vec3Zero();
+f32 cameraDistance = 5.0f;
 BMath::Vec2 playerInput = BMath::Vec2One();
-f32 maxSpeed = 20.0f;
-f32 maxAcceleration = 25.0f;
+f32 maxSpeed = 4.0f;
+f32 maxAcceleration = 1.0f;
 BMath::Vec3 velocity = BMath::Vec3Zero();
 static f32 yaw = -90;
 static f32 pitch = 0;

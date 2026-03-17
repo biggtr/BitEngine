@@ -1,25 +1,27 @@
 #pragma once
 #include "Bit/ECS/Compontents.h"
+#include "Bit/Editor/TileEditor.h"
 #include "Bit/Math/Vector.h"
+#include "Bit/Tiles/TileMap.h"
 
 struct Character2DControllerComponent
 {
     BMath::Vec3 Velocity;
 
-    f32 MaxSpeed = 100.0f;           
-    f32 Acceleration = 1000.0f;      
-    f32 Deceleration = 1200.0f;      
-    f32 AirControl = 0.6f;          
+    f32 MaxSpeed = 60.0f;           
+    f32 Acceleration = 8.0f;      
+    f32 Deceleration = 4.0f;      
+    f32 AirControl = 0.2f;          
     
-    f32 JumpForce = 170.0f;          
-    f32 RisingGravity = 800.0f;     
-    f32 FallingGravity = 200.0f;    
-    f32 TerminalVelocity = 500.0f;   
+    f32 JumpForce = 100.0f;          
+    f32 RisingGravity = 200.0f;     
+    f32 FallingGravity = 180.0f;    
+    f32 TerminalVelocity = 150.0f;   
 
     b8 IsGrounded = false;
     b8 IsJumping = false;
     i32 JumpCount = 0;
-    i32 MaxJumps = 2;                
+    i32 MaxJumps = 3;                
 
     float CoyoteTime = 0.08f;        
     float CoyoteTimer = 0.0f;
@@ -50,16 +52,7 @@ public:
     void HandleGravity(Character2DControllerComponent& controller, f32 deltaTime);
     void HandleGroundDetection(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller);
     void ApplyPhysics(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller, f32 deltaTime);
-    // void HandleCollision(BitEngine::TransformComponent& transform, Character2DControllerComponent& controller); 
-    BMath::Vec2 HandleKinematicCollisions(f32 deltaTime, 
-                                                  BitEngine::Rigidbody2DComponent& rigidBody, 
-                                                  Character2DControllerComponent& controller,
-                                                  BitEngine::BoxCollider2DComponent& boxCollider,
-                                                  const BMath::Vec2& currentPos,
-                                                  const BMath::Vec2& desiredPos);
+    BMath::Vec2 ResolveTileCollisionSweep(f32 deltaTime, BMath::Vec2 currentPos, BitEngine::BoxCollider2DComponent& boxCollider, BitEngine::TileEditor* tileEditor, Character2DControllerComponent& controller);
+                                                  
 
-    void UpdateGroundedState(BitEngine::Rigidbody2DComponent& rigidBody, 
-                                    Character2DControllerComponent& controller,
-                                    BitEngine::BoxCollider2DComponent& boxCollider,
-                                    const BMath::Vec2& currentPos);
 };

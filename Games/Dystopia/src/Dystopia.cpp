@@ -1,12 +1,14 @@
 #include "Dystopia.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Editor/TileEditor.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/ECS/Compontents.h"
 #include "Bit/ECS/Entity.h"
 #include "Bit/ECS/Systems/InputSystem.h"
 #include "Bit/ECS/Systems/System.h"
+#include "Bit/Renderer/Camera.h"
 #include "Bit/Resources/AssetStore.h"
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileLayer.h"
@@ -14,6 +16,7 @@
 
 void Dystopia::Initialize()
 {
+    ActiveWorldCamera->SetType(BitEngine::CAMERA_TYPE::ORTHO);
     TileIndex = 0;
     player = m_ECS->CreateEntity();
     player.AddComponent<BitEngine::TransformComponent>();
@@ -21,20 +24,10 @@ void Dystopia::Initialize()
     player.AddComponent<Character2DControllerComponent>();
 
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
-    BitEngine::AssetStoreAddTexture("wolfIdle", "assets/textures/wolf/Black_Werewolf/Idle.png");
-    BitEngine::AssetStoreAddTexture("wolfAttack", "assets/textures/wolf/Black_Werewolf/Attack_1.png");
-    BitEngine::AssetStoreAddTexture("wolfJump", "assets/textures/wolf/Black_Werewolf/Jump.png");
-    BitEngine::AssetStoreAddTexture("wolfRun", "assets/textures/wolf/Black_Werewolf/Run.png");
-    playerSprite.STexture = BitEngine::AssetStoreGetTexture("wolfIdle");
-    playerSprite.Width = 8 * 32;
-    playerSprite.Height = 32;
-    playerSprite.FrameWidth = 32;
-    playerSprite.FrameHeight = 32;
-    playerSprite.CurrentFrame = 0;
-    playerSprite.IsUI = false;
+    playerSprite.Color = {0.4, 0.2, 0.2, 1.0f};
     
-    f32 width = playerSprite.FrameWidth;
-    f32 height = playerSprite.FrameHeight;
+    f32 width = 10;
+    f32 height = 10;
     auto& playerTransform = player.GetComponent<BitEngine::TransformComponent>();
     playerTransform.Position = BMath::Vec3(0.0f, 100.0f, -5.0f);
     playerTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
@@ -44,14 +37,8 @@ void Dystopia::Initialize()
     playerRigidBody.Position = {0.0f, 100.0f, 0.0f};
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
 
-    m_Physics2DSystem->CreateBoxShape(player, width * 0.4f, height * 0.4f, {0.0f, -5.0f}, 0.0f, true);
-    // m_Physics2DSystem->CreateBoxShape(player, width * 0.2f, height * 0.8f, {10.0f, -5.0f}, 45.0f);
+    m_Physics2DSystem->CreateBoxShape(player, width, height, 0.0f, true);
 
-    player.AddComponent<BitEngine::Animation2DControllerComponent>();
-    m_Animation2DSystem->CreateAnimation(player, "wolfIdle", 8, 0, 0.07f);
-    // m_Animation2DSystem->CreateAnimation(player, "PlayerAttack", 7, 22, 0.07f);
-    // m_Animation2DSystem->CreateAnimation(player, "PlayerDamaged", 4, 29, 0.07f);
-    // m_Animation2DSystem->CreateAnimation(player, "PlayerIdle", 10, 29 + 4, 0.07f);
 
 
     auto floor = m_ECS->CreateEntity();
@@ -74,7 +61,7 @@ void Dystopia::Initialize()
     m_TileEditor->SelectTile(TileIndex);
 
 
-    m_TileEditor->CreateTileMap("Level_1", m_WorldWidth, m_WorldHeight, 5);
+    m_TileEditor->CreateTileMap("Level_1", 1000, 1000, 5);
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
     m_TileEditor->SetActiveLayer(0);
 
@@ -113,6 +100,7 @@ void Dystopia::UpdateAnimation(Character2DControllerComponent& controller, BitEn
 }
 void Dystopia::Update(f32 deltaTime)
 {
+
     auto& transform = player.GetComponent<BitEngine::TransformComponent>();
     auto& controller = player.GetComponent<Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
@@ -144,24 +132,25 @@ void Dystopia::Update(f32 deltaTime)
 
     auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;
     BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(rigidbody.BodyId);
-    playerController.UpdateGroundedState(rigidbody, controller, boxCollider, currentPos);
     
     playerController.HandleInput(controller, deltaTime);
     playerController.HandleMovement(controller, deltaTime);
     playerController.HandleJump(controller, deltaTime);
     playerController.HandleGravity(controller, deltaTime);
 
-    BMath::Vec2 desiredMove = BMath::Vec2(controller.Velocity.x, controller.Velocity.y) * deltaTime;
-    BMath::Vec2 desiredPos = currentPos + desiredMove;
-    
-    BMath::Vec2 finalPos = playerController.HandleKinematicCollisions(deltaTime, rigidbody, controller, boxCollider, currentPos, desiredPos);
+    BMath::Vec2 finalPos = playerController.ResolveTileCollisionSweep(deltaTime, currentPos, boxCollider, m_TileEditor, controller);
+
     
     BitEngine::Physics2DSetPosition(rigidbody.BodyId, finalPos);
     rigidbody.Position = BMath::Vec3(finalPos.x, finalPos.y, rigidbody.Position.z);
-    
     transform.Position.x = finalPos.x;
     transform.Position.y = finalPos.y;
     
-    UpdateAnimation(controller, transform);
+
+    BMath::Vec3 cameraPos = transform.Position;
+    cameraPos.z = 0;
+    ActiveWorldCamera->SetPosition(cameraPos);
+
+
 }
 
