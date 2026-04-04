@@ -5,19 +5,15 @@ namespace BitEngine
 {
 class GraphicsContext;
 
-struct PlatformState
-{
-    void* InternalState;
-    u32 Width;
-    u32 Height;
-    const char* Name;
-    GraphicsContext* Context;
-};
 
+b8 PlatformInitialize(u64* memoryRequirement, void* platformState);
+b8 PlatformStartup(const char* applicationName, i32 x, i32 y, u32 width, u32 height);
+b8 PlatformPumpMessages();
+void PlatformShutdown(void* platformState);
 
-b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i32 x, i32 y, u32 width, u32 height);
-b8 PlatformPumpMessages(PlatformState* platformState);
-void PlatformShutdown(PlatformState* platformState);
+void PlatformSwapBuffers();
+void PlatformHideCursor();
+void PlatformSetCursorPos(i32 posx, i32 posy);
 
 void* PlatformAllocate(u64 size, b8 aligned);
 void PlatformFree(void* block, b8 aligned);

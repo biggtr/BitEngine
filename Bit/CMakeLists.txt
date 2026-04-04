@@ -97,6 +97,7 @@ set(BITENGINE_COMMON_SOURCES
     src/Backend/OpenGL/OpenGLVertexArray.cpp
     src/Backend/OpenGL/OpenGLShader.cpp
     src/Backend/OpenGL/OpenGLTexture.cpp
+    src/Backend/OpenGL/OpenGLComputeShader.cpp
     
 )
 

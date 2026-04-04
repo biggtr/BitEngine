@@ -44,7 +44,6 @@ private:
     Time m_Time;
     b8 m_IsRunning = false;
     b8 m_IsSuspended;
-    PlatformState m_Platform;
     u16 m_Width;
     u16 m_Height;
 
@@ -60,6 +59,9 @@ private:
     ArenaAllocator m_SystemsArena;
     void* m_SystemsMemoryBlock;
     u64 TotalSystemsMemorySize;
+
+    u64 m_PlatformMemReq;
+    void* m_Platform;
 
     u64 m_LoggerSystemMemReq;
     void* m_LoggerSystem;

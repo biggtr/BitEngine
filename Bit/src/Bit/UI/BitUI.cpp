@@ -2,24 +2,28 @@
 #include "Bit/Containers/darray.h"
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
+#include "Bit/Math/Vector.h"
+#include "Bit/Renderer/Renderer2D.h"
 #include "Bit/UI/Widgets.h"
+#include <cstdlib>
 #include <cstring>
 
 
 static u64 HashName(const char* name);
 struct UIContext
 {
-    u32 HotID;
-    u32 ActiveID;
-    u32 FocusedID;
+    u64 HotID;
+    u64 ActiveID;
+    u64 FocusedID;
     
     u64* ParentsStack;
     DrawCommand* DrawCommands;
+    BitEngine::Renderer2D* Renderer2D;
 };
 
 static UIContext* bitUIContext;
 
-b8 UIInitialize(u64* memoryRequirement, void* state)
+b8 UIInitialize(u64* memoryRequirement, void* state, BitEngine::Renderer2D* renderer)
 {
     *memoryRequirement = sizeof(UIContext);
     if(state == nullptr)
@@ -37,6 +41,7 @@ b8 UIInitialize(u64* memoryRequirement, void* state)
     {
         bitUIContext->ParentsStack = (u64*)DArrayCreate(u64);
     }
+    bitUIContext->Renderer2D = renderer;
     return true;
 }
 
@@ -58,7 +63,19 @@ void UIBeginFrame()
 }
 void UIEndFrame()
 {
-    //Draw Commands
+    u32 drawCommandsLength = DArrayLength(bitUIContext->DrawCommands);
+    for(u32 i = 0;  i < drawCommandsLength; ++i)
+    {
+        DrawCommand cmd = bitUIContext->DrawCommands[i];
+        BMath::Vec3 position = BMath::Vec3(cmd.Bounds.x, cmd.Bounds.y, 0.0f);
+        BMath::Vec3 size = BMath::Vec3(cmd.Bounds.w , cmd.Bounds.h * -1.0f, 0.0f);
+        if(cmd.Texture != nullptr)
+        {
+            bitUIContext->Renderer2D->DrawQuad(position, size, 0.0f, cmd.Texture, cmd.UVs);
+        }
+        else
+            bitUIContext->Renderer2D->DrawQuad(position, size, 0.0f, cmd.Color);
+    }
 }
 void UIBeginLayout(LAYOUT_TYPE type, Rect bounds);
 void UIEndLayout();
@@ -70,31 +87,14 @@ void UIBegin(const char* label, Rect bounds)
 }
 void UIEnd()
 {
-    u64 parentID;
-    DArrayPop(bitUIContext->ParentsStack, &parentID);
-    DrawCommand windowCmd;
-    //calculate the size of the window automatically based on the content it contains 
-    for(u32 i = 0; i < DArrayLength(bitUIContext->DrawCommands); ++i)
-    {
-        DrawCommand cmd = bitUIContext->DrawCommands[i];
-        if(cmd.Element.ParentID == parentID)
-        {
-            windowCmd.Bounds.w += cmd.Bounds.w;
-            windowCmd.Bounds.h += cmd.Bounds.h;
-        }
-    }
-    DArrayPush(bitUIContext->DrawCommands, windowCmd);
 }
 
-b8 UIButton(const char *label, Rect bounds, const BMath::Vec4& hoverColor, const BMath::Vec4& pressedColor)
+b8 UIButton(u32 id, Rect bounds, ButtonStyle style)
 {
-    u64 parentsStackLen = DArrayLength(bitUIContext->ParentsStack);
-    u64 parentID = bitUIContext->ParentsStack[parentsStackLen - 1];
-    u64 id = HashName(label) + parentID;
     i32 mouseX;
     i32 mouseY;
     BitEngine::InputGetMousePosition(&mouseX, &mouseY);
-    b8 mouseOver = ((f32)mouseX >= bounds.x && (f32)mouseX <= bounds.x + bounds.w && mouseY >= bounds.y && mouseY <= bounds.y + bounds.h);
+    b8 mouseOver = ((f32)mouseX >= bounds.x - bounds.w * 0.5f && (f32)mouseX <= bounds.x + bounds.w * 0.5f && mouseY >= bounds.y - bounds.h * 0.5f && mouseY <= bounds.y + bounds.h * 0.5);
     if(mouseOver)
     {
         bitUIContext->HotID = id;
@@ -103,6 +103,7 @@ b8 UIButton(const char *label, Rect bounds, const BMath::Vec4& hoverColor, const
             bitUIContext->ActiveID = id;
         }
     }
+    // BIT_LOG_DEBUG("mouseX : %d mouseY : %d bounds.x : %.2f, bounds.y: %.2f width: %.2f height :%.2f", mouseX, mouseY, bounds.x, bounds.y, bounds.w, bounds.h);
     b8 clicked = false;
     if(bitUIContext->ActiveID == id && BitEngine::InputIsMouseButtonReleased(BitEngine::MOUSE_BUTTON_LEFT))
     {
@@ -111,24 +112,29 @@ b8 UIButton(const char *label, Rect bounds, const BMath::Vec4& hoverColor, const
     }
     DrawCommand cmd = {};
     cmd.Bounds = bounds;
-    cmd.Label = label;
-    cmd.Element.ParentID = parentID;
     cmd.Element.ID = id;
     cmd.Type = DRAW_COMMAND_TYPE::RECT;
     
-    if(bitUIContext->ActiveID == id)
+    if(style.Texture != nullptr)
     {
-        cmd.Color = pressedColor;
+        cmd.Texture = style.Texture; 
+        for(u32 i = 0; i < 8; ++i)
+        {
+            cmd.UVs[i] = style.UVs[i];
+        }
+    }
+    else if(bitUIContext->ActiveID == id)
+    {
+        cmd.Color = style.PressedColor;
     }
     else if(bitUIContext->HotID == id)
     {
-        cmd.Color = hoverColor;
+        cmd.Color = style.HoverColor;
     }
     else 
     {
-        cmd.Color = {1.0f, 1.0f, 0.0f, 1.0f};
+        cmd.Color = {1.0f, 1.0f, 1.0f, 1.0f};
     }
-
     DArrayPush(bitUIContext->DrawCommands, cmd);
     return clicked;
 }

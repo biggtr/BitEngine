@@ -173,13 +173,13 @@ ShaderSource ShaderManager::ParseShaderFile(const std::string& filepath)
         if(currentLine.find("Vertex") != std::string::npos) 
         {
             currentShader = SHADER_TYPE::VERTEX;
-            shaderSources.VertexShaderSource.append("#version 330 core\n");
+            shaderSources.VertexShaderSource.append("#version 460 core\n");
             continue;
         }
         else if(currentLine.find("Fragment") != std::string::npos)
         {
             currentShader = SHADER_TYPE::FRAGMENT;
-            shaderSources.FragmentShaderSource.append("#version 330 core\n");
+            shaderSources.FragmentShaderSource.append("#version 460 core\n");
             continue;
         }
         switch (currentShader) 

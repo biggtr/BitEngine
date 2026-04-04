@@ -190,6 +190,7 @@ BMath::Vec2 PlayerController::ResolveTileCollisionSweep(
                 desiredX = bestWall + halfW + epsilon;
                 controller.CollidingLeft = true;
             }
+
             controller.Velocity.x = 0.0f;
         }
     }
@@ -256,7 +257,10 @@ BMath::Vec2 PlayerController::ResolveTileCollisionSweep(
         if (hitFloor)
         {
             desiredY = bestFloor + halfH + epsilon;
-            controller.Velocity.y = 0.0f;
+            if(controller.Velocity.y < 0.0)
+            {
+                controller.Velocity.y = -controller.Velocity.y * controller.Restitution;
+            }
             controller.IsGrounded = true;
             controller.CollidingBelow = true;
             controller.IsJumping  = false;
@@ -266,7 +270,10 @@ BMath::Vec2 PlayerController::ResolveTileCollisionSweep(
         if (hitCeiling)
         {
             desiredY = bestCeiling - halfH - epsilon;
-            controller.Velocity.y = 0.0f;
+            if(controller.Velocity.y > 0.0)
+            {
+                controller.Velocity.y = -controller.Velocity.y * controller.Restitution;
+            }
             controller.CollidingAbove = true;
         }
     }

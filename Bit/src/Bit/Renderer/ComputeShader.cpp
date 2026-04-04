@@ -7,7 +7,7 @@ namespace BitEngine
 {
 
 
-ComputeShader* ComputeShader::Create(const std::string& path)
+ComputeShader* ComputeShader::Create(const char* path)
 {
 
     switch (RendererAPI::GetAPI()) 

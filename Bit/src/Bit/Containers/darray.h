@@ -32,7 +32,7 @@ void* _DArrayResize(void* array);
 void* _DArrayPushAt(void* array, u64 index, void* valuePtr);
 void* _DArrayPopAt(void* array, u64 index, void* dest);
 
-#define DARRAY_DEFAULT_CAPACITY 1
+#define DARRAY_DEFAULT_CAPACITY 256
 #define DARRAY_RESIZE_FACTOR 2
 
 #ifdef _MSC_VER 

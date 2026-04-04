@@ -10,7 +10,7 @@ struct Character2DControllerComponent
 
     f32 MaxSpeed = 60.0f;           
     f32 Acceleration = 8.0f;      
-    f32 Deceleration = 4.0f;      
+    f32 Deceleration = 7.0f;      
     f32 AirControl = 0.2f;          
     
     f32 JumpForce = 100.0f;          
@@ -37,6 +37,8 @@ struct Character2DControllerComponent
     b8 CollidingAbove = false;
     b8 CollidingLeft = false;
     b8 CollidingRight = false;
+
+    f32 Restitution = 0.25;
 };
 class PlayerController 
 {

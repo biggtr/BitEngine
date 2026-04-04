@@ -22,32 +22,46 @@ namespace BitEngine
 
 static KEYS TranslateKeysymToPlatformKey(KeySym key);
 
-struct InternalState
+struct PlatformState
 {
     Display* Dpy;
     i32 Screen;
     u32 Window;
+    u32 Width;
+    u32 Height;
+    const char* Name;
+    Cursor cursor;
+    GraphicsContext* Context;
 };
+static PlatformState* platformState = 0;
 
-b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i32 x, i32 y, u32 width, u32 height)
+b8 PlatformInitialize(u64* memoryRequirement, void* state)
 {
-    platformState->InternalState = malloc(sizeof(InternalState));
-    InternalState* internalState = (InternalState*)platformState->InternalState;
-    internalState->Dpy = XOpenDisplay(NULL);
-    if(!internalState->Dpy)
+    *memoryRequirement = sizeof(PlatformState);
+    if(!state)
+    {
+        return true;
+    }
+    platformState = (PlatformState*)state;
+    return true;
+}
+b8 PlatformStartup(const char* applicationName, i32 x, i32 y, u32 width, u32 height)
+{
+    platformState->Dpy = XOpenDisplay(NULL);
+    if(!platformState->Dpy)
     {
         BIT_LOG_ERROR("Couldn't Create a Display on linux..!");
         return false;
     }
-    internalState->Screen = XDefaultScreen(internalState->Dpy);
+    platformState->Screen = XDefaultScreen(platformState->Dpy);
 
-    LinuxWindowRequirements req = OpenGLContextLinux::GetWindowRequirements(internalState->Dpy, internalState->Screen);
+    LinuxWindowRequirements req = OpenGLContextLinux::GetWindowRequirements(platformState->Dpy, platformState->Screen);
 
     if (!req.visualInfo) {
-        XCloseDisplay(internalState->Dpy);
+        XCloseDisplay(platformState->Dpy);
         return false;
     }
-    u32 rootWindow = RootWindow(internalState->Dpy, internalState->Screen);
+    u32 rootWindow = RootWindow(platformState->Dpy, platformState->Screen);
 
     XSetWindowAttributes attr;
     memset(&attr, 0, sizeof(XSetWindowAttributes));
@@ -55,63 +69,64 @@ b8 PlatformStartup(PlatformState* platformState, const char* applicationName, i3
                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
                       StructureNotifyMask | FocusChangeMask;
     attr.colormap = req.colormap;
-    attr.background_pixel = BlackPixel(internalState->Dpy, internalState->Screen);
+    attr.background_pixel = BlackPixel(platformState->Dpy, platformState->Screen);
 
     u64 valueMask = CWEventMask | CWBackPixel | CWColormap;
 
     platformState->Width = width;
     platformState->Height = height;
-    internalState->Window = XCreateWindow(internalState->Dpy, 
+    platformState->Window = XCreateWindow(platformState->Dpy, 
             rootWindow, x, y, width, height, 0,
             req.depth, InputOutput, req.visualInfo->visual, valueMask, &attr);
 
-    if(!internalState->Window)
+    if(!platformState->Window)
     {
         BIT_LOG_ERROR("Failed To Create A Window");
-        XCloseDisplay(internalState->Dpy);
+        XCloseDisplay(platformState->Dpy);
         return false;
     }
 
-    platformState->Context = new OpenGLContextLinux(internalState->Dpy, internalState->Window, internalState->Screen, req);
+    platformState->Context = new OpenGLContextLinux(platformState->Dpy, platformState->Window, platformState->Screen, req);
     if (!platformState->Context->Initialize()) {
         BIT_LOG_FATAL("Failed to initialize graphics context!");
-        OpenGLContextLinux::FreeWindowRequirements(internalState->Dpy, req);
-        XDestroyWindow(internalState->Dpy, internalState->Window);
-        XCloseDisplay(internalState->Dpy);
+        OpenGLContextLinux::FreeWindowRequirements(platformState->Dpy, req);
+        XDestroyWindow(platformState->Dpy, platformState->Window);
+        XCloseDisplay(platformState->Dpy);
         return false;
     }
-    OpenGLContextLinux::FreeWindowRequirements(internalState->Dpy, req);
+    OpenGLContextLinux::FreeWindowRequirements(platformState->Dpy, req);
 
     // register event for handling the xlib window closing 
-    Atom wmDelete = XInternAtom(internalState->Dpy, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(internalState->Dpy, internalState->Window, &wmDelete, 1);
+    Atom wmDelete = XInternAtom(platformState->Dpy, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(platformState->Dpy, platformState->Window, &wmDelete, 1);
 
-    XAutoRepeatOff(internalState->Dpy);
+    XAutoRepeatOff(platformState->Dpy);
 
-    XStoreName(internalState->Dpy, internalState->Window, applicationName);
-    XMapWindow(internalState->Dpy, internalState->Window);
-    XFlush(internalState->Dpy);
+    XStoreName(platformState->Dpy, platformState->Window, applicationName);
+    XMapWindow(platformState->Dpy, platformState->Window);
+    XFlush(platformState->Dpy);
     return true;
 
 }
 
-void PlatformShutdown(PlatformState* platformState)
+void PlatformShutdown(void* state)
 {
-    BIT_LOG_DEBUG("Platform Shutting Down.")
-    InternalState* internalState = (InternalState*)platformState->InternalState;
-    XAutoRepeatOn(internalState->Dpy);
-    XUnmapWindow(internalState->Dpy, internalState->Window);
-    XDestroyWindow(internalState->Dpy, internalState->Window);
-    XCloseDisplay(internalState->Dpy);
-    free(internalState);
-}
-b8 PlatformPumpMessages(PlatformState* platformState)
-{
-    InternalState* internalState = (InternalState*)platformState->InternalState;
-    XEvent event;
-    while(XPending(internalState->Dpy))
+    if(state)
     {
-        XNextEvent(internalState->Dpy, &event);
+        BIT_LOG_DEBUG("Platform Shutting Down.");
+        XAutoRepeatOn(platformState->Dpy);
+        XUnmapWindow(platformState->Dpy, platformState->Window);
+        XDestroyWindow(platformState->Dpy, platformState->Window);
+        XCloseDisplay(platformState->Dpy);
+        platformState = 0;
+    }
+}
+b8 PlatformPumpMessages()
+{
+    XEvent event;
+    while(XPending(platformState->Dpy))
+    {
+        XNextEvent(platformState->Dpy, &event);
         switch (event.type) 
         {
             case ConfigureNotify:
@@ -178,7 +193,7 @@ b8 PlatformPumpMessages(PlatformState* platformState)
             }
             case ClientMessage:
             {
-                Atom wmDelete = XInternAtom(internalState->Dpy, "WM_DELETE_WINDOW", False);
+                Atom wmDelete = XInternAtom(platformState->Dpy, "WM_DELETE_WINDOW", False);
                 if ((Atom)event.xclient.data.l[0] == wmDelete) {
                     EventFire(EVENT_CODE_APPLICATION_QUIT, 0, {});
                 }
@@ -191,6 +206,26 @@ b8 PlatformPumpMessages(PlatformState* platformState)
     return true;
 }
 
+void PlatformSwapBuffers()
+{
+    platformState->Context->SwapBuffers();
+}
+
+void PlatformHideCursor()
+{
+    Pixmap blank = XCreatePixmap(platformState->Dpy, platformState->Window, 16, 16, 1);
+    XColor fg = {0};
+    XColor bg = {0};
+    Cursor cursor = XCreatePixmapCursor(platformState->Dpy, blank, blank, &fg, &bg, 0,0);
+    XDefineCursor(platformState->Dpy, platformState->Window, cursor);
+    XFreePixmap(platformState->Dpy, blank);
+    platformState->cursor = cursor;
+}
+void PlatformSetCursorPos(i32 xpos, i32 ypos)
+{
+    XWarpPointer(platformState->Dpy, None, platformState->Window, 0,0,0,0, xpos, ypos);
+    XFlush(platformState->Dpy);
+}
 void* PlatformAllocate(u64 size, b8 aligned)
 {
     (void)aligned;

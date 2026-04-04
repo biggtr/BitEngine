@@ -12,6 +12,7 @@
 #include "Platform/Platform.h"
 #include <cstdlib>
 #include <cstring>
+#include <utility>
 
 namespace BitEngine
 {
@@ -38,14 +39,15 @@ Application::~Application()
 b8 Application::Create(Game* gameInstance)
 {
 
+    PlatformInitialize(&m_PlatformMemReq, 0);
     EventInitialize(&m_EventSystemMemReq, 0);
     InputInitialize(&m_InputSystemMemReq, 0);
     LoggerInitialize(&m_LoggerSystemMemReq, 0);
     Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
     AssetsStoreInitialize(&m_AssetStoreSystemMemReq, 0);
-    UIInitialize(&m_UISystemMemReq, 0);
+    UIInitialize(&m_UISystemMemReq, 0, 0);
 
-    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq;
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq + m_PlatformMemReq;
     m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
     if(!m_SystemsMemoryBlock)
     {
@@ -55,6 +57,13 @@ b8 Application::Create(Game* gameInstance)
     memset(m_SystemsMemoryBlock, 0, TotalSystemsMemorySize);
     BIT_LOG_INFO("Allocated %llu bytes for all systems", TotalSystemsMemorySize);
     ArenaCreate(&m_SystemsArena, TotalSystemsMemorySize, m_SystemsMemoryBlock);
+
+    m_Platform = ArenaAllocate(&m_SystemsArena, m_PlatformMemReq);
+    if(!PlatformInitialize(&m_PlatformMemReq, m_Platform))
+    {
+        BIT_LOG_ERROR("Failed To Initialze Platform");
+        return false;
+    }
 
     m_EventSystem = ArenaAllocate(&m_SystemsArena, m_EventSystemMemReq);
     if(!EventInitialize(&m_EventSystemMemReq, m_EventSystem))
@@ -93,18 +102,12 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    m_UISystem = ArenaAllocate(&m_SystemsArena, m_UISystemMemReq);
-    if(!UIInitialize(&m_UISystemMemReq, m_UISystem))
-    {
-        BIT_LOG_ERROR("Failed To Initialze UI System");
-        return false;
-    }
 
     m_GameInstance = gameInstance;
 
     m_Width = m_GameInstance->m_AppConfig.width;
     m_Height = m_GameInstance->m_AppConfig.height;
-    if(!PlatformStartup(&m_Platform,
+    if(!PlatformStartup(
                 m_GameInstance->m_AppConfig.name,
                 m_GameInstance->m_AppConfig.x,
                 m_GameInstance->m_AppConfig.y,
@@ -127,6 +130,12 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
+    m_UISystem = ArenaAllocate(&m_SystemsArena, m_UISystemMemReq);
+    if(!UIInitialize(&m_UISystemMemReq, m_UISystem, m_Renderer2D))
+    {
+        BIT_LOG_ERROR("Failed To Initialze UI System");
+        return false;
+    }
     if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_CameraManager, m_ParticleSystem}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
@@ -134,7 +143,7 @@ b8 Application::Create(Game* gameInstance)
     }
 
     EventRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
-    PlatformPumpMessages(&m_Platform);
+    PlatformPumpMessages();
 
     m_IsRunning = true;
     m_IsSuspended = false;
@@ -146,7 +155,7 @@ void Application::Run()
     m_Time.Reset();
     while (m_IsRunning)
     {
-        if(!PlatformPumpMessages(&m_Platform))
+        if(!PlatformPumpMessages())
         {
             BIT_LOG_FATAL("Something Went Wrong with PlatformEventLoop");
             m_IsRunning = false;
@@ -169,24 +178,24 @@ void Application::Run()
                 m_IsRunning = false;
                 break;
             }
-            m_Platform.Context->SwapBuffers();
-
+            PlatformSwapBuffers();
             InputUpdate(deltaTime);
         }
 
     }
-    PlatformShutdown(&m_Platform);
 
-    UIShutdown(m_UISystem);
     AssetStoreShutdown(m_AssetStoreSystem);
     Physics2DShutdown(m_Physics2DSystem);
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
+    UIShutdown(m_UISystem);
 
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
+
+    PlatformShutdown(m_Platform);
 
     if(m_SystemsMemoryBlock)
     {

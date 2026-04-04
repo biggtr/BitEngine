@@ -12,11 +12,6 @@ class IndexBuffer;
 struct Camera2DComponent;
 class Texture;
 
-typedef enum
-{
-    RENDER_FILL,
-    RENDER_LINE,
-} RENDER_MODE;
 class Renderer2D
 {
 private:

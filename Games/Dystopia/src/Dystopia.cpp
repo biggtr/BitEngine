@@ -2,6 +2,7 @@
 #include "Bit/Core/Input.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Editor/TileEditor.h"
+#include "Bit/Font/Font.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/ECS/Compontents.h"
@@ -12,10 +13,16 @@
 #include "Bit/Resources/AssetStore.h"
 #include "Bit/Tiles/Tile.h"
 #include "Bit/Tiles/TileLayer.h"
+#include "Bit/UI/BitUI.h"
+#include "Bit/UI/Widgets.h"
+#include "Platform/Platform.h"
 #include "PlayerController.h"
+#include <cstring>
 
+b8 drawUI = false;
 void Dystopia::Initialize()
 {
+    // BitEngine::PlatformHideCursor();
     ActiveWorldCamera->SetType(BitEngine::CAMERA_TYPE::ORTHO);
     TileIndex = 0;
     player = m_ECS->CreateEntity();
@@ -56,8 +63,8 @@ void Dystopia::Initialize()
     floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
 
-    BitEngine::Texture* tilesetTexture = BitEngine::AssetStoreAddTexture("tileset", "assets/textures/prototype/Tiles/Tileset1.png");
-    m_TileEditor->CreateTileSet(tilesetTexture, 256, 256, 32, 32);
+    BitEngine::Texture* tilesetTexture = BitEngine::AssetStoreAddTexture("tileset", "assets/textures/spritesheet.png");
+    m_TileEditor->CreateTileSet(tilesetTexture, 7 * 32, 6 * 32, 32, 32);
     m_TileEditor->SelectTile(TileIndex);
 
 
@@ -65,10 +72,35 @@ void Dystopia::Initialize()
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
     m_TileEditor->SetActiveLayer(0);
 
+    FontInitialize("assets/fonts/dejavu.ttf");
 }
 
 void Dystopia::RenderUI()
 {
+    if(drawUI)
+    {
+        UIBeginFrame();
+        BitEngine::Texture* tileTexture = m_TileEditor->GetTileSet()->GetTexture();
+        u32 tileCount = m_TileEditor->GetTileSet()->GetTileCount();
+        f32 uvs[8] = {}; 
+        f32 y = 100; 
+        f32 x = 100;
+        for(u32 i = 0; i < tileCount; ++i)
+        {
+            m_TileEditor->GetTileSet()->CalculateTileUVs(i, uvs);
+            ButtonStyle b = {.Texture = tileTexture, .UVs = uvs};
+            x = 100 + 100 * (i % 5);
+            y += i % 5 == 0 ? 100 : 0;
+            if(UIButton(i, {.x= x, .y = y, .w = 40, .h = 40}, b))
+            {
+                TileIndex = i;
+
+                m_TileEditor->SelectTile(TileIndex);
+            }
+        }
+
+        UIEndFrame();
+    }
 }
 void Dystopia::Render2D()
 {
@@ -128,6 +160,10 @@ void Dystopia::Update(f32 deltaTime)
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_P) && !BitEngine::InputWasKeyDown(BitEngine::KEY_P))
     {
         m_TileEditor->LoadTileMap();
+    }
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_Q) && !BitEngine::InputWasKeyDown(BitEngine::KEY_Q))
+    {
+        drawUI = !drawUI;
     }
 
     auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;

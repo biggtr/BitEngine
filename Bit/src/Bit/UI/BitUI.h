@@ -1,5 +1,6 @@
 #pragma once
 #include "Bit/Math/Vector.h"
+#include "Bit/Renderer/Renderer2D.h"
 #include "Bit/UI/Widgets.h"
 #include <vector>
 
@@ -28,8 +29,10 @@ struct DrawCommand
     const char* Label;
     Rect Bounds;
     BMath::Vec4 Color;
+    BitEngine::Texture* Texture;
+    f32 UVs[8];
 };
-b8 UIInitialize(u64* memoryRequirement, void* state);
+b8 UIInitialize(u64* memoryRequirement, void* state, BitEngine::Renderer2D* renderer);
 void UIShutdown(void* state);
 
 void UIBeginFrame();

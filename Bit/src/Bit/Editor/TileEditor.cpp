@@ -25,6 +25,7 @@ TileEditor::TileEditor(Renderer2D* renderer2D)
         m_TileSet(nullptr),
         m_EditorState(),
         m_TileRenderer(renderer2D),
+        m_Renderer2D(renderer2D),
         m_MouseTilePos(),
         m_LastPaintedTile(),
         m_IsPainting(false),

@@ -115,14 +115,15 @@ float scene(vec3 p)
     float plane = sdfPlane(p, vec3(0,1,0), 1.5);
     // float sphere = sdfSphere(p, vec3(0, sin(time * 2), 0.0),2, center, r);
     float capsule = sdfCapsule(vec3(p.x - 2.0,p.y - sin(time * 1.5),p.z - 3), center, vec3(0.0, 3.0f, 0.0), r);
-    float torus = sdfTorus(p, vec2(3.5, 1.0));
+    vec3 q = p;
+    q = repeat(q, 15.0);
+    float torus = sdfTorus(q, vec2(3.5, 1.0));
     float box = sdfBox(p, vec3(1.8));
-    float player = sdfSphere(p - (cameraPos + cameraForward * 10.0), vec3(0.5), 1.5);
+    float player = sdfSphere(p - (cameraPos + cameraForward * 15.0), vec3(0.5), 2.5);
     float terrian = sdfTerrian(p);
-    vec3 q = repeat(p, 1.5);
-    float menger = menger(q);
-    float d = min(player, menger);
-    return menger;
+    // float menger = menger(q);
+    float d = opSmoothUnion(player, torus, 0.6);
+    return d;
 }
 float rayMarch(vec3 ro, vec3 rd, float maxDist)
 {
@@ -159,12 +160,12 @@ vec3 lighting(vec3 currentPos, vec3 cameraPos, vec3 lightPosition, vec3 lightCol
     float diffuseIntensity = max(0.0, dot(normal, directionToLight));
     vec3 diffuse = diffuseIntensity * lightColor;
 
-    float specularIntensity = 0.6;
+    float specularIntensity = 0.8;
     vec3 viewDir = normalize(cameraPos - currentPos);
     vec3 R = reflect(-directionToLight, normal);
     float shineness = 32;
     float spec = pow(max(dot(viewDir, R), 0.0), shineness);
-    vec3 specular = specularIntensity * spec * lightColor;
+    vec3 specular = specularIntensity * spec * vec3(0.3,0.5,0.8);
 
     vec3 light = specular + diffuse + ambient;
 
@@ -178,7 +179,6 @@ vec3 lighting(vec3 currentPos, vec3 cameraPos, vec3 lightPosition, vec3 lightCol
     // }
     return light;
 }
-
 void main()
 {
     vec2 uv = 2.0 * v_TexCoords - 1.0;
@@ -196,33 +196,14 @@ void main()
     }
     vec3 currentPos = ro + rd * d;
     vec3 lightPosition = vec3(0,10, -3.0);
-    vec3 lightColor = vec3(1.0, 1.0, 0.0);
-    color += lighting(currentPos, cameraPos, lightPosition, lightColor);
+    vec3 lightColor = vec3(0.5, 0.2, 0.0);
+    vec3 q = lightPosition;
+    q = repeat(lightPosition, 15.0);
+    color += lighting(currentPos, cameraPos, q, lightColor);
 
-    FragColor = vec4(color, 1.0);
+    float gamma = 2.2;
+    FragColor.rgb = pow(color.rgb, vec3(1.0/gamma));
+    FragColor = vec4(FragColor.rgb, 1.0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

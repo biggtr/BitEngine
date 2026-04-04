@@ -90,7 +90,6 @@ public:
                         {       
                             case PhysicsColliderType::BOX:
                             {
-                                BIT_LOG_DEBUG("DrawRect debug");
                                 renderer.DrawRect(
                                     {transformComponent.Position.x + collider.BoxCollider2D.offset.x, 
                                      transformComponent.Position.y + collider.BoxCollider2D.offset.y, 

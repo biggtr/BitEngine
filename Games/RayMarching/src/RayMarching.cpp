@@ -5,17 +5,18 @@
 #include "Bit/Math/Vector.h"
 #include "Bit/Renderer/Camera.h"
 #include "Bit/Renderer/Geometry.h"
+#include "Platform/Platform.h"
 
 BitEngine::Geometry* shape;
 BitEngine::Material* raymarchingMaterial;
-BMath::Vec3 cameraPos = {0,0,-6};
-BMath::Vec3 cameraForward = BMath::Vec3Zero();
+BMath::Vec3 cameraPos = {0,0,6};
+BMath::Vec3 cameraForward = BMath::Vec3Zero() - cameraPos;
 BMath::Vec3 cameraRight = BMath::Vec3Zero();
 BMath::Vec3 cameraUp = BMath::Vec3Zero();
 f32 cameraDistance = 5.0f;
 BMath::Vec2 playerInput = BMath::Vec2One();
-f32 maxSpeed = 4.0f;
-f32 maxAcceleration = 1.0f;
+f32 maxSpeed = 20.0f;
+f32 maxAcceleration = 40.0f;
 BMath::Vec3 velocity = BMath::Vec3Zero();
 static f32 yaw = -90;
 static f32 pitch = 0;
@@ -45,6 +46,7 @@ float GetUpDownMovement()
 }
 void RayMarching::Initialize()
 {
+    BitEngine::PlatformHideCursor();
     ActiveWorldCamera->SetType(BitEngine::CAMERA_TYPE::PRESPECTIVE);
     shape = m_Renderer3D->GetGeometryManager()->CreateQuad("custom quad", 2.0f);
     m_Renderer3D->GetShaderManager()->LoadShader("raymarchingShader", "assets/shaders/raymarching.glsl");
@@ -61,32 +63,41 @@ void RayMarching::Update(f32 deltaTime)
     playerInput = Vec2ClampMagnitude(playerInput, 1.0f); 
 
     i32 mouseX, mouseY;
-    static f32 lastMouseX = m_AppConfig.width / 2.0f;
-    static f32 lastMouseY = m_AppConfig.height / 2.0f; 
-    BitEngine::InputGetMousePosition(&mouseX, &mouseY);
+    static f32 centerX = m_AppConfig.width * 0.5f;
+    static f32 centerY = m_AppConfig.height * 0.5f; 
+    static i32 lastMouseX = (i32)centerX;
+    static i32 lastMouseY = (i32)centerY;
 
-    f32 mouseXOffset = lastMouseX - mouseX;
-    f32 mouseYOffset = lastMouseY - mouseY;
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
+    BitEngine::InputGetMousePosition(&mouseX, &mouseY);
+    f32 deltaX = (f32)(mouseX - lastMouseX);
+    f32 deltaY = (f32)(lastMouseY - mouseY);
     const f32 sensitivity = 0.1f;
-    mouseXOffset *= sensitivity;
-    mouseYOffset *= sensitivity;
-    yaw += mouseXOffset;
-    pitch += mouseYOffset;
+    yaw += deltaX * sensitivity;
+    pitch += deltaY * sensitivity;
     if(pitch > 89.0f)
-      pitch =  89.0f;
+        pitch =  89.0f;
     if(pitch < -89.0f)
-      pitch = -89.0f;
+        pitch = -89.0f;
+    BitEngine::PlatformSetCursorPos(centerX, centerY);
+    lastMouseX = (i32)centerX;
+    lastMouseY = (i32)centerY;
+
     cameraForward.x = BMath::Cos(yaw) * BMath::Cos(pitch);
     cameraForward.y = BMath::Sin(pitch);
     cameraForward.z = BMath::Sin(yaw) * BMath::Cos(pitch);
     BMath::Vec3 worldUp = {0.0f, 1.0f, 0.0f};
-    cameraRight = BMath::Vec3Normalize(BMath::Vec3Cross(worldUp, cameraForward));
-    cameraUp = BMath::Vec3Normalize(BMath::Vec3Cross(cameraForward, cameraRight));
+    cameraRight = BMath::Vec3Normalize(BMath::Vec3Cross(cameraForward, worldUp));
+    cameraUp = BMath::Vec3Normalize(BMath::Vec3Cross(cameraRight, cameraForward));
 
     f32 maxSpeedChange = maxAcceleration * deltaTime;
-    BMath::Vec3 desiredVelocity = ((cameraRight * playerInput.x) + (cameraForward * playerInput.y) + (worldUp * GetUpDownMovement()) )* maxSpeed;
+    BMath::Vec3 forward = cameraForward;
+    forward.y = 0.0f;
+    forward = BMath::Vec3Normalize(forward);
+    BMath::Vec3 right = cameraRight;
+    right.y = 0.0f;
+    right = BMath::Vec3Normalize(right);
+
+    BMath::Vec3 desiredVelocity = ((right * playerInput.x) + (forward * playerInput.y) + (worldUp * GetUpDownMovement()) )* maxSpeed;
     velocity.x = BMath::MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
     velocity.z = BMath::MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
     velocity.y = BMath::MoveTowards(velocity.y, desiredVelocity.y, maxSpeedChange);
