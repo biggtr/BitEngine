@@ -33,6 +33,7 @@ public:
     void Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection);
     void Render(const BMath::Mat4& viewProjection);
     
+    void ControlEditorCamera(Camera* camera);
     TileSet* CreateTileSet(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, u32 tileWidth, u32 tileHeight);
     void SetTileSetTexture(Texture* texture, u32 tilesetWidth, u32 tilesetHeight, 
                            u32 tileWidth, u32 tileHeight);
@@ -52,8 +53,8 @@ public:
     b8 IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex = 0);
     void GetTileCollisions(const BMath::Vec3& position, f32 width, f32 height, std::vector<TileCollisionInfo>& collisions, u32 layerIndex = 0);
     
-    b8 SaveTileMap();
-    b8 LoadTileMap();
+    b8 SaveTileMap(char* path);
+    b8 LoadTileMap(char* path);
 
     void SelectTile(u32 tileID);
     void SetTool(TileEditorTool tool);

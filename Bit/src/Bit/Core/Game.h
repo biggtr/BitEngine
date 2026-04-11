@@ -149,7 +149,8 @@ public:
             m_TileEditor->Update(deltaTime, ActiveWorldCamera, viewProjection);
         }
         m_ParticleSystem->OnUpdate(deltaTime);
-        Update(deltaTime);
+        if(!m_TileEditor->GetEditorState()->IsCameraEditorOn())
+            Update(deltaTime);
         return true;
     }
     virtual b8 OnRender() 

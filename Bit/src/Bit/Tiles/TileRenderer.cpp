@@ -33,8 +33,6 @@ void TileRenderer::Render(TileMap* tileMap, const BMath::Mat4& viewProjection)
         TileSet* tileSet = tileMap->GetTileSet(); 
         if(!layer->IsVisible())
             continue;
-        if(layer->GetType() == TILE_LAYER_TYPE::COLLISION)
-            continue;
 
         RenderLayer(layer, tileSet, viewProjection, tileMap->GetTileSize());
     }

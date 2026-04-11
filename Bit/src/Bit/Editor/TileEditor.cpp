@@ -60,8 +60,8 @@ TileSet* TileEditor::CreateTileSet(Texture* texture, u32 tilesetWidth, u32 tiles
 {
     if (m_TileSet)
     {
-        BIT_LOG_WARN("Deleting existing tileset");
-        delete m_TileSet;
+        BIT_LOG_WARN("tileset is already there");
+        return m_TileSet;
     }
     
     m_TileSet = new TileSet();
@@ -214,7 +214,6 @@ u32 TileEditor::GetLayerCount()
         return 0;
     return m_TileMap->GetLayerCount();
 }
-
 void TileEditor::Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewProjection)
 {
     if (!InputWasKeyDown(KEY_E) && InputIsKeyDown(KEY_E))
@@ -229,13 +228,36 @@ void TileEditor::Update(f32 deltaTime, Camera* camera, const BMath::Mat4& viewPr
     
     HandleKeyboardShortcuts();
     HandleInput(camera, viewProjection);
-    
+    ControlEditorCamera(camera);
+
     if (m_IsPainting || m_IsErasing)
     {
         HandleToolInput(camera);
     }
 }
-
+void TileEditor::ControlEditorCamera(Camera* camera)
+{
+    BMath::Vec3 cameraMovement = BMath::Vec3Zero();
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_D))
+    {
+        cameraMovement.x = 1.0f;
+    }
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_A))
+    {
+        cameraMovement.x = -1.0f;
+    }
+    if(BitEngine::InputIsKeyDown(KEY_W))
+    {
+        cameraMovement.y = 1.0f;
+    }
+    if(BitEngine::InputIsKeyDown(KEY_S))
+    {
+        cameraMovement.y = -1.0f;
+    }
+    f32 cameraSpeed = 2.0f;
+    BMath::Vec3 cameraPos = camera->GetPosition();
+    camera->SetPosition(cameraPos + (cameraMovement * cameraSpeed));
+}
 b8 TileEditor::IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex)
 {
     if(!m_TileMap)
@@ -250,11 +272,10 @@ b8 TileEditor::IsTileSolid(i32 tileX, i32 tileY, u32 layerIndex)
     if(tileY < -halfH || tileY >= halfH) return false;
 
     TileLayer* layer = m_TileMap->GetLayer(layerIndex);
-    if(!layer || !layer->IsVisible())
+    if(!layer || !layer->IsVisible() || layer->GetType() != TILE_LAYER_TYPE::COLLISION)
         return false;
 
     u32 tileID = layer->GetTile(tileX, tileY);
-
     return tileID != 0;
 }
 
@@ -308,6 +329,7 @@ void TileEditor::ToggleEditorMode()
 {
     b8 currentMode = m_EditorState.IsEditorMode();
     m_EditorState.SetEditorMode(!currentMode);
+    m_EditorState.SetCameraEditor(!currentMode);
     BIT_LOG_DEBUG("Editor mode: %s", !currentMode ? "ON" : "OFF");
 }
 void TileEditor::ToggleGrid()
@@ -593,9 +615,10 @@ void TileEditor::SetScreenSize(u32 screenWidth, u32 screenHeight)
     m_ScreenHeight = screenHeight;
 }
 
-b8 TileEditor::SaveTileMap()
+b8 TileEditor::SaveTileMap(char* path)
 {
-    FILE* f = fopen("TileMap.bmap", "wb");
+    strcat(path, ".bmap");
+    FILE* f = fopen(path, "wb");
     if(f == nullptr)
     {
         BIT_LOG_WARN("Couldn't Create new file to save TileMap");
@@ -653,13 +676,14 @@ b8 TileEditor::SaveTileMap()
     return true;
 }
 
-b8 TileEditor::LoadTileMap()
+b8 TileEditor::LoadTileMap(char* path)
 {
-    FILE* f = fopen("TileMap.bmap", "rb");
+    strcat(path, ".bmap");
+    FILE* f = fopen(path, "rb");
 
     if(f == nullptr)
     {
-        BIT_LOG_ERROR("Couldn't open the file TileMap.bmap");
+        BIT_LOG_ERROR("Couldn't open the file %s", path);
         return false;
     }
     u32 texturePathLen;
@@ -724,6 +748,7 @@ b8 TileEditor::LoadTileMap()
         m_TileMap = nullptr;
     }
     m_TileMap = new TileMap(nTilesOnScreenWidth, nTilesOnScreenHeight, tileSet, singleTileSize, tileMapName);
+    m_EditorState.SetTileMap(m_TileMap);
     free(tileMapName);
 
     u32 tileLayersCount;
@@ -739,11 +764,11 @@ b8 TileEditor::LoadTileMap()
         u32 layerNameLen;
         fread(&layerNameLen, sizeof(u32), 1, f);
         
-        char* layerName = new char[layerNameLen + 1];
+        char* layerName = (char*)malloc(layerNameLen + 1);
         fread(layerName, sizeof(char), layerNameLen, f);
         layerName[layerNameLen] = '\0';
 
-        AddLayer(layerName, TILE_LAYER_TYPE::GROUND);
+        AddLayer(layerName, TILE_LAYER_TYPE::COLLISION);
         TileLayer* layer = m_TileMap->GetLayer(i);
         if(layer) 
         {

@@ -23,7 +23,9 @@ public:
     void SetSelectedTile(u32 tileID) { m_SelectedTile = tileID; }
     void SetActiveTool(TileEditorTool tool) { m_ActiveTool = tool; }
     void SetActiveLayer(u32 layerIndex) { m_ActiveLayer = layerIndex; }
+    void SetCameraEditor(b8 state) { m_IsCameraEditorOn = state; }
 
+    b8 IsCameraEditorOn() { return m_IsCameraEditorOn; }
     TileMap* GetTileMap() { return m_ActiveTileMap; }
     u32 GetSelectedTile() { return m_SelectedTile; }
     TileEditorTool GetActiveTool() { return m_ActiveTool; }
@@ -42,6 +44,7 @@ private:
 
     b8 m_IsEditorMode;
     b8 m_ShowGrid;
+    b8 m_IsCameraEditorOn;
 };
 
 }

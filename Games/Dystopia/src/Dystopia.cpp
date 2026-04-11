@@ -17,6 +17,7 @@
 #include "Bit/UI/Widgets.h"
 #include "Platform/Platform.h"
 #include "PlayerController.h"
+#include <cstdio>
 #include <cstring>
 
 b8 drawUI = false;
@@ -48,19 +49,6 @@ void Dystopia::Initialize()
 
 
 
-    auto floor = m_ECS->CreateEntity();
-    
-    auto& floorTransform = floor.AddComponent<BitEngine::TransformComponent>();
-    floorTransform.Position = BMath::Vec3(0.0f, 0.0f, -5.0f);
-    floorTransform.Scale = BMath::Vec3(30.0f, 10.0f, 0.0f);
-    
-    auto& floorRigidBody = floor.AddComponent<BitEngine::Rigidbody2DComponent>();
-    floorRigidBody.Position = BMath::Vec3(0.0f, 0.0f, 0.0f);
-    floorRigidBody.Type = BitEngine::PhysicsBodyType::Static;
-
-    m_Physics2DSystem->CreateBoxShape(floor, 200.0f, 10.0f);
-    auto& floorSprite = floor.AddComponent<BitEngine::SpriteComponent>();
-    floorSprite.Color = BMath::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
     
 
     BitEngine::Texture* tilesetTexture = BitEngine::AssetStoreAddTexture("tileset", "assets/textures/spritesheet.png");
@@ -69,10 +57,10 @@ void Dystopia::Initialize()
 
 
     m_TileEditor->CreateTileMap("Level_1", 1000, 1000, 5);
-    m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::GROUND); 
+    m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::COLLISION); 
     m_TileEditor->SetActiveLayer(0);
 
-    FontInitialize("assets/fonts/dejavu.ttf");
+    // FontInitialize("assets/fonts/dejavu.ttf");
 }
 
 void Dystopia::RenderUI()
@@ -155,11 +143,17 @@ void Dystopia::Update(f32 deltaTime)
     }
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_O) && !BitEngine::InputWasKeyDown(BitEngine::KEY_O))
     {
-        m_TileEditor->SaveTileMap(); 
+        printf("Enter The name of the map to save: \n");
+        char filename[30];
+        scanf("%s", filename);
+        m_TileEditor->SaveTileMap(filename); 
     }
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_P) && !BitEngine::InputWasKeyDown(BitEngine::KEY_P))
     {
-        m_TileEditor->LoadTileMap();
+        printf("Enter The name of the map to load:\n");
+        char filename[30];
+        scanf("%s", filename);
+        m_TileEditor->LoadTileMap(filename);
     }
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_Q) && !BitEngine::InputWasKeyDown(BitEngine::KEY_Q))
     {
