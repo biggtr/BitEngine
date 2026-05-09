@@ -1,18 +1,23 @@
 #pragma once 
 #include "Bit/Core/Application.h"
 #include "Bit/ECS/Entity.h"
+#include "Bit/Renderer/Texture.h"
 #include "PlayerController.h"
 #include <Bit/Core/Game.h>
+#include "EnemyManager.h"
 
 
 class Dystopia : public BitEngine::Game
 {
 public:
     Dystopia()
-        : playerController()
+        : m_PlayerController()
     {
     }
-    ~Dystopia(){}
+    ~Dystopia()
+    {
+        delete m_EnemyManager;
+    }
     virtual void Initialize() override;
     // virtual void SetupInput() override;
     virtual void Update(float deltaTime) override;
@@ -20,11 +25,14 @@ public:
     virtual void Render3D() override; 
     virtual void RenderUI() override; 
 
-    void UpdateAnimation(Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
-
+    void UpdateAnimation(BitEngine::Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
+    void SpawnParticles(BMath::Vec3 position);
 private:
-    PlayerController playerController;
+    PlayerController m_PlayerController;
+    EnemyManager* m_EnemyManager;
     BitEngine::Entity player;
-    BitEngine::Entity m_WorldColliders[100];
+
+    BitEngine::Texture* m_CharacterSpriteSheet;
+    BitEngine::Entity* Enemies;
     u32 TileIndex;
 };

@@ -1,16 +1,13 @@
 #include "GeometryManager.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Renderer/Geometry.h"
+#include "Bit/Renderer/Mesh.h"
 #include <vector>
 
 namespace BitEngine
 {
 
 
-GeometryManager::GeometryManager()
-{
-
-}
 GeometryManager::~GeometryManager()
 {
     Clear();
@@ -27,23 +24,21 @@ Geometry* GeometryManager::CreateGeometry(const std::string& name)
     m_Geometries[name] = geometry;
     return m_Geometries.at(name);
 }
-Geometry* GeometryManager::LoadGeometry(const std::string& name, std::string filePath)
+
+   
+Mesh* GeometryManager::LoadFromFile(std::string meshName, std::string filepath)
 {
-    if(HasGeometry(name))
+    Mesh* mesh = new Mesh(m_MaterialManager);
+
+    mesh->LoadModelFromFile(filepath);
+
+    std::vector<Geometry*> geometries = mesh->GetGeometries();
+    for (u32 i = 0; i < mesh->GetGeometryCount(); ++i)
     {
-        BIT_LOG_WARN("Geometry %s is already there ", name.c_str());
-        return GetGeometry(name);
-    }
-    Geometry* geometry = new Geometry(name);
-    if(LoadFromFile(geometry, filePath))
-    {
-        delete geometry;        
-        BIT_LOG_ERROR("Failed to load geometry from %s", filePath.c_str());
-        return nullptr;
+        m_Geometries[geometries[i]->GetName()] = geometries[i];
     }
 
-    m_Geometries[name] = geometry;
-    return m_Geometries.at(name);
+    return mesh;
 }
 
 Geometry* GeometryManager::CreateCube(const std::string& name, f32 size, const BMath::Vec4& color)

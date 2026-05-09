@@ -8,7 +8,7 @@ using BMath::Mat4;
 
 Geometry::Geometry(const std::string& name)
     : m_VAO(), m_VBO(), m_IBO(), 
-        m_Material(), m_IsUploaded(false), m_IsDynamic(false)
+        m_Material(nullptr), m_IsUploaded(false), m_IsDynamic(false)
 {
     m_Transform = BMath::Mat4Identity();
     m_Name = name;
@@ -17,7 +17,7 @@ Geometry::~Geometry()
 {
     delete m_IBO;
     delete m_VAO;
-    delete m_Material;
+    delete m_VBO;
 }
 
 void Geometry::SetVertices(const std::vector<Vertex>& vertices)
@@ -44,7 +44,7 @@ void Geometry::AddTriangle(u32 a, u32 b, u32 c)
 {
     m_Indices.push_back(a);
     m_Indices.push_back(b);
-    m_Indices.push_back(b);
+    m_Indices.push_back(c);
 }
 void Geometry::AddQuad(u32 a, u32 b, u32 c, u32 d)
 {
@@ -172,7 +172,7 @@ BufferLayout Geometry::CreateVertexLayout() const
 {
     return BufferLayout({
         { SHADER_DATA_TYPE::FLOAT3, "a_Position"}, 
-        { SHADER_DATA_TYPE::FLOAT3, "a_Normals"}, 
+        { SHADER_DATA_TYPE::FLOAT3, "a_Normal"}, 
         { SHADER_DATA_TYPE::FLOAT4, "a_Color"}, 
         { SHADER_DATA_TYPE::FLOAT2, "a_TexCoords"}, 
         });

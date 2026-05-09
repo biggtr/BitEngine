@@ -1,6 +1,7 @@
 #pragma once
 #include "Bit/Core/Defines.h"
 #include <cstdint>
+#include <string>
 
 namespace BitEngine 
 {

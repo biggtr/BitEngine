@@ -13,6 +13,7 @@
 #include "Bit/Tiles/TileLayer.h"
 #include "Bit/Tiles/TileMap.h"
 #include "Bit/Tiles/TileRenderer.h"
+#include "Bit/UI/BitUI.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -29,7 +30,8 @@ TileEditor::TileEditor(Renderer2D* renderer2D)
         m_MouseTilePos(),
         m_LastPaintedTile(),
         m_IsPainting(false),
-        m_IsErasing(false)
+        m_IsErasing(false),
+        m_DrawUI(false)
 {
 }
 
@@ -147,7 +149,7 @@ void TileEditor::AddLayer(const char* name, TILE_LAYER_TYPE type)
     }
     
     m_TileMap->AddLayer(name, type);
-    BIT_LOG_INFO("Added layer: %s", name);
+    // BIT_LOG_INFO("Added layer: %s", name);
 }
 
 void TileEditor::RemoveLayer(u32 index)
@@ -581,7 +583,10 @@ void TileEditor::HandleKeyboardShortcuts()
     {
         ToggleGrid();
     }
-    
+    if(BitEngine::InputIsKeyDown(BitEngine::KEY_U) && !BitEngine::InputWasKeyDown(BitEngine::KEY_U))
+    {
+        ToggleUI();
+    }
     
     if (InputIsKeyDown(KEY_LSHIFT) || InputIsKeyDown(KEY_RSHIFT))
     {
@@ -614,7 +619,31 @@ void TileEditor::SetScreenSize(u32 screenWidth, u32 screenHeight)
     m_ScreenWidth = screenWidth;
     m_ScreenHeight = screenHeight;
 }
+void TileEditor::DrawUI()
+{
+    if(m_DrawUI)
+    {
+        UIBeginFrame();
+        BitEngine::Texture* tileTexture = GetTileSet()->GetTexture(); 
+        u32 tileCount = GetTileSet()->GetTileCount();
+        f32 uvs[8] = {}; 
+        f32 y = 100; 
+        f32 x = 100;
+        for(u32 i = 0; i < tileCount; ++i)
+        {
+            GetTileSet()->CalculateTileUVs(i, uvs);
+            ButtonStyle b = {.Texture = tileTexture, .UVs = uvs};
+            x = 100 + 100 * (i % 5);
+            y += i % 5 == 0 ? 100 : 0;
+            if(UIButton(i, {.x= x, .y = y, .w = 40, .h = 40}, b))
+            {
+                SelectTile(i);
+            }
+        }
 
+        UIEndFrame();
+    }
+}
 b8 TileEditor::SaveTileMap(char* path)
 {
     strcat(path, ".bmap");

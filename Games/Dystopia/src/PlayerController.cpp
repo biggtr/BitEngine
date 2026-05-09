@@ -4,7 +4,7 @@
 #include "Bit/Physics/Physics2D.h"
 #include <cfloat>
 
-void PlayerController::HandleInput(Character2DControllerComponent& controller, f32 deltaTime)
+void PlayerController::HandleInput(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {
     b8 wasJumpHeld = controller.JumpHeld;
     controller.MoveInput = 0.0f;
@@ -32,7 +32,7 @@ void PlayerController::HandleInput(Character2DControllerComponent& controller, f
     }
 }
 
-void PlayerController::HandleJump(Character2DControllerComponent& controller, f32 deltaTime)
+void PlayerController::HandleJump(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {
     if(controller.IsGrounded)
     {
@@ -64,21 +64,19 @@ void PlayerController::HandleJump(Character2DControllerComponent& controller, f3
         controller.Velocity.y *= 0.5f;
     }
 }
-
-void PlayerController::HandleMovement(Character2DControllerComponent& controller, f32 deltaTime)
+void PlayerController::HandleMovement(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {
     f32 targetSpeed = controller.MoveInput * controller.MaxSpeed;
     f32 currentSpeed = controller.Velocity.x;
     f32 accelerationRate = controller.Acceleration;
-
     if(!controller.IsGrounded)
     {
         accelerationRate *= controller.AirControl;
     }
 
-    if(targetSpeed > 0.0f && currentSpeed < 0.0f || targetSpeed < 0.0f && currentSpeed > 0.0f) // if target speed was going right and i was moving left and turned the other dir accelerate faster to make it smooth
+    if((targetSpeed > 0.0f && currentSpeed < 0.0f) || targetSpeed < 0.0f && currentSpeed > 0.0f) // if target speed was going right and i was moving left and turned the other dir accelerate faster to make it smooth
         accelerationRate *= 1.5f;
-                                                                                               
+
     if(targetSpeed == 0.0f && controller.IsGrounded)
         accelerationRate = controller.Deceleration;
 
@@ -92,7 +90,7 @@ void PlayerController::HandleMovement(Character2DControllerComponent& controller
     controller.Velocity.x += movement;
 }
 
-void PlayerController::HandleGravity(Character2DControllerComponent& controller, f32 deltaTime)
+void PlayerController::HandleGravity(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {
     if (controller.IsGrounded && controller.Velocity.y <= 0.0f)
     {
@@ -113,7 +111,7 @@ BMath::Vec2 PlayerController::ResolveTileCollisionSweep(
     f32 deltaTime, BMath::Vec2 currentPos,
     BitEngine::BoxCollider2DComponent& boxCollider,
     BitEngine::TileEditor* tileEditor,
-    Character2DControllerComponent& controller)
+    BitEngine::Character2DControllerComponent& controller)
 {
     f32 tileSize  = (f32)tileEditor->GetTileMap()->GetTileSize();
     f32 epsilon   = 0.01f;

@@ -150,6 +150,7 @@ public:
     void Update()
     {
         SyncTransforms();
+
     }
 
     void SyncTransforms()

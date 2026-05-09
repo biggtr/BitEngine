@@ -69,7 +69,8 @@ protected:
     BMath::Mat4 m_OrthoProjection;
     BMath::Mat4 m_UIProjection;
                                        
-    const f32 VIEWPORT_HEIGHT = 100.0f;
+    f32 VIEWPORT_HEIGHT = 100.0f;
+    f32 m_Zoom = 2;
     f32 m_WorldHeight;
     f32 m_WorldWidth;
 public:
@@ -77,7 +78,7 @@ public:
     void SetupGameSize()
     {
         f32 aspectRatio = m_AppConfig.width / (f32)m_AppConfig.height;
-        f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
+        f32 halfHeight = (VIEWPORT_HEIGHT / 2.0f) * m_Zoom;
         f32 halfWidth = halfHeight * aspectRatio;
         m_OrthoProjection = BMath::Mat4Ortho(
             -halfWidth, halfWidth, 
@@ -122,7 +123,7 @@ public:
 
         ActiveWorldCamera = services.cameraManager->GetDefaultCamera();
         ActiveWorldCamera->SetPosition(BMath::Vec3(0.0f, 0.0f, 10.0f)); 
-        ActiveWorldCamera->SetType(CAMERA_TYPE::PRESPECTIVE);
+        ActiveWorldCamera->SetType(CAMERA_TYPE::ORTHO);
 
         Physics2DCreateWorld(BMath::Vec2(0,0));
 
@@ -184,13 +185,35 @@ public:
 
         return true;
     }
+    void OnMouseScroll(i8 delta)
+    {
+        m_Zoom -= (delta * 0.25f);
+        m_Zoom = BMath::Max(m_Zoom, 0.25);
+        f32 aspectRatio = (f32)m_AppConfig.width / (f32)m_AppConfig.height;
+        f32 halfHeight = (VIEWPORT_HEIGHT / 2.0f) * m_Zoom;
+        f32 halfWidth = halfHeight * aspectRatio;
+
+        m_WorldHeight = VIEWPORT_HEIGHT;
+        m_WorldWidth = VIEWPORT_HEIGHT * aspectRatio;
+
+        m_OrthoProjection = BMath::Mat4Ortho(
+            -halfWidth, halfWidth, 
+            -halfHeight, halfHeight,
+            -100.0f, 100.0f         
+        );
+        m_PerspectiveProjection = BMath::Mat4Perspective(
+            BMath::DegToRad(45.0f), 
+            aspectRatio,
+            0.1f, 100.0f
+        );
+    }
     void OnWindowResize(u16 width, u16 height)
     {
         m_AppConfig.width = width;
         m_AppConfig.height = height;
 
         f32 aspectRatio = (f32)width / (f32)height;
-        f32 halfHeight = VIEWPORT_HEIGHT / 2.0f;
+        f32 halfHeight = (VIEWPORT_HEIGHT / 2.0f) * m_Zoom;
         f32 halfWidth = halfHeight * aspectRatio;
 
         m_WorldHeight = VIEWPORT_HEIGHT;

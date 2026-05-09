@@ -70,10 +70,13 @@ void Physics2DUpdate(f32 deltaTime);
 f32 Physics2DGetFixedTimeStep(); 
 
 b2ContactEvents Physics2DGetContactEvents(); 
+b2SensorEvents Physics2DGetSensorEvents(); 
 
 f32 Physics2DCastCallback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context);
+b8 Physics2DAABBOverlapCallBack(b2ShapeId shapeID, void* context);
 
 CastRayContext Physics2DCastRay(const BMath::Vec2& origin, const BMath::Vec2& translation, b2ShapeId ignoreShapeID);
+
 
 
 };

@@ -80,13 +80,27 @@ void UIEndFrame()
 void UIBeginLayout(LAYOUT_TYPE type, Rect bounds);
 void UIEndLayout();
 
-void UIBegin(const char* label, Rect bounds)
+void UIBeginWindow(const char* label)
 {
     u64 id = HashName(label);
     DArrayPush(bitUIContext->ParentsStack, id);
 }
-void UIEnd()
+void UIEndWindow()
 {
+    Rect windowDimentions;
+    u32 windowID;
+    DArrayPop(bitUIContext->ParentsStack, &windowID);
+
+    // buttons = GetAllButtonChilds();
+    // for button in buttons:
+    //    rectBounds = button.bounds;
+    //     windowDimentions.w += rectBounds.w;
+    //     windowDimentions.h += rectBounds.h;
+    //
+    // DrawCommand windowCmd;
+    // windowCmd.Bounds = windowDimentions;
+    // windowCmd.Label = windowlabel;
+    // DArrayPush(bitUIContext->DrawCommands, windowCmd);
 }
 
 b8 UIButton(u32 id, Rect bounds, ButtonStyle style)
@@ -113,6 +127,8 @@ b8 UIButton(u32 id, Rect bounds, ButtonStyle style)
     DrawCommand cmd = {};
     cmd.Bounds = bounds;
     cmd.Element.ID = id;
+    u64 parentIndex = DArrayLength(bitUIContext->ParentsStack);
+    cmd.Element.ParentID = parentIndex == 0 ? -1 : bitUIContext->ParentsStack[parentIndex - 1];
     cmd.Type = DRAW_COMMAND_TYPE::RECT;
     
     if(style.Texture != nullptr)

@@ -5,6 +5,7 @@ target_sources(Dystopia
    src/DystopiaEntry.cpp
    src/Dystopia.cpp
    src/PlayerController.cpp
+   src/EnemyManager.cpp
 )
 target_include_directories(Dystopia
    PRIVATE

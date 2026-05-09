@@ -7,6 +7,7 @@
 #include "Bit/Resources/GeometryManager.h"
 #include "Bit/Resources/MaterialManager.h"
 #include "Bit/Resources/ShaderManager.h"
+#include "Bit/Resources/TextureManager.h"
 #include <algorithm>
 #include <cstdlib>
 namespace BitEngine
@@ -37,10 +38,10 @@ b8 Renderer::Initialize()
         BIT_LOG_ERROR("Failed to initialize RenderCommand");
         return false;
     }
-    m_GeometryManager = new GeometryManager();
     
     m_ShaderManager = new ShaderManager();
     m_MaterialManager = new MaterialManager(m_ShaderManager);
+    m_GeometryManager = new GeometryManager(m_MaterialManager);
 
     m_ShaderManager->LoadBuiltinShaders();
     m_GeometryManager->LoadBuiltinPrimitives();
@@ -53,8 +54,8 @@ b8 Renderer::Initialize()
 void Renderer::Shutdown()
 {
     m_RenderQueue.clear();
-    delete m_MaterialManager;
     delete m_ShaderManager;
+    delete m_MaterialManager;
     delete m_GeometryManager;
     delete m_RenderCommand;
 

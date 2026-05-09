@@ -56,6 +56,9 @@ public:
     b8 SaveTileMap(char* path);
     b8 LoadTileMap(char* path);
 
+    void ToggleUI() { m_DrawUI = !m_DrawUI; }
+    void DrawUI();
+
     void SelectTile(u32 tileID);
     void SetTool(TileEditorTool tool);
     void SetActiveLayer(u32 layerIndex);
@@ -88,5 +91,7 @@ private:
     BMath::Vec3 m_LastPaintedTile;
     b8 m_IsPainting;
     b8 m_IsErasing;
+
+    b8 m_DrawUI;
 };
 }

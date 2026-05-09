@@ -16,7 +16,7 @@ struct Physics2DState
     b2WorldId m_World; // maybe change in future to support many worlds for different scenes idk!
     BMath::Vec2 m_Gravity; 
     b2ContactEvents m_ContactEvents;
-
+    b2SensorEvents m_SensorEvents;
     f32 m_FixedTimeStep; 
     i32 m_SubSteps;
     f32 m_Accumulator;
@@ -120,6 +120,7 @@ b2ShapeId Physics2DAddCircle(b2BodyId body, const b2Circle& circle,
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
+    def.enableContactEvents = true;
 
     return b2CreateCircleShape(body, &def, &circle);
 }
@@ -136,6 +137,9 @@ b2ShapeId Physics2DAddBox(b2BodyId body, const b2Polygon& box,
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
+    def.isSensor = true;
+    def.enableSensorEvents = true;
+    def.enableContactEvents = true;
 
     return b2CreatePolygonShape(body, &def, &box);
 }
@@ -151,6 +155,8 @@ b2ShapeId Physics2DAddCapsule(b2BodyId body, const b2Capsule& capsule,
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
+    def.enableContactEvents = true;
+    def.enableSensorEvents = true;
 
     return b2CreateCapsuleShape(body, &def, &capsule);
 }
@@ -173,6 +179,8 @@ void Physics2DUpdate(f32 deltaTime)
     {
         b2World_Step(physicsState->m_World, physicsState->m_FixedTimeStep, physicsState->m_SubSteps);
         physicsState->m_Accumulator -= physicsState->m_FixedTimeStep;
+        physicsState->m_ContactEvents = b2World_GetContactEvents(physicsState->m_World);
+        physicsState->m_SensorEvents = b2World_GetSensorEvents(physicsState->m_World);
     }
 }
 
@@ -204,8 +212,9 @@ CastRayContext Physics2DCastRay(const BMath::Vec2& origin, const BMath::Vec2& tr
 
 f32 Physics2DGetFixedTimeStep() { return physicsState->m_FixedTimeStep; }
 
-b2ContactEvents Physics2DGetContactEvents() { return b2World_GetContactEvents(physicsState->m_World); }
+b2ContactEvents Physics2DGetContactEvents() { return physicsState->m_ContactEvents; }
 
+b2SensorEvents Physics2DGetSensorEvents() { return physicsState->m_SensorEvents; }
 BMath::Vec2 Physics2DGetPosition(b2BodyId bodyID) { b2Vec2 pos = b2Body_GetPosition(bodyID); return {pos.x, pos.y}; }
 void Physics2DSetPosition(b2BodyId bodyID, BMath::Vec2 position) { b2Body_SetTransform(bodyID, b2Vec2(position.x, position.y), b2Body_GetRotation(bodyID)); }
 f32 Physics2DGetRotation(b2BodyId bodyID) { b2Rot q = b2Body_GetRotation(bodyID); return atan2f(q.s, q.c); }

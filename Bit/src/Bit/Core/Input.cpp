@@ -123,6 +123,7 @@ void InputProcessMouseWheel(i8 delta)
     EventContext context;
     context.I8[0] = delta;
     EventFire(EVENT_CODE_MOUSE_WHEEL, 0, context);
+    inputState->MouseCurrentState.MouseWheelDelta = delta;
 }
 
 }   

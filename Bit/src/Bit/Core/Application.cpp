@@ -72,6 +72,7 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
     EventRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
+    EventRegister(EVENT_CODE_MOUSE_WHEEL, this, Application::OnApplicationEventWrapper);
     EventRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
 
     m_InputSystem = ArenaAllocate(&m_SystemsArena, m_InputSystemMemReq); 
@@ -191,6 +192,7 @@ void Application::Run()
     UIShutdown(m_UISystem);
 
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
+    EventUnRegister(EVENT_CODE_MOUSE_WHEEL, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_WINDOW_RESIZED, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_KEY_PRESSED, this, Application::ApplicationOnKeyWrapper);
     EventShutdown(m_EventSystem);
@@ -221,6 +223,10 @@ b8 Application::OnEvent(u16 code, EventContext data)
             BIT_LOG_DEBUG("Windows Resize -> width : %d, height : %d", width, height);
             m_GameInstance->OnWindowResize(width, height);
             break;
+        }
+        case EVENT_CODE_MOUSE_WHEEL:
+        {
+            m_GameInstance->OnMouseScroll(data.I8[0]);
         }
     }
     return true;

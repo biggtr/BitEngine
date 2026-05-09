@@ -5,6 +5,7 @@
 #include "Bit/ECS/Entity.h"
 #include "System.h"
 #include "Bit/Utils/MemoryPool/Pool.h"
+#include <cstring>
 #include <unordered_map>
 namespace BitEngine
 {
@@ -35,11 +36,11 @@ public:
 
         Animation2DControllerComponent& animationController = m_EntityManager->GetComponent<Animation2DControllerComponent>(entity);
 
-        if(animationController.CurrentAnimationName != animationName)
+        if(strcmp(animationController.CurrentAnimationName, animationName) != 0) 
         {
             for(auto& animation : animationController.Animations)
             {
-                if(animation.Name == animationName)
+                if(strcmp(animation.Name, animationName) == 0)
                 {
                     animationController.CurrentAnimationName = animationName;
                     break;
@@ -52,7 +53,7 @@ public:
 
         for(auto& animation : animationController.Animations)
         {
-            if(animation.Name == animationController.CurrentAnimationName)
+            if(strcmp(animation.Name, animationController.CurrentAnimationName) == 0)
             {
                 return &animation;
             }

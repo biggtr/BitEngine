@@ -176,6 +176,7 @@ struct MouseState
     i16 X;
     i16 Y;
     b8 Buttons[MOUSE_BUTTON_MAX];
+    i8 MouseWheelDelta;
 };
 struct InputState
 {
@@ -207,6 +208,8 @@ b8 InputIsMouseButtonUp(MOUSE_BUTTONS button);
 
 b8 InputWasMouseButtonDown(MOUSE_BUTTONS button);
 b8 InputWasMouseButtonUp(MOUSE_BUTTONS button);
+
+b8 MouseScrollDelta(i8 zDelta);
 
 void InputGetMousePosition(i32* x, i32* y);
 void InputGetPrevMousePosition(i32* x, i32* y);

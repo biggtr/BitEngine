@@ -17,12 +17,6 @@ Material::Material(const std::string& name, Shader* shader)
 }
 Material::~Material()
 {
-    for(auto& texture : m_Textures)
-    {
-        if(texture.second)
-            delete texture.second;
-    }
-    delete m_Shader;
 }
 
 void Material::SetShader(Shader* shader)
@@ -69,14 +63,14 @@ void Material::SetVec4(const std::string& name, const BMath::Vec4& value)
 }
 void Material::SetMat4(const std::string& name, const BMath::Mat4& value)
 {
-    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::FLOAT4, .Matrix4 = value };
+    m_Properties[name] = { .Type= MATERIAL_VALUE_TYPE::MAT4, .Matrix4 = value };
     m_PropertiesDirty = true;
 }
 
 void Material::SetTexture(const std::string& name, Texture* texture)
 {
     m_Textures[name] = texture;
-    m_PropertiesDirty = true;
+    m_TexturesDirty = true;
 }
 Texture* Material::GetTexture(const std::string& name) const
 {
@@ -119,11 +113,8 @@ void Material::Bind()
         m_PropertiesDirty = false;
     }
 
-    if(m_TexturesDirty)
-    {
-        ApplyTextures();
-        m_TexturesDirty = false;
-    }
+    ApplyTextures();
+    m_TexturesDirty = false;
 }
 void Material::Unbind() const
 {   
@@ -208,7 +199,7 @@ std::vector<std::string> Material::GetPropertyNames() const
 std::vector<std::string> Material::GetTextureNames() const
 {
     std::vector<std::string> textureNames;
-    for(auto& texture : m_Properties)
+    for(auto& texture : m_Textures)
     {
         textureNames.push_back(texture.first);
     }

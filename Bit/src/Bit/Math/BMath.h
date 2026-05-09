@@ -2,6 +2,7 @@
 #include "Bit/Core/Defines.h"
 #include "math.h"
 #include <cmath>
+#include <cstdlib>
 
 namespace BMath 
 {
@@ -52,4 +53,6 @@ inline f32 MoveTowards(f32 a, f32 b, f32 d)
 }
 inline f32 Cos(f32 angleInDegrees) { return cosf(DegToRad(angleInDegrees)); }
 inline f32 Sin(f32 angleInDegrees) { return sinf(DegToRad(angleInDegrees)); }
+inline f32 Abs(f32 value) { return fabs(value); }
+inline f32 Sqrt(f32 value) { return fsqrt(value); }
 }

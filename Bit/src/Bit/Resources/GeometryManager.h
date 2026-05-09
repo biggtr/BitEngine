@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bit/Renderer/Geometry.h"
+#include "Bit/Renderer/Mesh.h"
 #include <string>
 #include <unordered_map>
 namespace BitEngine
@@ -10,13 +11,19 @@ class GeometryManager
 {
 private:
     std::unordered_map<std::string, Geometry*> m_Geometries;
-
+    
+    //temp
+    MaterialManager* m_MaterialManager;
+    TextureManager* m_TextureManager;
 public:
-    GeometryManager();
+    GeometryManager(MaterialManager* materialManager)
+    {
+        m_MaterialManager = materialManager;
+    }
     ~GeometryManager();
 
     Geometry* CreateGeometry(const std::string& name);
-    Geometry* LoadGeometry(const std::string& name, std::string filePath);
+    Mesh* LoadFromFile(std::string meshName,  std::string filepath);
 
     Geometry* CreateCube(const std::string& name, f32 size, const BMath::Vec4& color = { 1.0f, 0.0f, 0.0f, 1.0f});
     Geometry* CreateSphere(const std::string& name, f32 radius = 1.5f, u32 segments = 32);
@@ -40,7 +47,6 @@ private:
     void GenerateSphereData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 radius, u32 segments);
     void GeneratePlaneData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 width, f32 height, const BMath::Vec4& color);
     void GenerateQuadData(std::vector<Vertex>& vertices, std::vector<u32>& indices, f32 size, const BMath::Vec4& color);
-    b8 LoadFromFile(Geometry* geometry, std::string filepath) { return false;}
 };
 
 }

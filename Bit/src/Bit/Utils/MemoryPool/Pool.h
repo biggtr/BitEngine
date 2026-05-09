@@ -23,7 +23,14 @@ private:
     std::vector<u32> m_DenseEntities;
     u32 m_SparseArray[MAX_NUM_ENTITIES];
 public:
-    Pool(u32 size){ Resize(size); }
+    Pool(u32 size)
+    {
+        m_DenseArray.reserve(size);
+        m_DenseEntities.reserve(size);
+
+        for (u32 i = 0; i < MAX_NUM_ENTITIES; i++)
+            m_SparseArray[i] = UINT32_MAX;
+    }
     ~Pool() = default;
 
     bool IsEmpty() const { return m_DenseArray.empty(); }

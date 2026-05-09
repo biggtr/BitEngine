@@ -11,22 +11,22 @@ class Renderer2D;
 struct ParticleSettings
 {
     BMath::Vec3 Position;
-    BMath::Vec3 Velocity;
-    BMath::Vec3 VelocityVariation;
+    BMath::Vec3 Velocity = {5,5,0};
+    BMath::Vec3 VelocityVariation = {5,5,0};
 
-    BMath::Vec4 StartColor;
-    BMath::Vec4 EndColor;
+    BMath::Vec4 StartColor = {1,0,1,1};
+    BMath::Vec4 EndColor = {1,1,0,1};
 
-    f32 SizeVariation;
-    f32 StartSize;
-    f32 EndSize;
+    f32 SizeVariation = 4;
+    f32 StartSize = 5;
+    f32 EndSize = 3;
 
-    f32 RotationVariation;
-    f32 StartRotation;
-    f32 EndRotation;
+    f32 RotationVariation = 3;
+    f32 StartRotation = 5;
+    f32 EndRotation = 1;
 
-    f32 LifeTimeVariation;
-    f32 LifeTime;
+    f32 LifeTimeVariation = 2;
+    f32 LifeTime = 1;
 };
 class ParticleSystem
 {

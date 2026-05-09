@@ -55,15 +55,15 @@ Material* MaterialManager::CreateMaterial(const std::string& name, Shader* shade
 //             f32 shininess = 32.0f); 
 
 // Material* MaterialManager::CreateTextureMaterial(const std::string& name, Texture* texture);
-    
 Material* MaterialManager::GetMaterial(const std::string& name)
 {
-    if(!HasMaterial(name))
+    auto it = m_Materials.find(name);
+    if (it == m_Materials.end())
     {
-        BIT_LOG_WARN("Material %s doesnt exist, ", name.c_str());
-        return m_DefaultMaterial;
+        BIT_LOG_WARN("Material '%s' not found, returning default.", name.c_str());
+        return m_DefaultMaterial; 
     }
-    return m_Materials[name];
+    return it->second;
 }
 b8 MaterialManager::HasMaterial(const std::string& name) const
 {
@@ -96,7 +96,14 @@ void MaterialManager::LoadBuiltinMaterials()
 
 void MaterialManager::CreateDefaultMaterial()
 {
-    if(!m_DefaultMaterial)
-        m_DefaultMaterial = CreateMaterial("default", "defaultShader");
+    m_DefaultMaterial = nullptr; 
+
+    Shader* shader = m_ShaderManager->GetShader("defaultShader");
+    if (!shader)
+    {
+        BIT_LOG_ERROR("Cannot create default material: 'defaultShader' not found!");
+        return; 
+    }
+    m_DefaultMaterial = CreateMaterial("Default", shader);
 }
 }

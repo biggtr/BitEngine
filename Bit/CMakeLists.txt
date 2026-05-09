@@ -63,6 +63,7 @@ set(BITENGINE_COMMON_SOURCES
     src/Bit/Resources/ShaderManager.cpp
     src/Bit/Resources/MaterialManager.cpp
     src/Bit/Resources/GeometryManager.cpp
+    src/Bit/Resources/TextureManager.cpp
 
 
     src/Bit/Editor/TileEditor.cpp
@@ -127,12 +128,12 @@ target_include_directories(BitEngine
 PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     vendor/glad/include        
-    ${CMAKE_BINARY_DIR}/assimp/include        
+    ${CMAKE_BINARY_DIR}/vendor/assimp/include        
     vendor/stb_image
-    ${CMAKE_CURRENT_SOURCE_DIR}/Bit/vendor/box2d/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/box2d/include
 )
 
-target_link_libraries(BitEngine PUBLIC box2d PRIVATE glad assimp OpenGL::GL)
+target_link_libraries(BitEngine PUBLIC box2d assimp PRIVATE glad OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

@@ -45,6 +45,45 @@ struct TransformComponent
     }
 };
 
+struct Character2DControllerComponent
+{
+    BMath::Vec3 Velocity;
+
+    f32 Health = 100.0f;
+    f32 MaxHealth = 100.0f;
+    f32 MaxSpeed = 60.0f;           
+    f32 Acceleration = 8.0f;      
+    f32 Deceleration = 7.0f;      
+    f32 AirControl = 0.2f;          
+    
+    f32 JumpForce = 100.0f;          
+    f32 RisingGravity = 200.0f;     
+    f32 FallingGravity = 180.0f;    
+    f32 TerminalVelocity = 150.0f;   
+
+    b8 WasGrounded = false;
+    b8 IsGrounded = false;
+    b8 IsJumping = false;
+    i32 JumpCount = 0;
+    i32 MaxJumps = 3;                
+
+    float CoyoteTime = 0.08f;        
+    float CoyoteTimer = 0.0f;
+    float JumpBufferTime = 0.15f;    
+    float JumpBufferTimer = 0.0f;
+
+    float MoveInput = 0.0f;
+    bool JumpPressed = false;
+    bool JumpHeld = false;
+    bool JumpReleased = false;
+
+    b8 CollidingBelow = false;
+    b8 CollidingAbove = false;
+    b8 CollidingLeft = false;
+    b8 CollidingRight = false;
+
+    f32 Restitution = 0.25;
+};
 struct SpriteComponent
 {
     uint32_t Width;
