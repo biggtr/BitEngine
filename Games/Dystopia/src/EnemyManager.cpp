@@ -46,17 +46,17 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     enemyController->Target = target;
     enemyController->State = ENEMY_STATE::IDLE;
     enemyController->MaxSpeed = 100.0f;
-    enemyController->Acceleration = 400.0f;
-    enemyController->Deceleration = 400.0f;
+    enemyController->Acceleration = 300.0f;
+    enemyController->Deceleration = 300.0f;
     enemyController->AirControl = 0.2f;
-    enemyController->ChaseRange = 300.0f;
-    enemyController->AttackRange = 25.0f;
-    enemyController->LoseRange = 400.0f;
+    enemyController->ChaseRange = 30.0f;
+    enemyController->AttackRange = 2.0f;
+    enemyController->LoseRange = 80.0f;
     enemyController->AttackCoolDown = 0.0f;
     enemyController->Restitution = 0.3f;
-    enemyController->SeparationStrength = 600;
-    enemyController->SeparationRadius = 35.0f;
-
+    enemyController->SeparationStrength = 20;
+    enemyController->SeparationRadius = 28.0f;
+    enemyController->SeparationVelocity = BMath::Vec3(0.0f, 0.0f, 0.0f);
     auto* enemyTransform = &m_EntityManager->GetComponent<BitEngine::TransformComponent>(newEnemy);
     enemyTransform->Position = position;
     enemyTransform->Scale = {10, 10, 1.0f};
@@ -100,6 +100,38 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     // }
     DArrayPush(m_Enemies, newEnemy);
     return newEnemy;
+}
+void EnemyManager::HandleJump(Enemy& controller, f32 deltaTime)
+{
+    if(controller.IsGrounded)
+    {
+        controller.CoyoteTimer = controller.CoyoteTime;
+    }
+    else if(controller.CoyoteTimer > 0.0f)
+    {
+        controller.CoyoteTimer -= deltaTime;
+    }
+
+    b8 canJump = false;
+    
+    if(controller.JumpCount  == 0)
+        canJump = controller.CoyoteTimer > 0.0f;
+    else
+        canJump = controller.JumpCount < controller.MaxJumps;
+    if(controller.JumpBufferTimer > 0.0f && canJump)
+    {
+        controller.Velocity.y = controller.JumpForce;
+        controller.IsJumping = true;
+        controller.JumpCount++;
+
+        controller.JumpBufferTimer = 0.0f;
+        controller.CoyoteTimer = 0.0f;
+    }
+
+    if(controller.JumpReleased && controller.Velocity.y > 0.0f)
+    {
+        controller.Velocity.y *= 0.5f;
+    }
 }
 BMath::Vec2 EnemyManager::ResolveTileCollisionSweep(
     f32 deltaTime, BMath::Vec2 currentPos,
@@ -319,6 +351,7 @@ void EnemyManager::HandleMovement(Enemy& enemy, f32 deltaTime)
     {
         movement = speedDiff;
     }
+
     enemy.Velocity.x += movement;
 }
 void EnemyManager::HandleAttack(Enemy& enemy, f32 deltaTime)
@@ -354,7 +387,7 @@ void EnemyManager::HandlePatrol(Enemy& enemy)
 {
 
 }
-void EnemyManager::HandleChase(Enemy& enemy)
+void EnemyManager::HandleChase(Enemy& enemy, f32 deltaTime)
 {
 
     BitEngine::TransformComponent& targetTransform = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemy.Target);
@@ -365,10 +398,10 @@ void EnemyManager::HandleChase(Enemy& enemy)
 
     if(distanceToTarget > enemy.LoseRange)
     {
-        enemy.State = ENEMY_STATE::PATROL;
+        enemy.State = ENEMY_STATE::IDLE;
         return;
     }
-
+    
     if(distanceToTarget <= enemy.AttackRange && enemy.AttackCoolDown <= 0.0f)
     {
         enemy.State = ENEMY_STATE::ATTACK;
@@ -377,19 +410,23 @@ void EnemyManager::HandleChase(Enemy& enemy)
 
     f32 distX = BMath::Abs(directionToTarget.x);
     f32 distY = BMath::Abs(directionToTarget.y);
-    if(distY > 10.0f)
+    if(distY > 30.0f)
     {
         enemy.MoveInput = 0.0f;
         return;
     }
-    if(distX > 2.0f)
+    if(distX > 0.01f)
     {
-        f32 rampStart = 10.0f;
-        f32 rampEnd   = 2.0f;
+        f32 rampStart = 50.0f;
+        f32 rampEnd   = 10.0f;
         f32 t = (distX - rampEnd) / (rampStart - rampEnd);
         t = BMath::Clamp(t, 0.0f, 1.0f);
         f32 desiredInput = (directionToTarget.x > 0.0f) ? 1.0f : -1.0f;
         enemy.MoveInput = desiredInput * t;
+        if((enemy.CollidingRight || enemy.CollidingLeft) && enemy.IsGrounded)
+        {
+            HandleJump(enemy, deltaTime);
+        }
     }
     else
     {
@@ -404,7 +441,7 @@ void EnemyManager::HandleIdle(Enemy& enemy)
     BMath::Vec3 directionToTarget = targetTransform.Position - enemyTransform.Position;
     f32 distanceToTarget = BMath::Vec3Length(directionToTarget);
     
-    if(distanceToTarget <= enemy.ChaseRange)
+    if(distanceToTarget <= enemy.ChaseRange && (!enemy.CollidingRight || !enemy.CollidingLeft))
     {
         enemy.State = ENEMY_STATE::CHASE;
         return;
@@ -420,90 +457,97 @@ void EnemyManager::HandleDead(Enemy& enemy)
 {
 
 }
+
 void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
 {
-    for(u32 i = 0; i < DArrayLength(m_Enemies); ++i)
+    for (u32 i = 0; i < DArrayLength(m_Enemies); ++i)
     {
         BitEngine::Entity enemyID = m_Enemies[i];
-        auto* enemyRigidBody = &enemyID.GetComponent<BitEngine::Rigidbody2DComponent>();
         auto& enemyController = enemyID.GetComponent<Enemy>();
-        auto& enemyTransformA = enemyID.GetComponent<BitEngine::TransformComponent>();
 
-        switch (enemyController.State) 
+        b8 wasJumpHeld = enemyController.JumpHeld;
+        b8 shouldJump = (enemyController.CollidingLeft || enemyController.CollidingRight) && enemyController.IsGrounded;
+        enemyController.JumpPressed = shouldJump && !wasJumpHeld;
+        enemyController.JumpReleased = !enemyController.JumpHeld && wasJumpHeld;
+        if(enemyController.JumpPressed)
         {
-        case IDLE:
-            HandleIdle(enemyController);
-            break;
-        case ATTACK:
-            HandleAttack(enemyController, deltaTime);
-            break;
-        case PATROL:
-            HandlePatrol(enemyController);
-            break;
-        case CHASE:
-            HandleChase(enemyController);
-            break;
-        case HURT:
-            HandleHurt(enemyController);
-            break;
-        case DEAD:
-            HandleDead(enemyController);
-            break;
-          break;
+        enemyController.JumpBufferTimer = enemyController.JumpBufferTime;
+        }
+        else if(enemyController.JumpBufferTimer > 0.0f)
+        {
+           enemyController.JumpBufferTimer -= deltaTime;
+        }
+        switch (enemyController.State)
+        {
+            case IDLE:    HandleIdle(enemyController); break;
+            case ATTACK:  HandleAttack(enemyController, deltaTime); break;
+            case PATROL:  HandlePatrol(enemyController); break;
+            case CHASE:   HandleChase(enemyController, deltaTime); break;
+            case HURT:    HandleHurt(enemyController); break;
+            case DEAD:    HandleDead(enemyController); break;
         }
 
-        
+    
         HandleMovement(enemyController, deltaTime);
         HandleGravity(enemyController, deltaTime);
-
-        auto& boxCollider = enemyRigidBody->MultiColliderComponents[0].BoxCollider2D;
-        BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(enemyRigidBody->BodyId);
-
-        BMath::Vec2 finalPos = ResolveTileCollisionSweep(
-            deltaTime, currentPos, boxCollider, tileEditor, enemyController);
-
-
-        BitEngine::Physics2DSetPosition(enemyRigidBody->BodyId, finalPos);
-        enemyRigidBody->Position = BMath::Vec3(finalPos.x, finalPos.y, enemyRigidBody->Position.z);
-        enemyTransformA.Position.x = finalPos.x;
-        enemyTransformA.Position.y = finalPos.y;
     }
-    for (int iter = 0; iter < 2; ++iter) 
+
+    for (u32 i = 0; i < DArrayLength(m_Enemies); ++i)
     {
-        for(u32 i = 0; i < DArrayLength(m_Enemies); ++i)
+        BitEngine::Entity enemyA = m_Enemies[i];
+        auto& transformA = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyA);
+        auto& controllerA = m_EntityManager->GetComponent<Enemy>(enemyA);
+
+        BMath::Vec3 separationForce = BMath::Vec3Zero();
+
+        for (u32 j = 0; j < DArrayLength(m_Enemies); ++j)
         {
-            for(u32 j = i + 1; j < DArrayLength(m_Enemies); ++j)
+            if (i == j) continue;
+
+            BitEngine::Entity enemyB = m_Enemies[j];
+            auto& transformB = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyB);
+            auto& controllerB = m_EntityManager->GetComponent<Enemy>(enemyB);
+
+            BMath::Vec3 diff = transformA.Position - transformB.Position;
+            f32 dist = BMath::Vec3Length(diff);
+            f32 minDist = (controllerA.SeparationRadius + controllerB.SeparationRadius) * 0.5f;
+
+            if (dist < minDist && dist > 0.01f)
             {
-                BitEngine::Entity enemyA = m_Enemies[i];
-                BitEngine::Entity enemyB = m_Enemies[j];
+                BMath::Vec3 dir = diff / dist;
+                f32 overlap = minDist - dist;
 
-                auto& transformA = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyA);
-                auto& transformB = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyB);
+                f32 force = overlap * controllerA.SeparationStrength;
+                force = BMath::Min(force, controllerA.MaxSpeed * 0.3f);
 
-                BMath::Vec3 diff = transformA.Position - transformB.Position;
-                f32 diffSquared = diff.x * diff.x + diff.y * diff.y;
-                f32 minDistA = m_EntityManager->GetComponent<Enemy>(enemyA).SeparationRadius;
-                f32 minDistB = m_EntityManager->GetComponent<Enemy>(enemyB).SeparationRadius;
-                f32 minDist = (minDistA + minDistB) * 0.5f;
-
-                if(diffSquared < minDist * minDist && diffSquared > 0.01) 
-                {
-                    f32 dist = BMath::Vec3Distance(transformA.Position, transformB.Position);
-                    BMath::Vec3 direction = BMath::Vec3Normalize(diff);
-                    f32 overlap = minDist - dist;
-                    BMath::Vec3 correction = direction * (overlap * 0.5f);
-                    correction.y = 0;
-
-                    transformA.Position += correction;
-                    transformB.Position -= correction;
-                    auto& rbA = enemyA.GetComponent<BitEngine::Rigidbody2DComponent>();
-                    auto& rbB = enemyB.GetComponent<BitEngine::Rigidbody2DComponent>();
-                    BitEngine::Physics2DSetPosition(rbA.BodyId, {transformA.Position.x, transformA.Position.y});
-                    BitEngine::Physics2DSetPosition(rbB.BodyId, {transformB.Position.x, transformB.Position.y});
-                }
-
+                dir.y = 0.0f;
+                separationForce += dir * force;
             }
         }
+
+        controllerA.SeparationVelocity = separationForce;
+    }
+
+    for (u32 i = 0; i < DArrayLength(m_Enemies); ++i)
+    {
+        BitEngine::Entity enemyID = m_Enemies[i];
+        auto& rigidBody = enemyID.GetComponent<BitEngine::Rigidbody2DComponent>();
+        auto& controller = enemyID.GetComponent<Enemy>();
+        auto& transform = enemyID.GetComponent<BitEngine::TransformComponent>();
+
+        controller.Velocity.x += controller.SeparationVelocity.x;
+        controller.SeparationVelocity = BMath::Vec3Zero();
+
+        controller.Velocity.x = BMath::Clamp(controller.Velocity.x, -controller.MaxSpeed, controller.MaxSpeed);
+
+        auto& boxCollider = rigidBody.MultiColliderComponents[0].BoxCollider2D;
+        BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(rigidBody.BodyId);
+        BMath::Vec2 finalPos = ResolveTileCollisionSweep(deltaTime, currentPos, boxCollider, tileEditor, controller);
+
+        transform.Position.x = finalPos.x;
+        transform.Position.y = finalPos.y;
+        rigidBody.Position = transform.Position;
+        BitEngine::Physics2DSetPosition(rigidBody.BodyId, finalPos);
     }
 }
 void EnemyManager::KillEnemy(BitEngine::Entity enemy)

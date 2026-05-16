@@ -31,14 +31,15 @@ struct Enemy
     BitEngine::Entity ID;
     BitEngine::Entity Target;
 
-    f32 ChaseRange = 100.0f; 
-    f32 AttackRange = 30.0f;
-    f32 LoseRange = 350.0f;
+    f32 ChaseRange = 5.0f; 
+    f32 AttackRange = 40.0f;
+    f32 LoseRange = 20.0f;
     f32 AttackCoolDown = 0.0f;
     f32 AttackCoolDownMax = 1.0f;
 
     f32 SeparationRadius = 8.0f;
     f32 SeparationStrength = 20.0f;
+    BMath::Vec3 SeparationVelocity;
     BMath::Vec3 PatrolStartPosition;
     BMath::Vec3 PatrolEndPosition;
     b8 IsMovingToEnd = true;
@@ -46,11 +47,11 @@ struct Enemy
 
     BMath::Vec3 Velocity;
 
-    f32 MaxSpeed = 100.0f;           
-    f32 Acceleration = 40.0f;      
-    f32 Deceleration = 7.0f;      
-    f32 AirControl = 0.2f;          
-    
+    f32 MaxSpeed; 
+    f32 Acceleration; 
+    f32 Deceleration; 
+    f32 AirControl;
+
     f32 JumpForce = 100.0f;          
     f32 RisingGravity = 200.0f;     
     f32 FallingGravity = 180.0f;    
@@ -94,7 +95,7 @@ public:
     Enemy& controller);
     void HandleAttack(Enemy& enemy, f32 deltaTime);
     void HandlePatrol(Enemy& enemy);
-    void HandleChase(Enemy& enemy);
+    void HandleChase(Enemy& enemy, f32 deltaTime);
     void HandleIdle(Enemy& enemy);
     void HandleHurt(Enemy& enemy);
     void HandleDead(Enemy& enemy);
@@ -103,6 +104,8 @@ public:
 
     void HandleGravity(Enemy& controller, f32 deltaTime);
     void HandleMovement(Enemy& enemy, f32 deltaTime);
+    void HandleJump(Enemy& controller, f32 deltaTime);
+    void HandleSeparation();
 private:
 
     u32 m_EnemyCount;

@@ -78,10 +78,10 @@ void Dystopia::Initialize()
     m_TileEditor->AddLayer("background", BitEngine::TILE_LAYER_TYPE::COLLISION); 
     m_TileEditor->SetActiveLayer(0);
 
-    m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(-200.0f, 100.0f, -5.0f), player);
-    // m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(-100.0f, 100.0f, -5.0f), player);
-    // m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3( 100.0f, 100.0f, -5.0f), player);
-    // m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3( 200.0f, 100.0f, -5.0f), player);
+    m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(10.0f, 100.0f, -5.0f), player);
+    m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(-10.0f, 100.0f, -5.0f), player);
+    m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(20.0f, 100.0f, -5.0f), player);
+    m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(-20.0f, 100.0f, -5.0f), player);
 
     // FontInitialize("assets/fonts/dejavu.ttf");
 }
@@ -180,11 +180,11 @@ void Dystopia::Update(f32 deltaTime)
     transform.Position.x = finalPos.x;
     transform.Position.y = finalPos.y;
     
-    b2SensorEvents events = BitEngine::Physics2DGetSensorEvents();
-    for(i32 i = 0; i < events.beginCount; ++i)
-    {
-        BIT_LOG_DEBUG("contact %d", i);
-    }
+    // b2SensorEvents events = BitEngine::Physics2DGetSensorEvents();
+    // for(i32 i = 0; i < events.beginCount; ++i)
+    // {
+    //     BIT_LOG_DEBUG("contact %d", i);
+    // }
 
     BMath::Vec3 cameraPos = transform.Position;
     cameraPos.x += 5;
