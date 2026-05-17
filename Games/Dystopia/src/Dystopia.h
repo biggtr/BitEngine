@@ -35,4 +35,6 @@ private:
     BitEngine::Texture* m_CharacterSpriteSheet;
     BitEngine::Entity* Enemies;
     u32 TileIndex;
+
+    BMath::Vec3 m_SpawnLocation;
 };

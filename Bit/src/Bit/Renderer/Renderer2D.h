@@ -31,11 +31,11 @@ public:
     void Clear() const;
 
     void BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath::Vec4& color = {0.23f, 0.0f, 1.0, 1.0});
-    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size,f32 rotation, Texture* sprite, f32* uvs);
+    void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size,f32 rotation, Texture* sprite, f32* uvs, const BMath::Vec4& color = BMath::Vec4(1,1,1,1));
     void DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size,f32 rotation, const BMath::Vec4& color);
 
-    void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color);
-    void DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs);
+    void DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color = BMath::Vec4(1,1,1,1));
+    void DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs, const BMath::Vec4& color = BMath::Vec4(1,1,1,1));
 
     void DrawLine(const BMath::Vec3& p0, const BMath::Vec3& p1, const BMath::Vec4& color);
 

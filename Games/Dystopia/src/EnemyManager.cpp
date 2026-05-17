@@ -49,10 +49,11 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     enemyController->Acceleration = 300.0f;
     enemyController->Deceleration = 300.0f;
     enemyController->AirControl = 0.2f;
-    enemyController->ChaseRange = 30.0f;
-    enemyController->AttackRange = 2.0f;
+    enemyController->ChaseRange = 100.0f;
+    enemyController->AttackRange = 30.0f;
     enemyController->LoseRange = 80.0f;
     enemyController->AttackCoolDown = 0.0f;
+    enemyController->AttackCoolDownMax = 0.0f;
     enemyController->Restitution = 0.3f;
     enemyController->SeparationStrength = 20;
     enemyController->SeparationRadius = 28.0f;
@@ -63,6 +64,7 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     
     auto* enemySprite = &m_EntityManager->GetComponent<BitEngine::SpriteComponent>(newEnemy);
     enemySprite->STexture = BitEngine::AssetStoreGetTexture("CharactersSprite");
+    enemySprite->Color = {1,1,1,1};
     enemySprite->CurrentFrame = 16;
     enemySprite->FrameWidth = 16;
     enemySprite->FrameHeight = 16;
@@ -365,23 +367,31 @@ void EnemyManager::HandleAttack(Enemy& enemy, f32 deltaTime)
 
     if(distanceToTarget > enemy.AttackRange)
     {
+        BIT_LOG_DEBUG("going to chase");
         enemy.State = ENEMY_STATE::CHASE;
         return;
     }
 
-    BitEngine::Character2DControllerComponent& characterController = m_EntityManager->GetComponent<BitEngine::Character2DControllerComponent>(enemy.Target);
     if(enemy.AttackCoolDown <= 0.0f)
     {
-        if(characterController.Health > 0.0f)
-        {
-            characterController.Health = BMath::Clamp((characterController.Health - 10.0f), 0.0f, characterController.MaxHealth);
-        }
-        enemy.AttackCoolDown = enemy.AttackCoolDownMax;
+        enemy.ShouldAttack = true;
+        HandleDamagingPlayer(enemy);
     }
     else
     {
-        enemy.AttackCoolDown -= deltaTime;
     }
+}
+void EnemyManager::HandleDamagingPlayer(Enemy& enemy)
+{
+    BitEngine::Character2DControllerComponent& characterController = m_EntityManager->GetComponent<BitEngine::Character2DControllerComponent>(enemy.Target);
+
+    if(characterController.Health > 0.0f)
+    {
+        // BIT_LOG_DEBUG("health : %.2f", characterController.Health);
+        characterController.Health = BMath::Clamp((characterController.Health - 10.0f), 0.0f, characterController.MaxHealth);
+    }
+    enemy.AttackCoolDown = enemy.AttackCoolDownMax;
+    enemy.ShouldAttack = false;
 }
 void EnemyManager::HandlePatrol(Enemy& enemy)
 {
@@ -398,12 +408,16 @@ void EnemyManager::HandleChase(Enemy& enemy, f32 deltaTime)
 
     if(distanceToTarget > enemy.LoseRange)
     {
+        BIT_LOG_DEBUG("going to lose");
         enemy.State = ENEMY_STATE::IDLE;
         return;
     }
-    
+    // BIT_LOG_DEBUG("distanceToTarget %.2f", distanceToTarget);
+    // BIT_LOG_DEBUG("attack range %.2f", enemy.AttackRange);
+
     if(distanceToTarget <= enemy.AttackRange && enemy.AttackCoolDown <= 0.0f)
     {
+        BIT_LOG_DEBUG("going to attack");
         enemy.State = ENEMY_STATE::ATTACK;
         return;
     }
@@ -479,12 +493,20 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         }
         switch (enemyController.State)
         {
-            case IDLE:    HandleIdle(enemyController); break;
+            case IDLE:    HandleIdle(enemyController);  break;
             case ATTACK:  HandleAttack(enemyController, deltaTime); break;
             case PATROL:  HandlePatrol(enemyController); break;
             case CHASE:   HandleChase(enemyController, deltaTime); break;
             case HURT:    HandleHurt(enemyController); break;
             case DEAD:    HandleDead(enemyController); break;
+        }
+        if(enemyController.ShouldAttack)
+        {
+            HandleDamagingPlayer(enemyController);
+        }
+        else
+        {
+            enemyController.AttackCoolDown -= deltaTime;
         }
 
     

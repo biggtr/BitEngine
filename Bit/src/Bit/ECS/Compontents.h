@@ -51,6 +51,7 @@ struct Character2DControllerComponent
 
     f32 Health = 100.0f;
     f32 MaxHealth = 100.0f;
+    b8 IsDead = false;
     f32 MaxSpeed = 60.0f;           
     f32 Acceleration = 8.0f;      
     f32 Deceleration = 7.0f;      
@@ -109,7 +110,7 @@ struct SpriteComponent
         UVs[6] = 0.0f; UVs[7] = 1.0f; //tl
 
     }
-    SpriteComponent(Texture* texture, const BMath::Vec4 color = {1.0f, 1.0f, 1.0f, 1.0f}) 
+    SpriteComponent(Texture* texture, const BMath::Vec4& color = {1.0f, 1.0f, 1.0f, 1.0f}) 
         :  STexture(texture)
     {
         Color = color;

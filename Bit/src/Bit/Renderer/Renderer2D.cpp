@@ -306,7 +306,7 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
     Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, Texture* sprite, f32* uvs)
+void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, Texture* sprite, f32* uvs, const BMath::Vec4& color)
 {
     BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, {0.0f, 0.0f, rotation});
     if(uvs == nullptr)
@@ -316,12 +316,11 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
         uvs[4] = 1.0f; uvs[5] = 1.0f; //tr
         uvs[6] = 0.0f; uvs[7] = 1.0f; //tl
     }
-    DrawQuad(transform, sprite, uvs);
+    DrawQuad(transform, sprite, uvs, color);
 }
-void Renderer2D::DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs)
+void Renderer2D::DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs, const BMath::Vec4& color)
 {
     float textureIndex = 0.0f;
-    const BMath::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
     BMath::Vec2 texCoords[4] = { {uvs[0], uvs[1]}, {uvs[2], uvs[3]},{uvs[4], uvs[5]},{uvs[6], uvs[7]}};
     //Check if we already have the texture stored inside the texture slots to be bound in future

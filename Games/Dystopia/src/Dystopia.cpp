@@ -44,16 +44,17 @@ void Dystopia::Initialize()
 
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
     playerSprite.STexture = charactersSprite;
+    playerSprite.Color = BMath::Vec4(1,1,1,1);
     playerSprite.CurrentFrame = 0;
     playerSprite.FrameWidth = 16;
     playerSprite.FrameHeight = 16;
     playerSprite.Width = 16 * 8;
     playerSprite.Height = 16 * 8;
-    
+    m_SpawnLocation = BMath::Vec3(0.0f, 100.0f, -5.0f);
     f32 width = 10;
     f32 height = 10;
     auto& playerTransform = player.GetComponent<BitEngine::TransformComponent>();
-    playerTransform.Position = BMath::Vec3(0.0f, 100.0f, -5.0f);
+    playerTransform.Position = m_SpawnLocation;
     playerTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
     playerTransform.Scale = {width, height, 1.0f};
 
@@ -123,6 +124,7 @@ void Dystopia::Update(f32 deltaTime)
     auto& transform = player.GetComponent<BitEngine::TransformComponent>();
     auto& controller = player.GetComponent<BitEngine::Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
+    auto& sprite = player.GetComponent<BitEngine::SpriteComponent>();
 
 
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_L) && !BitEngine::InputWasKeyDown(BitEngine::KEY_L))
@@ -167,18 +169,36 @@ void Dystopia::Update(f32 deltaTime)
     BMath::Vec2 finalPos = m_PlayerController.ResolveTileCollisionSweep(deltaTime, currentPos, boxCollider, m_TileEditor, controller);
 
     m_EnemyManager->Update(deltaTime, m_TileEditor);
-    // if(!controller.WasGrounded && controller.IsGrounded)
-    // {
-    //     for(u32 i = 0; i < 20; ++i)
-    //     {
-    //         SpawnParticles(transform.Position + BMath::Vec3(0.0,-5, 0));
-    //     }
-    // }
+
     
     BitEngine::Physics2DSetPosition(rigidbody.BodyId, finalPos);
     rigidbody.Position = BMath::Vec3(finalPos.x, finalPos.y, rigidbody.Position.z);
     transform.Position.x = finalPos.x;
     transform.Position.y = finalPos.y;
+
+    BMath::Vec3 cameraPos = transform.Position;
+    cameraPos.x += 5;
+    cameraPos.y += 10;
+    cameraPos.z = 0;
+    ActiveWorldCamera->SetPosition(cameraPos);
+
+    b8 wasDead = controller.IsDead;
+    controller.IsDead = controller.Health <= 0.0;
+    if(!wasDead && controller.IsDead)
+    {
+        for(u32 i = 0; i < 80; ++i)
+        {
+            SpawnParticles(transform.Position);
+        }
+        controller.IsDead = false;
+        
+        sprite.Color = BMath::Vec4(1,1,1,0);
+        controller.Health = controller.MaxHealth;
+        
+        BitEngine::Physics2DSetPosition(rigidbody.BodyId, {m_SpawnLocation.x, m_SpawnLocation.y});
+        transform.Position = m_SpawnLocation;
+        sprite.Color = BMath::Vec4(1,1,1,1);
+    }
     
     // b2SensorEvents events = BitEngine::Physics2DGetSensorEvents();
     // for(i32 i = 0; i < events.beginCount; ++i)
@@ -186,17 +206,15 @@ void Dystopia::Update(f32 deltaTime)
     //     BIT_LOG_DEBUG("contact %d", i);
     // }
 
-    BMath::Vec3 cameraPos = transform.Position;
-    cameraPos.x += 5;
-    cameraPos.y += 10;
-    cameraPos.z = 0;
-    ActiveWorldCamera->SetPosition(cameraPos);
     
 }
 
 void Dystopia::SpawnParticles(BMath::Vec3 position)
 {
     BitEngine::ParticleSettings particleSettings;
+    particleSettings.StartColor = {1.0, 0.0,0.0,1.0};
+    particleSettings.EndColor = {0.4, 0.0, 0.0, 1.0};
+    particleSettings.LifeTime = 0.3;
     particleSettings.Position = position;
     m_ParticleSystem->Emit(particleSettings);
 }

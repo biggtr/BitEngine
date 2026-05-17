@@ -11,15 +11,15 @@ class Renderer2D;
 struct ParticleSettings
 {
     BMath::Vec3 Position;
-    BMath::Vec3 Velocity = {5,5,0};
+    BMath::Vec3 Velocity = {5,1,0};
     BMath::Vec3 VelocityVariation = {5,5,0};
 
     BMath::Vec4 StartColor = {1,0,1,1};
     BMath::Vec4 EndColor = {1,1,0,1};
 
     f32 SizeVariation = 4;
-    f32 StartSize = 5;
-    f32 EndSize = 3;
+    f32 StartSize = 3;
+    f32 EndSize = 1;
 
     f32 RotationVariation = 3;
     f32 StartRotation = 5;

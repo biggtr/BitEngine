@@ -627,14 +627,14 @@ void TileEditor::DrawUI()
         BitEngine::Texture* tileTexture = GetTileSet()->GetTexture(); 
         u32 tileCount = GetTileSet()->GetTileCount();
         f32 uvs[8] = {}; 
-        f32 y = 100; 
-        f32 x = 100;
+        f32 y = 0; 
+        f32 x = 0;
         for(u32 i = 0; i < tileCount; ++i)
         {
             GetTileSet()->CalculateTileUVs(i, uvs);
             ButtonStyle b = {.Texture = tileTexture, .UVs = uvs};
-            x = 100 + 100 * (i % 5);
-            y += i % 5 == 0 ? 100 : 0;
+            x = 50 + 50 * (i % 8);
+            y += i % 5 == 0 ? 50 : 0;
             if(UIButton(i, {.x= x, .y = y, .w = 40, .h = 40}, b))
             {
                 SelectTile(i);

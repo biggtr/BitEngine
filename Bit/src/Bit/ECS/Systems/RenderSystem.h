@@ -61,8 +61,9 @@ public:
                 {
                     UpdateUVs(spriteComponent);
 
+                    // BIT_LOG_DEBUG("color : %.2f, %.2f, %.2f, %.2f", spriteComponent.Color.r, spriteComponent.Color.g, spriteComponent.Color.b, spriteComponent.Color.a);
                     renderer.DrawQuad(transformComponent.Position, transformComponent.Scale, transformComponent.Rotation.z,
-                            spriteComponent.STexture, spriteComponent.UVs
+                            spriteComponent.STexture, spriteComponent.UVs, spriteComponent.Color
                             );
                 }
                 else

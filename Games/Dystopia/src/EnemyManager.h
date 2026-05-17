@@ -31,14 +31,15 @@ struct Enemy
     BitEngine::Entity ID;
     BitEngine::Entity Target;
 
-    f32 ChaseRange = 5.0f; 
-    f32 AttackRange = 40.0f;
-    f32 LoseRange = 20.0f;
-    f32 AttackCoolDown = 0.0f;
-    f32 AttackCoolDownMax = 1.0f;
+    f32 ChaseRange; 
+    f32 AttackRange;
+    f32 LoseRange;
+    f32 AttackCoolDown;
+    f32 AttackCoolDownMax;
+    b8 ShouldAttack = false;
 
-    f32 SeparationRadius = 8.0f;
-    f32 SeparationStrength = 20.0f;
+    f32 SeparationRadius;
+    f32 SeparationStrength;
     BMath::Vec3 SeparationVelocity;
     BMath::Vec3 PatrolStartPosition;
     BMath::Vec3 PatrolEndPosition;
@@ -94,6 +95,7 @@ public:
     BitEngine::TileEditor* tileEditor,
     Enemy& controller);
     void HandleAttack(Enemy& enemy, f32 deltaTime);
+    void HandleDamagingPlayer(Enemy& enemy);
     void HandlePatrol(Enemy& enemy);
     void HandleChase(Enemy& enemy, f32 deltaTime);
     void HandleIdle(Enemy& enemy);
