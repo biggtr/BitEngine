@@ -56,6 +56,15 @@ struct Character2DControllerComponent
     f32 Acceleration = 8.0f;      
     f32 Deceleration = 7.0f;      
     f32 AirControl = 0.2f;          
+
+    f32 AttackCoolDown;
+    f32 AttackCoolDownMax;
+    f32 AttackDamage;
+    f32 AttackRange = 8;
+    b8 ShouldAttack = false;
+
+    BMath::Vec3 WeaponFocusPosition;
+    BMath::Vec3 WeaponFocusPoint;
     
     f32 JumpForce = 100.0f;          
     f32 RisingGravity = 200.0f;     

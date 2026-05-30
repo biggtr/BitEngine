@@ -1,6 +1,8 @@
 #include "PlayerController.h"
+#include "Bit/Core/Logger.h"
 #include "Bit/ECS/Compontents.h"
 #include "Bit/Math/BMath.h"
+#include "Bit/Math/Vector.h"
 #include "Bit/Physics/Physics2D.h"
 #include <cfloat>
 
@@ -63,6 +65,31 @@ void PlayerController::HandleJump(BitEngine::Character2DControllerComponent& con
     {
         controller.Velocity.y *= 0.5f;
     }
+}
+void PlayerController::HandleAttack(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
+{
+    
+}
+void PlayerController::UpdateWeaponFocusPoint(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
+{
+    BMath::Vec3 targetPoint = controller.WeaponFocusPosition;
+    if(controller.AttackRange > 0)
+    {
+        f32 distance = BMath::Vec3Distance(targetPoint, controller.WeaponFocusPoint);
+        BIT_LOG_DEBUG("distance is %.2f", distance);
+        BIT_LOG_DEBUG("targetpoint %.2f %.2f %.2f", targetPoint.x, targetPoint.y, targetPoint.z);
+        BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
+        if(distance > controller.AttackRange)
+        {
+            controller.WeaponFocusPoint = BMath::Lerp(targetPoint, controller.WeaponFocusPoint, controller.AttackRange / distance);
+            BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
+        }
+    }
+    else
+    {
+        controller.WeaponFocusPoint = targetPoint;
+    }
+
 }
 void PlayerController::HandleMovement(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {

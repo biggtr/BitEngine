@@ -104,6 +104,7 @@ public:
     void Update(f32 deltaTime, BitEngine::TileEditor* tileEditor);
     void KillEnemy(BitEngine::Entity enemy);
 
+    void UpdateAnimation(Enemy& controller, BitEngine::TransformComponent& transform);
     void HandleGravity(Enemy& controller, f32 deltaTime);
     void HandleMovement(Enemy& enemy, f32 deltaTime);
     void HandleJump(Enemy& controller, f32 deltaTime);

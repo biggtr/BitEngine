@@ -27,13 +27,19 @@ public:
 
     void UpdateAnimation(BitEngine::Character2DControllerComponent& controller, BitEngine::TransformComponent& transform);
     void SpawnParticles(BMath::Vec3 position);
+
+    void SpawnEnemy(f32 deltaTime);
 private:
     PlayerController m_PlayerController;
     EnemyManager* m_EnemyManager;
     BitEngine::Entity player;
+    BitEngine::Entity weapon;
 
     BitEngine::Texture* m_CharacterSpriteSheet;
-    BitEngine::Entity* Enemies;
+    BitEngine::Entity* m_Enemies;
+    BMath::Vec3 m_EnemySpawnLocation;
+    f32 m_EnemySpawnCoolDown = 0.0f;
+    f32 m_EnemySpawnCoolDownMax = 10.0f;
     u32 TileIndex;
 
     BMath::Vec3 m_SpawnLocation;

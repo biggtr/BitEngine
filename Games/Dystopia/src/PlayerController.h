@@ -14,7 +14,9 @@ public:
     void HandleMovement(BitEngine::Character2DControllerComponent& controller, f32 deltaTime);
 
     void HandleJump(BitEngine::Character2DControllerComponent& controller, f32 deltaTime);
-    void HandleAttack();
+    void UpdateWeaponFocusPoint(BitEngine::Character2DControllerComponent& controller, f32 deltaTime);
+
+    void HandleAttack(BitEngine::Character2DControllerComponent& controller, f32 deltaTime);
     void HandleDead();
 
     void HandleGravity(BitEngine::Character2DControllerComponent& controller, f32 deltaTime);

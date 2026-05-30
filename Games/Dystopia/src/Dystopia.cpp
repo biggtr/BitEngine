@@ -67,11 +67,31 @@ void Dystopia::Initialize()
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
     m_Physics2DSystem->CreateBoxShape(player, width, height, 0.0f, true, PhysicsCategories::PLAYER, PhysicsCategories::ENEMY);
 
+    weapon = m_ECS->CreateEntity();
+    weapon.AddComponent<BitEngine::TransformComponent>();
+    weapon.AddComponent<BitEngine::SpriteComponent>();
+    weapon.AddComponent<BitEngine::Rigidbody2DComponent>();
+
+    auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
+    weaponTransform.Position = playerTransform.Position + BMath::Vec3(5,15,0);
+    weaponTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
+    weaponTransform.Scale = {10, 10, 1.0f};
+
+    auto& weaponSprite = weapon.GetComponent<BitEngine::SpriteComponent>();
+    weaponSprite.STexture = charactersSprite;
+    weaponSprite.Color = BMath::Vec4(1,1,1,1);
+    weaponSprite.CurrentFrame = 8 * 5 + 5;
+    weaponSprite.FrameWidth = 16;
+    weaponSprite.FrameHeight = 16;
+    weaponSprite.Width = 16 * 8;
+    weaponSprite.Height = 16 * 8;
     
+    auto& controller = player.GetComponent<BitEngine::Character2DControllerComponent>();
+    controller.WeaponFocusPosition = weaponTransform.Position;
+    controller.WeaponFocusPoint = controller.WeaponFocusPosition;
 
 
-    BitEngine::Texture* tilesetTexture = BitEngine::AssetStoreAddTexture("tileset", "assets/textures/spritesheet.png");
-    m_TileEditor->CreateTileSet(charactersSprite, 128, 128, 16, 16);
+    m_TileEditor->CreateTileSet(charactersSprite, 16 * 8, 16 * 8, 16, 16);
     m_TileEditor->SelectTile(TileIndex);
 
 
@@ -97,8 +117,19 @@ void Dystopia::Render2D()
 
 void Dystopia::Render3D()
 {
+
 }
 
+void Dystopia::SpawnEnemy(f32 deltaTime)
+{
+    if(m_EnemySpawnCoolDown <= 0.0f)
+    {
+        m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, m_EnemySpawnLocation, player);
+        m_EnemySpawnCoolDown = m_EnemySpawnCoolDownMax;
+    }
+
+    m_EnemySpawnCoolDown -= deltaTime;
+}
 void Dystopia::UpdateAnimation(BitEngine::Character2DControllerComponent& controller, BitEngine::TransformComponent& transform)
 {
     if (controller.MoveInput > 0.0f)
@@ -125,6 +156,8 @@ void Dystopia::Update(f32 deltaTime)
     auto& controller = player.GetComponent<BitEngine::Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
     auto& sprite = player.GetComponent<BitEngine::SpriteComponent>();
+
+    controller.WeaponFocusPosition = transform.Position + BMath::Vec3(8,2,0);
 
 
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_L) && !BitEngine::InputWasKeyDown(BitEngine::KEY_L))
@@ -176,11 +209,12 @@ void Dystopia::Update(f32 deltaTime)
     transform.Position.x = finalPos.x;
     transform.Position.y = finalPos.y;
 
-    BMath::Vec3 cameraPos = transform.Position;
-    cameraPos.x += 5;
-    cameraPos.y += 10;
-    cameraPos.z = 0;
+    BMath::Vec3 cameraPos = transform.Position + BMath::Vec3(5,10,0);
     ActiveWorldCamera->SetPosition(cameraPos);
+
+    m_PlayerController.UpdateWeaponFocusPoint(controller, deltaTime);
+    auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
+    weaponTransform.Position = controller.WeaponFocusPoint;
 
     b8 wasDead = controller.IsDead;
     controller.IsDead = controller.Health <= 0.0;
@@ -206,6 +240,7 @@ void Dystopia::Update(f32 deltaTime)
     //     BIT_LOG_DEBUG("contact %d", i);
     // }
 
+    SpawnEnemy(deltaTime);
     
 }
 
