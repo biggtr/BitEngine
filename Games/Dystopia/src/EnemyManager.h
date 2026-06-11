@@ -42,6 +42,10 @@ struct Enemy
     f32 AttackCoolDownMax;
     b8 ShouldAttack = false;
 
+    b8 IsHurt;
+    f32 HurtTimer;
+    f32 HurtDuration;
+
     f32 SeparationRadius;
     f32 SeparationStrength;
     BMath::Vec3 SeparationVelocity;

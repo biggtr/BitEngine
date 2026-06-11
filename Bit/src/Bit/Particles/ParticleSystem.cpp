@@ -127,7 +127,6 @@ void Particle2DSystemOnRender(BitEngine::Renderer2D* renderer2D)
         BMath::Vec4 color = BMath::Lerp(particle.EndColor, particle.StartColor, t);
 
         renderer2D->DrawQuad(particle.Position, BMath::Vec3(size, size, 0.0f), rotation, color);
-        BIT_LOG_DEBUG("RenderedParticle position : %d, %d, %d", particle.Position.x, particle.Position.y, particle.Position.z) 
     }
 }
 

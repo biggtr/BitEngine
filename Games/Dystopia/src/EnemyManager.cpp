@@ -46,14 +46,16 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     enemyController->ID = newEnemy;
     enemyController->Target = target;
     enemyController->State = ENEMY_STATE::IDLE;
-    enemyController->MaxHealth = 150;
-    enemyController->Health = 150;
+    enemyController->MaxHealth = 1500;
+    enemyController->Health = 1500;
     enemyController->MaxSpeed = 100.0f;
     enemyController->Acceleration = 300.0f;
     enemyController->Deceleration = 300.0f;
     enemyController->AirControl = 0.2f;
     enemyController->ChaseRange = 100.0f;
     enemyController->AttackRange = 30.0f;
+    enemyController->HurtDuration = 0.1f;
+    enemyController->HurtTimer = 0.0f;
     enemyController->LoseRange = 80.0f;
     enemyController->AttackCoolDown = 0.0f;
     enemyController->AttackCoolDownMax = 1.7f;
@@ -400,7 +402,7 @@ void EnemyManager::HandleDamagingPlayer(Enemy& enemy)
     if(characterController.Health > 0.0f)
     {
         // BIT_LOG_DEBUG("health : %.2f", characterController.Health);
-        characterController.Health = BMath::Clamp((characterController.Health - 10.0f), 0.0f, characterController.MaxHealth);
+        characterController.Health = BMath::Clamp((characterController.Health - 1.0f), 0.0f, characterController.MaxHealth);
         m_Animation2DSystem->SetAnimation(enemy.ID, "EnemyAttack");
     }
     enemy.AttackCoolDown = enemy.AttackCoolDownMax;
@@ -477,7 +479,9 @@ void EnemyManager::HandleIdle(Enemy& enemy)
 }
 void EnemyManager::HandleHurt(Enemy& enemy)
 {
-    //play hurt animation or smth
+    enemy.IsHurt = true;
+    auto& sprite = m_EntityManager->GetComponent<BitEngine::SpriteComponent>(enemy.ID);
+    sprite.Color = BMath::Vec4(1.0f, 0,0,1.0);
 }
 void EnemyManager::HandleDead(Enemy& enemy)
 {
@@ -490,9 +494,25 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         BitEngine::Entity enemyID = m_Enemies[i];
         auto& enemyController = enemyID.GetComponent<Enemy>();
         auto& enemyTransform = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyID);
+        auto& enemySprite = m_EntityManager->GetComponent<BitEngine::SpriteComponent>(enemyID);
+
+        b8 wasHurt = enemyController.IsHurt;
+        if(enemyController.HurtTimer > 0.0f)
+        {
+            enemyController.HurtTimer -= deltaTime;
+            if(enemyController.HurtTimer <= 0.0f)
+            {
+                enemyController.IsHurt = false;
+                if (enemyController.State == ENEMY_STATE::HURT)
+                {
+                    enemyController.State = ENEMY_STATE::IDLE;
+                }
+            }
+        }
 
         b8 wasJumpHeld = enemyController.JumpHeld;
         b8 shouldJump = (enemyController.CollidingLeft || enemyController.CollidingRight) && enemyController.IsGrounded;
+        enemyController.JumpHeld = shouldJump;
         enemyController.JumpPressed = shouldJump && !wasJumpHeld;
         enemyController.JumpReleased = !enemyController.JumpHeld && wasJumpHeld;
         if(enemyController.JumpPressed)
@@ -517,6 +537,10 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
             case DEAD:    HandleDead(enemyController); break;
         }
 
+        if(wasHurt && !enemyController.IsHurt)
+        {
+            enemySprite.Color = BMath::Vec4(1,1,1,1);
+        }
     
         HandleMovement(enemyController, deltaTime);
         HandleGravity(enemyController, deltaTime);

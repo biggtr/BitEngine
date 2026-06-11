@@ -73,6 +73,7 @@ void PlayerController::HandleAttack(BitEngine::Character2DControllerComponent& c
     if(enemy->Health > 0.0f)
     {
         enemy->Health = BMath::Clamp((enemy->Health - controller.AttackDamage), 0.0f, enemy->MaxHealth);
+        enemy->HurtTimer = enemy->HurtDuration;
         enemy->State = ENEMY_STATE::HURT;
     }
 }

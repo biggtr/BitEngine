@@ -39,7 +39,7 @@ private:
     BitEngine::Entity* m_Enemies;
     BMath::Vec3 m_EnemySpawnLocation;
     f32 m_EnemySpawnCoolDown = 0.0f;
-    f32 m_EnemySpawnCoolDownMax = 10.0f;
+    f32 m_EnemySpawnCoolDownMax = 3.0f;
     u32 TileIndex;
 
     BMath::Vec3 m_SpawnLocation;

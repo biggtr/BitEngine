@@ -32,6 +32,7 @@ void Dystopia::Initialize()
 {
 
     m_EnemyManager = new EnemyManager(m_ECS);
+    m_PlayerController.SetECS(m_ECS);
     // BitEngine::PlatformHideCursor();
     ActiveWorldCamera->SetType(BitEngine::CAMERA_TYPE::ORTHO);
 
@@ -219,6 +220,7 @@ void Dystopia::Update(f32 deltaTime)
     m_PlayerController.UpdateWeaponFocusPoint(controller, deltaTime);
     auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
     weaponTransform.Position = controller.WeaponFocusPoint;
+    BitEngine::Physics2DSetPosition(weaponRigidbody.BodyId, BMath::Vec2(weaponTransform.Position.x, weaponTransform.Position.y));
 
     i32 sensorCapacity = b2Shape_GetSensorCapacity(weaponRigidbody.PrimaryShapeId);
     std::vector<b2ShapeId> overlaps;
@@ -236,7 +238,7 @@ void Dystopia::Update(f32 deltaTime)
         BitEngine::Entity enemyid = m_EnemyManager->GetEnemyByShapeID(visitorID);
         auto* enemy = &m_ECS->GetComponent<Enemy>(enemyid) ;
         m_PlayerController.HandleAttack(controller, enemy, deltaTime);
-        BIT_LOG_DEBUG("enemy health %.2f", enemy->Health);
+        BIT_LOG_DEBUG("enemy health %.2f enemyid: %d", enemy->Health, enemy->ID);
     }
     
 
