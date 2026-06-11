@@ -53,7 +53,6 @@ private:
     EntityManager* m_EntityManager;
     AssetManager* m_AssetManager;
     CameraManager* m_CameraManager;
-    ParticleSystem* m_ParticleSystem;
 
 
     ArenaAllocator m_SystemsArena;
@@ -83,6 +82,9 @@ private:
 
     u64 m_UISystemMemReq;
     void* m_UISystem;
+
+    u64 m_Particle2DSystemMemReq;
+    void* m_Particle2DSystem;
 };
 
 }

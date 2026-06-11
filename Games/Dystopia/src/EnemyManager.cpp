@@ -46,6 +46,8 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     enemyController->ID = newEnemy;
     enemyController->Target = target;
     enemyController->State = ENEMY_STATE::IDLE;
+    enemyController->MaxHealth = 150;
+    enemyController->Health = 150;
     enemyController->MaxSpeed = 100.0f;
     enemyController->Acceleration = 300.0f;
     enemyController->Deceleration = 300.0f;
@@ -82,9 +84,12 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
         {0.0f, 0.0f}, 
         0.0f,         
         true,         
+        false,
         PhysicsCategories::ENEMY,
-        (PhysicsCategories)(PhysicsCategories::ENEMY | PhysicsCategories::PLAYER)
+        PhysicsCategories::WEAPON
     );
+    m_ShapeIDToEnemyID[enemyRigidBody.PrimaryShapeId.index1] = newEnemy;
+
     m_Animation2DSystem->CreateAnimation(newEnemy, "EnemyRun", 4, 7 * 8 + 4, 0.2);
     m_Animation2DSystem->CreateAnimation(newEnemy, "EnemyAttack", 4, 6 * 8 + 4, 0.2);
     // switch (type) 
@@ -107,6 +112,10 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     return newEnemy;
 }
 
+BitEngine::Entity EnemyManager::GetEnemyByShapeID(b2ShapeId shapeID)
+{
+    return m_ShapeIDToEnemyID[shapeID.index1];
+}
 void EnemyManager::HandleJump(Enemy& controller, f32 deltaTime)
 {
     if(controller.IsGrounded)
@@ -468,11 +477,10 @@ void EnemyManager::HandleIdle(Enemy& enemy)
 }
 void EnemyManager::HandleHurt(Enemy& enemy)
 {
-
+    //play hurt animation or smth
 }
 void EnemyManager::HandleDead(Enemy& enemy)
 {
-
 }
 
 void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
@@ -494,6 +502,10 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         else if(enemyController.JumpBufferTimer > 0.0f)
         {
            enemyController.JumpBufferTimer -= deltaTime;
+        }
+        if(enemyController.Health == 0.0f) 
+        {
+            enemyController.State = ENEMY_STATE::DEAD;
         }
         switch (enemyController.State)
         {
@@ -576,6 +588,8 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         rigidBody.Position = transform.Position;
         BitEngine::Physics2DSetPosition(rigidBody.BodyId, finalPos);
     }
+
+    
 }
 void EnemyManager::KillEnemy(BitEngine::Entity enemy)
 {

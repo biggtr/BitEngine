@@ -51,6 +51,7 @@ b2ShapeId Physics2DAddBox(b2BodyId body, const b2Polygon& box,
                 float density = 1.0f,
                 float friction = 0.3f,
                 float restitution = 0.0f,
+                b8 isSensor = false,
                 PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE);
 
 b2ShapeId Physics2DAddCapsule(b2BodyId body, const b2Capsule& capsule, 

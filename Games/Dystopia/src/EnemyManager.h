@@ -5,6 +5,9 @@
 #include "Bit/ECS/Systems/Physics2DSystem.h"
 #include "Bit/Editor/TileEditor.h"
 #include "Bit/Renderer/Texture.h"
+#include "box2d/id.h"
+#include "box2d/types.h"
+#include <unordered_map>
 
 enum ENEMY_TYPE
 {
@@ -27,6 +30,7 @@ struct Enemy
     ENEMY_STATE State;
     
     f32 Health;
+    f32 MaxHealth;
 
     BitEngine::Entity ID;
     BitEngine::Entity Target;
@@ -109,10 +113,12 @@ public:
     void HandleMovement(Enemy& enemy, f32 deltaTime);
     void HandleJump(Enemy& controller, f32 deltaTime);
     void HandleSeparation();
+    BitEngine::Entity GetEnemyByShapeID(b2ShapeId shapeID);
 private:
 
     u32 m_EnemyCount;
     BitEngine::Entity* m_Enemies;
+    std::unordered_map<u32, BitEngine::Entity> m_ShapeIDToEnemyID;
     BitEngine::EntityManager* m_EntityManager;
     BitEngine::Animation2DSystem* m_Animation2DSystem;
     BitEngine::Physics2DSystem* m_Physics2DSystem;

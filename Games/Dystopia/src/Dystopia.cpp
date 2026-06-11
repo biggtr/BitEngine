@@ -5,6 +5,7 @@
 #include "Bit/ECS/EntityManager.h"
 #include "Bit/Editor/TileEditor.h"
 #include "Bit/Font/Font.h"
+#include "Bit/Math/BMath.h"
 #include "Bit/Math/Matrix.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/ECS/Compontents.h"
@@ -23,6 +24,7 @@
 #include "EnemyManager.h"
 #include "Platform/Platform.h"
 #include "PlayerController.h"
+#include "box2d/box2d.h"
 #include <cstdio>
 #include <cstring>
 
@@ -41,6 +43,11 @@ void Dystopia::Initialize()
     player.AddComponent<BitEngine::SpriteComponent>();
     player.AddComponent<BitEngine::Character2DControllerComponent>();
     player.AddComponent<BitEngine::Animation2DControllerComponent>();
+
+    weapon = m_ECS->CreateEntity();
+    weapon.AddComponent<BitEngine::TransformComponent>();
+    weapon.AddComponent<BitEngine::SpriteComponent>();
+    weapon.AddComponent<BitEngine::Rigidbody2DComponent>();
 
     auto& playerSprite = player.GetComponent<BitEngine::SpriteComponent>();
     playerSprite.STexture = charactersSprite;
@@ -65,12 +72,9 @@ void Dystopia::Initialize()
     auto& playerRigidBody = player.AddComponent<BitEngine::Rigidbody2DComponent>();
     playerRigidBody.Position = {0.0f, 100.0f, 0.0f};
     playerRigidBody.Type  = BitEngine::PhysicsBodyType::Kinematic;
-    m_Physics2DSystem->CreateBoxShape(player, width, height, 0.0f, true, PhysicsCategories::PLAYER, PhysicsCategories::ENEMY);
+    m_Physics2DSystem->CreateBoxShape(player, width, height, {0,0}, 0.0f, true, true, PhysicsCategories::PLAYER, PhysicsCategories::ENEMY);
 
-    weapon = m_ECS->CreateEntity();
-    weapon.AddComponent<BitEngine::TransformComponent>();
-    weapon.AddComponent<BitEngine::SpriteComponent>();
-    weapon.AddComponent<BitEngine::Rigidbody2DComponent>();
+    m_Physics2DSystem->CreateBoxShape(weapon, 10, 5, {0,0}, 30, true, true, PhysicsCategories::WEAPON, PhysicsCategories::ENEMY);
 
     auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
     weaponTransform.Position = playerTransform.Position + BMath::Vec3(5,15,0);
@@ -156,7 +160,7 @@ void Dystopia::Update(f32 deltaTime)
     auto& controller = player.GetComponent<BitEngine::Character2DControllerComponent>();
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
     auto& sprite = player.GetComponent<BitEngine::SpriteComponent>();
-
+    auto& weaponRigidbody = weapon.GetComponent<BitEngine::Rigidbody2DComponent>();
     controller.WeaponFocusPosition = transform.Position + BMath::Vec3(8,2,0);
 
 
@@ -216,6 +220,26 @@ void Dystopia::Update(f32 deltaTime)
     auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
     weaponTransform.Position = controller.WeaponFocusPoint;
 
+    i32 sensorCapacity = b2Shape_GetSensorCapacity(weaponRigidbody.PrimaryShapeId);
+    std::vector<b2ShapeId> overlaps;
+    overlaps.resize(sensorCapacity);
+
+    i32 count = b2Shape_GetSensorData(weaponRigidbody.PrimaryShapeId, overlaps.data(), sensorCapacity);
+    overlaps.resize(count);
+    for(i32 i = 0; i < count; ++i)
+    {
+        b2ShapeId visitorID = overlaps[i];
+        if(!b2Shape_IsValid(visitorID))
+        {
+            continue;
+        }
+        BitEngine::Entity enemyid = m_EnemyManager->GetEnemyByShapeID(visitorID);
+        auto* enemy = &m_ECS->GetComponent<Enemy>(enemyid) ;
+        m_PlayerController.HandleAttack(controller, enemy, deltaTime);
+        BIT_LOG_DEBUG("enemy health %.2f", enemy->Health);
+    }
+    
+
     b8 wasDead = controller.IsDead;
     controller.IsDead = controller.Health <= 0.0;
     if(!wasDead && controller.IsDead)
@@ -234,11 +258,6 @@ void Dystopia::Update(f32 deltaTime)
         sprite.Color = BMath::Vec4(1,1,1,1);
     }
     
-    // b2SensorEvents events = BitEngine::Physics2DGetSensorEvents();
-    // for(i32 i = 0; i < events.beginCount; ++i)
-    // {
-    //     BIT_LOG_DEBUG("contact %d", i);
-    // }
 
     SpawnEnemy(deltaTime);
     
@@ -246,10 +265,10 @@ void Dystopia::Update(f32 deltaTime)
 
 void Dystopia::SpawnParticles(BMath::Vec3 position)
 {
-    BitEngine::ParticleSettings particleSettings;
+    ParticleSettings particleSettings;
     particleSettings.StartColor = {1.0, 0.0,0.0,1.0};
     particleSettings.EndColor = {0.4, 0.0, 0.0, 1.0};
     particleSettings.LifeTime = 0.3;
     particleSettings.Position = position;
-    m_ParticleSystem->Emit(particleSettings);
+    Particle2DSystemEmit(particleSettings);
 }

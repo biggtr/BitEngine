@@ -1,9 +1,11 @@
 #include "PlayerController.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/ECS/Compontents.h"
+#include "Bit/ECS/Entity.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Physics/Physics2D.h"
+#include "EnemyManager.h"
 #include <cfloat>
 
 void PlayerController::HandleInput(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
@@ -66,9 +68,13 @@ void PlayerController::HandleJump(BitEngine::Character2DControllerComponent& con
         controller.Velocity.y *= 0.5f;
     }
 }
-void PlayerController::HandleAttack(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
+void PlayerController::HandleAttack(BitEngine::Character2DControllerComponent& controller, Enemy* enemy, f32 deltaTime)
 {
-    
+    if(enemy->Health > 0.0f)
+    {
+        enemy->Health = BMath::Clamp((enemy->Health - controller.AttackDamage), 0.0f, enemy->MaxHealth);
+        enemy->State = ENEMY_STATE::HURT;
+    }
 }
 void PlayerController::UpdateWeaponFocusPoint(BitEngine::Character2DControllerComponent& controller, f32 deltaTime)
 {
@@ -76,13 +82,13 @@ void PlayerController::UpdateWeaponFocusPoint(BitEngine::Character2DControllerCo
     if(controller.AttackRange > 0)
     {
         f32 distance = BMath::Vec3Distance(targetPoint, controller.WeaponFocusPoint);
-        BIT_LOG_DEBUG("distance is %.2f", distance);
-        BIT_LOG_DEBUG("targetpoint %.2f %.2f %.2f", targetPoint.x, targetPoint.y, targetPoint.z);
-        BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
+        // BIT_LOG_DEBUG("distance is %.2f", distance);
+        // BIT_LOG_DEBUG("targetpoint %.2f %.2f %.2f", targetPoint.x, targetPoint.y, targetPoint.z);
+        // BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
         if(distance > controller.AttackRange)
         {
             controller.WeaponFocusPoint = BMath::Lerp(targetPoint, controller.WeaponFocusPoint, controller.AttackRange / distance);
-            BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
+            // BIT_LOG_DEBUG("weaponfocusPoint %.2f %.2f %.2f", controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y, controller.WeaponFocusPoint.z);
         }
     }
     else

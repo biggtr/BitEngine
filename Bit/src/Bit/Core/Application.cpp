@@ -23,12 +23,10 @@ Application::Application()
     m_Renderer2D = new Renderer2D();
     m_EntityManager = new EntityManager();
     m_CameraManager = new CameraManager();
-    m_ParticleSystem = new ParticleSystem();
 }
 
 Application::~Application()
 {
-    delete m_ParticleSystem;
     delete m_CameraManager;
     delete m_EntityManager;
     delete m_Renderer2D;
@@ -46,8 +44,9 @@ b8 Application::Create(Game* gameInstance)
     Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
     AssetsStoreInitialize(&m_AssetStoreSystemMemReq, 0);
     UIInitialize(&m_UISystemMemReq, 0, 0);
+    Particle2DSystemInitialize(&m_Particle2DSystemMemReq, 0);
 
-    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq + m_PlatformMemReq;
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq + m_PlatformMemReq + m_Particle2DSystemMemReq;
     m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
     if(!m_SystemsMemoryBlock)
     {
@@ -137,7 +136,13 @@ b8 Application::Create(Game* gameInstance)
         BIT_LOG_ERROR("Failed To Initialze UI System");
         return false;
     }
-    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_CameraManager, m_ParticleSystem}))
+    m_Particle2DSystem = ArenaAllocate(&m_SystemsArena, m_Particle2DSystemMemReq);
+    if(!Particle2DSystemInitialize(&m_Particle2DSystemMemReq, m_Particle2DSystem))
+    {
+        BIT_LOG_ERROR("Failed To Initialze Particle2DSystem");
+        return false;
+    }
+    if(!m_GameInstance->OnInitialize({m_Renderer2D, m_Renderer3D, m_EntityManager, m_CameraManager}))
     {
         BIT_LOG_ERROR("Couldn't Initialize The Game..!");
         return false;
@@ -190,6 +195,7 @@ void Application::Run()
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
     UIShutdown(m_UISystem);
+    Particle2DSystemShutdown(m_Particle2DSystem);
 
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);
     EventUnRegister(EVENT_CODE_MOUSE_WHEEL, this, Application::OnApplicationEventWrapper);

@@ -2,11 +2,7 @@
 #include <vector>
 #include "Bit/Core/Defines.h"
 #include "Bit/Math/Vector.h"
-
-namespace BitEngine
-{
-
-class Renderer2D;
+#include "Bit/Renderer/Renderer2D.h"
 
 struct ParticleSettings
 {
@@ -28,43 +24,11 @@ struct ParticleSettings
     f32 LifeTimeVariation = 2;
     f32 LifeTime = 1;
 };
-class ParticleSystem
-{
 
-private:
-    struct Particle
-    {
-        BMath::Vec3 Position;
-        BMath::Vec3 Velocity;
+b8 Particle2DSystemInitialize(u64* memoryRequirement, void* state);
+void Particle2DSystemShutdown(void* state);
+void Particle2DSystemResize(u32 count);
+void Particle2DSystemEmit(const ParticleSettings& particleSettings);
+void Particle2DSystemOnUpdate(f32 deltaTime);
+void Particle2DSystemOnRender(BitEngine::Renderer2D* renderer2D);
 
-        BMath::Vec4 StartColor;
-        BMath::Vec4 EndColor;
-
-        f32 StartSize;
-        f32 EndSize;
-
-        f32 StartRotation;
-        f32 EndRotation;
-
-        f32 LifeTime;
-        f32 TimeRemaining;
-        
-        b8 IsActive = false;
-    };
-
-    std::vector<Particle> m_Particles;
-    u32 m_ParticleIndex;
-
-public:
-    ParticleSystem();
-    ~ParticleSystem();
-
-    void Resize(u32 count);
-
-    void Emit(const ParticleSettings& particleSettings);
-
-    void OnUpdate(f32 deltaTime);
-    void OnRender(Renderer2D* renderer2D);
-
-};
-}

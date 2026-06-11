@@ -1,34 +1,71 @@
 #include "ParticleSystem.h"
+#include "Bit/Containers/darray.h"
 #include "Bit/Core/Logger.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Random.h"
 #include "Bit/Renderer/Renderer2D.h"
 
+#define MAX_PARTICLE_COUNT 4096
 
-
-namespace BitEngine
+struct Particle
 {
+    BMath::Vec3 Position;
+    BMath::Vec3 Velocity;
 
+    BMath::Vec4 StartColor;
+    BMath::Vec4 EndColor;
 
-ParticleSystem::ParticleSystem()
+    f32 StartSize;
+    f32 EndSize;
+
+    f32 StartRotation;
+    f32 EndRotation;
+
+    f32 LifeTime;
+    f32 TimeRemaining;
+    
+    b8 IsActive = false;
+};
+
+struct ParticlesState
 {
-    m_Particles.resize(4096);
-    m_ParticleIndex = 4095;
+    Particle* Particles;
+    u32 ParticleIndex;
+};
+
+
+static ParticlesState* statePtr = nullptr;
+
+b8 Particle2DSystemInitialize(u64* memoryRequirement, void* state)
+{
+    *memoryRequirement = sizeof(ParticlesState);
+    if(!state)
+    {
+        return true;
+    }
+
+    statePtr = (ParticlesState*)state;
+    memset(statePtr, 0, sizeof(ParticlesState));
+    statePtr->Particles = (Particle*)DArrayReserve(Particle, MAX_PARTICLE_COUNT); 
+    for(u32 i = 0; i < MAX_PARTICLE_COUNT; ++i)
+    {
+        statePtr->Particles[i] = Particle();
+    }
+    statePtr->ParticleIndex = MAX_PARTICLE_COUNT - 1;
+    return true;
 }
-
-ParticleSystem::~ParticleSystem()
+void Particle2DSystemShutdown(void* state)
 {
-
+    if(state)
+    {
+        statePtr = 0;
+    }
+    BIT_LOG_INFO("Particle2DSystem Is shutting down..!");
 }
+void Particle2DSystemEmit(const ParticleSettings& particleSettings)
+{
 
-void ParticleSystem::Resize(u32 count)
-{
-    m_Particles.resize(count);
-    m_ParticleIndex = count - 1;
-}
-void ParticleSystem::Emit(const ParticleSettings& particleSettings)
-{
-    Particle& particle = m_Particles[m_ParticleIndex];
+    Particle& particle = statePtr->Particles[statePtr->ParticleIndex];
     particle.IsActive = true;
 
     particle.Position = particleSettings.Position;
@@ -53,13 +90,14 @@ void ParticleSystem::Emit(const ParticleSettings& particleSettings)
     particle.LifeTime += particleSettings.LifeTimeVariation * BMath::RandomRange(-1.0f, 1.0f);
     particle.TimeRemaining = particle.LifeTime;
 
-    m_ParticleIndex = --m_ParticleIndex % m_Particles.size();
+    statePtr->ParticleIndex = --statePtr->ParticleIndex % MAX_PARTICLE_COUNT;
 }
-
-void ParticleSystem::OnUpdate(f32 deltaTime)
+void Particle2DSystemOnUpdate(f32 deltaTime)
 {
-    for(Particle& particle : m_Particles)
+    
+    for(u32 i = 0; i < MAX_PARTICLE_COUNT; ++i)
     {
+        Particle& particle = statePtr->Particles[i];
         if(!particle.IsActive)
             continue;
 
@@ -71,13 +109,13 @@ void ParticleSystem::OnUpdate(f32 deltaTime)
         particle.TimeRemaining -= deltaTime;
         particle.Position += particle.Velocity * deltaTime;
     }
-
 }
-
-void ParticleSystem::OnRender(Renderer2D* renderer2D)
+void Particle2DSystemOnRender(BitEngine::Renderer2D* renderer2D)
 {
-    for(const Particle& particle : m_Particles)
+
+    for(u32 i = 0; i < MAX_PARTICLE_COUNT; ++i)
     {
+        Particle& particle = statePtr->Particles[i];
         if(!particle.IsActive)
             continue;
 
@@ -89,9 +127,7 @@ void ParticleSystem::OnRender(Renderer2D* renderer2D)
         BMath::Vec4 color = BMath::Lerp(particle.EndColor, particle.StartColor, t);
 
         renderer2D->DrawQuad(particle.Position, BMath::Vec3(size, size, 0.0f), rotation, color);
-        // BIT_LOG_DEBUG("RenderedParticle position : %d, %d, %d", particle.Position.x, particle.Position.y, particle.Position.z) 
+        BIT_LOG_DEBUG("RenderedParticle position : %d, %d, %d", particle.Position.x, particle.Position.y, particle.Position.z) 
     }
-
 }
 
-}

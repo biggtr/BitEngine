@@ -59,7 +59,7 @@ struct Character2DControllerComponent
 
     f32 AttackCoolDown;
     f32 AttackCoolDownMax;
-    f32 AttackDamage;
+    f32 AttackDamage = 25.0f;
     f32 AttackRange = 8;
     b8 ShouldAttack = false;
 
@@ -243,7 +243,7 @@ struct MultiColliderComponent
 struct Rigidbody2DComponent
 {
     b2BodyId BodyId = b2_nullBodyId;
-    b2ShapeId PrimaryId = b2_nullShapeId;
+    b2ShapeId PrimaryShapeId = b2_nullShapeId;
     std::vector<b2ShapeId> ShapeIds; 
     std::vector<MultiColliderComponent> MultiColliderComponents;
     PhysicsBodyType Type = PhysicsBodyType::Static;

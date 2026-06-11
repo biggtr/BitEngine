@@ -71,10 +71,10 @@ public:
 
         if(isPrimary || rigidbody.ShapeIds.size() == 1)
         {
-            rigidbody.PrimaryId = newShape;
+            rigidbody.PrimaryShapeId = newShape;
         }
     }
-    void CreateBoxShape(const Entity& entity, f32 width, f32 height, const BMath::Vec2& offset = {0.0f, 0.0f}, f32 angle = 0.0f, b8 isPrimary = false,
+    void CreateBoxShape(const Entity& entity, f32 width, f32 height, const BMath::Vec2& offset = {0.0f, 0.0f}, f32 angle = 0.0f, b8 isPrimary = false, b8 isSensor = false,
                 PhysicsCategories categoryType = PhysicsCategories::NONE, PhysicsCategories categoryToCollideWith = PhysicsCategories::NONE)
     {
         if(!m_EntityManager->HasComponent<Rigidbody2DComponent>(entity))
@@ -89,7 +89,8 @@ public:
 
         b2Polygon polygon = Physics2DCreateBoxShape(width, height, offset, angle);
 
-        b2ShapeId newShape = Physics2DAddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution, categoryType, categoryToCollideWith); 
+        b2ShapeId newShape = Physics2DAddBox(rigidbody.BodyId, polygon, rigidbody.Density, rigidbody.Friction, rigidbody.Restitution, isSensor, categoryType, categoryToCollideWith); 
+        rigidbody.PrimaryShapeId = newShape;
         rigidbody.ShapeIds.push_back(newShape);
         
 
@@ -105,7 +106,7 @@ public:
 
         if(isPrimary || rigidbody.ShapeIds.size() == 1)
         {
-            rigidbody.PrimaryId = newShape;
+            rigidbody.PrimaryShapeId = newShape;
         }
     }
 
@@ -139,7 +140,7 @@ public:
 
         if(isPrimary || rigidbody.ShapeIds.size() == 1)
         {
-            rigidbody.PrimaryId = newShape;
+            rigidbody.PrimaryShapeId = newShape;
         }
     }
 

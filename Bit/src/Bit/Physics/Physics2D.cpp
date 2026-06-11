@@ -120,6 +120,7 @@ b2ShapeId Physics2DAddCircle(b2BodyId body, const b2Circle& circle,
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
+    def.isSensor = true;
     def.enableContactEvents = true;
 
     return b2CreateCircleShape(body, &def, &circle);
@@ -129,6 +130,7 @@ b2ShapeId Physics2DAddBox(b2BodyId body, const b2Polygon& box,
                     float density, 
                     float friction,
                     float restitution, 
+                    b8 isSensor,
                     PhysicsCategories categoryType, PhysicsCategories categoryToCollideWith)
 {
     b2ShapeDef def = b2DefaultShapeDef();
@@ -137,7 +139,7 @@ b2ShapeId Physics2DAddBox(b2BodyId body, const b2Polygon& box,
     def.density = density;
     def.material.friction = friction;
     def.material.restitution = restitution;
-    def.isSensor = true;
+    def.isSensor = isSensor;
     def.enableSensorEvents = true;
     def.enableContactEvents = true;
 

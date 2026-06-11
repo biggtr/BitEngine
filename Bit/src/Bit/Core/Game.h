@@ -32,7 +32,6 @@ struct GameSystems
     Renderer* renderer3D;
     EntityManager* entityManager;
     CameraManager* cameraManager;
-    ParticleSystem* particleSystem;
 };
 
 extern Game* CreateGame();
@@ -105,7 +104,6 @@ public:
         m_Renderer3D = services.renderer3D;
         m_ECS = services.entityManager;
         m_CameraManager = services.cameraManager;
-        m_ParticleSystem = services.particleSystem;
         m_MaterialManager = m_Renderer3D->GetMaterialManager();
         m_GeometryManager = m_Renderer3D->GetGeometryManager();
 
@@ -149,7 +147,7 @@ public:
 
             m_TileEditor->Update(deltaTime, ActiveWorldCamera, viewProjection);
         }
-        m_ParticleSystem->OnUpdate(deltaTime);
+        Particle2DSystemOnUpdate(deltaTime);
         if(!m_TileEditor->GetEditorState()->IsCameraEditorOn())
             Update(deltaTime);
         return true;
@@ -169,7 +167,7 @@ public:
             m_TileEditor->Render(viewProjection);
         }
         Render2D();
-        m_ParticleSystem->OnRender(m_Renderer2D);
+        Particle2DSystemOnRender(m_Renderer2D);
         m_RenderSystem->Update(*m_Renderer2D);
         m_Renderer2D->EndScene();
 

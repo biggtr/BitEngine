@@ -7,6 +7,7 @@ enum PhysicsCategories
     DYNAMIC = 0x00000001,
     PLAYER  = 0x00000002,
     ENEMY   = 0x00000004,
+    WEAPON  = 0x00000006,
     FLOOR   = 0x00000008,
     NONE    = 0xFFFFFFFF,
 };
