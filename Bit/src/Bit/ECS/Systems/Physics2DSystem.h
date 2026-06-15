@@ -161,7 +161,7 @@ public:
             auto& transform = m_EntityManager->GetComponent<TransformComponent>(entity);
             auto& rigidbody = m_EntityManager->GetComponent<Rigidbody2DComponent>(entity);
 
-            BMath::Vec2 pos = Physics2DGetPosition(rigidbody.BodyId);
+            BMath::Vec3 pos = Physics2DGetPosition(rigidbody.BodyId);
             float rot = Physics2DGetRotation(rigidbody.BodyId);
 
             transform.Position = { pos.x, pos.y, transform.Position.z };

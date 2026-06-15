@@ -8,6 +8,7 @@
 #include "Bit/Editor/TileEditor.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
+#include "Bit/Particles/ParticleSystem.h"
 #include "Bit/Physics/Physics2D.h"
 #include "Bit/Physics/PhysicsTypes.h"
 #include "Bit/Resources/AssetStore.h"
@@ -46,14 +47,15 @@ BitEngine::Entity EnemyManager::AddEnemy(ENEMY_TYPE type, const BMath::Vec3& pos
     enemyController->ID = newEnemy;
     enemyController->Target = target;
     enemyController->State = ENEMY_STATE::IDLE;
-    enemyController->MaxHealth = 1500;
-    enemyController->Health = 1500;
+    enemyController->MaxHealth = 100;
+    enemyController->Health = 100;
     enemyController->MaxSpeed = 100.0f;
     enemyController->Acceleration = 300.0f;
     enemyController->Deceleration = 300.0f;
     enemyController->AirControl = 0.2f;
     enemyController->ChaseRange = 100.0f;
     enemyController->AttackRange = 30.0f;
+    enemyController->AttackDamage = 10.0f;
     enemyController->HurtDuration = 0.1f;
     enemyController->HurtTimer = 0.0f;
     enemyController->LoseRange = 80.0f;
@@ -401,8 +403,8 @@ void EnemyManager::HandleDamagingPlayer(Enemy& enemy)
 
     if(characterController.Health > 0.0f)
     {
-        // BIT_LOG_DEBUG("health : %.2f", characterController.Health);
-        characterController.Health = BMath::Clamp((characterController.Health - 1.0f), 0.0f, characterController.MaxHealth);
+        BIT_LOG_DEBUG("health : %.2f", characterController.Health);
+        characterController.Health = BMath::Clamp((characterController.Health - enemy.AttackDamage), 0.0f, characterController.MaxHealth);
         m_Animation2DSystem->SetAnimation(enemy.ID, "EnemyAttack");
     }
     enemy.AttackCoolDown = enemy.AttackCoolDownMax;
@@ -444,8 +446,8 @@ void EnemyManager::HandleChase(Enemy& enemy, f32 deltaTime)
     }
     if(distX > 0.01f)
     {
-        f32 rampStart = 50.0f;
-        f32 rampEnd   = 10.0f;
+        f32 rampStart = 40.0f;
+        f32 rampEnd   = 20.0f;
         f32 t = (distX - rampEnd) / (rampStart - rampEnd);
         t = BMath::Clamp(t, 0.0f, 1.0f);
         f32 desiredInput = (directionToTarget.x > 0.0f) ? 1.0f : -1.0f;
@@ -483,9 +485,23 @@ void EnemyManager::HandleHurt(Enemy& enemy)
     auto& sprite = m_EntityManager->GetComponent<BitEngine::SpriteComponent>(enemy.ID);
     sprite.Color = BMath::Vec4(1.0f, 0,0,1.0);
 }
-void EnemyManager::HandleDead(Enemy& enemy)
+void EnemyManager::HandleDead(Enemy& enemy, u32 enemyIndex)
 {
-}
+    Enemy enemyCopy = enemy;
+    auto position = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyCopy.ID).Position;
+
+    KillEnemy(enemyCopy.ID);
+    DArrayPopAt(m_Enemies, enemyIndex, &enemyCopy);
+
+    for (u32 i = 0; i < 80; ++i)
+    {
+        ParticleSettings particleSettings;
+        particleSettings.StartColor = {1.0f, 0.0f, 0.0f, 1.0f};
+        particleSettings.EndColor   = {0.4f, 0.0f, 0.0f, 1.0f};
+        particleSettings.LifeTime   = 0.3f;
+        particleSettings.Position   = position;
+        Particle2DSystemEmit(particleSettings);
+    }}
 
 void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
 {
@@ -495,6 +511,7 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         auto& enemyController = enemyID.GetComponent<Enemy>();
         auto& enemyTransform = m_EntityManager->GetComponent<BitEngine::TransformComponent>(enemyID);
         auto& enemySprite = m_EntityManager->GetComponent<BitEngine::SpriteComponent>(enemyID);
+        u32 enemyIndex = i;
 
         b8 wasHurt = enemyController.IsHurt;
         if(enemyController.HurtTimer > 0.0f)
@@ -523,7 +540,7 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         {
            enemyController.JumpBufferTimer -= deltaTime;
         }
-        if(enemyController.Health == 0.0f) 
+        if(enemyController.Health <= 0.0f) 
         {
             enemyController.State = ENEMY_STATE::DEAD;
         }
@@ -534,7 +551,7 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
             case PATROL:  HandlePatrol(enemyController); break;
             case CHASE:   HandleChase(enemyController, deltaTime); break;
             case HURT:    HandleHurt(enemyController); break;
-            case DEAD:    HandleDead(enemyController); break;
+            case DEAD:    HandleDead(enemyController, enemyIndex); break;
         }
 
         if(wasHurt && !enemyController.IsHurt)
@@ -604,8 +621,8 @@ void EnemyManager::Update(f32 deltaTime, BitEngine::TileEditor* tileEditor)
         controller.Velocity.x = BMath::Clamp(controller.Velocity.x, -controller.MaxSpeed, controller.MaxSpeed);
 
         auto& boxCollider = rigidBody.MultiColliderComponents[0].BoxCollider2D;
-        BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(rigidBody.BodyId);
-        BMath::Vec2 finalPos = ResolveTileCollisionSweep(deltaTime, currentPos, boxCollider, tileEditor, controller);
+        BMath::Vec3 currentPos = BitEngine::Physics2DGetPosition(rigidBody.BodyId);
+        BMath::Vec2 finalPos = ResolveTileCollisionSweep(deltaTime, {currentPos.x, currentPos.y}, boxCollider, tileEditor, controller);
 
         transform.Position.x = finalPos.x;
         transform.Position.y = finalPos.y;

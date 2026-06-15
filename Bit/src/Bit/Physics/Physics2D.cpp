@@ -217,7 +217,7 @@ f32 Physics2DGetFixedTimeStep() { return physicsState->m_FixedTimeStep; }
 b2ContactEvents Physics2DGetContactEvents() { return physicsState->m_ContactEvents; }
 
 b2SensorEvents Physics2DGetSensorEvents() { return physicsState->m_SensorEvents; }
-BMath::Vec2 Physics2DGetPosition(b2BodyId bodyID) { b2Vec2 pos = b2Body_GetPosition(bodyID); return {pos.x, pos.y}; }
+BMath::Vec3 Physics2DGetPosition(b2BodyId bodyID) { b2Vec2 pos = b2Body_GetPosition(bodyID); return {pos.x, pos.y, 0.0f}; }
 void Physics2DSetPosition(b2BodyId bodyID, BMath::Vec2 position) { b2Body_SetTransform(bodyID, b2Vec2(position.x, position.y), b2Body_GetRotation(bodyID)); }
 f32 Physics2DGetRotation(b2BodyId bodyID) { b2Rot q = b2Body_GetRotation(bodyID); return atan2f(q.s, q.c); }
 }

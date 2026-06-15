@@ -63,7 +63,7 @@ b2ShapeId Physics2DAddCapsule(b2BodyId body, const b2Capsule& capsule,
 void Physics2DSetLinearVelocity(b2BodyId bodyID, const BMath::Vec3& velocity);
 BMath::Vec2 Physics2DGetLinearVelocity(b2BodyId bodyID);
 
-BMath::Vec2 Physics2DGetPosition(b2BodyId bodyID); 
+BMath::Vec3 Physics2DGetPosition(b2BodyId bodyID); 
 void Physics2DSetPosition(b2BodyId bodyID, BMath::Vec2 position); 
 f32 Physics2DGetRotation(b2BodyId bodyID); 
 

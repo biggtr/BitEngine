@@ -37,6 +37,7 @@ struct Enemy
 
     f32 ChaseRange; 
     f32 AttackRange;
+    f32 AttackDamage;
     f32 LoseRange;
     f32 AttackCoolDown;
     f32 AttackCoolDownMax;
@@ -108,7 +109,7 @@ public:
     void HandleChase(Enemy& enemy, f32 deltaTime);
     void HandleIdle(Enemy& enemy);
     void HandleHurt(Enemy& enemy);
-    void HandleDead(Enemy& enemy);
+    void HandleDead(Enemy& enemy, u32 enemyIndex);
     void Update(f32 deltaTime, BitEngine::TileEditor* tileEditor);
     void KillEnemy(BitEngine::Entity enemy);
 

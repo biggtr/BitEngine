@@ -217,6 +217,14 @@ f32 Vec3LengthSquared(const Vec3& vec)
     return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
 }
 
+Vec3 Vec3ClampMagnitude(Vec3 vector, f32 maxLength)
+{
+    f32 magnitude = Vec3Length(vector);
+    if(magnitude <= maxLength)
+        return vector;
+    return Vec3Normalize(vector) * maxLength;
+}
+
 f32 Vec3Distance(const Vec3& vec1, const Vec3& vec2)
 {
     Vec3 d = {vec2.x - vec1.x, vec2.y - vec1.y, vec2.z - vec1.z};

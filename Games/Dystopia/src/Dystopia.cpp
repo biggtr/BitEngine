@@ -25,6 +25,7 @@
 #include "Platform/Platform.h"
 #include "PlayerController.h"
 #include "box2d/box2d.h"
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 
@@ -33,7 +34,7 @@ void Dystopia::Initialize()
 
     m_EnemyManager = new EnemyManager(m_ECS);
     m_PlayerController.SetECS(m_ECS);
-    // BitEngine::PlatformHideCursor();
+    BitEngine::PlatformHideCursor();
     ActiveWorldCamera->SetType(BitEngine::CAMERA_TYPE::ORTHO);
 
     BitEngine::Texture* charactersSprite = BitEngine::AssetStoreAddTexture("CharactersSprite", "assets/textures/CharactersSprite.png");
@@ -78,7 +79,7 @@ void Dystopia::Initialize()
     m_Physics2DSystem->CreateBoxShape(weapon, 10, 5, {0,0}, 30, true, true, PhysicsCategories::WEAPON, PhysicsCategories::ENEMY);
 
     auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
-    weaponTransform.Position = playerTransform.Position + BMath::Vec3(5,15,0);
+    weaponTransform.Position = playerTransform.Position ;
     weaponTransform.Rotation = BMath::Vec3(0.0f, 0.0f, 0.0f);
     weaponTransform.Scale = {10, 10, 1.0f};
 
@@ -162,8 +163,25 @@ void Dystopia::Update(f32 deltaTime)
     auto& rigidbody = player.GetComponent<BitEngine::Rigidbody2DComponent>();
     auto& sprite = player.GetComponent<BitEngine::SpriteComponent>();
     auto& weaponRigidbody = weapon.GetComponent<BitEngine::Rigidbody2DComponent>();
-    controller.WeaponFocusPosition = transform.Position + BMath::Vec3(8,2,0);
+    i32 mouseX, mouseY;
+    BitEngine::InputGetMousePosition(&mouseX, &mouseY);
+    BMath::Vec3 mousePos = ScreenToWorldCoords(mouseX, mouseY);
+    BMath::Vec3 playerToMouse = mousePos - BMath::Vec3(transform.Position.x, transform.Position.y, transform.Position.z); 
+    // BMath::Vec3 targetPos = transform.Position + BMath::Vec3ClampMagnitude(playerToMouse, 20);
+    static f32 orbitRadius = 15;
+    static f32 orbitAngle = 0;
+    static f32 orbitSpeed = 800.0f; 
+    static f32 lerpSpeed = 20;
+    orbitAngle += orbitSpeed * deltaTime; 
+    BMath::Vec3 targetPos = transform.Position + BMath::Vec3(BMath::Cos(orbitAngle), BMath::Sin(orbitAngle), 0) * orbitRadius;
+    // BIT_LOG_DEBUG("targetPos x %.2f y %.2f", targetPos.x, targetPos.y);
 
+    controller.WeaponFocusPoint = BMath::Lerp(
+        controller.WeaponFocusPoint,
+        targetPos,
+        lerpSpeed * deltaTime
+    );
+    BitEngine::Physics2DSetPosition(weaponRigidbody.BodyId, {controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y});
 
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_L) && !BitEngine::InputWasKeyDown(BitEngine::KEY_L))
     {
@@ -187,14 +205,14 @@ void Dystopia::Update(f32 deltaTime)
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_P) && !BitEngine::InputWasKeyDown(BitEngine::KEY_P))
     {
         printf("Enter The name of the map to load:\n");
-        char filename[30];
+        char filename[3];
         scanf("%s", filename);
         m_TileEditor->LoadTileMap(filename);
     }
 
 
     auto& boxCollider = rigidbody.MultiColliderComponents[0].BoxCollider2D;
-    BMath::Vec2 currentPos = BitEngine::Physics2DGetPosition(rigidbody.BodyId);
+    BMath::Vec3 currentPos = BitEngine::Physics2DGetPosition(rigidbody.BodyId);
     
     controller.WasGrounded = controller.IsGrounded;
     m_PlayerController.HandleInput(controller, deltaTime);
@@ -204,7 +222,7 @@ void Dystopia::Update(f32 deltaTime)
     UpdateAnimation(controller, transform);
     
 
-    BMath::Vec2 finalPos = m_PlayerController.ResolveTileCollisionSweep(deltaTime, currentPos, boxCollider, m_TileEditor, controller);
+    BMath::Vec2 finalPos = m_PlayerController.ResolveTileCollisionSweep(deltaTime, {currentPos.x, currentPos.y}, boxCollider, m_TileEditor, controller);
 
     m_EnemyManager->Update(deltaTime, m_TileEditor);
 
@@ -214,13 +232,15 @@ void Dystopia::Update(f32 deltaTime)
     transform.Position.x = finalPos.x;
     transform.Position.y = finalPos.y;
 
-    BMath::Vec3 cameraPos = transform.Position + BMath::Vec3(5,10,0);
-    ActiveWorldCamera->SetPosition(cameraPos);
+    static f32 cameraLerpSpeed = 3;
+    BMath::Vec3 currentCameraPos = ActiveWorldCamera->GetPosition();
+    BMath::Vec3 targetCameraPos = transform.Position +  BMath::Vec3(5,10,0);
 
-    m_PlayerController.UpdateWeaponFocusPoint(controller, deltaTime);
-    auto& weaponTransform = weapon.GetComponent<BitEngine::TransformComponent>();
+    BMath::Vec3 smoothedCameraPos = BMath::Lerp(currentCameraPos, targetCameraPos, cameraLerpSpeed * deltaTime);
+    ActiveWorldCamera->SetPosition(smoothedCameraPos);
+
+    auto& weaponTransform = m_ECS->GetComponent<BitEngine::TransformComponent>(weapon);
     weaponTransform.Position = controller.WeaponFocusPoint;
-    BitEngine::Physics2DSetPosition(weaponRigidbody.BodyId, BMath::Vec2(weaponTransform.Position.x, weaponTransform.Position.y));
 
     i32 sensorCapacity = b2Shape_GetSensorCapacity(weaponRigidbody.PrimaryShapeId);
     std::vector<b2ShapeId> overlaps;
@@ -238,7 +258,7 @@ void Dystopia::Update(f32 deltaTime)
         BitEngine::Entity enemyid = m_EnemyManager->GetEnemyByShapeID(visitorID);
         auto* enemy = &m_ECS->GetComponent<Enemy>(enemyid) ;
         m_PlayerController.HandleAttack(controller, enemy, deltaTime);
-        BIT_LOG_DEBUG("enemy health %.2f enemyid: %d", enemy->Health, enemy->ID);
+        // BIT_LOG_DEBUG("enemy health %.2f enemyid: %d", enemy->Health, enemy->ID);
     }
     
 

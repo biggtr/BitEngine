@@ -49,8 +49,8 @@ struct Character2DControllerComponent
 {
     BMath::Vec3 Velocity;
 
-    f32 Health = 100000.0f;
-    f32 MaxHealth = 100.0f;
+    f32 Health = 1000.0f;
+    f32 MaxHealth = 1000.0f;
     b8 IsDead = false;
     f32 MaxSpeed = 60.0f;           
     f32 Acceleration = 8.0f;      
@@ -60,7 +60,7 @@ struct Character2DControllerComponent
     f32 AttackCoolDown;
     f32 AttackCoolDownMax;
     f32 AttackDamage = 5.0f;
-    f32 AttackRange = 16;
+    f32 AttackRange = 10;
     b8 ShouldAttack = false;
 
     BMath::Vec3 WeaponFocusPosition;

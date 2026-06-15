@@ -107,10 +107,10 @@ void* _DArrayPopAt(void* array, u64 index, void* dest)
     memcpy(dest, (void*)(addr + (index * stride)), stride);
     if(index != length - 1)
     {
-        memcpy(
+        memmove(
             (void*)(addr + (index * stride)),
             (void*)(addr + ((index + 1) * stride)),
-            stride * (length - index));
+            stride * (length - 1 - index));
     }
     _DArrayFieldSet(array, DARRAY_LENGTH, length - 1);
     return array;
