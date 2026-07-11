@@ -36,6 +36,11 @@ void RenderCommand::DrawIndexed(const VertexArray* VAO, uint32_t indexCount) con
 {
     m_API->DrawIndexed(VAO, indexCount);
 }
+
+void RenderCommand::DrawArray(const VertexArray* VAO, uint32_t vertexCount) const
+{
+    m_API->DrawArray(VAO, vertexCount);
+}
 void RenderCommand::DrawLine(const VertexArray* VAO, u32 vertexCount)
 {
     m_API->DrawLine(VAO, vertexCount);

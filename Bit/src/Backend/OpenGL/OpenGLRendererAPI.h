@@ -19,5 +19,6 @@ public:
     virtual void SetLineWidth(f32 width) override;
 
     virtual void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const override;
+    virtual void DrawArray(const VertexArray* VAO, uint32_t vertexCount = 0) const override;
 };
 }

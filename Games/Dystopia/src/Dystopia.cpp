@@ -110,12 +110,16 @@ void Dystopia::Initialize()
     m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(20.0f, 100.0f, -5.0f), player);
     m_EnemyManager->AddEnemy(ENEMY_TYPE::CAT, BMath::Vec3(-20.0f, 100.0f, -5.0f), player);
 
-    // FontInitialize("assets/fonts/dejavu.ttf");
+    FontLoad("assets/fonts/dejavu.ttf");
+
 }
 
 void Dystopia::RenderUI()
 {
-    m_TileEditor->DrawUI();
+    BMath::Vec3 color = BMath::Vec3(1,0,0);
+    DrawText(m_Renderer2D, "subscribe to biiggtr", 500, 500, 1, 0, color);
+    DrawText(m_Renderer2D, "ta7yaaaa masr wowowo", 100, 1000, 1, 0, BMath::Vec3(1,0.3,0.2));
+    // m_TileEditor->DrawUI();
 }
 void Dystopia::Render2D()
 {
@@ -176,13 +180,15 @@ void Dystopia::Update(f32 deltaTime)
     BMath::Vec3 targetPos = transform.Position + BMath::Vec3(BMath::Cos(orbitAngle), BMath::Sin(orbitAngle), 0) * orbitRadius;
     // BIT_LOG_DEBUG("targetPos x %.2f y %.2f", targetPos.x, targetPos.y);
 
-    controller.WeaponFocusPoint = BMath::Lerp(
-        controller.WeaponFocusPoint,
-        targetPos,
-        lerpSpeed * deltaTime
-    );
+    // controller.WeaponFocusPoint = BMath::Lerp(
+    //     controller.WeaponFocusPoint,
+    //     targetPos,
+    //     lerpSpeed * deltaTime
+    // );
+    controller.WeaponFocusPoint = targetPos;
     BitEngine::Physics2DSetPosition(weaponRigidbody.BodyId, {controller.WeaponFocusPoint.x, controller.WeaponFocusPoint.y});
-
+    BMath::Vec3 weaponrigidPos = BitEngine::Physics2DGetPosition(weaponRigidbody.BodyId);
+    BIT_LOG_DEBUG("Weapon Rigidbody Pos %.2f %.2f", weaponrigidPos.x, weaponrigidPos.y);
     if(BitEngine::InputIsKeyDown(BitEngine::KEY_L) && !BitEngine::InputWasKeyDown(BitEngine::KEY_L))
     {
         TileIndex++;
@@ -256,7 +262,10 @@ void Dystopia::Update(f32 deltaTime)
             continue;
         }
         BitEngine::Entity enemyid = m_EnemyManager->GetEnemyByShapeID(visitorID);
-        auto* enemy = &m_ECS->GetComponent<Enemy>(enemyid) ;
+
+        BMath::Vec3 enemyrigidPos = BitEngine::Physics2DGetPosition(b2Shape_GetBody(visitorID));
+        BIT_LOG_DEBUG("enemy Rigidbody Pos %.2f %.2f", enemyrigidPos.x, enemyrigidPos.y);
+        auto* enemy = &m_ECS->GetComponent<Enemy>(enemyid);
         m_PlayerController.HandleAttack(controller, enemy, deltaTime);
         // BIT_LOG_DEBUG("enemy health %.2f enemyid: %d", enemy->Health, enemy->ID);
     }

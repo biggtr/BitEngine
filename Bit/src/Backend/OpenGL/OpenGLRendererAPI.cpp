@@ -50,4 +50,10 @@ void OpenGLRendererAPI::DrawIndexed(const VertexArray* VAO, uint32_t indexCount)
     IBO->Bind();
     GLCall(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
 }
+
+void OpenGLRendererAPI::DrawArray(const VertexArray* VAO, uint32_t vertexCount) const 
+{
+    VAO->Bind();
+    GLCall(glDrawArrays(GL_TRIANGLES, 0, vertexCount));
+}
 }

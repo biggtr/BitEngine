@@ -43,10 +43,10 @@ b8 Application::Create(Game* gameInstance)
     LoggerInitialize(&m_LoggerSystemMemReq, 0);
     Physics2DInitialize(&m_Physics2DSystemMemReq, 0);
     AssetsStoreInitialize(&m_AssetStoreSystemMemReq, 0);
-    UIInitialize(&m_UISystemMemReq, 0, 0);
+    // UIInitialize(&m_UISystemMemReq, 0, 0);
     Particle2DSystemInitialize(&m_Particle2DSystemMemReq, 0);
 
-    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq + m_UISystemMemReq + m_PlatformMemReq + m_Particle2DSystemMemReq;
+    TotalSystemsMemorySize = m_Physics2DSystemMemReq + m_EventSystemMemReq + m_InputSystemMemReq + m_LoggerSystemMemReq + m_AssetStoreSystemMemReq +  m_PlatformMemReq + m_Particle2DSystemMemReq;
     m_SystemsMemoryBlock = malloc(TotalSystemsMemorySize);
     if(!m_SystemsMemoryBlock)
     {
@@ -130,12 +130,12 @@ b8 Application::Create(Game* gameInstance)
         return false;
     }
 
-    m_UISystem = ArenaAllocate(&m_SystemsArena, m_UISystemMemReq);
-    if(!UIInitialize(&m_UISystemMemReq, m_UISystem, m_Renderer2D))
-    {
-        BIT_LOG_ERROR("Failed To Initialze UI System");
-        return false;
-    }
+    // m_UISystem = ArenaAllocate(&m_SystemsArena, m_UISystemMemReq);
+    // if(!UIInitialize(&m_UISystemMemReq, m_UISystem, m_Renderer2D))
+    // {
+    //     BIT_LOG_ERROR("Failed To Initialze UI System");
+    //     return false;
+    // }
     m_Particle2DSystem = ArenaAllocate(&m_SystemsArena, m_Particle2DSystemMemReq);
     if(!Particle2DSystemInitialize(&m_Particle2DSystemMemReq, m_Particle2DSystem))
     {
@@ -194,7 +194,7 @@ void Application::Run()
     Physics2DShutdown(m_Physics2DSystem);
     LoggerShutdown(m_LoggerSystem);
     InputShutdown(m_InputSystem);
-    UIShutdown(m_UISystem);
+    // UIShutdown(m_UISystem);
     Particle2DSystemShutdown(m_Particle2DSystem);
 
     EventUnRegister(EVENT_CODE_APPLICATION_QUIT, this, Application::OnApplicationEventWrapper);

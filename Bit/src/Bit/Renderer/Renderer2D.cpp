@@ -1,6 +1,8 @@
 #include "Renderer2D.h"
 #include <array>
 #include "Bit/Core/Logger.h"
+#include "Bit/Font/Font.h"
+#include "Bit/Renderer/Geometry.h"
 #include "Bit/Resources/ShaderManager.h"
 #include "box2d/collision.h"
 #include "glad/glad.h"
@@ -170,6 +172,7 @@ b8 Renderer2D::Initialize()
     s_RenderData.QuadShader = m_ShaderManager->LoadShader("QuadShader", "assets/shaders/QuadShader.glsl");
     s_RenderData.LineShader = m_ShaderManager->LoadShader("LineShader", "assets/shaders/LineShader.glsl");
     s_RenderData.CircleShader = m_ShaderManager->LoadShader("CircleShader", "assets/shaders/CircleShader.glsl");
+    TextShader = m_ShaderManager->LoadShader("TextShader", "assets/shaders/TextShader.glsl");
     if(!s_RenderData.QuadShader) {
         BIT_LOG_ERROR("Failed to load QuadShader!");
     }
@@ -222,6 +225,8 @@ void Renderer2D::BeginScene(const BMath::Mat4& viewProjectionMatrix, const BMath
     s_RenderData.CircleShader->Bind();
     s_RenderData.CircleShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
 
+    TextShader->Bind();
+    TextShader->SetMat4("u_ViewProjection", m_CurrentViewProjectionMatrix);
     StartBatch();
 }
 void Renderer2D::EndScene()
@@ -306,6 +311,38 @@ void Renderer2D::DrawQuad(BMath::Mat4& transform, const BMath::Vec4& color)
     Stats.QuadCount++;
 }
 
+void Renderer2D::DrawText(FontCharacter* fontChar, f32 x, f32 y, f32 size, f32 rotation, const BMath::Vec3& color)
+{
+    VertexArray* TextVertexArray = VertexArray::Create();
+    VertexBuffer* TextVertexBuffer = VertexBuffer::Create(sizeof(f32) * 4 * 6);
+
+    BufferLayout TextQuadLayout = BufferLayout({
+            { SHADER_DATA_TYPE::FLOAT2, "a_Position"}, 
+            { SHADER_DATA_TYPE::FLOAT2, "a_TexCoords"}, 
+            });
+    TextVertexBuffer->SetBufferLayout(TextQuadLayout);
+    TextVertexArray->AddVertexBuffer(TextVertexBuffer);
+    f32 xpos = x + fontChar->Bearing.x * size;
+    f32 ypos = y - fontChar->Bearing.y * size;   // top-left of the glyph
+    f32 w = fontChar->Size.x * size;
+    f32 h = fontChar->Size.y * size;
+    f32 Vertices[24] = {
+        xpos,     ypos + h,   0.0f, 1.0f,  // top-left    -> (0,1)
+        xpos,     ypos,       0.0f, 0.0f,  // bottom-left -> (0,0)
+        xpos + w, ypos,       1.0f, 0.0f,  // bottom-right-> (1,0)
+
+        xpos,     ypos + h,   0.0f, 1.0f,  // top-left
+        xpos + w, ypos,       1.0f, 0.0f,  // bottom-right
+        xpos + w, ypos + h,   1.0f, 1.0f   // top-right   -> (1,1)
+    };
+    TextShader->Bind();
+    TextShader->SetFloat3("textColor", color);
+    fontChar->Texture->Bind();
+    TextVertexBuffer->Bind();
+    TextVertexBuffer->SetData(Vertices, sizeof(Vertices));
+    
+    m_RenderCommand->DrawArray(TextVertexArray, 6);
+}
 void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, Texture* sprite, f32* uvs, const BMath::Vec4& color)
 {
     BMath::Mat4 transform = BMath::Mat4CreateTransform(position, size, {0.0f, 0.0f, rotation});
@@ -318,6 +355,7 @@ void Renderer2D::DrawQuad(const BMath::Vec3& position, const BMath::Vec3& size, 
     }
     DrawQuad(transform, sprite, uvs, color);
 }
+
 void Renderer2D::DrawQuad(BMath::Mat4& transform, Texture* sprite, f32* uvs, const BMath::Vec4& color)
 {
     float textureIndex = 0.0f;
@@ -361,8 +399,6 @@ void Renderer2D::DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f3
         s_RenderData.CircleVertexBufferPtr->Thickness = thickness;
         s_RenderData.CircleVertexBufferPtr->Fade = fade;
         s_RenderData.CircleVertexBufferPtr++; 
-        
-       
     }
 
     s_RenderData.CircleIndexCount += 6;

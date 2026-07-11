@@ -2,6 +2,7 @@
 #include "Bit/Core/Logger.h"
 #include "Bit/ECS/Compontents.h"
 #include "Bit/ECS/Entity.h"
+#include "Bit/ECS/EntityManager.h"
 #include "Bit/Math/BMath.h"
 #include "Bit/Math/Vector.h"
 #include "Bit/Physics/Physics2D.h"
@@ -70,6 +71,7 @@ void PlayerController::HandleJump(BitEngine::Character2DControllerComponent& con
 }
 void PlayerController::HandleAttack(BitEngine::Character2DControllerComponent& controller, Enemy* enemy, f32 deltaTime)
 {
+
     if(enemy->Health > 0.0f)
     {
         enemy->Health = BMath::Clamp((enemy->Health - controller.AttackDamage), 0.0f, enemy->MaxHealth);

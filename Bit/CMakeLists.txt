@@ -4,6 +4,7 @@ add_subdirectory(vendor/glad)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
 add_subdirectory(vendor/box2d)
+add_subdirectory(vendor/freetype)
 
 
 set(ASSIMP_BUILD_ASSIMP_TOOLS  OFF CACHE BOOL "" FORCE)
@@ -130,10 +131,11 @@ PUBLIC
     vendor/glad/include        
     ${CMAKE_BINARY_DIR}/vendor/assimp/include        
     vendor/stb_image
+    vendor/freetype/include 
     ${CMAKE_CURRENT_SOURCE_DIR}/vendor/box2d/include
 )
 
-target_link_libraries(BitEngine PUBLIC box2d assimp PRIVATE glad OpenGL::GL)
+target_link_libraries(BitEngine PUBLIC box2d freetype assimp PRIVATE glad OpenGL::GL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(BitEngine 

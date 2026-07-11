@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 #include "Bit/Core/Defines.h"
 #include <cstdint>
 #include <string>
@@ -21,8 +22,8 @@ public:
     virtual void SetData(void* data, uint32_t size) = 0;
 
 
-    static Texture* Create(const char* name, const char* path);
-    static Texture* Create(uint32_t width, uint32_t height);
+    static Texture* Create(const char* name, const char* path, u32 dataFormat = GL_RGBA);
+    static Texture* Create(uint32_t width, uint32_t height, u32 dataFormat = GL_RGBA);
 
 };
 

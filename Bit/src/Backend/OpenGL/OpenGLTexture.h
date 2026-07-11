@@ -8,8 +8,8 @@ class OpenGLTexture : public Texture
 {
 
 public:
-    OpenGLTexture(uint32_t width, uint32_t height);
-    OpenGLTexture(const char* name, const char* path);
+    OpenGLTexture(uint32_t width, uint32_t height, u32 dataFormat);
+    OpenGLTexture(const char* name, const char* path, u32 dataFormat);
     virtual u32 GetID() const override;
     virtual const char* GetName() const override { return m_Name.c_str(); };
     virtual const char* GetPath() const override { return m_FilePath.c_str(); };

@@ -21,6 +21,7 @@ public:
     virtual void SetLineWidth(f32 width) = 0;
 
     virtual void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const = 0;
+    virtual void DrawArray(const VertexArray* VAO, uint32_t vertexCount = 0) const = 0;
 
     static RENDERER_API GetAPI() { return s_API; }
     static void SetAPI(RENDERER_API rendererAPI) { s_API = rendererAPI; }

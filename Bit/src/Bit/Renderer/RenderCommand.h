@@ -17,6 +17,7 @@ public:
     void SetClearColor(const BMath::Vec4& color) const;
     void Clear() const; 
     void DrawIndexed(const VertexArray* VAO, uint32_t indexCount = 0) const;
+    void DrawArray(const VertexArray* VAO, uint32_t vertexCount = 0) const;
     void DrawLine(const VertexArray* VAO, u32 vertexCount);
     void SetLineWidth(f32 width) ;
 

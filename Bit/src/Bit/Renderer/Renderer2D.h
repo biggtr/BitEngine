@@ -11,7 +11,13 @@ class VertexBuffer;
 class IndexBuffer;
 struct Camera2DComponent;
 class Texture;
-
+struct FontCharacter
+{
+    BitEngine::Texture* Texture;
+    BMath::Vec2 Size;
+    BMath::Vec2 Bearing;
+    long Advance;
+};
 class Renderer2D
 {
 private:
@@ -19,7 +25,7 @@ private:
     ShaderManager* m_ShaderManager;
     Camera2DComponent* m_Camera2D;
     BMath::Mat4 m_CurrentViewProjectionMatrix;
-    
+    Shader* TextShader;
 public:
     Renderer2D(){}
     ~Renderer2D(){}
@@ -41,6 +47,9 @@ public:
 
     void DrawRect(const BMath::Vec3& position, const BMath::Vec3& size, f32 rotation, const BMath::Vec4& color);
     void DrawRect(const BMath::Mat4& transform, const BMath::Vec4& color);
+
+    void DrawText(FontCharacter* fontChar, f32 x, f32 y, f32 size, f32 rotation, const BMath::Vec3& color = BMath::Vec3(1,1,1));
+
 
     void DrawCircle(BMath::Mat4& transform, const BMath::Vec4& color, f32 thickness = 0.5, f32 fade = 0.0005);
     void DrawCapsule(const BMath::Vec2& center1, const BMath::Vec2& center2, f32 radius, const BMath::Vec4& color);
